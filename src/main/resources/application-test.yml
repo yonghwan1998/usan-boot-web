@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:usan;MODE=MySQL
+    driver-class-name: org.h2.Driver
+  jpa:
+    properties.hibernate.dialect: org.hibernate.dialect.MySQLDialect
+    hibernate.ddl-auto: none  # 필요시 create-drop
