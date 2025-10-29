@@ -1,0 +1,27 @@
+<!-- default Start -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout (title, content)">
+<head>
+    <meta charset="UTF-8">
+    <!-- 자식이 넘긴 <title>로 치환, 없으면 기본값 -->
+    <title th:replace="${title}">우리 동네 부동산</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Header -->
+<div th:replace="~{fragments/header :: headerFragment}"></div>
+
+<!-- Main -->
+<main th:replace="${content}">
+    <!-- 자식이 넘긴 섹션이 없을 때 보일 기본 컨텐츠(옵션) -->
+    <section><p>콘텐츠가 없습니다.</p></section>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footerFragment}"></div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
+<!-- default End -->
