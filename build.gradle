@@ -43,6 +43,14 @@ dependencies {
 	testRuntimeOnly 'com.h2database:h2'
 
 	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'//WebClient
+	implementation 'org.apache.poi:poi-ooxml:5.2.5'//XLSX
+	implementation 'commons-io:commons-io:2.16.1'//파일 이동/삭제 편의
+
+	// Mac DNS 경고 해소(선택: Apple Silicon)
+	implementation "io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64"
 }
 
 tasks.named('test') {
