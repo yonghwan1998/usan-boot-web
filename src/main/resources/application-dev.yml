@@ -7,3 +7,14 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+usan:
+  batch:
+    excel:
+      inbox: /Users/yongss/Desktop/newProject/IntelliJ/usan-data/inbox
+      archive: /Users/yongss/Desktop/newProject/IntelliJ/usan-data/archive
+      error: /Users/yongss/Desktop/newProject/IntelliJ/usan-data/error
+
+logging:
+  level:
+    org.springframework.batch: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG
