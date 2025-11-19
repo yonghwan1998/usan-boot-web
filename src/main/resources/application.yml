@@ -26,7 +26,6 @@ usan:
       registration-number-col-index: 56 #BE 컬럼, 0~56번째 index
       tel-col-index: 57 #BF 컬럼, 0~57번째 index
       phone-col-index: 58 #BG 컬럼, 0~58번째 index
-    chunk-size: 500
 naver:
   geocode:
     base-url: https://maps.apigw.ntruss.com
