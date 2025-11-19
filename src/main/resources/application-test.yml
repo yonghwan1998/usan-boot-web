@@ -5,3 +5,16 @@ spring:
   jpa:
     properties.hibernate.dialect: org.hibernate.dialect.MySQLDialect
     hibernate.ddl-auto: none  # 필요시 create-drop
+naver:
+  geocode:
+    base-url: https://maps.apigw.ntruss.com
+    path: /map-geocode/v2/geocode
+    client-id: dummy-test-id
+    client-secret: dummy-test-secret
+
+usan:
+  batch:
+    excel:
+      inbox: /tmp/usan-test-inbox
+      archive: /tmp/usan-test-archive
+    chunk-size: 10
