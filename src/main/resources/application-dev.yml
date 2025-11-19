@@ -13,6 +13,7 @@ usan:
       inbox: /Users/yongss/Desktop/newProject/IntelliJ/usan-data/inbox
       archive: /Users/yongss/Desktop/newProject/IntelliJ/usan-data/archive
       error: /Users/yongss/Desktop/newProject/IntelliJ/usan-data/error
+    chunk-size: 500
 
 logging:
   level:
