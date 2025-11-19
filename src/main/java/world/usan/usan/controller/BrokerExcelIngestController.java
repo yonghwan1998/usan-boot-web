@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import world.usan.usan.batch.job.broker.BrokerExcelIngestJobConfig;
-import world.usan.usan.batch.job.broker.support.BatchExcelProps;
 
+/**
+ * @date    2025-11-19
+ * @author  yongss
+ * @desc    brokerExcelIngestJob 수동 실행 전용 컨트롤러
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/broker")
