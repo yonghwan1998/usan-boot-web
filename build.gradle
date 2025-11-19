@@ -46,11 +46,14 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'//WebClient
-	implementation 'org.apache.poi:poi-ooxml:5.2.5'//XLSX
 	implementation 'commons-io:commons-io:2.16.1'//파일 이동/삭제 편의
 
-	// Mac DNS 경고 해소(선택: Apple Silicon)
-	implementation "io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64"
+	implementation 'org.apache.poi:poi-ooxml:5.2.5'//XLSX
+	implementation 'org.apache.poi:poi:5.2.5'
+
+	implementation 'com.fasterxml.jackson.core:jackson-databind'//Jackson/JSON
+
+	implementation "io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64"//Mac DNS 경고 해소(선택: Apple Silicon)
 }
 
 tasks.named('test') {
