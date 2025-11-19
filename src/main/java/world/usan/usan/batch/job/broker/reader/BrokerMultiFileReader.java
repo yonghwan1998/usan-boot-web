@@ -17,12 +17,12 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  */
 public class BrokerMultiFileReader extends MultiResourceItemReader<BrokerRow> {
 
-    private final ExcelRowItemReader delegate;
+    private final SaxExcelRowItemReader delegate;
     private final BatchExcelProps props;
 
     public BrokerMultiFileReader(BatchExcelProps props) {
         this.props = props;
-        this.delegate = new ExcelRowItemReader(props);
+        this.delegate = new SaxExcelRowItemReader(props);
         setDelegate(delegate);
         setSaveState(true);
     }
@@ -33,6 +33,7 @@ public class BrokerMultiFileReader extends MultiResourceItemReader<BrokerRow> {
         try {
             Resource[] resources = new PathMatchingResourcePatternResolver()
                     .getResources("file:" + props.getInbox() + "/*.xlsx");
+
             setResources(resources);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to resolve inbox resources", e);
