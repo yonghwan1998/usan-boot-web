@@ -1,5 +1,6 @@
 package world.usan.usan.batch.job.broker.processor;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
@@ -23,42 +24,44 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
     @Override
     public EnrichedBrokerItem process(BrokerRow row) {
 
-        try {
-            if (row.getAddress() == null || row.getAddress().isBlank()) {
-                log.warn("[geocode skip] empty address, regno={} name={}", row.getRegistrationNumber(), row.getBrokerName());
-                return null;
-            }
+        if (row.getAddress() == null || row.getAddress().isBlank()) {
+            log.warn("[geocode skip] empty address, regno={}, name={}", row.getRegistrationNumber(), row.getBrokerName());
+            throw new IllegalStateException("[geocode skip] empty address, regno=" + row.getRegistrationNumber() + ", name=" + row.getBrokerName());
+        }
 
-            NaverGeocodeDto.Response resp = client.geocode(row.getAddress())
+        NaverGeocodeDto.Response resp;
+        try {
+            resp = client.geocode(row.getAddress())
                     .blockOptional()
                     .orElse(null);
-            if (resp == null || resp.getAddresses() == null || resp.getAddresses().isEmpty()) {
-                log.warn("[geocode miss] {}", row.getAddress());
-                return null;
-            }
-
-            NaverGeocodeDto.Address a = resp.getAddresses().get(0);
-            Map<String, String> m = extract(a.getAddressElements());
-
-            return EnrichedBrokerItem.builder()
-                    .listingType(row.getListingType())
-                    .brokerName(row.getBrokerName())
-                    .officeName(row.getOfficeName())
-                    .registrationNumber(row.getRegistrationNumber())
-                    .tel(row.getTel())
-                    .phone(row.getPhone())
-                    .sido(m.getOrDefault("SIDO", ""))
-                    .sigungu(m.getOrDefault("SIGUGUN", ""))
-                    .dongmyun(m.getOrDefault("DONGMYUN", ""))
-                    .addrRoad(a.getRoadAddress() == null ? "" : a.getRoadAddress())
-                    .addrJibun(a.getJibunAddress() == null ? "" : a.getJibunAddress())
-                    .lat(new BigDecimal(a.getY()))
-                    .lng(new BigDecimal(a.getX()))
-                    .build();
         } catch (Exception e) {
-            log.error("[geocode error] {} => {}", row.getAddress(), e.toString());
-            return null;
+            log.warn("[geocode error] error={} => {}", row.getAddress(), e.toString());
+            throw new IllegalStateException("[geocode error] error=" + e.getMessage());
         }
+
+        if (resp == null || resp.getAddresses() == null || resp.getAddresses().isEmpty()) {
+            log.warn("[geocode miss] address={}", row.getAddress());
+            throw new IllegalStateException("[geocode miss] address=" + row.getAddress());
+        }
+
+        NaverGeocodeDto.Address a = resp.getAddresses().get(0);
+        Map<String, String> m = extract(a.getAddressElements());
+
+        return EnrichedBrokerItem.builder()
+                .listingType(row.getListingType())
+                .brokerName(row.getBrokerName())
+                .officeName(row.getOfficeName())
+                .registrationNumber(row.getRegistrationNumber())
+                .tel(row.getTel())
+                .phone(row.getPhone())
+                .sido(m.getOrDefault("SIDO", ""))
+                .sigungu(m.getOrDefault("SIGUGUN", ""))
+                .dongmyun(m.getOrDefault("DONGMYUN", ""))
+                .addrRoad(a.getRoadAddress() == null ? "" : a.getRoadAddress())
+                .addrJibun(a.getJibunAddress() == null ? "" : a.getJibunAddress())
+                .lat(new BigDecimal(a.getY()))
+                .lng(new BigDecimal(a.getX()))
+                .build();
     }
 
     private Map<String, String> extract(List<NaverGeocodeDto.Element> els) {

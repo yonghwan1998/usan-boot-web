@@ -5,7 +5,10 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class BrokerRow {
+public class BrokerErrorRow {
+
+    private String sourceFileName;
+    private int rowIndex;
 
     private String listingType;
     private String officeName;
@@ -15,6 +18,5 @@ public class BrokerRow {
     private String tel;
     private String phone;
 
-    private String sourceFileName;
-    private int rowIndex;
+    private String errorMessage;
 }

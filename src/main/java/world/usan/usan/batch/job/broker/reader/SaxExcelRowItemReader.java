@@ -134,6 +134,8 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
                 .registrationNumber(registrationNumber)
                 .tel(tel)
                 .phone(phone)
+                .sourceFileName(resource.getFilename())
+                .rowIndex(currentRowIndex)
                 .build();
     }
 
