@@ -10,12 +10,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import world.usan.usan.batch.job.broker.processor.EnrichedBrokerItem;
 import world.usan.usan.batch.job.broker.processor.NaverAddressEnrichProcessor;
+import world.usan.usan.batch.job.broker.reader.BrokerErrorRow;
 import world.usan.usan.batch.job.broker.reader.BrokerMultiFileReader;
 import world.usan.usan.batch.job.broker.reader.BrokerRow;
+import world.usan.usan.batch.job.broker.support.BrokerErrorCollector;
+import world.usan.usan.batch.job.broker.support.ErrorExcelWriter;
 import world.usan.usan.batch.job.broker.support.FileMoveUtil;
 import world.usan.usan.batch.job.broker.support.BatchExcelProps;
 import world.usan.usan.batch.job.broker.writer.BrokerUpsertWriter;
@@ -54,7 +58,10 @@ public class BrokerExcelIngestJobConfig {
                                 PlatformTransactionManager tx,
                                 BrokerMultiFileReader reader,
                                 NaverAddressEnrichProcessor processor,
-                                BrokerUpsertWriter writer) {
+                                BrokerUpsertWriter writer,
+                                BrokerErrorCollector errorCollector,
+                                ErrorExcelWriter errorExcelWriter,
+                                BatchExcelProps excelProps) {
         return new StepBuilder("brokerExcelStep", jobRepository)
                 .<BrokerRow, EnrichedBrokerItem>chunk(chunkSize, tx)
                 .reader(new SynchronizedItemStreamReaderBuilder<BrokerRow>()
@@ -65,6 +72,38 @@ public class BrokerExcelIngestJobConfig {
                 .faultTolerant()
                 .skip(IllegalStateException.class)
                 .skipLimit(Integer.MAX_VALUE)
+                .listener(new SkipListener<BrokerRow, EnrichedBrokerItem>() {
+                    @Override
+                    public void onSkipInProcess(BrokerRow item, Throwable t) {
+                        errorCollector.add(BrokerErrorRow.builder()
+                                .sourceFileName(item.getSourceFileName())
+                                .rowIndex(item.getRowIndex())
+                                .listingType(item.getListingType())
+                                .officeName(item.getOfficeName())
+                                .brokerName(item.getBrokerName())
+                                .address(item.getAddress())
+                                .registrationNumber(item.getRegistrationNumber())
+                                .tel(item.getTel())
+                                .phone(item.getPhone())
+                                .errorMessage(t.getMessage())
+                                .build());
+                    }
+                })
+                .listener(new StepExecutionListener() {
+                    @Override
+                    public void beforeStep(StepExecution stepExecution) {
+                        errorCollector.clear();
+                    }
+
+                    @Override
+                    public ExitStatus afterStep(StepExecution stepExecution) {
+                        var errors = errorCollector.snapshot();
+                        if (!errors.isEmpty()) {
+                            errorExcelWriter.write(excelProps.getError(), errors);
+                        }
+                        return stepExecution.getExitStatus();
+                    }
+                })
                 .exceptionHandler((context, throwable) -> {throw throwable;})
                 .build();
     }

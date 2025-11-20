@@ -126,7 +126,17 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
         String tel                  = get(row, props.getTelColIndex());
         String phone                = get(row, props.getPhoneColIndex());
 
-        return new BrokerRow(listingType, officeName, brokerName, address, registrationNumber, tel, phone);
+        return BrokerRow.builder()
+                .listingType(listingType)
+                .officeName(officeName)
+                .brokerName(brokerName)
+                .address(address)
+                .registrationNumber(registrationNumber)
+                .tel(tel)
+                .phone(phone)
+                .sourceFileName(resource.getFilename())
+                .rowIndex(currentRowIndex)
+                .build();
     }
 
     @Override
