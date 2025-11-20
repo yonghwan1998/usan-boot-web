@@ -24,22 +24,22 @@ public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
 
         for (EnrichedBrokerItem e : chunk) {
             UUID brokerCode = brokerService.saveOrUpdate(
-                    e.brokerName(),
-                    e.officeName(),
-                    e.registrationNumber(),
+                    e.getBrokerName(),
+                    e.getOfficeName(),
+                    e.getRegistrationNumber(),
                     "",
-                    e.tel(),
-                    e.phone(),
-                    e.sido(),
-                    e.sigungu(),
-                    e.dongmyun(),
+                    e.getTel(),
+                    e.getPhone(),
+                    e.getSido(),
+                    e.getSigungu(),
+                    e.getDongmyun(),
                     "",
-                    e.addrRoad(),
-                    e.addrJibun(),
-                    e.lat(),
-                    e.lng()
+                    e.getAddrRoad(),
+                    e.getAddrJibun(),
+                    e.getLat(),
+                    e.getLng()
             );
-            listingService.createListing(brokerCode, e.listingType());
+            listingService.createListing(brokerCode, e.getListingType());
         }
     }
 }
