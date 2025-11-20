@@ -1,11 +1,17 @@
 package world.usan.usan.batch.job.broker.reader;
 
-public record BrokerRow (
-    String listingType,
-    String officeName,
-    String brokerName,
-    String address,
-    String registrationNumber,
-    String tel,
-    String phone
-){}
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+public class BrokerRow {
+
+    private String listingType;
+    private String officeName;
+    private String brokerName;
+    private String address;
+    private String registrationNumber;
+    private String tel;
+    private String phone;
+}
