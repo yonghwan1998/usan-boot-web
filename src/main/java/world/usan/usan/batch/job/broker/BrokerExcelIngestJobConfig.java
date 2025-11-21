@@ -10,12 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import world.usan.usan.batch.job.broker.processor.EnrichedBrokerItem;
 import world.usan.usan.batch.job.broker.processor.NaverAddressEnrichProcessor;
-import world.usan.usan.batch.job.broker.reader.BrokerErrorRow;
 import world.usan.usan.batch.job.broker.reader.BrokerMultiFileReader;
 import world.usan.usan.batch.job.broker.reader.BrokerRow;
 import world.usan.usan.batch.job.broker.support.BrokerErrorCollector;
@@ -69,26 +67,6 @@ public class BrokerExcelIngestJobConfig {
                         .build())
                 .processor(processor)
                 .writer(writer)
-                .faultTolerant()
-                .skip(IllegalStateException.class)
-                .skipLimit(Integer.MAX_VALUE)
-                .listener(new SkipListener<BrokerRow, EnrichedBrokerItem>() {
-                    @Override
-                    public void onSkipInProcess(BrokerRow item, Throwable t) {
-                        errorCollector.add(BrokerErrorRow.builder()
-                                .sourceFileName(item.getSourceFileName())
-                                .rowIndex(item.getRowIndex())
-                                .listingType(item.getListingType())
-                                .officeName(item.getOfficeName())
-                                .brokerName(item.getBrokerName())
-                                .address(item.getAddress())
-                                .registrationNumber(item.getRegistrationNumber())
-                                .tel(item.getTel())
-                                .phone(item.getPhone())
-                                .errorMessage(t.getMessage())
-                                .build());
-                    }
-                })
                 .listener(new StepExecutionListener() {
                     @Override
                     public void beforeStep(StepExecution stepExecution) {
