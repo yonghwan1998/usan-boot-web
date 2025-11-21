@@ -26,7 +26,7 @@
 
             map = new naver.maps.Map('map', {
                 center: center,
-                zoom: 10
+                zoom: 13
             });
 
             loadBrokersInBounds();
@@ -40,6 +40,14 @@
 
             const bounds = map.getBounds();
             if(!bounds) {
+                return;
+            }
+
+            const zoom = map.getZoom();
+            const MIN_ZOOM_INTERVAL = 12;//3km 이하일 때만 마커 노출
+
+            if (zoom < MIN_ZOOM_INTERVAL) {
+                clearMarkers();
                 return;
             }
 
@@ -82,6 +90,11 @@
 
                 markers.push(marker);
             });
+        }
+
+        function clearMarkers() {
+            markers.forEach(m => m.setMap(null));
+            markers = [];
         }
 
         window.onload = initMap;
