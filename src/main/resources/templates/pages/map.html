@@ -30,6 +30,10 @@
             });
 
             loadBrokersInBounds();
+
+            naver.maps.Event.addListener(map, 'idle', function () {
+                loadBrokersInBounds();
+            })
         }
 
         function loadBrokersInBounds() {
