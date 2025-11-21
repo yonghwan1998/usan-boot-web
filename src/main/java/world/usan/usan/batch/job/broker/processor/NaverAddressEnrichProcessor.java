@@ -1,11 +1,12 @@
 package world.usan.usan.batch.job.broker.processor;
 
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
+import world.usan.usan.batch.job.broker.reader.BrokerErrorRow;
 import world.usan.usan.batch.job.broker.reader.BrokerRow;
+import world.usan.usan.batch.job.broker.support.BrokerErrorCollector;
 import world.usan.usan.client.NaverGeocodeClient;
 import world.usan.usan.client.NaverGeocodeDto;
 
@@ -20,13 +21,20 @@ import java.util.Map;
 public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, EnrichedBrokerItem> {
 
     private final NaverGeocodeClient client;
+    private final BrokerErrorCollector errorCollector;
 
     @Override
     public EnrichedBrokerItem process(BrokerRow row) {
 
+        String errorMessage;
+
         if (row.getAddress() == null || row.getAddress().isBlank()) {
             log.warn("[geocode skip] empty address, regno={}, name={}", row.getRegistrationNumber(), row.getBrokerName());
-            throw new IllegalStateException("[geocode skip] empty address, regno=" + row.getRegistrationNumber() + ", name=" + row.getBrokerName());
+
+            errorMessage = "[geocode skip] empty address, regno=" + row.getRegistrationNumber() + ", name=" + row.getBrokerName();
+            collectingErrorWithMessage(row, errorMessage);
+
+            return null;
         }
 
         NaverGeocodeDto.Response resp;
@@ -36,16 +44,28 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
                     .orElse(null);
         } catch (Exception e) {
             log.warn("[geocode error] error={} => {}", row.getAddress(), e.toString());
-            throw new IllegalStateException("[geocode error] error=" + e.getMessage());
+
+            errorMessage = "[geocode error] error=" + e.getMessage();
+            collectingErrorWithMessage(row, errorMessage);
+
+            return null;
         }
 
         if (resp == null || resp.getAddresses() == null || resp.getAddresses().isEmpty()) {
             log.warn("[geocode miss] address={}", row.getAddress());
-            throw new IllegalStateException("[geocode miss] address=" + row.getAddress());
+
+            errorMessage = "[geocode miss] address=" + row.getAddress();
+            collectingErrorWithMessage(row, errorMessage);
+
+            return null;
         }
 
         NaverGeocodeDto.Address a = resp.getAddresses().get(0);
         Map<String, String> m = extract(a.getAddressElements());
+
+        log.info("[process] file={} rowIndex={}",
+                row.getSourceFileName(),
+                row.getRowIndex());
 
         return EnrichedBrokerItem.builder()
                 .listingType(row.getListingType())
@@ -62,6 +82,23 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
                 .lat(new BigDecimal(a.getY()))
                 .lng(new BigDecimal(a.getX()))
                 .build();
+    }
+
+    private void collectingErrorWithMessage(BrokerRow row, String errorMessage) {
+        errorCollector.add(
+            BrokerErrorRow.builder()
+                    .sourceFileName(row.getSourceFileName())
+                    .rowIndex(row.getRowIndex())
+                    .listingType(row.getListingType())
+                    .officeName(row.getOfficeName())
+                    .brokerName(row.getBrokerName())
+                    .address(row.getAddress())
+                    .registrationNumber(row.getRegistrationNumber())
+                    .tel(row.getTel())
+                    .phone(row.getPhone())
+                    .errorMessage(errorMessage)
+                    .build()
+        );
     }
 
     private Map<String, String> extract(List<NaverGeocodeDto.Element> els) {
