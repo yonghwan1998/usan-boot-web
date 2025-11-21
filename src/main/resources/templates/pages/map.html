@@ -17,12 +17,71 @@
     <!-- map control -->
     <script>
 
-        var mapOptions = {
-            center: new naver.maps.LatLng(37.3595704, 127.105399),
-            zoom: 10
-        };
+        let map;
+        let markers = [];
 
-        var map = new naver.maps.Map('map', mapOptions);
+        function initMap() {
+
+            const center = new naver.maps.LatLng(33.464933, 126.530862);
+
+            map = new naver.maps.Map('map', {
+                center: center,
+                zoom: 10
+            });
+
+            loadBrokersInBounds();
+        }
+
+        function loadBrokersInBounds() {
+
+            const bounds = map.getBounds();
+            if(!bounds) {
+                return;
+            }
+
+            const sw = bounds.getSW();
+            const ne = bounds.getNE();
+
+            const south = sw.lat();
+            const north = ne.lat();
+            const west = sw.lng();
+            const east = ne.lng();
+
+            const url = `/map/api/brokers?south=${south}&north=${north}&west=${west}&east=${east}`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    renderMarkers(data)
+                })
+                .catch(err => console.error(err));
+        }
+
+        function renderMarkers(brokers) {
+
+            markers.forEach(m => m.setMap(null));
+            markers = [];
+
+            brokers.forEach(b => {
+                const marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng(b.lat, b.lng),
+                    map: map,
+                    icon: {
+                        url: '/img/marker-agency.png',
+                        size: new naver.maps.Size(56, 56),
+                        scaledSize: new naver.maps.Size(56, 56),
+                        origin: new naver.maps.Point(0, 0),
+                        anchor: new naver.maps.Point(28, 56)
+                    },
+                    title: b.officeName
+                });
+
+                markers.push(marker);
+            });
+        }
+
+        window.onload = initMap;
+
     </script>
 
 </section>
