@@ -7,7 +7,8 @@
 <body>
 <section>
     <!-- 네이버 지도 API -->
-    <script type="text/javascript"  th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
+    <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
+    <script type="text/javascript" src="/js/MarkerClustering.js"></script>
 
     <!-- 지도 영역 -->
     <div class="main-content">
@@ -19,6 +20,19 @@
 
         let map;
         let markers = [];
+        let markerClustering = null;
+
+        //'NONE' | 'CLUSTER' | 'MARKER'
+        let currentViewMode = 'NONE';
+
+        //줌 단계 규칙(규칙 수정 시 설명 부분도 수정 필요)
+        //13 이상: 개별 마커만 보이기
+        //11, 12: 클러스터만 보이기
+        //10 이하: 아무것도 안 보이기
+        const ZOOM_MARKER_ONLY = 13;
+        const ZOOM_CLUSTER_MIN = 11;
+        const ZOOM_CLUSTER_MAX = 12;
+        const ZOOM_NONE_MAX = 10;
 
         function initMap() {
 
@@ -29,11 +43,22 @@
                 zoom: 13
             });
 
+            markerClustering = new MarkerClustering({
+                map: map,
+                markers: [],
+                gridSize: 100,
+                minClusterSize: 1,
+            });
+
             loadBrokersInBounds();
 
-            naver.maps.Event.addListener(map, 'idle', function () {
+            naver.maps.Event.addListener(map, 'zoom_changed', function () {
                 loadBrokersInBounds();
-            })
+            });
+
+            naver.maps.Event.addListener(map, 'dragend', function () {
+                loadBrokersInBounds();
+            });
         }
 
         function loadBrokersInBounds() {
@@ -44,10 +69,12 @@
             }
 
             const zoom = map.getZoom();
-            const MIN_ZOOM_INTERVAL = 12;//3km 이하일 때만 마커 노출
 
-            if (zoom < MIN_ZOOM_INTERVAL) {
-                clearMarkers();
+            if (zoom <= ZOOM_NONE_MAX) {
+                if (currentViewMode !== 'NONE') {
+                    clearMarkersAndClusters();
+                    currentViewMode = 'NONE';
+                }
                 return;
             }
 
@@ -64,20 +91,39 @@
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    renderMarkers(data)
+                    const currentZoom = map.getZoom();
+
+                    //응답이 도착하기 전 줌 레벨이 변경될 경우를 재검증
+                    if(currentZoom <= ZOOM_NONE_MAX) {
+                        if (currentViewMode !== 'NONE') {
+                            clearMarkersAndClusters();
+                            currentViewMode = 'NONE';
+                        }
+                        return;
+                    }
+
+                    renderMarkers(data, currentZoom);
                 })
                 .catch(err => console.error(err));
         }
 
-        function renderMarkers(brokers) {
+        function renderMarkers(brokers, zoom) {
 
-            markers.forEach(m => m.setMap(null));
-            markers = [];
+            let nextMode;
 
-            brokers.forEach(b => {
-                const marker = new naver.maps.Marker({
+            if (zoom >= ZOOM_MARKER_ONLY) {
+                nextMode = 'MARKER';
+            } else if(zoom >= ZOOM_CLUSTER_MIN && zoom <= ZOOM_CLUSTER_MAX) {
+                nextMode = 'CLUSTER';
+            } else {
+                nextMode = 'NONE';
+            }
+
+            clearMarkersAndClusters();
+
+            markers = brokers.map(b =>
+                new naver.maps.Marker({
                     position: new naver.maps.LatLng(b.lat, b.lng),
-                    map: map,
                     icon: {
                         url: '/img/marker-agency.png',
                         size: new naver.maps.Size(56, 56),
@@ -86,15 +132,42 @@
                         anchor: new naver.maps.Point(28, 56)
                     },
                     title: b.officeName
-                });
+                })
+            );
 
-                markers.push(marker);
-            });
+            if (nextMode === 'MARKER') {
+                if (markerClustering) {
+                    markerClustering.setMarkers([]);
+                }
+
+                markers.forEach(m => m.setMap(map));
+            } else if(nextMode === 'CLUSTER') {
+                markers.forEach(m => m.setMap(null));
+
+                if (markerClustering) {
+                    markerClustering.setMarkers(markers);
+
+                    naver.maps.Event.trigger(map, 'idle');
+                }
+            } else {
+                clearMarkersAndClusters();
+            }
+
+            currentViewMode = nextMode;
         }
 
-        function clearMarkers() {
-            markers.forEach(m => m.setMap(null));
+        function clearMarkersAndClusters() {
+
+            if (markers && markers.length > 0) {
+                markers.forEach(m => {
+                    if (m) m.setMap(null);
+                });
+            }
             markers = [];
+
+            if (markerClustering) {
+                markerClustering.setMarkers([]);
+            }
         }
 
         window.onload = initMap;
