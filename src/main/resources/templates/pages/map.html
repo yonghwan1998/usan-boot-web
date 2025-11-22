@@ -48,6 +48,47 @@
                 markers: [],
                 gridSize: 100,
                 minClusterSize: 1,
+                icons: [{
+                    content:
+                        '<div style="position:relative;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">' +
+                        // 마커 이미지 (흰색)
+                        '<img src="/img/marker-agency-white.png" ' +
+                        'style="width:56px;height:56px;display:block;" />' +
+
+                        // 숫자 배지
+                        '<span ' +
+                        'style="' +
+                        'position:absolute;top:-4px;left:30px;' +
+                        'height:20px;min-width:20px;' +
+                        'padding:0 6px;' +
+                        'border-radius:100px;border:1px solid #ff5a1f;' +
+                        'background-color:#ffffff;box-sizing:border-box;' +
+                        'display:flex;align-items:center;justify-content:center;' +
+                        'font-size:12px;font-weight:700;color:#ff5a1f;line-height:1;' +
+                        'white-space:nowrap;' +          // 숫자 줄바꿈 방지
+                        'pointer-events:none;' +
+                        '">' +
+                        '</span>' +
+                        '</div>',
+                    size: new naver.maps.Size(56, 56),
+                    anchor: new naver.maps.Point(28, 56)
+                }],
+                indexGenerator: [1],
+                stylingFunction: function(clusterMarker, count) {
+                    const el = clusterMarker.getElement();
+                    if (!el) return;
+
+                    const span = el.querySelector('span');
+                    if (!span) return;
+
+                    if (count <= 1) {
+                        span.style.display = 'none';
+                        span.textContent = '';
+                    } else {
+                        span.style.display = 'flex';
+                        span.textContent = count;
+                    }
+                }
             });
 
             loadBrokersInBounds();
@@ -125,7 +166,7 @@
                 new naver.maps.Marker({
                     position: new naver.maps.LatLng(b.lat, b.lng),
                     icon: {
-                        url: '/img/marker-agency.png',
+                        url: '/img/marker-agency-white.png',
                         size: new naver.maps.Size(56, 56),
                         scaledSize: new naver.maps.Size(56, 56),
                         origin: new naver.maps.Point(0, 0),
