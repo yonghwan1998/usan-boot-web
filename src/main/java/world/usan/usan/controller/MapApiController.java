@@ -26,7 +26,7 @@ public class MapApiController {
         return mapService.getBrokersInBounds(south, north, west, east);
     }
 
-    @GetMapping("/brokers/{brokerCode}")
+    @GetMapping("/broker/{brokerCode}")
     public BrokerMarkerDetailDto getBrokerDetail(@PathVariable("brokerCode")UUID brokerCode) {
         return mapService.getBrokerDetail(brokerCode);
     }

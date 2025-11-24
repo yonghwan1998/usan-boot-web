@@ -232,7 +232,7 @@
             marker.setIcon(ORANGE_ICON);
 
             try {
-                const res = await fetch(`/map/api/brokers/${brokerCode}`);
+                const res = await fetch(`/map/api/broker/${brokerCode}`);
                 if(!res.ok) {
                     throw new Error('상세 조회 실패');
                 }
