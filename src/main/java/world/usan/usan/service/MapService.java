@@ -47,11 +47,9 @@ public class MapService {
     @Transactional(readOnly = true)
     public BrokerMarkerDetailDto getBrokerDetail(UUID brokerCode) {
 
-        Broker broker = brokerRepository.findByBrokerCode(brokerCode);
+        BrokerPropertyCount broker = brokerPropertyCountRepository.findByBrokerCode(brokerCode);
 
-        BrokerPropertyCount count = brokerPropertyCountRepository.findByBrokerCode(brokerCode);
-
-        List<BrokerMarkerTopPropertyDto> items = getPropertiesTop5(count);
+        List<BrokerMarkerTopPropertyDto> items = getPropertiesTop5(broker);
 
         return BrokerMarkerDetailDto.builder()
                 .brokerCode(broker.getBrokerCode())
