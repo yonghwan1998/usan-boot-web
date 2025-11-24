@@ -1,14 +1,13 @@
 package world.usan.usan.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import world.usan.usan.dto.BrokerMarkerDetailDto;
 import world.usan.usan.dto.BrokerMarkerDto;
 import world.usan.usan.service.MapService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequestMapping("/map/api")
 @RestController
@@ -24,6 +23,11 @@ public class MapApiController {
             @RequestParam double west,
             @RequestParam double east
     ) {
-        return mapService.getMarkersInBounds(south, north, west, east);
+        return mapService.getBrokersInBounds(south, north, west, east);
+    }
+
+    @GetMapping("/brokers/{brokerCode}")
+    public BrokerMarkerDetailDto getBrokerDetail(@PathVariable("brokerCode")UUID brokerCode) {
+        return mapService.getBrokerDetail(brokerCode);
     }
 }

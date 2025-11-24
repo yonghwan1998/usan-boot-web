@@ -1,0 +1,169 @@
+/* ================================
+   📌 바텀시트 공통 레이아웃
+   ================================ */
+.bottom-sheet {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 100%);
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.18);
+    transition: transform 0.25s ease-out;
+    z-index: 910;
+    padding: 12px 16px 16px;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+.bottom-sheet.open {
+    transform: translate(-50%, 0);
+}
+/* 드래그 중일 때 transition 제거 */
+.bottom-sheet.dragging {
+    transition: none !important;
+}
+
+/* 핸들 바 */
+.bottom-sheet__handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: #e0e0e0;
+    margin: 0 auto 12px;
+}
+
+/* 제목 + 헤더 */
+.bottom-sheet__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.bottom-sheet__title {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* 태그 */
+.bottom-sheet__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.bottom-sheet__tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.bottom-sheet__tag--apt {
+    background: #ffe7e4;
+    color: #d9534f;
+}
+
+.bottom-sheet__tag--officetel {
+    background: #fff3d9;
+    color: #c2871a;
+}
+
+.bottom-sheet__tag--shop {
+    background: #e5f0ff;
+    color: #3056d3;
+}
+
+/* 주소, 메타 정보 */
+.bottom-sheet__addr {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.bottom-sheet__meta {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 12px;
+}
+
+/* 버튼 영역 */
+.bottom-sheet__buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.bottom-sheet__btn {
+    flex: 1;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.bottom-sheet__btn:active {
+    opacity: 0.8;
+}
+
+.bottom-sheet__btn--primary {
+    background: #3366ff;
+    border-color: #3366ff;
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .bottom-sheet {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+    }
+}
+
+/* ================================
+   📌 클러스터 스타일
+   ================================ */
+.usan-cluster {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.usan-cluster__img {
+    width: 56px;
+    height: 56px;
+    display: block;
+}
+
+/* 숫자 뱃지 */
+.usan-cluster__count {
+    position: absolute;
+    top: -4px;
+    left: 20px;
+    height: 20px;
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: 100px;
+    border: 1px solid #ff5a1f;
+    background-color: #ffffff;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: 700;
+    color: #ff5a1f;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+}
