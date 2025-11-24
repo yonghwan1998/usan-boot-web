@@ -12,4 +12,5 @@ public interface BrokerPropertyCountRepository extends JpaRepository<BrokerPrope
     List<BrokerPropertyCount> findByLatBetweenAndLngBetween(
             BigDecimal south, BigDecimal north,
             BigDecimal west, BigDecimal east);
+    BrokerPropertyCount findByBrokerCode(UUID brokerCode);
 }
