@@ -1,0 +1,15 @@
+package world.usan.usan.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+@AllArgsConstructor
+public class BrokerMarkerTopPropertyDto {
+
+    private String label;
+    private int count;
+    private String cssClass;
+}

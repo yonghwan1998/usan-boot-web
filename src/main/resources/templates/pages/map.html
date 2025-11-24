@@ -268,21 +268,20 @@
             const officeName = detail.officeName ?? '';
             const addrRoad = detail.addrRoad ?? '';
             const addrJibun = detail.addrJibun ?? '';
-            const aptCnt = detail.aptCnt ?? 0;
-            const officetelCnt = detail.officetelCnt ?? 0;
-            const villaCnt = detail.villaCnt ?? 0;
 
-            const tags = [];
-            if (aptCnt > 0) tags.push(`<span class="bottom-sheet__tag bottom-sheet__tag--apt">아파트 ${aptCnt}</span> `);
-            if (officetelCnt > 0) tags.push(`<span class="bottom-sheet__tag bottom-sheet__tag--officetel">오피스텔 ${officetelCnt}</span> `);
-            if (villaCnt > 0) tags.push(`<span class="bottom-sheet__tag bottom-sheet__tag--villa">빌라 ${villaCnt}</span> `);
+            const tags = detail.top5.map(item => `
+                <span class="bottom-sheet__tag ${item.cssClass}">
+                    <span class="tag-label">${item.label}</span>&nbsp;
+                    <span class="tag-count">${item.count}</span>
+                </span>
+            `).join(' ');
 
             const html = `
                 <div class="bottom-sheet__header">
                     <div class="bottom-sheet__title">${officeName}</div>
                 </div>
                 <div class="bottom-sheet__tags">
-                    ${tags.join('')}
+                    ${tags}
                 </div>
                 <div class="bottom-sheet__addr">${addrJibun}</div>
                 <div class="bottom-sheet__meta">

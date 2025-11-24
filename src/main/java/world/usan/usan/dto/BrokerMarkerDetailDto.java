@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -41,4 +42,6 @@ public class BrokerMarkerDetailDto {
     private int reconstructionCnt;
     private int presaleCnt;
     private int totalCnt;
+
+    private List<BrokerMarkerTopPropertyDto> top5;
 }
