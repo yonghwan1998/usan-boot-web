@@ -28,9 +28,6 @@
         let markers = [];
         let markerClustering = null;
 
-        //'NONE' | 'CLUSTER' | 'MARKER'
-        let currentViewMode = 'NONE';
-
         let selectedMarker = null;
 
         let lastFetchId = 0;
@@ -90,7 +87,7 @@
                     const el = clusterMarker.getElement();
                     if (!el) return;
 
-                    const span = el.querySelector('span');
+                    const span = el.querySelector('.usan-cluster__count');
                     if (!span) return;
 
                     if (count <= 1) {
@@ -98,7 +95,7 @@
                         span.textContent = '';
                     } else {
                         span.style.display = 'flex';
-                        span.textContent = count;
+                        span.textContent = String(count);
                     }
                 }
             });
@@ -135,10 +132,7 @@
             const zoom = map.getZoom();
 
             if (zoom <= ZOOM_NONE_MAX) {
-                if (currentViewMode !== 'NONE') {
-                    clearMarkersAndClusters();
-                    currentViewMode = 'NONE';
-                }
+                clearMarkersAndClusters();
                 return;
             }
 
@@ -157,25 +151,20 @@
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-
                     if (fetchId !== lastFetchId) {
                         return;
                     }
 
                     const currentZoom = map.getZoom();
 
-                    //응답이 도착하기 전 줌 레벨이 변경될 경우를 재검증
                     if (currentZoom <= ZOOM_NONE_MAX) {
-                        if (currentViewMode !== 'NONE') {
-                            clearMarkersAndClusters();
-                            currentViewMode = 'NONE';
-                        }
+                        clearMarkersAndClusters();
                         return;
                     }
 
                     renderMarkers(data, currentZoom);
                 })
-                .catch(err => console.error(err));
+                .catch(err => console.error('[MAP] fetch error:', err));
         }
 
         function renderMarkers(brokers, zoom) {
@@ -184,7 +173,7 @@
 
             if (zoom >= ZOOM_MARKER_ONLY) {
                 nextMode = 'MARKER';
-            } else if(zoom >= ZOOM_CLUSTER_MIN && zoom <= ZOOM_CLUSTER_MAX) {
+            } else if (zoom >= ZOOM_CLUSTER_MIN && zoom <= ZOOM_CLUSTER_MAX) {
                 nextMode = 'CLUSTER';
             } else {
                 nextMode = 'NONE';
@@ -214,17 +203,18 @@
                 }
 
                 markers.forEach(m => m.setMap(map));
-            } else if(nextMode === 'CLUSTER') {
+
+            } else if (nextMode === 'CLUSTER') {
                 markers.forEach(m => m.setMap(null));
 
                 if (markerClustering) {
                     markerClustering.setMarkers(markers);
+
+                    naver.maps.Event.trigger(map, 'idle');
                 }
             } else {
                 clearMarkersAndClusters();
             }
-
-            currentViewMode = nextMode;
         }
 
         async function onMarkerClick(marker) {
@@ -323,7 +313,6 @@
         // ================================================
         // 📌 바텀시트 드래그로 닫기
         // ================================================
-
         (function () {
             const sheet = document.getElementById('broker-sheet');
 
@@ -391,6 +380,7 @@
         })();
 
         function closeBrokerSheet() {
+
             const sheet = document.getElementById('broker-sheet');
             const content = document.getElementById('broker-sheet-content');
 
