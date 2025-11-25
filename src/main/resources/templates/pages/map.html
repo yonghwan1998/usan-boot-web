@@ -27,6 +27,7 @@
         let map;
         let markers = [];
         let markerClustering = null;
+        let selectedClusterMarker = null;
 
         let selectedMarker = null;
 
@@ -223,6 +224,30 @@
         }
 
         async function onClusterClick(cluster) {
+
+            const clusterMarker = cluster._clusterMarker;
+
+            if (clusterMarker && typeof clusterMarker.getElement === 'function') {
+                const el = clusterMarker.getElement();
+                if (el) {
+                    const img = el.querySelector('.usan-cluster__img');
+
+                    if (selectedClusterMarker && selectedClusterMarker !== clusterMarker) {
+                        const prevEl = selectedClusterMarker.getElement();
+                        if (prevEl) {
+                            const prevImg = prevEl.querySelector('.usan-cluster__img');
+                            if (prevImg) {
+                                prevImg.src = '/img/marker-agency-white.png';
+                            }
+                        }
+                    }
+
+                    if (img) {
+                        img.src = '/img/marker-agency-orange.png';
+                        selectedClusterMarker = clusterMarker;
+                    }
+                }
+            }
 
             const members = cluster.getClusterMember() || [];
 
@@ -495,6 +520,8 @@
                     selectedMarker.setIcon(WHITE_ICON);
                     selectedMarker = null;
                 }
+
+                resetClusterIcons();
             }, 200);
         }
 
@@ -512,33 +539,12 @@
             }
         }
 
-
-
-        function getClusterApproxBounds(clusterMarker, gridSize) {
-            const proj = map.getProjection();
-            const center = clusterMarker.getPosition();
-
-            // center -> pixel
-            const centerPx = proj.fromCoordToOffset(center);
-
-            // gridSize 만큼 pixel 확장
-            const half = gridSize / 2;
-
-            const swPx = new naver.maps.Point(centerPx.x - half, centerPx.y + half);
-            const nePx = new naver.maps.Point(centerPx.x + half, centerPx.y - half);
-
-            // 다시 lat/lng 로 변환
-            const sw = proj.fromOffsetToCoord(swPx);
-            const ne = proj.fromOffsetToCoord(nePx);
-
-            return {
-                south: sw.y,
-                west: sw.x,
-                north: ne.y,
-                east: ne.x
-            };
+        function resetClusterIcons() {
+            const imgs = document.querySelectorAll('.usan-cluster__img');
+            imgs.forEach(img => {
+                img.src = '/img/marker-agency-white.png';
+            });
         }
-
 
         window.onload = initMap;
 
