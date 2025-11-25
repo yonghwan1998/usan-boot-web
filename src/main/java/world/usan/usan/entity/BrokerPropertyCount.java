@@ -24,6 +24,33 @@ public class BrokerPropertyCount {
     @Column(name = "office_name")
     private String officeName;
 
+    @Column(name = "registration_number")
+    private String registrationNumber;
+
+    @Column(name = "tel")
+    private String tel;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "sido")
+    private String sido;
+
+    @Column(name = "sigungu")
+    private String sigungu;
+
+    @Column(name = "dongmyun")
+    private String dongmyun;
+
+    @Column(name = "road_name")
+    private String roadName;
+
+    @Column(name = "addr_road")
+    private String addrRoad;
+
+    @Column(name = "addr_jibun")
+    private String addrJibun;
+
     @Column(name = "lat", precision = 10, scale = 7)
     private BigDecimal lat;
 
