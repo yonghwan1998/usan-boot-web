@@ -564,6 +564,17 @@ Cluster.prototype = {
 				map: this._markerClusterer.getMap()
 			});
 
+			// [2025-11-25] by yongss
+			// - 기존: 미존재
+			// - 변경: Cluster 객체를 외부로 전달하는 브릿지 이벤트 추가
+			// - 목적: 클러스터 클릭 시 포함된 모든 마커의 brokerCode 전달
+			var clusterer = this._markerClusterer;
+			var cluster = this;
+
+			naver.maps.Event.addListener(this._clusterMarker, 'click', function(e) {
+				naver.maps.Event.trigger(clusterer, 'clusterclick', cluster, e);
+			})
+
 			if (!this._markerClusterer.getDisableClickZoom()) {
 				this.enableClickZoom();
 			}

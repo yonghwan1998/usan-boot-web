@@ -6,10 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import world.usan.usan.dto.BrokerMarkerDetailDto;
 import world.usan.usan.dto.BrokerMarkerDto;
 import world.usan.usan.dto.BrokerMarkerTopPropertyDto;
-import world.usan.usan.entity.Broker;
 import world.usan.usan.entity.BrokerPropertyCount;
 import world.usan.usan.repository.BrokerPropertyCountRepository;
-import world.usan.usan.repository.BrokerRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,7 +18,6 @@ import java.util.UUID;
 public class MapService {
 
     private final BrokerPropertyCountRepository brokerPropertyCountRepository;
-    private final BrokerRepository brokerRepository;
 
     @Transactional(readOnly = true)
     public List<BrokerMarkerDto> getBrokersInBounds(double south, double north, double west, double east) {
@@ -47,11 +44,9 @@ public class MapService {
     @Transactional(readOnly = true)
     public BrokerMarkerDetailDto getBrokerDetail(UUID brokerCode) {
 
-        Broker broker = brokerRepository.findByBrokerCode(brokerCode);
+        BrokerPropertyCount broker = brokerPropertyCountRepository.findByBrokerCode(brokerCode);
 
-        BrokerPropertyCount count = brokerPropertyCountRepository.findByBrokerCode(brokerCode);
-
-        List<BrokerMarkerTopPropertyDto> items = getPropertiesTop5(count);
+        List<BrokerMarkerTopPropertyDto> items = getPropertiesTop5(broker);
 
         return BrokerMarkerDetailDto.builder()
                 .brokerCode(broker.getBrokerCode())
@@ -64,6 +59,33 @@ public class MapService {
                 .addrJibun(broker.getAddrJibun())
                 .top5(items)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BrokerMarkerDetailDto> getBrokerDetails(List<UUID> brokerCodes) {
+
+        if (brokerCodes == null || brokerCodes.isEmpty()) {
+            return List.of();
+        }
+
+        List<BrokerPropertyCount> list = brokerPropertyCountRepository.findByBrokerCodeIn(brokerCodes);
+
+        return list.stream()
+                .map(b -> {
+                    List<BrokerMarkerTopPropertyDto> top5 = getPropertiesTop5(b);
+                    return BrokerMarkerDetailDto.builder()
+                            .brokerCode(b.getBrokerCode())
+                            .brokerName(b.getBrokerName())
+                            .officeName(b.getOfficeName())
+                            .registrationNumber(b.getRegistrationNumber())
+                            .tel(b.getTel())
+                            .phone(b.getPhone())
+                            .addrRoad(b.getAddrRoad())
+                            .addrJibun(b.getAddrJibun())
+                            .top5(top5)
+                            .build();
+                })
+                .toList();
     }
 
     private static List<BrokerMarkerTopPropertyDto> getPropertiesTop5(BrokerPropertyCount count) {
