@@ -70,7 +70,7 @@
             markerClustering = new MarkerClustering({
                 map: map,
                 markers: [],
-                gridSize: 100,
+                gridSize: 200,
                 minClusterSize: 1,
                 icons: [{
                     content: `
@@ -84,6 +84,7 @@
                 }],
                 indexGenerator: [1],
                 stylingFunction: function(clusterMarker, count) {
+
                     const el = clusterMarker.getElement();
                     if (!el) return;
 
@@ -119,6 +120,10 @@
                 if (sheet.classList.contains('open')) {
                     closeBrokerSheet();
                 }
+            });
+
+            naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster, e) {
+                onClusterClick(cluster);
             });
         }
 
@@ -217,6 +222,42 @@
             }
         }
 
+        async function onClusterClick(cluster) {
+
+            const members = cluster.getClusterMember() || [];
+
+            let brokerCodes = members
+                .map(m => m.__brokerCode)
+                .filter(Boolean);
+
+            if (!brokerCodes.length) {
+                console.warn('[MAP] cluster has no brokerCodes')
+                return;
+            }
+
+            try {
+                const res = await fetch('/map/api/brokers/cluster', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        brokerCodes: brokerCodes
+                    })
+                });
+
+                if (!res.ok) {
+                    throw new Error('클러스터 중개사 조회 실패');
+                }
+
+                const list = await res.json();
+
+                renderClusterSheet(list);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         async function onMarkerClick(marker) {
 
             const brokerCode = marker.__brokerCode;
@@ -291,7 +332,60 @@
             openBrokerSheet(html);
         }
 
+        function renderClusterSheet(brokers) {
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+            if (!sheet || !content) {
+                return;
+            }
+
+            const totalCount = brokers.length;
+
+            const itemsHtml = brokers.map(b => {
+                const brokerName = b.brokerName ?? '';
+                const officeName = b.officeName ?? '';
+                const addrRoad = b.addrRoad ?? '';
+                const addrJibun = b.addrJibun ?? '';
+                const top5 = (b.top5 ?? []);
+
+                const tags = top5.map(item => `
+                    <span class="bottom-sheet__tag ${item.cssClass}">
+                        <span class="tag-label">${item.label}</span>&nbsp;
+                        <span class="tag-count">${item.count}</span>
+                    </span>
+                `).join(' ');
+
+                return `
+                    <div class="cluster-broker-item">
+                        <div class="cluster-broker-item__title">${officeName}</div>
+                        <div class="cluster-broker-item__meta">
+                            ${brokerName ? brokerName + ' 중개사' : ''}<br/>
+                            <span class="cluster-broker-item__addr">${addrJibun}</span>
+                        </div>
+                        <div class="cluster-broker-item__tags">
+                            ${tags}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="bottom-sheet__header">
+                    <div class="bottom-sheet__title">
+                        이 지역 중개사 ${totalCount}곳
+                    </div>
+                </div>
+                <div class="bottom-sheet__cluster-list">
+                    ${itemsHtml}
+                </div>
+            `;
+
+            openBrokerSheet(html);
+        }
+
         function openBrokerSheet(html) {
+
             const sheet = document.getElementById('broker-sheet');
             const content = document.getElementById('broker-sheet-content');
             if (!sheet || !content) {
@@ -417,6 +511,34 @@
                 markerClustering.setMarkers([]);
             }
         }
+
+
+
+        function getClusterApproxBounds(clusterMarker, gridSize) {
+            const proj = map.getProjection();
+            const center = clusterMarker.getPosition();
+
+            // center -> pixel
+            const centerPx = proj.fromCoordToOffset(center);
+
+            // gridSize 만큼 pixel 확장
+            const half = gridSize / 2;
+
+            const swPx = new naver.maps.Point(centerPx.x - half, centerPx.y + half);
+            const nePx = new naver.maps.Point(centerPx.x + half, centerPx.y - half);
+
+            // 다시 lat/lng 로 변환
+            const sw = proj.fromOffsetToCoord(swPx);
+            const ne = proj.fromOffsetToCoord(nePx);
+
+            return {
+                south: sw.y,
+                west: sw.x,
+                north: ne.y,
+                east: ne.x
+            };
+        }
+
 
         window.onload = initMap;
 
