@@ -29,35 +29,70 @@
         let markerClustering = null;
         let selectedClusterMarker = null;
 
-        let selectedMarker = null;
-
         let lastFetchId = 0;
 
-        //줌 단계 규칙(규칙 수정 시 설명 부분도 수정 필요)
-        //13 이상: 개별 마커만 보이기
-        //11, 12: 클러스터만 보이기
-        //10 이하: 아무것도 안 보이기
-        const ZOOM_MARKER_ONLY = 13;
-        const ZOOM_CLUSTER_MIN = 11;
-        const ZOOM_CLUSTER_MAX = 12;
-        const ZOOM_NONE_MAX = 10;
+        //[zoom 레벨(숫자가 클수록 zoom 확대)]
+        //- 20 level: 10m
+        //- 19 level: 20m
+        //- 18 level: 30m
+        //- 17 level: 50m
+        //- 16 level: 100m
+        //- 15 level: 300m
+        //- 14 level: 500m
+        //- 13 level: 1km
+        //- 12 level: 3km
+        //- 11 level: 5km
+        //- 10 level: 10km
+        //- 9  level: 20km
+        //- 8  level: 30km
 
-        //아이콘 정의
-        const WHITE_ICON = {
-            url: '/img/marker-agency-white.png',
-            size: new naver.maps.Size(56, 56),
-            scaledSize: new naver.maps.Size(56, 56),
-            origin: new naver.maps.Point(0, 0),
-            anchor: new naver.maps.Point(28, 56)
-        };
+        //[zoom 단계 변수]
+        //(ZOOM_INITIAL)    초기: 13 level (1km)
+        //(ZOOM_MAX)        지도 최대: 19 level (20m)
+        //(ZOOM_MARKER)     마커 보이기: 19 ~ 17 level (20m ~ 50m)
+        //(ZOOM_CLUSTER)    클러스터 보이기: 16 ~ 15 level (100m ~ 300m)
+        //(ZOOM_MYUNDONG)   읍면동 보이기: 14 ~ 13 level (500m ~ 1km)
+        //(ZOOM_SIGUNGU)    시군구 보이기: 12 ~ 11 level (3km ~ 5km)
+        //(ZOOM_SIDO)       시도 보이기: 10 ~ 8 level (10km ~ 30km)
+        //(ZOOM_MIN)        지도 최소: 8 level (30km)
+        const ZOOM_INITIAL = 13;
+        const ZOOM_MAX = 19;
+        const ZOOM_MARKER_MAX = 19;
+        const ZOOM_MARKER_MIN = 17;
+        const ZOOM_CLUSTER_MAX = 16;
+        const ZOOM_CLUSTER_MIN = 15;
+        const ZOOM_MYUNDONG_MAX = 14;
+        const ZOOM_MYUNDONG_MIN = 13;
+        const ZOOM_SIGUNGU_MAX = 12;
+        const ZOOM_SIGUNGU_MIN = 11;
+        const ZOOM_SIDO_MAX = 10;
+        const ZOOM_SIDO_MIN = 8;
+        const ZOOM_MIN = 8;
 
-        const ORANGE_ICON = {
-            url: '/img/marker-agency-orange.png',
-            size: new naver.maps.Size(56, 56),
-            scaledSize: new naver.maps.Size(56, 56),
-            origin: new naver.maps.Point(0, 0),
-            anchor: new naver.maps.Point(28, 56)
-        };
+        function updateClusterOptionsByZoom(zoom) {
+
+            if (!markerClustering) {
+                return;
+            }
+
+            let gridSize;
+
+            if (zoom >= ZOOM_MARKER_MIN) {
+                gridSize = 56;
+            } else if (zoom >= ZOOM_CLUSTER_MIN) {
+                gridSize = 120;
+            } else if (zoom >= ZOOM_MYUNDONG_MIN) {
+                gridSize = 180;
+            } else if (zoom >= ZOOM_SIGUNGU_MIN) {
+                gridSize = 240;
+            } else {
+                gridSize = 300;
+            }
+
+            markerClustering.setOptions({
+                gridSize: gridSize,
+            });
+        }
 
         function initMap() {
 
@@ -65,14 +100,15 @@
 
             map = new naver.maps.Map('map', {
                 center: center,
-                zoom: 13
+                zoom: ZOOM_INITIAL,
+                maxZoom: ZOOM_MAX
             });
 
             markerClustering = new MarkerClustering({
                 map: map,
                 markers: [],
-                gridSize: 200,
                 minClusterSize: 1,
+                maxZoom: 20,
                 icons: [{
                     content: `
                         <div class="usan-cluster">
@@ -102,9 +138,12 @@
                 }
             });
 
+            updateClusterOptionsByZoom(map.getZoom());
+
             loadBrokersInBounds();
 
             naver.maps.Event.addListener(map, 'zoom_changed', function () {
+                updateClusterOptionsByZoom(map.getZoom());
                 closeBrokerSheet();
                 loadBrokersInBounds();
             });
@@ -137,7 +176,7 @@
 
             const zoom = map.getZoom();
 
-            if (zoom <= ZOOM_NONE_MAX) {
+            if (zoom <= ZOOM_MIN) {
                 clearMarkersAndClusters();
                 return;
             }
@@ -163,7 +202,7 @@
 
                     const currentZoom = map.getZoom();
 
-                    if (currentZoom <= ZOOM_NONE_MAX) {
+                    if (currentZoom <= ZOOM_MIN) {
                         clearMarkersAndClusters();
                         return;
                     }
@@ -175,51 +214,25 @@
 
         function renderMarkers(brokers, zoom) {
 
-            let nextMode;
-
-            if (zoom >= ZOOM_MARKER_ONLY) {
-                nextMode = 'MARKER';
-            } else if (zoom >= ZOOM_CLUSTER_MIN && zoom <= ZOOM_CLUSTER_MAX) {
-                nextMode = 'CLUSTER';
-            } else {
-                nextMode = 'NONE';
-            }
-
             clearMarkersAndClusters();
 
             markers = brokers.map(b => {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(b.lat, b.lng),
-                    icon: WHITE_ICON,
                     title: b.officeName
                 });
 
                 marker.__brokerCode = b.brokerCode;
 
-                naver.maps.Event.addListener(marker, 'click', function () {
-                   onMarkerClick(marker);
-                });
-
                 return marker;
             });
 
-            if (nextMode === 'MARKER') {
-                if (markerClustering) {
-                    markerClustering.setMarkers([]);
-                }
+            markers.forEach(m => m.setMap(null));
 
-                markers.forEach(m => m.setMap(map));
+            if (markerClustering) {
+                markerClustering.setMarkers(markers);
 
-            } else if (nextMode === 'CLUSTER') {
-                markers.forEach(m => m.setMap(null));
-
-                if (markerClustering) {
-                    markerClustering.setMarkers(markers);
-
-                    naver.maps.Event.trigger(map, 'idle');
-                }
-            } else {
-                clearMarkersAndClusters();
+                naver.maps.Event.trigger(map, 'idle');
             }
         }
 
@@ -281,80 +294,6 @@
             } catch (e) {
                 console.error(e);
             }
-        }
-
-        async function onMarkerClick(marker) {
-
-            const brokerCode = marker.__brokerCode;
-            if(!brokerCode) {
-                return;
-            }
-
-            if(selectedMarker && selectedMarker !== marker) {
-                selectedMarker.setIcon(WHITE_ICON);
-            }
-
-            selectedMarker = marker;
-            marker.setIcon(ORANGE_ICON);
-
-            try {
-                const res = await fetch(`/map/api/broker/${brokerCode}`);
-                if(!res.ok) {
-                    throw new Error('상세 조회 실패');
-                }
-
-                const detail  = await res.json();
-                renderBrokerSheet(detail);
-            } catch (e) {
-                console.error(e);
-                // showBrokerSheetError();
-            }
-        }
-
-        function renderBrokerSheet(detail) {
-
-            const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
-
-            if (!sheet || !content) {
-                return;
-            }
-
-            const brokerName = detail.brokerName ?? '';
-            const officeName = detail.officeName ?? '';
-            const addrRoad = detail.addrRoad ?? '';
-            const addrJibun = detail.addrJibun ?? '';
-
-            const tags = detail.top5.map(item => `
-                <span class="bottom-sheet__tag ${item.cssClass}">
-                    <span class="tag-label">${item.label}</span>&nbsp;
-                    <span class="tag-count">${item.count}</span>
-                </span>
-            `).join(' ');
-
-            const html = `
-                <div class="bottom-sheet__header">
-                    <div class="bottom-sheet__title">${officeName}</div>
-                </div>
-                <div class="bottom-sheet__tags">
-                    ${tags}
-                </div>
-                <div class="bottom-sheet__addr">${addrJibun}</div>
-                <div class="bottom-sheet__meta">
-                    ${brokerName ? brokerName + ' 중개사' : ''}
-                </div>
-
-                <div class="bottom-sheet__buttons">
-                    <button type="button" class="bottom-sheet__btn" onclick="alert('자세히 보기 개발 예정');">
-                        자세히 보기
-                    </button>
-                    <button type="button" class="bottom-sheet__btn bottom-sheet__btn--primary" onclick="alert('매물 보내기 개발 예정');">
-                        매물 보내기
-                    </button>
-                </div>
-            `;
-
-            openBrokerSheet(html);
         }
 
         function renderClusterSheet(brokers) {
@@ -505,21 +444,12 @@
 
             if (!sheet || !content) return;
 
-            // 닫히는 애니메이션
             sheet.style.transform = 'translate(-50%, 100%)';
 
             setTimeout(() => {
                 sheet.classList.remove('open');
                 sheet.style.transform = '';
                 content.innerHTML = '';
-
-                content.innerHTML = '';
-
-                // 선택 마커 원복
-                if (selectedMarker) {
-                    selectedMarker.setIcon(WHITE_ICON);
-                    selectedMarker = null;
-                }
 
                 resetClusterIcons();
             }, 200);
@@ -544,6 +474,7 @@
             imgs.forEach(img => {
                 img.src = '/img/marker-agency-white.png';
             });
+            selectedClusterMarker = null;
         }
 
         window.onload = initMap;
