@@ -149,7 +149,13 @@
             });
 
             naver.maps.Event.addListener(map, 'dragend', function () {
-                closeBrokerSheet();
+
+                const sheet = document.getElementById('broker-sheet');
+
+                if (sheet && sheet.classList.contains('open')) {
+                    closeBrokerSheet();
+                }
+
                 loadBrokersInBounds();
             });
 
@@ -356,10 +362,9 @@
                 return;
             }
 
-            content.innerHTML = html;
-
-            // 초기 위치(아래로 숨기기)
-            sheet.style.transform = 'translate(-50%, 100%)';
+            if (html) {
+                content.innerHTML = html;
+            }
 
             // 다음 프레임에서 open 처리 (애니메이션 자연스럽게)
             requestAnimationFrame(() => {
@@ -417,9 +422,9 @@
                 const delta = currentY - startY;
 
                 if (delta > threshold) {
-                    closeBrokerSheet();
+                    sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
+                    sheet.classList.remove('open');
                 } else {
-                    // 원래 위치로 복귀
                     sheet.style.transform = `translate(-50%, 0)`;
                 }
             }
@@ -440,19 +445,11 @@
         function closeBrokerSheet() {
 
             const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
 
-            if (!sheet || !content) return;
+            if (!sheet) return;
 
-            sheet.style.transform = 'translate(-50%, 100%)';
-
-            setTimeout(() => {
-                sheet.classList.remove('open');
-                sheet.style.transform = '';
-                content.innerHTML = '';
-
-                resetClusterIcons();
-            }, 200);
+            sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
+            sheet.classList.remove('open');
         }
 
         function clearMarkersAndClusters() {
@@ -467,14 +464,6 @@
             if (markerClustering) {
                 markerClustering.setMarkers([]);
             }
-        }
-
-        function resetClusterIcons() {
-            const imgs = document.querySelectorAll('.usan-cluster__img');
-            imgs.forEach(img => {
-                img.src = '/img/marker-agency-white.png';
-            });
-            selectedClusterMarker = null;
         }
 
         window.onload = initMap;
