@@ -465,8 +465,15 @@
         function closeBrokerSheet() {
 
             const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
 
-            if (!sheet) return;
+            if (!sheet || !content) return;
+
+            const hasContent = content.innerHTML.trim().length > 0;
+
+            if (!hasContent) {
+                return;
+            }
 
             sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
             sheet.classList.remove('open');
