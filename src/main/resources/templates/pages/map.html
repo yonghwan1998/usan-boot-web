@@ -249,8 +249,6 @@
 
         function renderMarkers(brokers, zoom) {
 
-            clearMarkersAndClusters();
-
             markers = brokers.map(b => {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(b.lat, b.lng),
@@ -261,8 +259,6 @@
 
                 return marker;
             });
-
-            markers.forEach(m => m.setMap(null));
 
             if (markerClustering) {
                 markerClustering.setMarkers(markers);
@@ -469,8 +465,15 @@
         function closeBrokerSheet() {
 
             const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
 
-            if (!sheet) return;
+            if (!sheet || !content) return;
+
+            const hasContent = content.innerHTML.trim().length > 0;
+
+            if (!hasContent) {
+                return;
+            }
 
             sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
             sheet.classList.remove('open');
