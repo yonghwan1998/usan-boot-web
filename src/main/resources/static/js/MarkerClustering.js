@@ -575,6 +575,14 @@ Cluster.prototype = {
 				naver.maps.Event.trigger(clusterer, 'clusterclick', cluster, e);
 			})
 
+			// [2025-11-26] by yongss
+			// - 기존: 미존재
+			// - 변경: clusterMarker에서 멤버를 조회할 수 있는 브릿지 메서드 부여
+			// - 목적: 지도 드래그 또는 줌 변경 시 이미지 하이라이트 미변경
+			this._clusterMarker.getClusterMember = function() {
+				return cluster.getClusterMember();
+			};
+
 			if (!this._markerClusterer.getDisableClickZoom()) {
 				this.enableClickZoom();
 			}
