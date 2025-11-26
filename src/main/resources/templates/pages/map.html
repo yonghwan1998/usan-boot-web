@@ -28,6 +28,7 @@
         let markers = [];
         let markerClustering = null;
         let selectedClusterMarker = null;
+        let selectedClusterKey = null;
 
         let lastFetchId = 0;
 
@@ -68,6 +69,14 @@
         const ZOOM_SIDO_MAX = 10;
         const ZOOM_SIDO_MIN = 8;
         const ZOOM_MIN = 8;
+
+        function makeClusterKey(members) {
+            return members
+                .map(m => m.__brokerCode)
+                .filter(Boolean)
+                .sort()
+                .join(',');
+        }
 
         function updateClusterOptionsByZoom(zoom) {
 
@@ -123,17 +132,37 @@
                 stylingFunction: function(clusterMarker, count) {
 
                     const el = clusterMarker.getElement();
+                    const span = el.querySelector('.usan-cluster__count');
+                    const img = el.querySelector('.usan-cluster__img');
+
                     if (!el) return;
 
-                    const span = el.querySelector('.usan-cluster__count');
                     if (!span) return;
-
                     if (count <= 1) {
                         span.style.display = 'none';
                         span.textContent = '';
                     } else {
                         span.style.display = 'flex';
                         span.textContent = String(count);
+                    }
+
+                    if (!img) return;
+
+                    const members = (typeof clusterMarker.getClusterMember === 'function')
+                        ? clusterMarker.getClusterMember()
+                        : [];
+
+                    if (!members || members.length === 0) {
+                        img.src = '/img/marker-agency-white.png';
+                        return;
+                    }
+
+                    const key = makeClusterKey(members);
+
+                    if (selectedClusterMarker && key === selectedClusterKey) {
+                        img.src = '/img/marker-agency-orange.png';
+                    } else {
+                        img.src = '/img/marker-agency-white.png';
                     }
                 }
             });
@@ -246,28 +275,6 @@
 
             const clusterMarker = cluster._clusterMarker;
 
-            if (clusterMarker && typeof clusterMarker.getElement === 'function') {
-                const el = clusterMarker.getElement();
-                if (el) {
-                    const img = el.querySelector('.usan-cluster__img');
-
-                    if (selectedClusterMarker && selectedClusterMarker !== clusterMarker) {
-                        const prevEl = selectedClusterMarker.getElement();
-                        if (prevEl) {
-                            const prevImg = prevEl.querySelector('.usan-cluster__img');
-                            if (prevImg) {
-                                prevImg.src = '/img/marker-agency-white.png';
-                            }
-                        }
-                    }
-
-                    if (img) {
-                        img.src = '/img/marker-agency-orange.png';
-                        selectedClusterMarker = clusterMarker;
-                    }
-                }
-            }
-
             const members = cluster.getClusterMember() || [];
 
             let brokerCodes = members
@@ -277,6 +284,23 @@
             if (!brokerCodes.length) {
                 console.warn('[MAP] cluster has no brokerCodes')
                 return;
+            }
+
+            selectedClusterKey = makeClusterKey(members);
+
+            if (clusterMarker && typeof clusterMarker.getElement === 'function') {
+
+                resetClusterIcons();
+
+                const el = clusterMarker.getElement();
+                if (el) {
+                    const img = el.querySelector('.usan-cluster__img');
+
+                    if (img) {
+                        img.src = '/img/marker-agency-orange.png';
+                        selectedClusterMarker = clusterMarker;
+                    }
+                }
             }
 
             try {
@@ -464,6 +488,13 @@
             if (markerClustering) {
                 markerClustering.setMarkers([]);
             }
+        }
+
+        function resetClusterIcons() {
+            const imgs = document.querySelectorAll('.usan-cluster__img');
+            imgs.forEach(img => {
+                img.src = '/img/marker-agency-white.png';
+            });
         }
 
         window.onload = initMap;
