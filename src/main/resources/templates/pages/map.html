@@ -249,8 +249,6 @@
 
         function renderMarkers(brokers, zoom) {
 
-            clearMarkersAndClusters();
-
             markers = brokers.map(b => {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(b.lat, b.lng),
@@ -261,8 +259,6 @@
 
                 return marker;
             });
-
-            markers.forEach(m => m.setMap(null));
 
             if (markerClustering) {
                 markerClustering.setMarkers(markers);
