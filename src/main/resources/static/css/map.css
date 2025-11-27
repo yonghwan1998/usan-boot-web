@@ -285,6 +285,19 @@
     color: #777;
 }
 
+.map-button {
+    position: absolute;
+    top: 160px;
+    right: 90px;
+    z-index: 999;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
 /* 모바일 대응 */
 @media (max-width: 600px) {
     .bottom-sheet {
