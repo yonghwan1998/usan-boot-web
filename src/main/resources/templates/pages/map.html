@@ -110,7 +110,13 @@
             map = new naver.maps.Map('map', {
                 center: center,
                 zoom: ZOOM_INITIAL,
-                maxZoom: ZOOM_MAX
+                maxZoom: ZOOM_MAX,
+                mapTypeControl: true,
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: naver.maps.ZoomControlStyle.SMALL,
+                    position: naver.maps.Position.TOP_LEFT
+                },
             });
 
             markerClustering = new MarkerClustering({
