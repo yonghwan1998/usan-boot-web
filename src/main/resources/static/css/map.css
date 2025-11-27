@@ -200,6 +200,17 @@
     display: block;
 }
 
+/* 클러스터 아이콘은 마우스로 드래그/선택 안 되게 */
+.usan-cluster,
+.usan-cluster * {
+    -webkit-user-drag: none;  /* 사파리, 크롬 */
+    user-drag: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 /* 클러스터 숫자 뱃지 */
 .usan-cluster__count {
     position: absolute;
@@ -272,6 +283,19 @@
     padding: 16px 0;
     font-size: 13px;
     color: #777;
+}
+
+.map-button {
+    position: absolute;
+    top: 160px;
+    right: 90px;
+    z-index: 999;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
 }
 
 /* 모바일 대응 */

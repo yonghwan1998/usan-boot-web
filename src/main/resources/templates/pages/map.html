@@ -14,6 +14,9 @@
     <div class="main-content">
         <div id="map" style="width: 100%; height: 500px"></div>
 
+        <!-- 내 위치 버튼 -->
+        <button id="btn-my-location" class="map-button">내 위치</button>
+
         <!-- 선택된 중개사 바텀시트 -->
         <div id="broker-sheet" class="bottom-sheet">
             <div class="bottom-sheet__handle"></div>
@@ -29,6 +32,8 @@
         let markerClustering = null;
         let selectedClusterMarker = null;
         let selectedClusterKey = null;
+
+        let myLocationMarker = null;
 
         let lastFetchId = 0;
 
@@ -110,7 +115,13 @@
             map = new naver.maps.Map('map', {
                 center: center,
                 zoom: ZOOM_INITIAL,
-                maxZoom: ZOOM_MAX
+                maxZoom: ZOOM_MAX,
+                mapTypeControl: true,
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: naver.maps.ZoomControlStyle.SMALL,
+                    position: naver.maps.Position.TOP_LEFT
+                },
             });
 
             markerClustering = new MarkerClustering({
@@ -200,6 +211,8 @@
             naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster, e) {
                 onClusterClick(cluster);
             });
+
+            document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
         }
 
         function loadBrokersInBounds() {
@@ -372,6 +385,50 @@
             `;
 
             openBrokerSheet(html);
+        }
+
+        function goToMyLocation() {
+            if (!navigator.geolocation) {
+                alert("현재 브라우저에서는 위치 정보를 사용할 수 없습니다.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                const location = new naver.maps.LatLng(lat, lng);
+
+                // 지도 중심 이동
+                map.setCenter(location);
+                map.setZoom(17);
+
+                // 기존 마커 제거
+                if (myLocationMarker) {
+                    myLocationMarker.setMap(null);
+                }
+
+                // 내 위치 마커 찍기
+                myLocationMarker = new naver.maps.Marker({
+                    position: location,
+                    map: map,
+                    icon: {
+                        content: `
+                    <div style="
+                        width:14px;
+                        height:14px;
+                        background:#4285f4;
+                        border-radius:50%;
+                        border:3px solid white;
+                        box-shadow:0 0 6px rgba(0,0,0,0.3);
+                    "></div>
+                `,
+                        anchor: new naver.maps.Point(7, 7)
+                    }
+                });
+
+            }, function (err) {
+                alert("위치 정보를 불러오지 못했습니다: " + err.message);
+            });
         }
 
         function openBrokerSheet(html) {
