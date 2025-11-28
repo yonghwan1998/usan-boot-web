@@ -37,8 +37,8 @@ public class Broker {
     @Column(name = "sigungu", length = 50)
     private String sigungu;
 
-    @Column(name = "dongmyun", length = 50)
-    private String dongmyun;
+    @Column(name = "emd", length = 50)
+    private String emd;
 
     @Column(name = "road_name", length = 100)
     private String roadName;

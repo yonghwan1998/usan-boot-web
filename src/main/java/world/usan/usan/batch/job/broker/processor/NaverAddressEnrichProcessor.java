@@ -76,7 +76,7 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
                 .phone(row.getPhone())
                 .sido(m.getOrDefault("SIDO", ""))
                 .sigungu(m.getOrDefault("SIGUGUN", ""))
-                .dongmyun(m.getOrDefault("DONGMYUN", ""))
+                .emd(m.getOrDefault("DONGMYUN", ""))
                 .addrRoad(a.getRoadAddress() == null ? "" : a.getRoadAddress())
                 .addrJibun(a.getJibunAddress() == null ? "" : a.getJibunAddress())
                 .lat(new BigDecimal(a.getY()))

@@ -32,7 +32,7 @@ public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
                     e.getPhone(),
                     e.getSido(),
                     e.getSigungu(),
-                    e.getDongmyun(),
+                    e.getEmd(),
                     "",
                     e.getAddrRoad(),
                     e.getAddrJibun(),
