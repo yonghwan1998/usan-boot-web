@@ -36,7 +36,7 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
                     , phone
                     , sido
                     , sigungu
-                    , dongmyun
+                    , emd
                     , road_name
                     , addr_road
                     , addr_jibun
@@ -75,7 +75,7 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
                     , b.phone
                     , b.sido
                     , b.sigungu
-                    , b.dongmyun
+                    , b.emd
                     , b.road_name
                     , b.addr_road
                     , b.addr_jibun

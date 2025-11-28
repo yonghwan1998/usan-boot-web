@@ -57,7 +57,7 @@
         //(ZOOM_MAX)        지도 최대: 19 level (20m)
         //(ZOOM_MARKER)     마커 보이기: 19 ~ 17 level (20m ~ 50m)
         //(ZOOM_CLUSTER)    클러스터 보이기: 16 ~ 15 level (100m ~ 300m)
-        //(ZOOM_MYUNDONG)   읍면동 보이기: 14 ~ 13 level (500m ~ 1km)
+        //(ZOOM_EMD)        읍면동 보이기: 14 ~ 13 level (500m ~ 1km)
         //(ZOOM_SIGUNGU)    시군구 보이기: 12 ~ 11 level (3km ~ 5km)
         //(ZOOM_SIDO)       시도 보이기: 10 ~ 8 level (10km ~ 30km)
         //(ZOOM_MIN)        지도 최소: 8 level (30km)
@@ -67,8 +67,8 @@
         const ZOOM_MARKER_MIN = 17;
         const ZOOM_CLUSTER_MAX = 16;
         const ZOOM_CLUSTER_MIN = 15;
-        const ZOOM_MYUNDONG_MAX = 14;
-        const ZOOM_MYUNDONG_MIN = 13;
+        const ZOOM_EMD_MAX = 14;
+        const ZOOM_EMD_MIN = 13;
         const ZOOM_SIGUNGU_MAX = 12;
         const ZOOM_SIGUNGU_MIN = 11;
         const ZOOM_SIDO_MAX = 10;
@@ -95,7 +95,7 @@
                 gridSize = 56;
             } else if (zoom >= ZOOM_CLUSTER_MIN) {
                 gridSize = 120;
-            } else if (zoom >= ZOOM_MYUNDONG_MIN) {
+            } else if (zoom >= ZOOM_EMD_MIN) {
                 gridSize = 180;
             } else if (zoom >= ZOOM_SIGUNGU_MIN) {
                 gridSize = 240;

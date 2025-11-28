@@ -19,7 +19,7 @@ public class BrokerService {
     @Transactional
     public UUID saveOrUpdate(String brokerName, String officeName, String registrationNumber,
                              String brokerAddress, String tel, String phone,
-                             String sido, String sigungu, String dongmyun,
+                             String sido, String sigungu, String emd,
                              String roadName, String addrRoad, String addrJibun,
                              BigDecimal lat, BigDecimal lng) {
 
@@ -38,7 +38,7 @@ public class BrokerService {
         broker.setPhone(phone);
         broker.setSido(sido);
         broker.setSigungu(sigungu);
-        broker.setDongmyun(dongmyun);
+        broker.setEmd(emd);
         broker.setRoadName(roadName);
         broker.setAddrRoad(addrRoad);
         broker.setAddrJibun(addrJibun);
