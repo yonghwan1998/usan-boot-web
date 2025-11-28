@@ -18,7 +18,7 @@ public final class EnrichedBrokerItem {
     private String rawAddress;
     private String sido;
     private String sigungu;
-    private String dongmyun;
+    private String emd;
     private String addrRoad;
     private String addrJibun;
     private BigDecimal lat;

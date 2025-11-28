@@ -39,8 +39,8 @@ public class BrokerPropertyCount {
     @Column(name = "sigungu")
     private String sigungu;
 
-    @Column(name = "dongmyun")
-    private String dongmyun;
+    @Column(name = "emd")
+    private String emd;
 
     @Column(name = "road_name")
     private String roadName;
