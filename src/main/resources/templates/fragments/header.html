@@ -1,12 +1,18 @@
-<!-- header START -->
-<header th:fragment="headerFragment">
-    <div class="header-container">
-        <h1 class="logo"><a th:href="@{/}">우리 동네 부동산</a></h1>
-        <nav>
-            <ul class="nav-list">
-                <li><a th:href="@{/map}">지도보기(실제 데이터)</a></li>
-            </ul>
-        </nav>
+<header th:fragment="header" class="mobile-header">
+    <div class="header-left">
+        <img src="/img/70x40-text.svg"
+             alt="우리동네 부동산"
+             class="header-logo">
+    </div>
+    <div class="header-center">
+        <button type="button" class="header-location">
+            <span class="header-location__text">위치를 선택해주세요</span>
+            <span class="header-location__icon"></span>
+        </button>
+    </div>
+    <div class="header-right">
+        <button type="button" class="header-icon-btn" aria-label="알림으로 이동">
+            <img src="/img/48x48-bell.svg" alt="" class="header-icon-btn__img">
+        </button>
     </div>
 </header>
-<!-- header END -->

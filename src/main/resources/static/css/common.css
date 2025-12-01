@@ -1,0 +1,67 @@
+/* color */
+.point_t {
+    color: #3551e3;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+/* weight */
+.normal {
+    font-weight: 400 !important;
+    font-size: inherit;
+}
+.medium {
+    font-weight: 500 !important;
+    font-size: inherit;
+}
+.semi-bold {
+    font-weight: 600 !important;
+    font-size: inherit;
+}
+.bold {
+    font-weight: 700 !important;
+    font-size: inherit;
+}
+
+/* flex */
+.flex_end {
+    display: flex;
+    justify-content: flex-end !important;
+}
+.flex_start {
+    display: flex;
+    justify-content: flex-start !important;
+}
+.flex_between {
+    display: flex;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+.align_start {
+    display: flex;
+    align-items: flex-start !important;
+}
+.align_end {
+    display: flex;
+    align-items: flex-end !important;
+}
+.align_center {
+    display: flex;
+    align-items: center !important;
+}
+.between_end {
+    display: flex;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+}
+.between_center {
+    display: flex;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+.flex_1 {
+    flex: 1 !important;
+}
+.direction_column {
+    flex-direction: column;
+}
