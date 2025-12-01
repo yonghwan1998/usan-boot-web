@@ -1,11 +1,18 @@
 <header th:fragment="header" class="mobile-header">
     <div class="header-left">
-        <img src="/img/32x32-text.svg" alt="우리동네 부동산" class="logo">
+        <img src="/img/70x40-text.svg"
+             alt="우리동네 부동산"
+             class="header-logo">
     </div>
     <div class="header-center">
-        위치를 선택해주세요
+        <button type="button" class="header-location">
+            <span class="header-location__text">위치를 선택해주세요</span>
+            <span class="header-location__icon"></span>
+        </button>
     </div>
     <div class="header-right">
-        <img src="/img/48x48-bell.svg" alt="알림으로 이동">
+        <button type="button" class="header-icon-btn" aria-label="알림으로 이동">
+            <img src="/img/48x48-bell.svg" alt="" class="header-icon-btn__img">
+        </button>
     </div>
 </header>

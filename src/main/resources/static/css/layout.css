@@ -54,6 +54,72 @@
     overflow-y: auto;
 }
 
+/* 좌측 로고 영역 */
+.header-left {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.header-logo {
+    width: 70px;
+    height: 40px;
+    display: block;
+}
+
+/* 가운데 위치 선택 pill */
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    height: 48px;
+}
+
+.header-location {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 230px;
+    padding: 8px 14px;
+    border-radius: 16px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    cursor: pointer;
+}
+
+.header-location__text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    font-size: 18px;
+    color: #000000;
+}
+
+/* ▼ 아이콘 */
+.header-location__icon {
+    width: 13px;
+    height: 7px;
+    background-image: url("../img/13x7-arrow.svg");
+    color: #595959;
+}
+
+/* 우측 알림 버튼 */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-icon-btn {
+    cursor: pointer;
+}
+
+.header-icon-btn__img {
+    display: block;
+}
+
 /* -------- 데스크탑 이상에서만 좌/우 2단 구성 -------- */
 @media (min-width: 1024px) {
     .usan-layout {
@@ -72,7 +138,10 @@
     }
 }
 
-/* 모바일 헤더는 나중에 fragments/header.css 에서 세부 스타일링 예정 */
 .mobile-header {
     display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: #f2f2f2;
 }
