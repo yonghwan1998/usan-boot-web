@@ -42,6 +42,11 @@
     align-items: center !important;
     justify-content: space-between !important;
 }
+.flex_center {
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+}
 .align_start {
     display: flex;
     align-items: flex-start !important;
