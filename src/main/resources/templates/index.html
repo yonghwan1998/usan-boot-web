@@ -11,7 +11,9 @@
     <title>우산 - 우리동네 부동산</title>
 </head>
 
-<th:block th:fragment="extraCss"></th:block>
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</th:block>
 
 <th:block th:fragment="pcSideContent">
     <div class="align_center direction_column pc-side-inner">
@@ -28,14 +30,93 @@
 </th:block>
 
 <section class="home-page">
-    <div class="home-section">
-        <h2 class="home-section__title">지도로 중개사 찾기 섹션</h2>
-    </div>
-    <div class="home-section">
-        <h2 class="home-section__title">내 매물 전송 섹션</h2>
-    </div>
-    <div class="home-section">
-        <h2 class="home-section__title">주변 중개사 섹션</h2>
+    <div class="home-page__inner">
+
+        <!--    지도로 중개사 찾기    -->
+        <section class="home-block home-block--map">
+            <h2 class="home-block__title">지도로 중개사 찾기</h2>
+
+            <article class="feature-card feature-card--map">
+                <div class="feature-card__text">
+                    <p class="feature-card__headline">
+                        <span class="point_t">내가 선택한 위치기준으로</span><br>
+                        <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
+                    </p>
+                    <div class="feature-card__icons">
+                        <span class="feature-icon feature-icon--house"></span>
+                        <span class="feature-icon feature-icon--building"></span>
+                    </div>
+                </div>
+                <div class="feature-card__thumb">
+                    <img src="/img/home-map-card.svg"
+                         alt="지도에서 중개사 찾기"
+                         onerror="this.style.display='none'">
+                </div>
+            </article>
+
+            <div class="dot-indicator">
+                <span class="dot is-active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+
+            <button type="button"
+                    class="btn btn--primary home-block__cta"
+                    th:onclick="|location.href='@{#}'|">
+                중개사 찾기
+            </button>
+        </section>
+
+        <!--   내 매물 전송     -->
+        <section class="home-block home-block--send">
+            <h2 class="home-block__title">내 매물 전송</h2>
+
+            <article class="feature-card feature-card--send">
+                <div class="feature-card__text">
+                    <p class="feature-card__headline">
+                        주변 중개사에게<br>
+                        내 매물을 빠르게 홍보해보세요!
+                    </p>
+                </div>
+                <div class="feature-card__thumb">
+                    <img src="/img/home-send-card"
+                         alt="내 매물 전송"
+                         onerror="this.style.display='none'">
+                </div>
+            </article>
+
+            <div class="dot-indicator">
+                <span class="dot is-active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+
+            <button type="button" class="btn btn--outline home-block__cta">
+                + 내 매물 등록
+            </button>
+        </section>
+
+        <!--    주변 중개사 안내 버블    -->
+        <section class="home-block home-block--tip">
+            <div class="tip-bubble">
+                <p class="tip-bubble__text">
+                    관심이 있는 지역을 선택하고<br>
+                    주변 중개사님 리스트를 찾아봐요!
+                </p>
+                <button type="button" class="btn btn--primary btn--sm">
+                    주변 중개사 보기
+                </button>
+            </div>
+        </section>
+
+        <!--    주변 중개사 리스트    -->
+        <section class="home-block home-block--nearby">
+            <h3 class="home-section-title">주변 중개사</h3>
+            <div class="nearby-placeholder">
+            <!--       실제 데이터         -->
+            </div>
+        </section>
+
     </div>
 </section>
 
