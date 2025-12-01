@@ -31,7 +31,7 @@
     <!-- PC 왼쪽 영역 -->
     <aside class="pc-side-section"
            th:if="${pcSideContent != null}"
-           th:replace="${pcSideContent}">
+           th:insert="${pcSideContent}">
     </aside>
 
     <!-- 모바일 메인 프레임 -->
