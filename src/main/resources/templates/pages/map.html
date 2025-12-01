@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layouts/default :: layout(~{::title}, ~{::section})}">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
 <head>
     <title>우리 동네 부동산 지도</title>
 </head>
 
-<body>
+<th:block th:fragment="pcSideContent"></th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/map.css}">
+</th:block>
+
 <section>
     <!-- 네이버 지도 API -->
     <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
@@ -562,6 +574,4 @@
     </script>
 
 </section>
-</body>
 </html>
-

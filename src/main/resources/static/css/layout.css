@@ -1,0 +1,189 @@
+/* 전체 배경 및 기본 레이아웃 컨테이너 */
+.usan-body {
+    background: #f4f5f9;
+}
+
+/* PC/모바일 공통 레이아웃 래퍼 */
+.usan-layout {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+/* PC 왼쪽 소개 영역 (모바일에서는 숨김) */
+.pc-side-section {
+    display: none;
+}
+
+/* 왼쪽 내부 정리용 */
+.pc-side-inner {
+    text-align: left;
+    gap: 12px;
+}
+
+.pc-side-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.pc-side-desc {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.pc-side-image {
+    margin-top: 24px;
+    max-width: 80%;
+}
+
+/* 모바일 화면 프레임 */
+.mobile-frame {
+    width: 100%;
+    max-width: 430px;
+    background: #ffffff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 실제 스크롤 되는 컨텐츠 영역 */
+#contents {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* 좌측 로고 영역 */
+.header-left {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.header-logo {
+    width: 70px;
+    height: 40px;
+    display: block;
+}
+
+/* 가운데 위치 선택 pill */
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    height: 48px;
+}
+
+.header-location {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 230px;
+    padding: 8px 14px;
+    border-radius: 16px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    cursor: pointer;
+}
+
+.header-location__text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    font-size: 18px;
+    color: #000000;
+}
+
+/* ▼ 아이콘 */
+.header-location__icon {
+    width: 13px;
+    height: 7px;
+    background-image: url("../img/13x7-arrow.svg");
+    color: #595959;
+}
+
+/* 우측 알림 버튼 */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-icon-btn {
+    cursor: pointer;
+}
+
+.header-icon-btn__img {
+    display: block;
+}
+
+.bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-top: 1px solid #d9d9d9;
+    background: #ffffff;
+}
+
+.bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 10px;
+    margin: 0 2px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: #99a1af;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.bottom-nav__icon img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+/* 활성 탭 */
+.bottom-nav__item--active {
+    background: #5b7cfd1a;
+    color: #5b7cfd;
+    font-weight: 600;
+}
+
+.bottom-nav__label {
+    color: inherit;
+}
+
+/* -------- 데스크탑 이상에서만 좌/우 2단 구성 -------- */
+@media (min-width: 1024px) {
+    .usan-layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        gap: 40px;
+    }
+
+    .pc-side-section {
+        display: flex;
+        flex: 1;
+    }
+
+    .mobile-frame {
+        flex: 0 0 430px;
+    }
+}
+
+.mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: #f2f2f2;
+}
