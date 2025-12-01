@@ -1,14 +1,20 @@
 <nav th:fragment="bottomNav" class="bottom-nav">
-    <div>
-        <img src="/img/24x24-home.svg" alt="홈">
-        <a href="/" class="bottom-nav-item">홈</a>
-    </div>
-    <div>
-        <img src="/img/24x24-map.svg" alt="동네 부동산">
-        <a href="/map" class="bottom-nav-item">동네 부동산</a>
-    </div>
-    <div>
-        <img src="/img/24x24-user.svg" alt="더보기">
-        <a href="#" class="bottom-nav-item">더보기</a>
-    </div>
+    <a th:href="@{/}" class="bottom-nav__item bottom-nav__item--active">
+        <div class="bottom-nav__icon">
+            <img src="/img/24x24-home.svg" alt="홈">
+        </div>
+        <span class="bottom-nav__label">홈</span>
+    </a>
+    <a th:href="@{/map}" class="bottom-nav__item">
+        <div class="bottom-nav__icon">
+            <img src="/img/24x24-map.svg" alt="동네 부동산">
+        </div>
+        <span class="bottom-nav__label">동네 부동산</span>
+    </a>
+    <a th:href="@{#}" class="bottom-nav__item">
+        <div class="bottom-nav__icon">
+            <img src="/img/24x24-user.svg" alt="더보기">
+        </div>
+        <span class="bottom-nav__label">더보기</span>
+    </a>
 </nav>

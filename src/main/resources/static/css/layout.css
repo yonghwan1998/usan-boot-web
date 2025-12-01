@@ -120,6 +120,48 @@
     display: block;
 }
 
+.bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-top: 1px solid #d9d9d9;
+    background: #ffffff;
+}
+
+.bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 10px;
+    margin: 0 2px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: #99a1af;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.bottom-nav__icon img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+/* 활성 탭 */
+.bottom-nav__item--active {
+    background: #5b7cfd1a;
+    color: #5b7cfd;
+    font-weight: 600;
+}
+
+.bottom-nav__label {
+    color: inherit;
+}
+
 /* -------- 데스크탑 이상에서만 좌/우 2단 구성 -------- */
 @media (min-width: 1024px) {
     .usan-layout {
