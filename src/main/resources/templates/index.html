@@ -33,7 +33,7 @@
     <div class="home-page__inner">
 
         <!--    지도로 중개사 찾기    -->
-        <section class="home-block home-block--map">
+        <section class="home-block">
             <h2 class="home-block__title">지도로 중개사 찾기</h2>
 
             <article class="feature-card flex_between">
@@ -68,7 +68,7 @@
         </section>
 
         <!--   내 매물 전송     -->
-        <section class="home-block home-block--send">
+        <section class="home-block">
             <h2 class="home-block__title">내 매물 전송</h2>
 
             <article class="feature-card">
@@ -96,27 +96,80 @@
             </button>
         </section>
 
-        <!--    주변 중개사 안내 버블    -->
-        <section class="home-block home-block--tip">
-            <div class="tip-bubble">
-                <p class="tip-bubble__text">
-                    관심이 있는 지역을 선택하고<br>
-                    주변 중개사님 리스트를 찾아봐요!
-                </p>
-                <button type="button" class="btn btn--primary btn--sm">
-                    주변 중개사 보기
-                </button>
+        <!--    주변 중개사    -->
+        <section class="home-block">
+            <h2 class="home-block__title" id="nearby__title">주변 중개사</h2>
+            <h3 class="home-block__desc">내 매물을 보낼 중개사들을 리스트로 빠르게 찾아봐요!</h3>
+
+            <div class="home-block--nearby">
+                <!--      아래 레이어: 실제 리스트      -->
+                <div class="nearby-list">
+                    <div class="nearby-placeholder">
+                        <div class="nearby-placeholder__item">
+                            <div class="nearby-placeholder__left">
+                                <img src="/img/104x104-rectangle.svg" alt="프로필">
+                                <div class="nearby-placeholder__text">
+                                    <h3 class="nearby-placeholder__name">우리동네 부동산</h3>
+                                    <h4 class="nearby-placeholder__listing">아파트 8 오피스텔 6 상가 4</h4>
+                                </div>
+                            </div>
+                            <div class="nearby-placeholder__right">
+                                <div class="nearby-placeholder__icons">
+                                    <span class="nearby-placeholder__call nearby-placeholder__icon"></span>
+                                    <span class="nearby-placeholder__home nearby-placeholder__icon"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nearby-placeholder__item">
+                            <div class="nearby-placeholder__left">
+                                <img src="/img/104x104-rectangle.svg" alt="프로필">
+                                <div class="nearby-placeholder__text">
+                                    <h3 class="nearby-placeholder__name">금산부동산</h3>
+                                    <h4 class="nearby-placeholder__listing">빌라 3 상가주택 2 아파트 1</h4>
+                                </div>
+                            </div>
+                            <div class="nearby-placeholder__right">
+                                <div class="nearby-placeholder__icons">
+                                    <span class="nearby-placeholder__call nearby-placeholder__icon"></span>
+                                    <span class="nearby-placeholder__home nearby-placeholder__icon"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nearby-placeholder__item">
+                            <div class="nearby-placeholder__left">
+                                <img src="/img/104x104-rectangle.svg" alt="프로필">
+                                <div class="nearby-placeholder__text">
+                                    <h3 class="nearby-placeholder__name">황금동 부동산</h3>
+                                    <h4 class="nearby-placeholder__listing">주택 10 빌라/연립 7 원룸 5</h4>
+                                </div>
+                            </div>
+                            <div class="nearby-placeholder__right">
+                                <div class="nearby-placeholder__icons">
+                                    <span class="nearby-placeholder__call nearby-placeholder__icon"></span>
+                                    <span class="nearby-placeholder__home nearby-placeholder__icon"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nearby-agents">
+                        <!--       실제 데이터         -->
+                    </div>
+                </div>
+
+                <!--      위 레이어: 안내 버블 오버레이      -->
+                <div class="nearby-overlay">
+                    <div class="tip-bubble">
+                        <p class="tip-bubble__text">
+                            관심이 있는 지역을 선택하고<br>
+                            주변 중개사님 리스트를 찾아봐요!
+                        </p>
+                        <button type="button" class="btn btn--secondary btn--sm">
+                            주변 중개사 보기
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
-
-        <!--    주변 중개사 리스트    -->
-        <section class="home-block home-block--nearby">
-            <h3 class="home-section-title">주변 중개사</h3>
-            <div class="nearby-placeholder">
-            <!--       실제 데이터         -->
-            </div>
-        </section>
-
     </div>
 </section>
 
