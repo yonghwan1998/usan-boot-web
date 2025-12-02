@@ -262,6 +262,29 @@
     gap: 2px;
 }
 
+.nearby-agent__name {
+    font-weight: 700;
+    font-size: 24px;
+    color: #091243;
+}
+
+.nearby-agent__desc {
+    display: flex;
+    gap: 4px;
+}
+
+.nearby-agent__distance {
+    font-weight: 600;
+    font-size: 16px;
+    color: #404040;
+}
+
+.nearby-agent__addr {
+    font-weight: 400;
+    font-size: 16px;
+    color: #595959;
+}
+
 .nearby-overlay::before {
     content: "";
     position: absolute;
