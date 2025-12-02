@@ -12,7 +12,7 @@
 </head>
 
 <th:block th:fragment="extraCss">
-    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css(t=${#dates.createNow().time})}">
 </th:block>
 
 <th:block th:fragment="pcSideContent">
