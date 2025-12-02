@@ -11,10 +11,20 @@
         </div>
         <span class="bottom-nav__label">동네 부동산</span>
     </a>
-    <a th:href="@{#}" class="bottom-nav__item">
+    <a th:href="@{/temp/login}"
+       th:if="${!tempLogin}"
+       class="bottom-nav__item">
         <div class="bottom-nav__icon">
             <img src="/img/24x24-user.svg" alt="더보기">
         </div>
-        <span class="bottom-nav__label">더보기</span>
+        <span class="bottom-nav__label">더보기(로그인)</span>
+    </a>
+    <a th:href="@{/temp/logout}"
+       th:if="${tempLogin}"
+       class="bottom-nav__item">
+        <div class="bottom-nav__icon">
+            <img src="/img/24x24-user.svg" alt="더보기">
+        </div>
+        <span class="bottom-nav__label">더보기(로그아웃)</span>
     </a>
 </nav>
