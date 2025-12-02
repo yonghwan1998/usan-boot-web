@@ -227,8 +227,10 @@
     height: 50px;
 }
 
-.nearby-agents {
-    display: none;
+.nearby-agent {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .nearby-overlay {
@@ -238,6 +240,26 @@
     justify-content: center;
     align-items: center;
     z-index: 2;
+}
+
+.nearby-agent__item {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: var(--radius-card);
+}
+
+.nearby-agent__right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nearby-agent__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .nearby-overlay::before {
