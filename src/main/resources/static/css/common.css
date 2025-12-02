@@ -75,3 +75,127 @@
 .direction_column {
     flex-direction: column;
 }
+
+/* ================================
+   📌 태그 공통 스타일
+   ================================ */
+.listing__tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 7px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tag-label {
+    display: inline-block;
+}
+
+.tag-count {
+    display: inline-block;
+}
+
+/* ================================
+   📌 카테고리별 색상
+   ================================ */
+
+/* 주거형 */
+.listing__tag--apt,
+.listing__tag--officetel,
+.listing__tag--villa,
+.listing__tag--oneroom,
+.listing__tag--tworoom,
+.listing__tag--detached,
+.listing__tag--rural,
+.listing__tag--mixedhouse,
+.listing__tag--hanok {
+    background-color: #FFF5F5;
+}
+.listing__tag--apt .tag-label,
+.listing__tag--officetel .tag-label,
+.listing__tag--villa .tag-label,
+.listing__tag--oneroom .tag-label,
+.listing__tag--tworoom .tag-label,
+.listing__tag--detached .tag-label,
+.listing__tag--rural .tag-label,
+.listing__tag--mixedhouse .tag-label,
+.listing__tag--hanok .tag-label {
+    color: #A65959;
+}
+.listing__tag--apt .tag-count,
+.listing__tag--officetel .tag-count,
+.listing__tag--villa .tag-count,
+.listing__tag--oneroom .tag-count,
+.listing__tag--tworoom .tag-count,
+.listing__tag--detached .tag-count,
+.listing__tag--rural .tag-count,
+.listing__tag--mixedhouse .tag-count,
+.listing__tag--hanok .tag-count {
+    color: #633636;
+}
+
+/* 상업형 */
+.listing__tag--store,
+.listing__tag--office,
+.listing__tag--building {
+    background-color: #FFF4E5;
+}
+.listing__tag--store .tag-label,
+.listing__tag--office .tag-label,
+.listing__tag--building .tag-label {
+    color: #B2884D;
+}
+.listing__tag--store .tag-count,
+.listing__tag--office .tag-count,
+.listing__tag--building .tag-count {
+    color: #6B522E;
+}
+
+/* 산업형 */
+.listing__tag--factory,
+.listing__tag--knowledge {
+    background-color: #E5EEFF;
+}
+.listing__tag--factory .tag-label,
+.listing__tag--knowledge .tag-label {
+    color: #4D6FB2;
+}
+.listing__tag--factory .tag-count,
+.listing__tag--knowledge .tag-count {
+    color: #4D6FB2;
+}
+
+/* 토지형 */
+.listing__tag--land {
+    background-color: #F0FFF4;
+}
+.listing__tag--land .tag-label {
+    color: #4D8B70;
+}
+.listing__tag--land .tag-count {
+    color: #2F5A46;
+}
+
+/* 개발 / 분양형 */
+.listing__tag--apt-sale,
+.listing__tag--officetel-sale,
+.listing__tag--redevelopment,
+.listing__tag--reconstruction,
+.listing__tag--presale {
+    background-color: #F8F0FF;
+}
+.listing__tag--apt-sale .tag-label,
+.listing__tag--officetel-sale .tag-label,
+.listing__tag--redevelopment .tag-label,
+.listing__tag--reconstruction .tag-label,
+.listing__tag--presale .tag-label {
+    color: #7E5BA9;
+}
+.listing__tag--apt-sale .tag-count,
+.listing__tag--officetel-sale .tag-count,
+.listing__tag--redevelopment .tag-count,
+.listing__tag--reconstruction .tag-count,
+.listing__tag--presale .tag-count {
+    color: #5A3B80;
+}

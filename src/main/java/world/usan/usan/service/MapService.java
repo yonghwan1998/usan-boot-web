@@ -90,26 +90,26 @@ public class MapService {
 
     private static List<BrokerMarkerTopPropertyDto> getPropertiesTop5(BrokerPropertyCount count) {
         List<BrokerMarkerTopPropertyDto> items = List.of(
-                new BrokerMarkerTopPropertyDto("아파트", count.getAptCnt(), "bottom-sheet__tag--apt"),
-                new BrokerMarkerTopPropertyDto("오피스텔", count.getOfficetelCnt(), "bottom-sheet__tag--officetel"),
-                new BrokerMarkerTopPropertyDto("빌라/연립", count.getVillaCnt(), "bottom-sheet__tag--villa"),
-                new BrokerMarkerTopPropertyDto("원룸", count.getOneroomCnt(), "bottom-sheet__tag--oneroom"),
-                new BrokerMarkerTopPropertyDto("투룸", count.getTworoomCnt(), "bottom-sheet__tag--tworoom"),
-                new BrokerMarkerTopPropertyDto("단독/다가구", count.getDetachedCnt(), "bottom-sheet__tag--detached"),
-                new BrokerMarkerTopPropertyDto("전원주택", count.getRuralCnt(), "bottom-sheet__tag--rural"),
-                new BrokerMarkerTopPropertyDto("상가주택", count.getMixedhouseCnt(), "bottom-sheet__tag--mixedhouse"),
-                new BrokerMarkerTopPropertyDto("한옥주택", count.getHanokCnt(), "bottom-sheet__tag--hanok"),
-                new BrokerMarkerTopPropertyDto("상가", count.getStoreCnt(), "bottom-sheet__tag--store"),
-                new BrokerMarkerTopPropertyDto("사무실", count.getOfficeCnt(), "bottom-sheet__tag--office"),
-                new BrokerMarkerTopPropertyDto("건물", count.getBuildingCnt(), "bottom-sheet__tag--building"),
-                new BrokerMarkerTopPropertyDto("공장/창고", count.getFactoryCnt(), "bottom-sheet__tag--factory"),
-                new BrokerMarkerTopPropertyDto("지식산업센터", count.getKnowledgeCnt(), "bottom-sheet__tag--knowledge"),
-                new BrokerMarkerTopPropertyDto("토지", count.getLandCnt(), "bottom-sheet__tag--land"),
-                new BrokerMarkerTopPropertyDto("아파트분양권", count.getAptSaleCnt(), "bottom-sheet__tag--apt-sale"),
-                new BrokerMarkerTopPropertyDto("오피스텔분양권", count.getOfficetelSaleCnt(), "bottom-sheet__tag--officetel-sale"),
-                new BrokerMarkerTopPropertyDto("재개발", count.getRedevelopmentCnt(), "bottom-sheet__tag--redevelopment"),
-                new BrokerMarkerTopPropertyDto("재건축", count.getReconstructionCnt(), "bottom-sheet__tag--reconstruction"),
-                new BrokerMarkerTopPropertyDto("분양중/예정", count.getPresaleCnt(), "bottom-sheet__tag--presale")
+                new BrokerMarkerTopPropertyDto("아파트", count.getAptCnt(), "listing__tag--apt"),
+                new BrokerMarkerTopPropertyDto("오피스텔", count.getOfficetelCnt(), "listing__tag--officetel"),
+                new BrokerMarkerTopPropertyDto("빌라/연립", count.getVillaCnt(), "listing__tag--villa"),
+                new BrokerMarkerTopPropertyDto("원룸", count.getOneroomCnt(), "listing__tag--oneroom"),
+                new BrokerMarkerTopPropertyDto("투룸", count.getTworoomCnt(), "listing__tag--tworoom"),
+                new BrokerMarkerTopPropertyDto("단독/다가구", count.getDetachedCnt(), "listing__tag--detached"),
+                new BrokerMarkerTopPropertyDto("전원주택", count.getRuralCnt(), "listing__tag--rural"),
+                new BrokerMarkerTopPropertyDto("상가주택", count.getMixedhouseCnt(), "listing__tag--mixedhouse"),
+                new BrokerMarkerTopPropertyDto("한옥주택", count.getHanokCnt(), "listing__tag--hanok"),
+                new BrokerMarkerTopPropertyDto("상가", count.getStoreCnt(), "listing__tag--store"),
+                new BrokerMarkerTopPropertyDto("사무실", count.getOfficeCnt(), "listing__tag--office"),
+                new BrokerMarkerTopPropertyDto("건물", count.getBuildingCnt(), "listing__tag--building"),
+                new BrokerMarkerTopPropertyDto("공장/창고", count.getFactoryCnt(), "listing__tag--factory"),
+                new BrokerMarkerTopPropertyDto("지식산업센터", count.getKnowledgeCnt(), "listing__tag--knowledge"),
+                new BrokerMarkerTopPropertyDto("토지", count.getLandCnt(), "listing__tag--land"),
+                new BrokerMarkerTopPropertyDto("아파트분양권", count.getAptSaleCnt(), "listing__tag--apt-sale"),
+                new BrokerMarkerTopPropertyDto("오피스텔분양권", count.getOfficetelSaleCnt(), "listing__tag--officetel-sale"),
+                new BrokerMarkerTopPropertyDto("재개발", count.getRedevelopmentCnt(), "listing__tag--redevelopment"),
+                new BrokerMarkerTopPropertyDto("재건축", count.getReconstructionCnt(), "listing__tag--reconstruction"),
+                new BrokerMarkerTopPropertyDto("분양중/예정", count.getPresaleCnt(), "listing__tag--presale")
         );
 
         return items.stream()
