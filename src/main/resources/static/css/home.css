@@ -35,6 +35,26 @@
     margin-bottom: 10px;
 }
 
+.home-block__go-map {
+    gap: 2px;
+    text-decoration: none;
+}
+
+.go-map__text {
+    font-weight: 400;
+    font-size: 16px;
+    color: #6a7282;
+}
+
+.go-map__icon {
+    background-image: url("../img/6x10-arrow.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 4px 8px;
+    width: 16px;
+    height: 16px;
+}
+
 .feature-card {
     align-items: center;
     padding: 30px;
@@ -142,7 +162,7 @@
     width: 100%;
 }
 
-.home-block--nearby {
+.home-block__nearby {
     position: relative;
     margin-top: 18px;
 }

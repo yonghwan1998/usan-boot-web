@@ -15,6 +15,10 @@ public class MainController {
         boolean tempLogin = Boolean.TRUE.equals(session.getAttribute("tempLogin"));
         model.addAttribute("tempLogin", tempLogin);
 
+        if (tempLogin) {
+            model.addAttribute("nearbyAddr", "오산시 원동의 중개사");
+        }
+
         return "index";
     }
 
