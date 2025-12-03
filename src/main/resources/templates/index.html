@@ -36,7 +36,7 @@
         <section class="home-block">
             <h2 class="home-block__title">지도로 중개사 찾기</h2>
 
-            <article class="feature-card find-card flex_between h_178">
+            <article class="feature-card find-card flex_between h_178" style="display: none">
                 <div class="find-card__text">
                     <p class="find-card__headline">
                         <span class="point_t">내가 선택한 위치기준으로</span><br>
@@ -53,19 +53,20 @@
                          onerror="this.style.display='none'">
                 </div>
             </article>
-            <article class="feature-card h_178" style="display: none">
-                <div class="">
-                    <div>
-                        <span class="">
-                        </span>
-                        <p class="">
+            <article class="feature-card register-card h_178">
+                <div class="register-card__contents">
+                    <div class="register-card__top">
+                        <span class="register-icon--marker"></span>
+                        <p class="register-card__text">
+                            주소를 등록하면<br>
+                            내 주변 중개사가 자동으로 보여요.
                         </p>
                     </div>
-                    <div>
-                        <div></div>
-                        <div>
-                            <div></div>
-                            <div></div>
+                    <div class="register-card__bottom">
+                        <div class="register-card__rectangle"></div>
+                        <div class="register-card__lines">
+                            <div class="register-card__line line-first"></div>
+                            <div class="register-card__line line-second"></div>
                         </div>
                     </div>
                 </div>

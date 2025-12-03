@@ -98,6 +98,67 @@
     background-image: url("../img/24x24-building.svg");
 }
 
+.register-card {
+    padding: 27px 61px;
+}
+
+.register-card__contents {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.register-card__top {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.register-icon--marker {
+    background-image: url("../img/24x24-marker.svg");
+    width: 24px;
+    height: 24px;
+}
+
+.register-card__text {
+    font-weight: 500;
+    font-size: 20px;
+    color: #091243;
+}
+
+.register-card__bottom {
+    display: flex;
+    gap: 10px;
+    padding: 2px;
+}
+
+.register-card__rectangle {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background: #e7Eafe;
+}
+
+.register-card__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.register-card__line {
+    height: 14px;
+    border-radius: 4px;
+}
+
+.line-first {
+    background: #d9d9d9;
+}
+
+.line-second {
+    background: #f2f2f2;
+}
+
 .send-card {
     padding: 32px;
 }
