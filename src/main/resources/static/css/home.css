@@ -57,45 +57,233 @@
 
 .feature-card {
     align-items: center;
-    padding: 30px;
     border-radius: var(--radius-card);
     background: #ffffff;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
-.feature-card__text {
+.find-card {
+    padding: 30px;
+}
+
+.find-card__text,
+.send-card__text {
     flex: 1 1 auto;
     min-width: 0;
 }
 
-.feature-card__headline {
+.find-card__headline {
     font-size: 20px;
     line-height: 1.4;
     color: #262626;
     font-weight: 500;
 }
 
-.feature-card__icons {
+.find-card__icons {
     margin-top: 21px;
     display: flex;
     gap: 12px;
 }
 
-.feature-icon {
+.find-icon {
     width: 24px;
     height: 24px;
 }
 
-.feature-icon--house {
+.find-icon--house {
     background-image: url("../img/24x24-house.svg");
 }
 
-.feature-icon--building {
+.find-icon--building {
     background-image: url("../img/24x24-building.svg");
 }
 
-.feature-icon--speaker {
+.register-card {
+    padding: 27px 61px;
+}
+
+.register-card__contents {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.register-card__top {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.register-icon--marker {
+    background-image: url("../img/24x24-marker.svg");
+    width: 24px;
+    height: 24px;
+}
+
+.register-card__text {
+    font-weight: 500;
+    font-size: 20px;
+    color: #091243;
+}
+
+.register-card__bottom {
+    display: flex;
+    gap: 10px;
+    padding: 2px;
+}
+
+.register-card__rectangle {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background: #e7Eafe;
+}
+
+.register-card__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.register-card__line {
+    height: 14px;
+    border-radius: 4px;
+}
+
+.send-card {
+    padding: 32px;
+}
+
+.send-card__headline {
+    font-weight: 400;
+    font-size: 20px;
+    color: #000000;
+}
+
+.send-icon--speaker {
     margin-top: 16px;
+}
+
+.step-card {
+    display: flex;
+    padding: 32px 16px;
+}
+
+.step-card__contents {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 8px;
+}
+
+.step-card__step {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    padding: 12px;
+}
+
+.step__step-text {
+    font-weight: 500;
+    font-size: 20px;
+    text-align: center;
+    color: #1c37ca;
+}
+
+.step__step-desc {
+    font-weight: 400;
+    font-size: 16px;
+    color: #000000;
+}
+
+.step-icon--scroll {
+    background-image: url("../img/24x24-scroll.svg");
+    width: 24px;
+    height: 24px;
+    align-self: center;
+}
+
+.step-icon--broker {
+    background-image: url("../img/24x24-broker.svg");
+    width: 24px;
+    height: 24px;
+    align-self: center;
+}
+
+.step-icon--send {
+    background-image: url("../img/24x24-send.svg");
+    width: 24px;
+    height: 24px;
+    align-self: center;
+}
+
+.step-icon--next {
+    background-image: url("../img/10.5x14.4-next.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 11px 15px;
+    width: 24px;
+    height: 24px;
+}
+
+.promotion-card {
+    display: flex;
+    padding: 30px 16px;
+}
+
+.promotion-card__contents {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 4px;
+}
+
+.promotion-card__step {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    padding: 12px;
+}
+
+.promotion__step-text {
+    font-weight: 700;
+    font-size: 16px;
+    text-align: center;
+    color: #1c37ca;
+}
+
+.promotion-icon--house {
+    background-image: url("../img/40x40-house.svg");
+    width: 40px;
+    height: 40px;
+    align-self: center;
+}
+
+.promotion-icon--man {
+    background-image: url("../img/40x40-3d-man.svg");
+    width: 40px;
+    height: 40px;
+    align-self: center;
+}
+.promotion-icon--airplane {
+    background-image: url("../img/40x40-3d-airplane.svg");
+    width: 40px;
+    height: 40px;
+    align-self: center;
+}
+
+.promotion-icon--next {
+    background-image: url("../img/10.5x14.4-next.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 11px 15px;
+    width: 24px;
+    height: 24px;
 }
 
 .dot-indicator {

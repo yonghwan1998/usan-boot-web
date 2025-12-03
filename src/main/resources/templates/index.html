@@ -36,27 +36,44 @@
         <section class="home-block">
             <h2 class="home-block__title">지도로 중개사 찾기</h2>
 
-            <article class="feature-card flex_between">
-                <div class="feature-card__text">
-                    <p class="feature-card__headline">
+            <article class="feature-card find-card flex_between h_178" style="display: none">
+                <div class="find-card__text">
+                    <p class="find-card__headline">
                         <span class="point_t">내가 선택한 위치기준으로</span><br>
                         <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
                     </p>
-                    <div class="feature-card__icons">
-                        <span class="feature-icon feature-icon--house"></span>
-                        <span class="feature-icon feature-icon--building"></span>
+                    <div class="find-card__icons">
+                        <span class="find-icon find-icon--house"></span>
+                        <span class="find-icon find-icon--building"></span>
                     </div>
                 </div>
-                <div class="feature-icon--grid">
+                <div class="find-icon--grid">
                     <img src="/img/home-map-card.svg"
                          alt="지도에서 중개사 찾기"
                          onerror="this.style.display='none'">
                 </div>
             </article>
+            <article class="feature-card register-card h_178">
+                <div class="register-card__contents">
+                    <div class="register-card__top">
+                        <span class="register-icon--marker"></span>
+                        <p class="register-card__text">
+                            주소를 등록하면<br>
+                            내 주변 중개사가 자동으로 보여요.
+                        </p>
+                    </div>
+                    <div class="register-card__bottom">
+                        <div class="register-card__rectangle"></div>
+                        <div class="register-card__lines">
+                            <div class="register-card__line bg_d9d9d9"></div>
+                            <div class="register-card__line bg_f2f2f2"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
 
             <div class="dot-indicator">
                 <span class="dot is-active"></span>
-                <span class="dot"></span>
                 <span class="dot"></span>
             </div>
 
@@ -71,17 +88,56 @@
         <section class="home-block">
             <h2 class="home-block__title">내 매물 전송</h2>
 
-            <article class="feature-card">
-                <div class="feature-card__text">
-                    <p class="feature-card__headline">
-                        <span class="bold point_b">주변 중개사</span><span class="normal point_b">에게</span><br>
-                        <span class="normal point_b">내 매물을 빠르게 홍보해보세요!</span>
+            <article class="feature-card send-card h_224" style="display: none">
+                <div class="send-card__text">
+                    <p class="send-card__headline">
+                        <span class="bold">주변 중개사</span>에게<br>
+                        내 매물을 빠르게 홍보해보세요!
                     </p>
                 </div>
-                <div class="feature-icon--speaker flex_center">
+                <div class="send-icon--speaker flex_center">
                     <img src="/img/100x100-speaker.svg"
                          alt="내 매물 전송"
                          onerror="this.style.display='none'">
+                </div>
+            </article>
+            <article class="feature-card step-card h_224" style="display: none">
+                <div class="step-card__contents">
+                    <div class="step-card__step">
+                        <div class="step__step-text">STEP.1</div>
+                        <span class="step-icon--scroll"></span>
+                        <div class="step__step-desc">매물등록</div>
+                    </div>
+                    <span class="step-icon--next"></span>
+                    <div class="step-card__step">
+                        <div class="step__step-text">STEP.2</div>
+                        <span class="step-icon--broker"></span>
+                        <div class="step__step-desc">중개사 추천</div>
+                    </div>
+                    <span class="step-icon--next"></span>
+                    <div class="step-card__step">
+                        <div class="step__step-text">STEP.3</div>
+                        <span class="step-icon--send"></span>
+                        <div class="step__step-desc">매물발송</div>
+                    </div>
+                </div>
+            </article>
+            <article class="feature-card promotion-card h_224">
+                <div class="promotion-card__contents">
+                    <div class="promotion-card__step">
+                        <div class="promotion__step-text">빠르고 신속한<br>매물중개!</div>
+                        <span class="promotion-icon--house"></span>
+                    </div>
+                    <span class="promotion-icon--next"></span>
+                    <div class="promotion-card__step">
+                        <div class="promotion__step-text">전국 3천만의<br>중개사!</div>
+                        <span class="promotion-icon--man"></span>
+                    </div>
+                    <span class="promotion-icon--next"></span>
+                    <div class="promotion-card__step">
+                        <div class="promotion__step-text">쉬운<br>매물관리!</div>
+                        <span class="promotion-icon--airplane"></span>
+                    </div>
                 </div>
             </article>
 
