@@ -229,6 +229,63 @@
     height: 24px;
 }
 
+.promotion-card {
+    display: flex;
+    padding: 30px 16px;
+}
+
+.promotion-card__contents {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 4px;
+}
+
+.promotion-card__step {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    padding: 12px;
+}
+
+.promotion__step-text {
+    font-weight: 700;
+    font-size: 16px;
+    text-align: center;
+    color: #1c37ca;
+}
+
+.promotion-icon--house {
+    background-image: url("../img/40x40-house.svg");
+    width: 40px;
+    height: 40px;
+    align-self: center;
+}
+
+.promotion-icon--man {
+    background-image: url("../img/40x40-3d-man.svg");
+    width: 40px;
+    height: 40px;
+    align-self: center;
+}
+.promotion-icon--airplane {
+    background-image: url("../img/40x40-3d-airplane.svg");
+    width: 40px;
+    height: 40px;
+    align-self: center;
+}
+
+.promotion-icon--next {
+    background-image: url("../img/10.5x14.4-next.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 11px 15px;
+    width: 24px;
+    height: 24px;
+}
+
 .dot-indicator {
     display: flex;
     justify-content: center;
