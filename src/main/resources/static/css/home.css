@@ -57,44 +57,58 @@
 
 .feature-card {
     align-items: center;
-    padding: 30px;
     border-radius: var(--radius-card);
     background: #ffffff;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
-.feature-card__text {
+.find-card {
+    padding: 30px;
+}
+
+.find-card__text,
+.send-card__text {
     flex: 1 1 auto;
     min-width: 0;
 }
 
-.feature-card__headline {
+.find-card__headline {
     font-size: 20px;
     line-height: 1.4;
     color: #262626;
     font-weight: 500;
 }
 
-.feature-card__icons {
+.find-card__icons {
     margin-top: 21px;
     display: flex;
     gap: 12px;
 }
 
-.feature-icon {
+.find-icon {
     width: 24px;
     height: 24px;
 }
 
-.feature-icon--house {
+.find-icon--house {
     background-image: url("../img/24x24-house.svg");
 }
 
-.feature-icon--building {
+.find-icon--building {
     background-image: url("../img/24x24-building.svg");
 }
 
-.feature-icon--speaker {
+.send-card {
+    padding: 32px;
+}
+
+.send-card__headline {
+    font-weight: 400;
+    font-size: 20px;
+    color: #000000;
+}
+
+.send-icon--speaker {
     margin-top: 16px;
 }
 
