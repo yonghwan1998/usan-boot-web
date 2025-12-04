@@ -152,6 +152,10 @@
 }
 
 .send-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
     padding: 32px;
 }
 
@@ -159,10 +163,6 @@
     font-weight: 400;
     font-size: 20px;
     color: #000000;
-}
-
-.send-icon--speaker {
-    margin-top: 16px;
 }
 
 .step-card {
@@ -231,13 +231,13 @@
 
 .promotion-card {
     display: flex;
+    justify-content: center;
     padding: 30px 16px;
 }
 
 .promotion-card__contents {
     display: flex;
     justify-content: center;
-    gap: 12px;
     align-items: center;
     padding: 12px 4px;
 }
