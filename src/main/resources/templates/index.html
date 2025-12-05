@@ -80,7 +80,7 @@
 
             <button type="button"
                     class="btn btn--primary home-block__cta"
-                    th:onclick="|location.href='@{#}'|">
+                    th:onclick="|location.href='@{/region/selector}'|">
                 중개사 찾기
             </button>
         </section>
@@ -320,7 +320,9 @@
                             관심이 있는 지역을 선택하고<br>
                             주변 중개사님 리스트를 찾아봐요!
                         </p>
-                        <button type="button" class="btn btn--secondary btn--sm">
+                        <button type="button"
+                                class="btn btn--secondary btn--sm"
+                                th:onclick="|location.href='@{/region/selector}'|">
                             주변 중개사 보기
                         </button>
                     </div>
