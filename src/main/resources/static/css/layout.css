@@ -39,18 +39,21 @@
 }
 
 .mobile-frame-wrap {
+    width: 100vw;
     display: flex;
     justify-content: center;
+    overflow: hidden;
 }
 
 /* 모바일 화면 프레임 */
 .mobile-frame {
-    width: 100%;
-    max-width: 430px;
-    background: #ffffff;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    width: 430px;
+    /*max-width: 430px;*/
+    /*background: #ffffff;*/
+    /*overflow: hidden;*/
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    transform-origin: top center;
 }
 
 /* 실제 스크롤 되는 컨텐츠 영역 */
