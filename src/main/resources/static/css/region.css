@@ -36,3 +36,35 @@
     width: 48px;
     height: 48px;
 }
+
+.region-text {
+    font-weight: 500;
+    font-size: 20px;
+    color: #0d0d0d;
+    padding: 0 16px;
+    margin-top: 12px;
+    margin-bottom: 60px;
+}
+
+.region-tag-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 20px;
+}
+
+.region-tag {
+    height: 44px;
+    padding: 12px 16px;
+    border-radius: 8px;
+}
+
+.region-tag--sido {
+    color: #3551e3;
+    border: 1px solid #3551e3;
+}
+
+.region-tag--sigungu {
+    color: #1fad66;
+    border: 1px solid #1fad66;
+}
