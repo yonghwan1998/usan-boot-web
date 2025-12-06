@@ -35,7 +35,7 @@
     </aside>
 
     <!-- 모바일 메인 프레임 -->
-    <div class="mobile-frame-wrap">
+    <div class="mobile-frame-outer">
         <main class="mobile-frame">
             <!-- 모바일 헤더 공통 -->
             <th:block th:replace="~{fragments/header :: header}"></th:block>
@@ -55,16 +55,23 @@
 
 <script>
     function updateScale() {
-        const base = 430;                // 디자인 기준 폭
-        const vw = window.innerWidth;    // 실제 브라우저 폭
-        const scale = Math.min(vw / base, 1);  // 430보다 크면 scale=1 유지
+        const baseWidth = 430;
+        const outer = document.querySelector('.mobile-frame-outer');
+        const frame = document.querySelector('.mobile-frame');
+        if (!outer || !frame) return;
 
-        const frame = document.querySelector(".mobile-frame");
+        const vw = window.innerWidth;
+        const scale = Math.min(vw / baseWidth, 1); // 430보다 크면 1, 작으면 비율 축소
+
         frame.style.transform = `scale(${scale})`;
+
+        // 스케일된 실제 높이에 맞춰서 outer 높이도 맞춰주기
+        const scaledHeight = frame.offsetHeight * scale;
+        outer.style.height = `${scaledHeight}px`;
     }
 
-    window.addEventListener("resize", updateScale);
-    window.addEventListener("DOMContentLoaded", updateScale);
+    window.addEventListener('resize', updateScale);
+    window.addEventListener('DOMContentLoaded', updateScale);
 </script>
 
 </body>
