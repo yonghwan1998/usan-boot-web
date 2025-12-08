@@ -31,8 +31,23 @@
 
         <!-- 선택된 중개사 바텀시트 -->
         <div id="broker-sheet" class="bottom-sheet">
-            <div class="bottom-sheet__handle"></div>
-            <div id="broker-sheet-content"></div>
+            <div class="bottom-sheet__handle-wrapper">
+                <div class="bottom-sheet__handle"></div>
+            </div>
+            <div class="bottom-sheet__contents-wrapper">
+                <div class="bottom-sheet__options">
+                    <div class="bottom-sheet-btn__distance">거리 설정</div>
+                    <div class="bottom-sheet-toggle__wrapper">
+                        <span class="bottom-sheet-txt">중개사</span>
+                        <span class="bottom-sheet-btn__toggle">
+                            <span class="bottom-sheet-toggle__white"></span>
+                        </span>
+                        <span class="bottom-sheet-txt">정보</span>
+                    </div>
+                </div>
+                <div class="bottom-sheet__line"></div>
+                <div id="broker-sheet-content"></div>
+            </div>
         </div>
     </div>
 
