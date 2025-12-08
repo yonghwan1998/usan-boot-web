@@ -38,31 +38,52 @@
     max-width: 80%;
 }
 
-.mobile-frame-wrap {
-    width: 100vw;
+/* ---------------- 모바일 프레임 쪽 ---------------- */
+
+/* 폰 전체를 가운데에 배치 */
+.mobile-frame-outer {
+    flex: 1;
     display: flex;
     justify-content: center;
-    overflow: hidden;
+    align-items: flex-start;
+    overflow: hidden; /* 스케일된 폰이 삐져나오는 것 방지 */
 }
 
-/* 모바일 화면 프레임 */
+/* 스케일 대상이 되는 "폰" 박스 */
+.mobile-shell {
+    width: 430px;         /* 기준 폭 */
+    height: 100vh;        /* JS에서 스케일에 맞게 다시 세팅됨 */
+    background: #ffffff;
+    display: flex;
+    flex-direction: column; /* 헤더 / 본문 / 바텀 네비 수직 배치 */
+    overflow: hidden;       /* 내부만 스크롤 */
+}
+
+/* 헤더(안에 header fragment가 붙음) */
+.mobile-header {
+    flex: 0 0 56px;         /* 헤더 높이 */
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e5e5e5;
+    background: #ffffff;
+    z-index: 1;
+}
+
+/* 실제 스크롤 되는 본문 영역 */
 .mobile-frame {
-    width: 430px;
-    /*max-width: 430px;*/
-    /*background: #ffffff;*/
-    /*overflow: hidden;*/
-    /*display: flex;*/
-    /*flex-direction: column;*/
-    transform-origin: top center;
-}
-
-/* 실제 스크롤 되는 컨텐츠 영역 */
-#contents {
-    flex: 1;
+    flex: 1 1 auto;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.mobile-frame::-webkit-scrollbar {
+    display: none;
 }
 
-/* 좌측 로고 영역 */
+/* ---------------- 헤더 내부 요소들 ---------------- */
+
 .header-left {
     display: flex;
     align-items: center;
@@ -75,7 +96,6 @@
     display: block;
 }
 
-/* 가운데 위치 선택 pill */
 .header-center {
     flex: 1;
     display: flex;
@@ -106,12 +126,12 @@
     color: #000000;
 }
 
-/* ▼ 아이콘 */
 .header-location__icon {
     width: 13px;
     height: 7px;
     background-image: url("../img/13x7-arrow.svg");
-    color: #595959;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 /* 우측 알림 버튼 */
@@ -128,7 +148,10 @@
     display: block;
 }
 
+/* ---------------- 바텀 네비 ---------------- */
+
 .bottom-nav {
+    flex: 0 0 64px;      /* 바텀 네비 높이 */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -170,7 +193,8 @@
     color: inherit;
 }
 
-/* -------- 데스크탑 이상에서만 좌/우 2단 구성 -------- */
+/* ---------------- 데스크탑(PC) 레이아웃 ---------------- */
+
 @media (min-width: 1024px) {
     .usan-layout {
         max-width: 1200px;
@@ -183,28 +207,13 @@
         flex: 1;
     }
 
-    .mobile-frame {
-        flex: 0 0 430px;
-    }
-}
-
-.mobile-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    background: #f2f2f2;
-}
-
-@media (max-width: 430px) {
-    .mobile-frame-wrap {
-        width: 100vw;
-        display: flex;
-        justify-content: center;
+    /* PC에서는 모바일 프레임 폭 고정 + 그림자 */
+    .mobile-frame-outer {
+        flex: 0 0 auto;
     }
 
-    .mobile-frame {
-        width: 430px;
-        transform-origin: top center;
+    .mobile-shell {
+        box-shadow: 0 0 20px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
     }
 }
