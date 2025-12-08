@@ -36,16 +36,18 @@
 
     <!-- 모바일 메인 프레임 -->
     <div class="mobile-frame-outer">
-        <main class="mobile-frame">
-            <!-- 모바일 헤더 공통 -->
+        <div class="mobile-shell">
+            <!-- 모바일 고정 헤더 -->
             <th:block th:replace="~{fragments/header :: header}"></th:block>
 
             <!-- 페이지별 본문 -->
-            <section id="contents" th:replace="${content}"></section>
+            <main class="mobile-frame">
+                <section id="contents" th:replace="${content}"></section>
+            </main>
 
-            <!-- 모바일 하단 네비 공통 -->
+            <!-- 모바일 고정 하단 네비 -->
             <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
-        </main>
+        </div>
     </div>
 
 </div>
@@ -56,22 +58,42 @@
 <script>
     function updateScale() {
         const baseWidth = 430;
-        const outer = document.querySelector('.mobile-frame-outer');
-        const frame = document.querySelector('.mobile-frame');
-        if (!outer || !frame) return;
+        const shell = document.querySelector('.mobile-shell');
+        if (!shell) return;
 
         const vw = window.innerWidth;
         const scale = Math.min(vw / baseWidth, 1); // 430보다 크면 1, 작으면 비율 축소
 
-        frame.style.transform = `scale(${scale})`;
+        shell.style.transform = `scale(${scale})`;
+        shell.style.transformOrigin = 'top center';
 
-        // 스케일된 실제 높이에 맞춰서 outer 높이도 맞춰주기
-        const scaledHeight = frame.offsetHeight * scale;
-        outer.style.height = `${scaledHeight}px`;
+        // 스케일에 맞게 높이 조정
+        const scaledHeight = window.innerHeight * (1 / scale);
+        shell.style.height = scaledHeight + 'px';
+    }
+
+    // PC 왼쪽 영역에서 스크롤하면 오른쪽 mobile-frame이 스크롤되도록
+    function bindPcSideScrollProxy() {
+        const side = document.querySelector('.pc-side-section');
+        const inner = document.querySelector('.mobile-frame');
+
+        // 요소가 없으면(모바일 등) 바로 종료
+        if (!side || !inner) return;
+
+        // 마우스 휠 / 트랙패드 스크롤
+        side.addEventListener('wheel', function (e) {
+            // 기본 동작(페이지/자기 자신 스크롤) 막고
+            e.preventDefault();
+            // 모바일 프레임만 스크롤
+            inner.scrollTop += e.deltaY;
+        }, { passive: false });
     }
 
     window.addEventListener('resize', updateScale);
-    window.addEventListener('DOMContentLoaded', updateScale);
+    window.addEventListener('DOMContentLoaded', function () {
+        updateScale();
+        bindPcSideScrollProxy();
+    });
 </script>
 
 </body>
