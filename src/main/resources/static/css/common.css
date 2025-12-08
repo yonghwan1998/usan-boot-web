@@ -130,101 +130,191 @@
    ================================ */
 
 /* 주거형 */
-.listing__tag--apt,
-.listing__tag--officetel,
-.listing__tag--villa,
-.listing__tag--oneroom,
-.listing__tag--tworoom,
-.listing__tag--detached,
-.listing__tag--rural,
-.listing__tag--mixedhouse,
-.listing__tag--hanok {
-    background-color: #FFF5F5;
+.listing__tag--apt {
+    background-color: #fff5f5;
 }
-.listing__tag--apt .tag-label,
-.listing__tag--officetel .tag-label,
-.listing__tag--villa .tag-label,
-.listing__tag--oneroom .tag-label,
-.listing__tag--tworoom .tag-label,
-.listing__tag--detached .tag-label,
-.listing__tag--rural .tag-label,
-.listing__tag--mixedhouse .tag-label,
-.listing__tag--hanok .tag-label {
-    color: #A65959;
+.listing__tag--apt .tag-label {
+    color: #a65959;
 }
-.listing__tag--apt .tag-count,
-.listing__tag--officetel .tag-count,
-.listing__tag--villa .tag-count,
-.listing__tag--oneroom .tag-count,
-.listing__tag--tworoom .tag-count,
-.listing__tag--detached .tag-count,
-.listing__tag--rural .tag-count,
-.listing__tag--mixedhouse .tag-count,
-.listing__tag--hanok .tag-count {
+.listing__tag--apt .tag-count {
     color: #633636;
+}
+.listing__tag--officetel {
+    background-color: #fff4e5;
+}
+.listing__tag--officetel .tag-label {
+    color: #b2884d;
+}
+.listing__tag--officetel .tag-count {
+    color: #6b522e;
+}
+.listing__tag--villa {
+    background-color: #fffde5;
+}
+.listing__tag--villa .tag-label {
+    color: #b2aa4d;
+}
+.listing__tag--villa .tag-count {
+    color: #6b662e;
+}
+.listing__tag--oneroom {
+    background-color: #f4ffe5;
+}
+.listing__tag--oneroom .tag-label {
+    color: #648537;
+}
+.listing__tag--oneroom .tag-count {
+    color: #526b2e;
+}
+.listing__tag--tworoom {
+    background-color: #ecf9ec;
+}
+.listing__tag--tworoom .tag-label {
+    color: #4db24d;
+}
+.listing__tag--tworoom .tag-count {
+    color: #2e6b4c;
+}
+.listing__tag--detached {
+    background-color: #e5fff2;
+}
+.listing__tag--detached .tag-label {
+    color: #4db27e;
+}
+.listing__tag--detached .tag-count {
+    color: #2e6b4c;
+}
+.listing__tag--rural {
+    background-color: #e5fbff;
+}
+.listing__tag--rural .tag-label {
+    color: #4da1b2;
+}
+.listing__tag--rural .tag-count {
+    color: #2e606b;
+}
+.listing__tag--mixedhouse {
+    background-color: #e5eeff;
+}
+.listing__tag--mixedhouse .tag-label {
+    color: #4d6fb2;
+}
+.listing__tag--mixedhouse .tag-count {
+    color: #2e426b;
+}
+.listing__tag--hanok {
+    background-color: #eae5ff;
+}
+.listing__tag--hanok .tag-label {
+    color: #7e70c2;
+}
+.listing__tag--hanok .tag-count {
+    color: #382e6b;
 }
 
 /* 상업형 */
-.listing__tag--store,
-.listing__tag--office,
+.listing__tag--store {
+    background-color: #fcf5ff;
+}
+.listing__tag--store .tag-label {
+    color: #914cb2;
+}
+.listing__tag--store .tag-count {
+    color: #572e6b;
+}
+.listing__tag--office {
+    background-color: #fff5fc;
+}
+.listing__tag--office .tag-label {
+    color: #854770;
+}
+.listing__tag--office .tag-count {
+    color: #422438;
+}
 .listing__tag--building {
-    background-color: #FFF4E5;
+    background-color: #fff2e5;
 }
-.listing__tag--store .tag-label,
-.listing__tag--office .tag-label,
 .listing__tag--building .tag-label {
-    color: #B2884D;
+    color: #b27f4d;
 }
-.listing__tag--store .tag-count,
-.listing__tag--office .tag-count,
 .listing__tag--building .tag-count {
-    color: #6B522E;
+    color: #6b4c2e;
 }
 
 /* 산업형 */
-.listing__tag--factory,
+.listing__tag--factory {
+    background-color: #ffffe5;
+}
+.listing__tag--factory .tag-label {
+    color: #a1a145;
+}
+.listing__tag--factory .tag-count {
+    color: #6b6b2e;
+}
 .listing__tag--knowledge {
-    background-color: #E5EEFF;
+    background-color: #f2ffe5;
 }
-.listing__tag--factory .tag-label,
 .listing__tag--knowledge .tag-label {
-    color: #4D6FB2;
+    color: #72a145;
 }
-.listing__tag--factory .tag-count,
 .listing__tag--knowledge .tag-count {
-    color: #4D6FB2;
+    color: #4c6b2e;
 }
 
 /* 토지형 */
 .listing__tag--land {
-    background-color: #F0FFF4;
+    background-color: #e5ffe5;
 }
 .listing__tag--land .tag-label {
-    color: #4D8B70;
+    color: #45a145;
 }
 .listing__tag--land .tag-count {
-    color: #2F5A46;
+    color: #2e6b2e;
 }
 
 /* 개발 / 분양형 */
-.listing__tag--apt-sale,
-.listing__tag--officetel-sale,
-.listing__tag--redevelopment,
-.listing__tag--reconstruction,
+.listing__tag--apt-sale {
+    background-color: #e5fff2;
+}
+.listing__tag--apt-sale .tag-label {
+    color: #4db27f;
+}
+.listing__tag--apt-sale .tag-count {
+    color: #2e6b4f;
+}
+.listing__tag--officetel-sale {
+    background-color: #f5ffff;
+}
+.listing__tag--officetel-sale .tag-label {
+    color: #4db2b2;
+}
+.listing__tag--officetel-sale .tag-count {
+    color: #2e6b6b;
+}
+.listing__tag--redevelopment {
+    background-color: #f5faff;
+}
+.listing__tag--redevelopment .tag-label {
+    color: #4d7fb2;
+}
+.listing__tag--redevelopment .tag-count {
+    color: #2e4f6b;
+}
+.listing__tag--reconstruction {
+    background-color: #f5f5ff;
+}
+.listing__tag--reconstruction .tag-label {
+    color: #4d4db2;
+}
+.listing__tag--reconstruction .tag-count {
+    color: #2e2e6b;
+}
 .listing__tag--presale {
-    background-color: #F8F0FF;
+    background-color: #f5ebff;
 }
-.listing__tag--apt-sale .tag-label,
-.listing__tag--officetel-sale .tag-label,
-.listing__tag--redevelopment .tag-label,
-.listing__tag--reconstruction .tag-label,
 .listing__tag--presale .tag-label {
-    color: #7E5BA9;
+    color: #7f4db2;
 }
-.listing__tag--apt-sale .tag-count,
-.listing__tag--officetel-sale .tag-count,
-.listing__tag--redevelopment .tag-count,
-.listing__tag--reconstruction .tag-count,
 .listing__tag--presale .tag-count {
-    color: #5A3B80;
+    color: #4b2e6b;
 }
