@@ -34,28 +34,30 @@
 
         <!--    지도로 중개사 찾기    -->
         <section class="home-block" id="find-section">
-            <h2 class="home-block__title">지도로 중개사 찾기</h2>
 
-            <article class="feature-card find-card flex_between h_178">
+            <article class="feature-card find-card">
 
-                <div class="find-card__text">
-                    <p class="find-card__headline">
-                        <span class="point_t">내가 선택한 위치기준으로</span><br>
-                        <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
-                    </p>
-                    <div class="find-card__icons">
-                        <span class="find-icon find-icon--house"></span>
-                        <span class="find-icon find-icon--building"></span>
+                <h2 class="feature-card__title">지도로 중개사 찾기</h2>
+
+                <div class="find-card__contents">
+                    <div class="find-card__text">
+                        <p class="find-card__headline">
+                            <span class="point_t">내가 선택한 위치기준으로</span><br>
+                            <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
+                        </p>
+                        <div class="find-card__icons">
+                            <span class="find-icon find-icon--house"></span>
+                            <span class="find-icon find-icon--building"></span>
+                        </div>
+                    </div>
+                    <div class="find-icon--grid">
+                        <img src="/img/home-map-card.svg"
+                             alt="지도에서 중개사 찾기"
+                             onerror="this.style.display='none'">
                     </div>
                 </div>
-                <div class="find-icon--grid">
-                    <img src="/img/home-map-card.svg"
-                         alt="지도에서 중개사 찾기"
-                         onerror="this.style.display='none'">
-                </div>
-            </article>
-            <article class="feature-card register-card h_178" style="display: none">
-                <div class="register-card__contents">
+
+                <div class="register-card__contents" style="display: none">
                     <div class="register-card__top">
                         <span class="register-icon--marker"></span>
                         <p class="register-card__text">
@@ -71,39 +73,42 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="dot-indicator">
+                    <span class="dot is-active"></span>
+                    <span class="dot"></span>
+                </div>
+
+                <button type="button"
+                        class="btn btn--primary home-block__cta"
+                        th:onclick="|location.href='@{/region/selector}'|">
+                    중개사 찾기
+                </button>
+
             </article>
-
-            <div class="dot-indicator">
-                <span class="dot is-active"></span>
-                <span class="dot"></span>
-            </div>
-
-            <button type="button"
-                    class="btn btn--primary home-block__cta"
-                    th:onclick="|location.href='@{/region/selector}'|">
-                중개사 찾기
-            </button>
         </section>
 
         <!--   내 매물 전송     -->
         <section class="home-block" id="send-section">
-            <h2 class="home-block__title">내 매물 전송</h2>
+            <article class="feature-card send-card">
 
-            <article class="feature-card send-card h_224">
-                <div class="send-card__text">
-                    <p class="send-card__headline">
-                        <span class="bold">주변 중개사</span>에게<br>
-                        내 매물을 빠르게 홍보해보세요!
-                    </p>
+                <h2 class="feature-card__title">내 매물 전송</h2>
+
+                <div class="send-card__contents">
+                    <div class="send-card__text">
+                        <p class="send-card__headline">
+                            <span class="bold">주변 중개사</span>에게<br>
+                            내 매물을 빠르게 홍보해보세요!
+                        </p>
+                    </div>
+                    <div class="send-icon--speaker">
+                        <img src="/img/100x100-speaker.svg"
+                             alt="내 매물 전송"
+                             onerror="this.style.display='none'">
+                    </div>
                 </div>
-                <div class="send-icon--speaker flex_center">
-                    <img src="/img/100x100-speaker.svg"
-                         alt="내 매물 전송"
-                         onerror="this.style.display='none'">
-                </div>
-            </article>
-            <article class="feature-card step-card h_224" style="display: none">
-                <div class="step-card__contents">
+
+                <div class="step-card__contents" style="display: none">
                     <div class="step-card__step">
                         <div class="step__step-text">STEP.1</div>
                         <span class="step-icon--scroll"></span>
@@ -122,9 +127,8 @@
                         <div class="step__step-desc">매물발송</div>
                     </div>
                 </div>
-            </article>
-            <article class="feature-card promotion-card h_224" style="display: none">
-                <div class="promotion-card__contents">
+
+                <div class="promotion-card__contents" style="display: none">
                     <div class="promotion-card__step">
                         <div class="promotion__step-text">빠르고 신속한<br>매물중개!</div>
                         <span class="promotion-icon--house"></span>
@@ -140,26 +144,30 @@
                         <span class="promotion-icon--airplane"></span>
                     </div>
                 </div>
+
+                <div class="dot-indicator">
+                    <span class="dot is-active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+
+                <button type="button" class="btn btn--primary home-block__cta">
+                    <span class="btn-icon--plus"></span>내 매물 등록
+                </button>
+
             </article>
 
-            <div class="dot-indicator">
-                <span class="dot is-active"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-            </div>
-
-            <button type="button" class="btn btn--primary home-block__cta">
-                <span class="btn-icon--plus"></span>내 매물 등록
-            </button>
         </section>
 
         <!--    주변 중개사    -->
-        <section class="home-block">
+        <section class="home-block" id="agent-section">
+
             <div class="flex_between">
-                <h2 class="home-block__title"
+                <h2 class="feature-card__title"
                     th:text="${nearbyAddr} ? ${nearbyAddr} : '주변 중개사'">
                     주변 중개사
                 </h2>
+
                 <a th:href="@{#}"
                    th:if="${nearbyAddr}"
                    class="home-block__go-map flex_center">
@@ -254,6 +262,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="nearby-agent__hr"></div>
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
                                 <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필">
@@ -282,6 +291,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="nearby-agent__hr"></div>
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
                                 <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필">
@@ -336,25 +346,44 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        initSectionSlider("#find-section");
-        initSectionSlider("#send-section");
+        // #find-section : 지도 섹션
+        initCardSlider("#find-section", [
+            ".find-card__contents",
+            ".register-card__contents"
+        ]);
+
+        // #send-section : 내 매물 전송 섹션
+        initCardSlider("#send-section", [
+            ".send-card__contents",
+            ".step-card__contents",
+            ".promotion-card__contents"
+        ]);
     });
 
-    function initSectionSlider(sectionSelector) {
+    /**
+     * sectionSelector: "#find-section" 같은 섹션 선택자
+     * contentSelectors: 섹션 안에서 롤링할 컨텐츠 블록들의 선택자 배열
+     */
+    function initCardSlider(sectionSelector, contentSelectors) {
         const section = document.querySelector(sectionSelector);
         if (!section) return;
 
-        const cards = section.querySelectorAll(".feature-card");
+        // 섹션 안에서 지정된 컨텐츠들을 순서대로 찾아서 배열로 구성
+        const cards = contentSelectors
+            .map(sel => section.querySelector(sel))
+            .filter(Boolean);
+
         const dots = section.querySelectorAll(".dot");
 
         if (cards.length <= 1 || dots.length !== cards.length) {
+            // 롤링할 카드가 1개 이하이거나 dot 개수가 맞지 않으면 동작 X
             return;
         }
 
         let index = 0;
         let autoTimer = null;
-        const AUTO_DELAY = 100000; // 🔹 100초
-        const SWIPE_THRESHOLD = 40; // px
+        const AUTO_DELAY = 100000;        // 자동 롤링: 100초
+        const SWIPE_THRESHOLD = 40;     // 스와이프 최소 거리(px)
 
         let touchStartX = 0;
         let touchStartY = 0;
@@ -371,7 +400,7 @@
         function show(targetIndex, direction) {
             index = targetIndex;
 
-            // 다른 카드들은 바로 숨기기
+            // 현재 index 이외 카드 모두 숨기기
             cards.forEach((card, idx) => {
                 if (idx !== index) {
                     card.style.display = "none";
@@ -382,9 +411,9 @@
             });
 
             const card = cards[index];
+            // 컨텐츠 블록은 대부분 flex 레이아웃이므로 flex로 노출
             card.style.display = "flex";
 
-            // 방향에 따른 슬라이드 인 애니메이션
             if (direction === "next" || direction === "prev") {
                 const fromX = direction === "next" ? "30px" : "-30px";
 
@@ -401,7 +430,7 @@
                     card.style.opacity = "1";
                 });
             } else {
-                // 첫 로딩 등 방향 없을 때
+                // 초기 진입 등 방향이 없을 때
                 card.style.transform = "translateX(0)";
                 card.style.opacity = "1";
                 card.style.transition = "none";
@@ -411,7 +440,7 @@
         }
 
         function startAutoPlay() {
-            stopAutoPlay(); // 중복 방지
+            stopAutoPlay();
             autoTimer = setInterval(() => {
                 const next = (index + 1) % cards.length;
                 show(next, "next");
@@ -427,14 +456,11 @@
 
         function pauseAndRestartAutoPlay() {
             stopAutoPlay();
-            setTimeout(() => {
-                startAutoPlay();
-            }, AUTO_DELAY);
+            // dot 클릭·스와이프 후 한 텀 쉬고 다시 시작
+            setTimeout(startAutoPlay, AUTO_DELAY);
         }
 
-        // ------------------------
-        // dot 클릭 이벤트
-        // ------------------------
+        // dot 클릭
         dots.forEach((dot, i) => {
             dot.addEventListener("click", () => {
                 if (i === index) return;
@@ -445,12 +471,10 @@
             });
         });
 
-        // ------------------------
-        // 터치 스와이프 (섹션 기준)
-        // ------------------------
+        // 터치 스와이프 – 섹션 전체 기준
         section.addEventListener(
             "touchstart",
-            function (e) {
+            (e) => {
                 if (!e.touches || e.touches.length === 0) return;
 
                 const touch = e.touches[0];
@@ -465,7 +489,7 @@
 
         section.addEventListener(
             "touchmove",
-            function (e) {
+            (e) => {
                 if (!e.touches || e.touches.length === 0) return;
 
                 const touch = e.touches[0];
@@ -475,7 +499,7 @@
                 const dx = touchEndX - touchStartX;
                 const dy = touchEndY - touchStartY;
 
-                // 가로 스와이프가 세로보다 클 때만 인식
+                // 가로 이동이 세로보다 클 때만 스와이프 인식
                 if (Math.abs(dx) > Math.abs(dy)) {
                     isSwiping = true;
                 }
@@ -483,20 +507,18 @@
             { passive: true }
         );
 
-        section.addEventListener("touchend", function () {
+        section.addEventListener("touchend", () => {
             if (!isSwiping) return;
 
             const dx = touchEndX - touchStartX;
-            if (Math.abs(dx) < SWIPE_THRESHOLD) {
-                return; // 너무 짧은 스와이프는 무시
-            }
+            if (Math.abs(dx) < SWIPE_THRESHOLD) return;
 
             if (dx < 0) {
-                // 왼쪽으로 swipe → 다음 카드
+                // 왼쪽으로 swipe → 다음
                 const next = (index + 1) % cards.length;
                 show(next, "next");
             } else {
-                // 오른쪽으로 swipe → 이전 카드
+                // 오른쪽으로 swipe → 이전
                 const prev = (index - 1 + cards.length) % cards.length;
                 show(prev, "prev");
             }
@@ -505,7 +527,7 @@
         });
 
         // 초기 상태
-        show(0);       // 방향 없이 첫 카드
+        show(0);
         startAutoPlay();
     }
 </script>
