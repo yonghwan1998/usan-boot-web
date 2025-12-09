@@ -1,4 +1,14 @@
 /* ================================
+   📌 inherit!
+   ================================ */
+.__inherit {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    color: inherit;
+}
+
+/* ================================
    📌 height
    ================================ */
 .h_178 {
