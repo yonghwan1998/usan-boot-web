@@ -34,27 +34,29 @@
 
         <!--    지도로 중개사 찾기    -->
         <section class="home-block" id="find-section">
-            <h2 class="home-block__title">지도로 중개사 찾기</h2>
+            <article class="feature-card find-card">
 
-            <article class="feature-card find-card flex_between h_178">
-                <div class="find-card__text">
-                    <p class="find-card__headline">
-                        <span class="point_t">내가 선택한 위치기준으로</span><br>
-                        <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
-                    </p>
-                    <div class="find-card__icons">
-                        <span class="find-icon find-icon--house"></span>
-                        <span class="find-icon find-icon--building"></span>
+                <h2 class="feature-card__title">지도로 중개사 찾기</h2>
+
+                <div class="find-card__contents">
+                    <div class="find-card__text">
+                        <p class="find-card__headline">
+                            <span class="point_t">내가 선택한 위치기준으로</span><br>
+                            <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
+                        </p>
+                        <div class="find-card__icons">
+                            <span class="find-icon find-icon--house"></span>
+                            <span class="find-icon find-icon--building"></span>
+                        </div>
+                    </div>
+                    <div class="find-icon--grid">
+                        <img src="/img/home-map-card.svg"
+                             alt="지도에서 중개사 찾기"
+                             onerror="this.style.display='none'">
                     </div>
                 </div>
-                <div class="find-icon--grid">
-                    <img src="/img/home-map-card.svg"
-                         alt="지도에서 중개사 찾기"
-                         onerror="this.style.display='none'">
-                </div>
-            </article>
-            <article class="feature-card register-card h_178" style="display: none">
-                <div class="register-card__contents">
+
+                <div class="register-card__contents" style="display: none">
                     <div class="register-card__top">
                         <span class="register-icon--marker"></span>
                         <p class="register-card__text">
@@ -70,18 +72,19 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="dot-indicator">
+                    <span class="dot is-active"></span>
+                    <span class="dot"></span>
+                </div>
+
+                <button type="button"
+                        class="btn btn--primary home-block__cta"
+                        th:onclick="|location.href='@{/region/selector}'|">
+                    중개사 찾기
+                </button>
+
             </article>
-
-            <div class="dot-indicator">
-                <span class="dot is-active"></span>
-                <span class="dot"></span>
-            </div>
-
-            <button type="button"
-                    class="btn btn--primary home-block__cta"
-                    th:onclick="|location.href='@{/region/selector}'|">
-                중개사 찾기
-            </button>
         </section>
 
         <!--   내 매물 전송     -->
@@ -335,8 +338,8 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        initSectionSlider("#find-section");
-        initSectionSlider("#send-section");
+        // initSectionSlider("#find-section");
+        // initSectionSlider("#send-section");
     });
 
     function initSectionSlider(sectionSelector) {
