@@ -61,12 +61,16 @@
 
 /* 헤더(안에 header fragment가 붙음) */
 .mobile-header {
-    flex: 0 0 56px;         /* 헤더 높이 */
+    flex: 0 0 64px;         /* 헤더 높이 */
     display: flex;
     align-items: center;
+    gap: 12px;
     padding: 8px 16px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom: 1px solid #f2f2f2;
+    box-shadow: 0 4px 4px 0 #00000026;
     box-sizing: border-box;
-    border-bottom: 1px solid #e5e5e5;
     background: #ffffff;
     z-index: 1;
 }
@@ -100,52 +104,58 @@
     flex: 1;
     display: flex;
     justify-content: center;
-    height: 48px;
+    height: 40px;
 }
 
-.header-location {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
+.header-locations {
+    display: flex;
+    align-items: stretch;
     width: 100%;
-    max-width: 230px;
-    padding: 8px 14px;
+    max-width: 238px;
     border-radius: 16px;
-    border: none;
+    border: 1px solid #e7eafe;
     background: #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
     cursor: pointer;
 }
 
-.header-location__text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: 500;
-    font-size: 18px;
-    color: #000000;
+.header-location {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-weight: 400;
+    font-size: 16px;
+    color: #404040;
 }
 
-.header-location__icon {
-    width: 13px;
-    height: 7px;
-    background-image: url("../img/13x7-arrow.svg");
-    background-repeat: no-repeat;
-    background-position: center;
+.header-location + .header-location {
+    border-left: 1px solid #e7eafe;
+}
+
+.header-location.on {
+    background: #e7eafe;
+    font-weight: 600;
+    color: #162b9d;
 }
 
 /* 우측 알림 버튼 */
 .header-right {
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
 }
 
-.header-icon-btn {
-    cursor: pointer;
-}
-
-.header-icon-btn__img {
-    display: block;
+.header-right__icon {
+    background-image: url("../img/24x24-heart.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 24px;
+    height: 24px;
+    color: #030616;
 }
 
 /* ---------------- 바텀 네비 ---------------- */
