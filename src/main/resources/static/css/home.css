@@ -129,54 +129,24 @@
     border-radius: 4px;
 }
 
-
-
-
-
-
-
-
-
-
-.home-block__desc {
-    font-size: 16px;
-    font-weight: 400;
-    color: #000000;
-    margin-top: 8px;
-    margin-bottom: 10px;
-}
-
-.home-block__go-map {
-    gap: 2px;
-    text-decoration: none;
-}
-
-.go-map__text {
-    font-weight: 400;
-    font-size: 16px;
-    color: #6a7282;
-}
-
-.go-map__icon {
-    background-image: url("../img/6x10-arrow.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 4px 8px;
-    width: 16px;
-    height: 16px;
-}
-
-.send-card__text {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
 .send-card {
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 16px;
-    padding: 32px;
+    padding: 24px;
+    height: 372px;
+}
+
+.send-card__contents {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.send-card__text {
+    display: flex;
+    flex-direction: column;
 }
 
 .send-card__headline {
@@ -185,17 +155,17 @@
     color: #000000;
 }
 
-.step-card {
+.send-icon--speaker {
     display: flex;
-    padding: 32px 16px;
-    justify-content: center;
+    align-self: center;
 }
 
 .step-card__contents {
+    width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 12px 8px;
+    padding: 32px 0;
 }
 
 .step-card__step {
@@ -249,17 +219,12 @@
     height: 24px;
 }
 
-.promotion-card {
-    display: flex;
-    justify-content: center;
-    padding: 30px 16px;
-}
-
 .promotion-card__contents {
+    width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 12px 4px;
+    padding: 45px 4px;
 }
 
 .promotion-card__step {
@@ -267,7 +232,6 @@
     flex-direction: column;
     gap: 8px;
     text-align: center;
-    padding: 12px;
 }
 
 .promotion__step-text {
@@ -275,6 +239,15 @@
     font-size: 16px;
     text-align: center;
     color: #1c37ca;
+}
+
+.promotion-icon--next {
+    background-image: url("../img/10.5x14.4-next.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 11px 15px;
+    width: 24px;
+    height: 24px;
 }
 
 .promotion-icon--house {
@@ -297,20 +270,38 @@
     align-self: center;
 }
 
-.promotion-icon--next {
-    background-image: url("../img/10.5x14.4-next.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 11px 15px;
-    width: 24px;
-    height: 24px;
+
+
+
+
+
+.home-block__desc {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    margin-top: 8px;
+    margin-bottom: 10px;
 }
 
+.home-block__go-map {
+    gap: 2px;
+    text-decoration: none;
+}
 
+.go-map__text {
+    font-weight: 400;
+    font-size: 16px;
+    color: #6a7282;
+}
 
-
-
-
+.go-map__icon {
+    background-image: url("../img/6x10-arrow.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 4px 8px;
+    width: 16px;
+    height: 16px;
+}
 
 .dot-indicator {
     display: flex;
