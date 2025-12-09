@@ -161,46 +161,60 @@
 /* ---------------- 바텀 네비 ---------------- */
 
 .bottom-nav {
-    flex: 0 0 64px;      /* 바텀 네비 높이 */
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 16px;
+    flex: 0 0 72px;      /* 바텀 네비 높이 */
+    align-items: stretch;
+    width: 100%;
     border-top: 1px solid #d9d9d9;
+    border-top-right-radius: 16px;
+    border-top-left-radius: 16px;
     background: #ffffff;
+    overflow: hidden;
 }
 
 .bottom-nav__item {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 8px 10px;
-    margin: 0 2px;
-    border-radius: 16px;
-    text-decoration: none;
-    color: #99a1af;
-    font-size: 12px;
-    font-weight: 400;
 }
 
-.bottom-nav__icon img {
+.bottom-nav__icon {
+    display: block;
     width: 24px;
     height: 24px;
-    display: block;
+    background-color: #99a1af;
 }
 
-/* 활성 탭 */
-.bottom-nav__item--active {
+.bottom-nav__icon--home {
+    mask: url("../img/24x24-home.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-home.svg") center/contain no-repeat;
+}
+
+.bottom-nav__icon--map {
+    mask: url("../img/24x24-map.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-map.svg") center/contain no-repeat;
+}
+
+.bottom-nav__icon--user {
+    mask: url("../img/24x24-user.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-user.svg") center/contain no-repeat;
+}
+
+.bottom-nav__item.on {
     background: #5b7cfd1a;
-    color: #5b7cfd;
-    font-weight: 600;
+}
+
+.bottom-nav__item.on  .bottom-nav__icon{
+    background-color: #5b7cfd;
 }
 
 .bottom-nav__label {
-    color: inherit;
+    font-weight: 400;
+    font-size: 12px;
+    color: #99a1af;
 }
 
 /* ---------------- 데스크탑(PC) 레이아웃 ---------------- */
