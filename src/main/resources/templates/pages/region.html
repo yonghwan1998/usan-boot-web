@@ -32,10 +32,34 @@
 <section>
     <div class="region-header">
         <button class="region-header__back" th:onclick="history.back()"></button>
-        <div class="region-header__title">중개사 찾기</div>
+        <div class="region-header__title" th:text="'STEP.' + ${step}">STEP.1</div>
         <div class="region-header__right"></div>
     </div>
-    <div class="region-text">찾으시는 중개사의 step를선택해주세요.</div>
+
+    <div class="region-step" th:with="step=${step} ? ${step} : 1">
+        <div class="region-step__bar">
+            <div class="region-step__prev"
+                 th:classappend="${step} == 1 ? ' is-hidden' : ''"></div>
+
+            <div class="region-step__line region-step__line--left"
+                 th:classappend="${step} == 1 ? ' is-hidden' : ''">
+            </div>
+
+            <div class="region-step__current">
+                <span class="region-step__circle" th:text="${step}">1</span>
+            </div>
+
+            <div class="region-step__line region-step__line--right"
+                 th:classappend="${step} == 5 ? ' is-hidden' : ''"></div>
+            <div class="region-step__next"></div>
+        </div>
+    </div>
+    <div class="region-step__caption"
+          th:text="${step} == 4
+                        ? '거의 다왔어요!'
+                        : (${step} == 5 ? '다른 지역도 추가할 수 있어요!' : '')">
+                </div>
+    <div class="region-text">찾으시는 중개사의 <span class="__inherit">step를</span> 선택해주세요.</div>
     <div class="region-tag-wrapper">
         <span class="region-tag region-tag--sido">서울특별시</span>
         <span class="region-tag region-tag--sido">인천광역시</span>
@@ -53,6 +77,5 @@
         <span class="region-tag region-tag--sido">경상북도</span>
         <span class="region-tag region-tag--sido">세종특별자치도</span>
         <span class="region-tag region-tag--sido">제주특별자치도</span>
-        <span class="region-tag region-tag--sigungu">시군구 색감 확인용</span>
     </div>
 </section>
