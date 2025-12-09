@@ -159,12 +159,14 @@
         </section>
 
         <!--    주변 중개사    -->
-        <section class="home-block">
+        <section class="home-block" id="agent-section">
+
             <div class="flex_between">
-                <h2 class="home-block__title"
+                <h2 class="feature-card__title"
                     th:text="${nearbyAddr} ? ${nearbyAddr} : '주변 중개사'">
                     주변 중개사
                 </h2>
+
                 <a th:href="@{#}"
                    th:if="${nearbyAddr}"
                    class="home-block__go-map flex_center">
@@ -259,6 +261,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="nearby-agent__hr"></div>
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
                                 <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필">
@@ -287,6 +290,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="nearby-agent__hr"></div>
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
                                 <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필">
