@@ -61,12 +61,16 @@
 
 /* 헤더(안에 header fragment가 붙음) */
 .mobile-header {
-    flex: 0 0 56px;         /* 헤더 높이 */
+    flex: 0 0 64px;         /* 헤더 높이 */
     display: flex;
     align-items: center;
+    gap: 12px;
     padding: 8px 16px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom: 1px solid #f2f2f2;
+    box-shadow: 0 4px 4px 0 #00000026;
     box-sizing: border-box;
-    border-bottom: 1px solid #e5e5e5;
     background: #ffffff;
     z-index: 1;
 }
@@ -100,97 +104,117 @@
     flex: 1;
     display: flex;
     justify-content: center;
-    height: 48px;
+    height: 40px;
 }
 
-.header-location {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
+.header-locations {
+    display: flex;
+    align-items: stretch;
     width: 100%;
-    max-width: 230px;
-    padding: 8px 14px;
+    max-width: 238px;
     border-radius: 16px;
-    border: none;
+    border: 1px solid #e7eafe;
     background: #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
     cursor: pointer;
 }
 
-.header-location__text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: 500;
-    font-size: 18px;
-    color: #000000;
+.header-location {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-weight: 400;
+    font-size: 16px;
+    color: #404040;
 }
 
-.header-location__icon {
-    width: 13px;
-    height: 7px;
-    background-image: url("../img/13x7-arrow.svg");
-    background-repeat: no-repeat;
-    background-position: center;
+.header-location + .header-location {
+    border-left: 1px solid #e7eafe;
+}
+
+.header-location.on {
+    background: #e7eafe;
+    font-weight: 600;
+    color: #162b9d;
 }
 
 /* 우측 알림 버튼 */
 .header-right {
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
 }
 
-.header-icon-btn {
-    cursor: pointer;
-}
-
-.header-icon-btn__img {
-    display: block;
+.header-right__icon {
+    background-image: url("../img/24x24-heart.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 24px;
+    height: 24px;
+    color: #030616;
 }
 
 /* ---------------- 바텀 네비 ---------------- */
 
 .bottom-nav {
-    flex: 0 0 64px;      /* 바텀 네비 높이 */
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 16px;
+    flex: 0 0 72px;      /* 바텀 네비 높이 */
+    align-items: stretch;
+    width: 100%;
     border-top: 1px solid #d9d9d9;
+    border-top-right-radius: 16px;
+    border-top-left-radius: 16px;
     background: #ffffff;
+    overflow: hidden;
 }
 
 .bottom-nav__item {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 8px 10px;
-    margin: 0 2px;
-    border-radius: 16px;
-    text-decoration: none;
-    color: #99a1af;
-    font-size: 12px;
-    font-weight: 400;
 }
 
-.bottom-nav__icon img {
+.bottom-nav__icon {
+    display: block;
     width: 24px;
     height: 24px;
-    display: block;
+    background-color: #99a1af;
 }
 
-/* 활성 탭 */
-.bottom-nav__item--active {
+.bottom-nav__icon--home {
+    mask: url("../img/24x24-home.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-home.svg") center/contain no-repeat;
+}
+
+.bottom-nav__icon--map {
+    mask: url("../img/24x24-map.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-map.svg") center/contain no-repeat;
+}
+
+.bottom-nav__icon--user {
+    mask: url("../img/24x24-user.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-user.svg") center/contain no-repeat;
+}
+
+.bottom-nav__item.on {
     background: #5b7cfd1a;
-    color: #5b7cfd;
-    font-weight: 600;
+}
+
+.bottom-nav__item.on  .bottom-nav__icon{
+    background-color: #5b7cfd;
 }
 
 .bottom-nav__label {
-    color: inherit;
+    font-weight: 400;
+    font-size: 12px;
+    color: #99a1af;
 }
 
 /* ---------------- 데스크탑(PC) 레이아웃 ---------------- */
