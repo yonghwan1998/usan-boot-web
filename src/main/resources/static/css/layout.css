@@ -158,6 +158,102 @@
     color: #030616;
 }
 
+/* 전체를 덮는 더보기 패널 (바텀 네비 위까지만) */
+.full-panel {
+    position: fixed;
+    left: 50%;
+    transform: translateX(100%);
+    width: 100%;
+    max-width: 430px;
+    top: 0;
+    bottom: 72px;
+    background: #ffffff;
+    z-index: 30;
+
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    transition: transform 0.35s ease-out;
+}
+
+.full-panel.is-open {
+    transform: translateX(-50%);
+}
+
+.more-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.more-content__recommend-outer {
+    padding: 10px;
+}
+
+.more-content__recommend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 56px;
+    border-radius: 16px;
+    padding: 0 16px;
+    background: #e7eafe;
+}
+
+.recommend__text {
+    font-weight: 600;
+    font-size: 16px;
+    color: #6278e9;
+}
+
+.recommend__icon {
+    width: 24px;
+    height: 24px;
+    background-color: #8c8c8c;
+    mask: url("../img/24x24-delete.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-delete.svg") center/contain no-repeat;
+}
+
+.more-content__links {
+    display: flex;
+    flex-direction: column;
+}
+
+.more-content__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.link__double-line {
+    display: flex;
+    flex-direction: column;
+}
+
+.link__text {
+    font-weight: 600;
+    font-size: 20px;
+    color: #262626;
+}
+
+.link__caption {
+    font-weight: 400;
+    font-size: 16px;
+    color: #8c8c8c;
+}
+
+.link__icon {
+    width: 24px;
+    height: 24px;
+    mask: url("../img/24x24-link.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-link.svg") center/contain no-repeat;
+    background-color: #8c8c8c;
+}
+
 /* ---------------- 바텀 네비 ---------------- */
 
 .bottom-nav {
