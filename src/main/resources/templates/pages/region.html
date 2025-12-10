@@ -51,7 +51,9 @@
 
             <div class="region-step__line region-step__line--right"
                  th:classappend="${step} == 5 ? ' is-hidden' : ''"></div>
-            <div class="region-step__next"></div>
+
+            <div class="region-step__next"
+                 th:classappend="${step} == 5 ? ' is-hidden' : ''"></div>
         </div>
     </div>
     <div class="region-step__caption"
