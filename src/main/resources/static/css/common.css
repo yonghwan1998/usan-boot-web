@@ -11,31 +11,26 @@
     border: none;
     cursor: pointer;
 }
-
 .btn--primary {
     font-weight: 600;
     background: #3b5cff;
     color: #ffffff;
 }
-
 .btn--secondary {
     font-weight: 600;
     background: #e7eafe;
     color: #3551e3;
 }
-
 .btn--gray {
     font-weight: 400;
     background: #f2f2f2;
     color: #8c8c8c;
 }
-
 .btn--outline {
     background: #ffffff;
     color: #3b5cff;
     border: 1px solid #3b5cff;
 }
-
 .btn--sm {
     font-size: 16px;
     width: 100%;
@@ -49,6 +44,49 @@
     line-height: inherit;
     font-weight: inherit;
     color: inherit;
+}
+
+/* ================================
+   📌 common-header!
+   ================================ */
+.common-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    padding-top: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 8px;
+}
+.common-header__back {
+    position: absolute;
+    left: 16px;
+    width: 48px;
+    height: 48px;
+
+    background: url("../img/24x24-arrow.svg") center/24px 24px no-repeat;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+.common-header__title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0d0d0d;
+    text-align: center;
+}
+.common-header__right {
+    position: absolute;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+
+    background: url("../img/24x24-X.svg") center/24px 24px no-repeat;
+    border: none;
+    padding: 0;
+    cursor: pointer;
 }
 
 /* ================================
