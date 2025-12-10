@@ -30,10 +30,10 @@
 </th:block>
 
 <section>
-    <div class="region-header">
-        <button class="region-header__back" th:onclick="history.back()"></button>
-        <div class="region-header__title" th:text="'STEP.' + ${step}">STEP.1</div>
-        <div class="region-header__right"></div>
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title" th:text="'STEP.' + ${step}">STEP.1</div>
+        <div class="common-header__right"></div>
     </div>
 
     <div class="region-step" th:with="step=${step} ? ${step} : 1">
