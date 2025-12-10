@@ -181,26 +181,78 @@
     transform: translateX(-50%);
 }
 
-/* 더보기 전용 헤더 */
-.more-header {
+.more-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.more-content__recommend-outer {
+    padding: 10px;
+}
+
+.more-content__recommend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 56px;
+    border-radius: 16px;
+    padding: 0 16px;
+    background: #e7eafe;
+}
+
+.recommend__text {
+    font-weight: 600;
+    font-size: 16px;
+    color: #6278e9;
+}
+
+.recommend__icon {
+    width: 24px;
+    height: 24px;
+    background-color: #8c8c8c;
+    mask: url("../img/24x24-delete.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-delete.svg") center/contain no-repeat;
+}
+
+.more-content__links {
+    display: flex;
+    flex-direction: column;
+}
+
+.more-content__link {
     display: flex;
     align-items: center;
-    justify-content: center;
-    height: 56px;
-    position: relative;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px;
     border-bottom: 1px solid #f2f2f2;
 }
 
-.more-header__back {
-    position: absolute;
-    left: 16px;
-    border: none;
-    background: none;
-    cursor: pointer;
+.link__double-line {
+    display: flex;
+    flex-direction: column;
 }
 
+.link__text {
+    font-weight: 600;
+    font-size: 20px;
+    color: #262626;
+}
 
+.link__caption {
+    font-weight: 400;
+    font-size: 16px;
+    color: #8c8c8c;
+}
 
+.link__icon {
+    width: 24px;
+    height: 24px;
+    mask: url("../img/24x24-link.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-link.svg") center/contain no-repeat;
+    background-color: #8c8c8c;
+}
 
 /* ---------------- 바텀 네비 ---------------- */
 
