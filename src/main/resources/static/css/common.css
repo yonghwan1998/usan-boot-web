@@ -1,4 +1,57 @@
 /* ================================
+   📌 button!
+   ================================ */
+.btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    border-radius: 12px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn--primary {
+    font-weight: 600;
+    background: #3b5cff;
+    color: #ffffff;
+}
+
+.btn--secondary {
+    font-weight: 600;
+    background: #e7eafe;
+    color: #3551e3;
+}
+
+.btn--gray {
+    font-weight: 400;
+    background: #f2f2f2;
+    color: #8c8c8c;
+}
+
+.btn--outline {
+    background: #ffffff;
+    color: #3b5cff;
+    border: 1px solid #3b5cff;
+}
+
+.btn--sm {
+    font-size: 16px;
+    width: 100%;
+}
+
+/* ================================
+   📌 inherit!
+   ================================ */
+.__inherit {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    color: inherit;
+}
+
+/* ================================
    📌 height
    ================================ */
 .h_178 {
