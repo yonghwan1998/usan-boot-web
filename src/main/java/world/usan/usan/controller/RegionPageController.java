@@ -15,6 +15,7 @@ public class RegionPageController {
 
         boolean tempLogin = Boolean.TRUE.equals(session.getAttribute("tempLogin"));
         model.addAttribute("tempLogin", tempLogin);
+        model.addAttribute("step", 5);
 
         return "pages/region";
     }

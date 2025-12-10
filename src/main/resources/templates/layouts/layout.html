@@ -45,6 +45,51 @@
                 <section id="contents" th:replace="${content}"></section>
             </main>
 
+            <!-- 중개사 찾기 STEP.4 페이지 바텀 시트 -->
+            <div class="region-step__bottom-sheet--4"
+                 th:style="${step} == 4 ? 'display:block' : 'display:none'">
+                <div class="region-step__add-btn btn btn--primary btn--sm">추가하기</div>
+            </div>
+
+            <!-- 중개사 찾기 STEP.5 페이지 바텀 시트 -->
+            <div class="region-step__bottom-sheet--5"
+                 th:style="${step} == 5 ? 'display:flex' : 'display:none'">
+                <div class="region-step__location-cards">
+                    <div class="region-step__location-card">
+                        <div class="location-card__head">
+                            <div class="location-card__addr">주소 1</div>
+                            <div class="location-card__icons">
+                                <span class="location-card-icon--star"></span>
+                                <span class="location-card-icon--delete"></span>
+                            </div>
+                        </div>
+                        <div class="location-card__tags">
+                            <span class="location-tag region-tag--sido">서울특별시</span>
+                            <span class="location-tag region-tag--sigungu">강남구</span>
+                            <span class="location-tag region-tag--emd">신사동</span>
+                        </div>
+                    </div>
+                    <div class="region-step__location-card pressed">
+                        <div class="location-card__head">
+                            <div class="location-card__addr">주소 2</div>
+                            <div class="location-card__icons">
+                                <span class="location-card-icon--light-star"></span>
+                                <span class="location-card-icon--delete"></span>
+                            </div>
+                        </div>
+                        <div class="location-card__tags">
+                            <span class="location-tag region-tag--sido">경기도</span>
+                            <span class="location-tag region-tag--sigungu">오산시</span>
+                            <span class="location-tag region-tag--emd">고현동</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="region-step__buttons">
+                    <div class="region-step__mod-btn btn btn--gray btn--sm">수정하기</div>
+                    <div class="region-step__move-btn btn btn--primary btn--sm">지도로 이동</div>
+                </div>
+            </div>
+
             <!-- 모바일 고정 하단 네비 -->
             <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
         </div>
