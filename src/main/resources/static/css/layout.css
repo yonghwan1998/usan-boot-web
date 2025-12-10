@@ -158,6 +158,50 @@
     color: #030616;
 }
 
+/* 전체를 덮는 더보기 패널 (바텀 네비 위까지만) */
+.full-panel {
+    position: fixed;
+    left: 50%;
+    transform: translateX(100%);
+    width: 100%;
+    max-width: 430px;
+    top: 0;
+    bottom: 72px;
+    background: #ffffff;
+    z-index: 30;
+
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    transition: transform 0.35s ease-out;
+}
+
+.full-panel.is-open {
+    transform: translateX(-50%);
+}
+
+/* 더보기 전용 헤더 */
+.more-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    position: relative;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.more-header__back {
+    position: absolute;
+    left: 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+
+
+
 /* ---------------- 바텀 네비 ---------------- */
 
 .bottom-nav {

@@ -45,6 +45,19 @@
                 <section id="contents" th:replace="${content}"></section>
             </main>
 
+            <!-- 더보기 모달 -->
+            <section id="more-panel" class="full-panel">
+                <div class="common-header">
+                    <button class="common-header__back btn--modal-close"></button>
+                    <div class="common-header__title">더보기</div>
+                    <div class="common-header__right btn--modal-close"></div>
+                </div>
+
+                <div class="more-content">
+
+                </div>
+            </section>
+
             <!-- 중개사 찾기 STEP.4 페이지 바텀 시트 -->
             <div class="region-step__bottom-sheet--4"
                  th:style="${step} == 4 ? 'display:block' : 'display:none'">
@@ -141,5 +154,37 @@
     });
 </script>
 
+<script>
+    function openMorePanel() {
+        const panel = document.getElementById('more-panel');
+        if (!panel) return;
+        panel.classList.add('is-open');
+    }
+
+    function closeMorePanel() {
+        const panel = document.getElementById('more-panel');
+        if (!panel) return;
+        panel.classList.remove('is-open');
+    }
+
+    function toggleMorePanel(e) {
+        if (e) e.preventDefault();
+        const panel = document.getElementById('more-panel');
+        if (!panel) return;
+
+        panel.classList.toggle('is-open');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const panel = document.getElementById('more-panel');
+        if (!panel) return;
+
+        panel.addEventListener('click', function (e) {
+            if (e.target.closest('.btn--modal-close')) {
+                closeMorePanel();
+            }
+        });
+    });
+</script>
 </body>
 </html>
