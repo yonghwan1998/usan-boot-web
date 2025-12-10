@@ -39,10 +39,10 @@
     <div class="region-step" th:with="step=${step} ? ${step} : 1">
         <div class="region-step__bar">
             <div class="region-step__prev"
-                 th:classappend="${step} == 1 ? ' is-hidden' : ''"></div>
+                 th:classappend="${step} == 1 ? 'is-hidden' : ''"></div>
 
             <div class="region-step__line region-step__line--left"
-                 th:classappend="${step} == 1 ? ' is-hidden' : ''">
+                 th:classappend="${step} == 1 ? 'is-hidden' : ''">
             </div>
 
             <div class="region-step__current">
@@ -50,10 +50,10 @@
             </div>
 
             <div class="region-step__line region-step__line--right"
-                 th:classappend="${step} == 5 ? ' is-hidden' : ''"></div>
+                 th:classappend="${step} == 5 ? 'is-hidden' : ''"></div>
 
             <div class="region-step__next"
-                 th:classappend="${step} == 5 ? ' is-hidden' : ''"></div>
+                 th:classappend="${step} == 5 ? 'is-hidden' : ''"></div>
         </div>
     </div>
     <div class="region-step__caption"
