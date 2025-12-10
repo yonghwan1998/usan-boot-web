@@ -47,6 +47,13 @@
 }
 
 /* ================================
+   📌 cursor!
+   ================================ */
+.pointer {
+    cursor: pointer;
+}
+
+/* ================================
    📌 common-header!
    ================================ */
 .common-header {
@@ -82,10 +89,9 @@
     right: 16px;
     width: 48px;
     height: 48px;
-
+}
+.common-header__right.btn--X {
     background: url("../img/24x24-X.svg") center/24px 24px no-repeat;
-    border: none;
-    padding: 0;
     cursor: pointer;
 }
 
