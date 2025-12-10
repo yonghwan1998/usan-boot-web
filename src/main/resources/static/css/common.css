@@ -1,4 +1,40 @@
 /* ================================
+   📌 button!
+   ================================ */
+.btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.btn--primary {
+    background: #3b5cff;
+    color: #ffffff;
+}
+
+.btn--secondary {
+    background: #e7eafe;
+    color: #3551e3;
+}
+
+.btn--outline {
+    background: #ffffff;
+    color: #3b5cff;
+    border: 1px solid #3b5cff;
+}
+
+.btn--sm {
+    font-size: 16px;
+    width: 100%;
+}
+
+/* ================================
    📌 inherit!
    ================================ */
 .__inherit {
