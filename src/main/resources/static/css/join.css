@@ -18,3 +18,19 @@
     bottom: 72px;
     padding: 36px 16px;
 }
+
+.pw__condition {
+    font-weight: 400;
+    font-size: 14px;
+    color: #595959;
+    padding: 0 4px;
+    margin-top: 6px;
+    margin-bottom: 20px;
+}
+
+.pw-confirm__text {
+    font-weight: 500;
+    font-size: 16px;
+    color: #0d0d0d;
+    margin-bottom: 6px;
+}
