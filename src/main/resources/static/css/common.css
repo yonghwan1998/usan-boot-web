@@ -97,7 +97,7 @@
 }
 
 /* ================================
-   📌 common-step
+   📌 common-step!
    ================================ */
 
 .common-step__bar {
@@ -181,7 +181,22 @@
 }
 
 /* ================================
-   📌 height
+   📌 common!
+   ================================ */
+.common-input {
+    width: 100%;
+    height: 60px;
+    border-radius: 12px;
+    padding: 20px 40px 20px 16px;
+    border: 1px solid #e7eafe;
+    font-size: 16px;
+    font-weight: 500;
+    color: #262626;
+    box-sizing: border-box;
+}
+
+/* ================================
+   📌 height!
    ================================ */
 .h_178 {
     height: 178px;
