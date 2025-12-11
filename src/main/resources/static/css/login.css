@@ -1,0 +1,131 @@
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 16px 0;
+}
+
+.login-wrapper--id {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.id__text,
+.pw__text {
+    font-weight: 500;
+    font-size: 16px;
+    color: #0d0d0d;
+}
+
+.id__input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.id__input,
+.pw__input {
+    width: 100%;
+    height: 60px;
+    border-radius: 12px;
+    padding: 20px 40px 20px 16px;
+    border: 1px solid #e7eafe;
+    font-size: 16px;
+    font-weight: 500;
+    color: #262626;
+    box-sizing: border-box;
+}
+
+.id__clear-btn {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    mask: url("../img/24x24-delete.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-delete.svg") center/contain no-repeat;
+    background-color: #030616;
+    cursor: pointer;
+    display: none;
+}
+
+.login-wrapper--pw {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.login-wrapper--find {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 12px;
+    margin-bottom: 32px;
+}
+
+.find__text {
+    font-weight: 400;
+    font-size: 16px;
+    color: #030616;
+}
+
+.login-wrapper--sns {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    margin-bottom: 32px;
+}
+
+.sns__hr {
+    flex: 1;
+    height: 1px;
+    background: #f2f2f2;
+}
+
+.sns__text {
+    white-space: nowrap;
+    font-weight: 400;
+    font-size: 14px;
+    color: #a6a6a6;
+}
+
+.login-wrapper--sns-icons {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 74px;
+    margin-bottom: 32px;
+}
+
+.sns__icon {
+    width: 48px;
+    height: 48px;
+    flex: 1;
+}
+
+.icon__kakao {
+    background: url("../img/48x48-kakao.png") center/contain no-repeat;
+}
+
+.icon__google {
+    background: url("../img/48x48-google.png") center/contain no-repeat;
+}
+
+.icon__naver {
+    background: url("../img/48x48-naver.png") center/contain no-repeat;
+}
+
+.login-wrapper--login-btn,
+.login-wrapper--email-btn{
+    width: 100%;
+    margin-bottom: 16px;
+}

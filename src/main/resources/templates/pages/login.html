@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">로그인</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/login.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section>
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">로그인</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="login-wrapper">
+        <div class="login-wrapper--id">
+            <div class="id__text">아이디</div>
+            <div class="id__input-wrapper">
+                <input type="text" placeholder="아이디를 적어주세요" class="id__input" name="id" oninput="toggleClearBtn(this)"/>
+                <button type="button" class="id__clear-btn" onclick="clearInput(this)"></button>
+            </div>
+        </div>
+        <div class="login-wrapper--pw">
+            <div class="pw__text">비밀번호</div>
+            <input type="password" placeholder="비밀번호를 입력해주세요" class="pw__input" name="password"/>
+        </div>
+        <div class="login-wrapper--find">
+            <div class="find__text pointer">아이디 찾기</div>
+            <div class="find__text pointer">비밀번호 찾기</div>
+        </div>
+        <div class="login-wrapper--sns">
+            <div class="sns__hr"></div>
+            <div class="sns__text">SNS 계정으로 간편 가입하기</div>
+            <div class="sns__hr"></div>
+        </div>
+        <div class="login-wrapper--sns-icons">
+            <div class="sns__icon icon__kakao pointer"></div>
+            <div class="sns__icon icon__google pointer"></div>
+            <div class="sns__icon icon__naver pointer"></div>
+        </div>
+        <button class="btn btn--primary login-wrapper--login-btn">로그인</button>
+        <button class="btn btn--outline login-wrapper--email-btn">이메일로 시작하기</button>
+    </div>
+
+    <script>
+        function toggleClearBtn(inputEl) {
+            const wrapper = inputEl.closest(".id__input-wrapper");
+            const btn = wrapper.querySelector(".id__clear-btn");
+
+            btn.style.display = inputEl.value.trim().length > 0 ? "block" : "none";
+        }
+
+        function clearInput(btnEl) {
+            const wrapper = btnEl.closest(".id__input-wrapper");
+            const input = wrapper.querySelector(".id__input");
+
+            input.value = "";
+            btnEl.style.display = "none";
+            input.focus();
+        }
+    </script>
+
+</section>
+</html>
