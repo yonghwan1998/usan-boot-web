@@ -203,12 +203,12 @@
 .common-input__eye-btn {
     mask: url("../img/24x24-eye.svg") center/contain no-repeat;
     -webkit-mask: url("../img/24x24-eye.svg") center/contain no-repeat;
-    background-color: #a6a6a6;
+    background-color: #030616;
 }
 .common-input__eye-slash-btn {
     mask: url("../img/24x24-eye-slash.svg") center/contain no-repeat;
     -webkit-mask: url("../img/24x24-eye-slash.svg") center/contain no-repeat;
-    background-color: #030616;
+    background-color: #a6a6a6;
 }
 
 /* ================================
