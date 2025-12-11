@@ -185,18 +185,30 @@
     color: #262626;
     box-sizing: border-box;
 }
-.common-input__clear-btn {
+.common-input-btn {
     position: absolute;
     right: 18px;
     top: 50%;
     transform: translateY(-50%);
     width: 24px;
     height: 24px;
+    cursor: pointer;
+}
+.common-input__clear-btn {
     mask: url("../img/24x24-delete.svg") center/contain no-repeat;
     -webkit-mask: url("../img/24x24-delete.svg") center/contain no-repeat;
     background-color: #030616;
-    cursor: pointer;
     display: none;
+}
+.common-input__eye-btn {
+    mask: url("../img/24x24-eye.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-eye.svg") center/contain no-repeat;
+    background-color: #030616;
+}
+.common-input__eye-slash-btn {
+    mask: url("../img/24x24-eye-slash.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-eye-slash.svg") center/contain no-repeat;
+    background-color: #a6a6a6;
 }
 
 /* ================================

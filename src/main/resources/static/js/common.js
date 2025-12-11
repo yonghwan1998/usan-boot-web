@@ -13,3 +13,23 @@ function __clearInput(btnEl) {
     btnEl.style.display = "none";
     input.focus();
 }
+
+function __toggleViewBtn(btn) {
+    const wrapper = btn.closest('.target__view-wrapper');
+    if (!wrapper) return;
+
+    const input = wrapper.querySelector('.target--view-input');
+    if (!input) return;
+
+    const isHidden = input.type === 'password';
+
+    input.type = isHidden ? 'text' : 'password';
+
+    if (isHidden) {
+        btn.classList.remove('common-input__eye-slash-btn');
+        btn.classList.add('common-input__eye-btn');
+    } else {
+        btn.classList.remove('common-input__eye-btn');
+        btn.classList.add('common-input__eye-slash-btn');
+    }
+}
