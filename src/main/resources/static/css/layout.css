@@ -175,6 +175,12 @@
     overflow-y: auto;
 
     transition: transform 0.35s ease-out;
+
+    -ms-overflow-style: none;
+}
+
+.full-panel::-webkit-scrollbar {
+    display: none;
 }
 
 .full-panel.is-open {
@@ -213,6 +219,74 @@
     background-color: #8c8c8c;
     mask: url("../img/24x24-delete.svg") center/contain no-repeat;
     -webkit-mask: url("../img/24x24-delete.svg") center/contain no-repeat;
+}
+
+.more-content__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: #f2f2f2;
+}
+
+.card__profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile__no-image {
+    width: 120px;
+    height: 120px;
+    mask: url("../img/96x96-basic-profile.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/96x96-basic-profile.svg") center/contain no-repeat;
+    background-color: #bfbfbf;
+}
+
+.profile__nickname {
+    font-weight: 500;
+    font-size: 28px;
+    color: #0d0d0d;
+}
+
+.card__stats {
+    display: flex;
+    justify-content: center;
+    background: #ffffff;
+    box-shadow: 0 0 10px 0 #06114820;
+    border-radius: 16px;
+    width: 100%;
+    height: 102px;
+}
+
+.stats-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.stats-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    border-right: 0.67px solid #bfbfbf;
+}
+
+.stat-count {
+    font-weight: 700;
+    font-size: 20px;
+    color: #3551e3;
+}
+
+.stat-text {
+    font-weight: 400;
+    font-size: 16px;
+    color: #8c8c8c;
 }
 
 .more-content__links {
