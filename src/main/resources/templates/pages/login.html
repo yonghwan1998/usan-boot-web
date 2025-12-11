@@ -39,14 +39,14 @@
     <div class="login-wrapper">
         <div class="login-wrapper--id">
             <div class="id__text">아이디</div>
-            <div class="id__input-wrapper">
-                <input type="text" placeholder="아이디를 적어주세요" class="id__input" name="id" oninput="toggleClearBtn(this)"/>
-                <button type="button" class="id__clear-btn" onclick="clearInput(this)"></button>
+            <div class="common-input-wrapper target__clear-wrapper">
+                <input type="text" placeholder="아이디를 적어주세요" class="common-input target--clear-input" name="id" oninput="__toggleClearBtn(this)"/>
+                <button type="button" class="common-input__clear-btn target--clear-btn" onclick="__clearInput(this)"></button>
             </div>
         </div>
         <div class="login-wrapper--pw">
             <div class="pw__text">비밀번호</div>
-            <input type="password" placeholder="비밀번호를 입력해주세요" class="pw__input" name="password"/>
+            <input type="password" placeholder="비밀번호를 입력해주세요" class="common-input" name="password"/>
         </div>
         <div class="login-wrapper--find">
             <div class="find__text pointer">아이디 찾기</div>
@@ -63,26 +63,8 @@
             <div class="sns__icon icon__naver pointer"></div>
         </div>
         <button class="btn btn--primary login-wrapper--login-btn">로그인</button>
-        <button class="btn btn--outline login-wrapper--email-btn">이메일로 시작하기</button>
+        <a class="btn btn--outline login-wrapper--email-btn" th:href="@{/join}">이메일로 시작하기</a>
     </div>
-
-    <script>
-        function toggleClearBtn(inputEl) {
-            const wrapper = inputEl.closest(".id__input-wrapper");
-            const btn = wrapper.querySelector(".id__clear-btn");
-
-            btn.style.display = inputEl.value.trim().length > 0 ? "block" : "none";
-        }
-
-        function clearInput(btnEl) {
-            const wrapper = btnEl.closest(".id__input-wrapper");
-            const input = wrapper.querySelector(".id__input");
-
-            input.value = "";
-            btnEl.style.display = "none";
-            input.focus();
-        }
-    </script>
 
 </section>
 </html>

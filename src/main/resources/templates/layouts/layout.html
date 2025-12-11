@@ -145,7 +145,7 @@
 </div>
 
 <!-- 공통 JS -->
-<!--<script th:src="@{/js/common.js}"></script>-->
+<script th:src="@{/js/common.js(t=${#dates.createNow().time})}"></script>
 
 <script>
     function updateScale() {
