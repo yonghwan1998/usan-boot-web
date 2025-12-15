@@ -40,23 +40,26 @@
 
 /* ---------------- 모바일 프레임 쪽 ---------------- */
 
-/* 폰 전체를 가운데에 배치 */
 .mobile-frame-outer {
-    flex: 1;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    overflow: hidden; /* 스케일된 폰이 삐져나오는 것 방지 */
+    overflow: hidden;
+}
+
+.mobile-scale {
+    transform-origin: top center;
 }
 
 /* 스케일 대상이 되는 "폰" 박스 */
 .mobile-shell {
-    width: 430px;         /* 기준 폭 */
+    width: 430px;
     height: 100vh;        /* JS에서 스케일에 맞게 다시 세팅됨 */
     background: #ffffff;
     display: flex;
     flex-direction: column; /* 헤더 / 본문 / 바텀 네비 수직 배치 */
-    overflow: hidden;       /* 내부만 스크롤 */
 }
 
 /* 헤더(안에 header fragment가 붙음) */
@@ -166,7 +169,6 @@
     width: 100%;
     max-width: 430px;
     top: 0;
-    bottom: 72px;
     background: #ffffff;
     z-index: 30;
 
@@ -387,27 +389,26 @@
     color: #99a1af;
 }
 
-/* ---------------- 데스크탑(PC) 레이아웃 ---------------- */
-
-@media (min-width: 1024px) {
+/* ---------------- 태블릿, pc 레이아웃 ---------------- */
+/* PC */
+@media (min-width: 768px) {
     .usan-layout {
-        max-width: 1200px;
-        margin: 0 auto;
+        justify-content: center; /* 좌/우 묶음을 중앙 */
         gap: 40px;
     }
 
     .pc-side-section {
-        display: flex;
+        display: block;      /* 또는 flex */
         flex: 1;
+        min-width: 0;
     }
 
-    /* PC에서는 모바일 프레임 폭 고정 + 그림자 */
     .mobile-frame-outer {
-        flex: 0 0 auto;
+        width: auto;
+        flex: 0 0 430px;     /* 우측 폰 영역 고정 */
     }
 
     .mobile-shell {
-        box-shadow: 0 0 20px rgba(15, 23, 42, 0.12);
-        overflow: hidden;
+        width: 430px;
     }
 }
