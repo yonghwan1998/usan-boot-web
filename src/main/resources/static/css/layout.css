@@ -60,6 +60,9 @@
     background: #ffffff;
     display: flex;
     flex-direction: column; /* 헤더 / 본문 / 바텀 네비 수직 배치 */
+
+    position: relative;
+    overflow: hidden;
 }
 
 /* 헤더(안에 header fragment가 붙음) */
@@ -163,12 +166,14 @@
 
 /* 전체를 덮는 더보기 패널 (바텀 네비 위까지만) */
 .full-panel {
-    position: fixed;
-    left: 50%;
-    transform: translateX(100%);
-    width: 100%;
-    max-width: 430px;
+    position: absolute;
+    left: 0;
     top: 0;
+    right: 0;
+
+    width: 100%;
+    max-width: none;
+
     background: #ffffff;
     z-index: 30;
 
@@ -176,6 +181,7 @@
     flex-direction: column;
     overflow-y: auto;
 
+    transform: translateX(100%);
     transition: transform 0.35s ease-out;
 
     -ms-overflow-style: none;
@@ -186,7 +192,7 @@
 }
 
 .full-panel.is-open {
-    transform: translateX(-50%);
+    transform: translateX(0);
 }
 
 .more-content {
