@@ -213,8 +213,19 @@
         }, { passive: false });
     }
 
-    window.addEventListener('resize', updateScale);
-    window.addEventListener('DOMContentLoaded', function () {
+    function updateAppVh() {
+        // 모바일 주소창/툴바 반영된 실제 높이(px)
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--app-vh', `${vh}px`);
+    }
+
+    window.addEventListener('resize', () => {
+        updateAppVh();
+        updateScale();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        updateAppVh();
         updateScale();
         bindPcSideScrollProxy();
     });
