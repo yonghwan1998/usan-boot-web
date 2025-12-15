@@ -36,137 +36,140 @@
 
     <!-- 모바일 메인 프레임 -->
     <div class="mobile-frame-outer">
-        <div class="mobile-shell">
-            <!-- 모바일 고정 헤더 -->
-            <th:block th:replace="~{fragments/header :: header}"></th:block>
+        <div class="mobile-scale">
 
-            <!-- 페이지별 본문 -->
-            <main class="mobile-frame">
-                <section id="contents" th:replace="${content}"></section>
-            </main>
+            <div class="mobile-shell">
+                <!-- 모바일 고정 헤더 -->
+                <th:block th:replace="~{fragments/header :: header}"></th:block>
 
-            <!-- 더보기 모달 -->
-            <section id="more-panel" class="full-panel">
-                <div class="common-header">
-                    <button class="common-header__back btn--modal-close"></button>
-                    <div class="common-header__title">더보기</div>
-                    <div class="common-header__right btn--modal-close"></div>
-                </div>
+                <!-- 페이지별 본문 -->
+                <main class="mobile-frame">
+                    <section id="contents" th:replace="${content}"></section>
+                </main>
 
-                <div class="more-content">
-                    <div class="more-content__recommend-outer" style="display: none">
-                        <div class="more-content__recommend">
-                            <div class="recommend__text">매물을 등록하고 보내보세요!</div>
-                            <div class="recommend__icon"></div>
-                        </div>
+                <!-- 더보기 모달 -->
+                <section id="more-panel" class="full-panel">
+                    <div class="common-header">
+                        <button class="common-header__back btn--modal-close"></button>
+                        <div class="common-header__title">더보기</div>
+                        <div class="common-header__right btn--modal-close"></div>
                     </div>
-                    <div class="more-content__card">
-                        <div class="card__profile">
-                            <div class="profile__no-image"></div>
-                            <div class="profile__nickname">로그인을 해주세요</div>
+
+                    <div class="more-content">
+                        <div class="more-content__recommend-outer" style="display: none">
+                            <div class="more-content__recommend">
+                                <div class="recommend__text">매물을 등록하고 보내보세요!</div>
+                                <div class="recommend__icon"></div>
+                            </div>
                         </div>
-                        <div class="card__stats">
-                            <div class="stats-wrapper">
-                                <div class="stats-item">
-                                    <div class="stat-count">-</div>
-                                    <div class="stat-text">크레딧</div>
-                                </div>
-                                <div class="stats-item">
-                                    <div class="stat-count">-</div>
-                                    <div class="stat-text">등록한 매물 수</div>
-                                </div>
-                                <div class="stats-item">
-                                    <div class="stat-count">-</div>
-                                    <div class="stat-text">받은 제안</div>
+                        <div class="more-content__card">
+                            <div class="card__profile">
+                                <div class="profile__no-image"></div>
+                                <div class="profile__nickname">로그인을 해주세요</div>
+                            </div>
+                            <div class="card__stats">
+                                <div class="stats-wrapper">
+                                    <div class="stats-item">
+                                        <div class="stat-count">-</div>
+                                        <div class="stat-text">크레딧</div>
+                                    </div>
+                                    <div class="stats-item">
+                                        <div class="stat-count">-</div>
+                                        <div class="stat-text">등록한 매물 수</div>
+                                    </div>
+                                    <div class="stats-item">
+                                        <div class="stat-count">-</div>
+                                        <div class="stat-text">받은 제안</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="more-content__links">
-                        <a class="more-content__link pointer" th:href="@{/login}">
-                            <div class="link__double-line">
-                                <div class="link__text">로그인/회원가입</div>
-                                <div class="link__caption">회원가입을 하시면 다양한 기능을 활용할 수 있어요!</div>
+                        <div class="more-content__links">
+                            <a class="more-content__link pointer" th:href="@{/login}">
+                                <div class="link__double-line">
+                                    <div class="link__text">로그인/회원가입</div>
+                                    <div class="link__caption">회원가입을 하시면 다양한 기능을 활용할 수 있어요!</div>
+                                </div>
+                                <div class="link__icon"></div>
+                            </a>
+                            <div class="more-content__link pointer">
+                                <div class="link__text">닉네임</div>
+                                <div class="link__icon"></div>
                             </div>
-                            <div class="link__icon"></div>
-                        </a>
-                        <div class="more-content__link pointer">
-                            <div class="link__text">닉네임</div>
-                            <div class="link__icon"></div>
+                            <div class="more-content__link pointer">
+                                <div class="link__text">알림</div>
+                                <div class="link__icon"></div>
+                            </div>
+                            <div class="more-content__link pointer">
+                                <div class="link__text">내 매물 관리</div>
+                                <div class="link__icon"></div>
+                            </div>
+                            <div class="more-content__link pointer">
+                                <div class="link__text">결제관리</div>
+                                <div class="link__icon"></div>
+                            </div>
+                            <div class="more-content__link pointer">
+                                <div class="link__text">고객센터</div>
+                                <div class="link__icon"></div>
+                            </div>
+                            <div class="more-content__link pointer">
+                                <div class="link__text">내 정보 수정하기</div>
+                                <div class="link__icon"></div>
+                            </div>
+                            <a class="more-content__link" th:href="@{/temp/login}">임시 로그인</a>
+                            <a class="more-content__link" th:href="@{/temp/logout}">임시 로그아웃</a>
                         </div>
-                        <div class="more-content__link pointer">
-                            <div class="link__text">알림</div>
-                            <div class="link__icon"></div>
+                    </div>
+                </section>
+
+                <!-- 중개사 찾기 STEP.4 페이지 바텀 시트 -->
+                <div class="region-step__bottom-sheet--4"
+                     th:style="${step} == 4 ? 'display:block' : 'display:none'">
+                    <div class="region-step__add-btn btn btn--primary btn--sm">추가하기</div>
+                </div>
+
+                <!-- 중개사 찾기 STEP.5 페이지 바텀 시트 -->
+                <div class="region-step__bottom-sheet--5"
+                     th:style="${step} == 5 ? 'display:flex' : 'display:none'">
+                    <div class="region-step__location-cards">
+                        <div class="region-step__location-card">
+                            <div class="location-card__head">
+                                <div class="location-card__addr">주소 1</div>
+                                <div class="location-card__icons">
+                                    <span class="location-card-icon--star"></span>
+                                    <span class="location-card-icon--delete"></span>
+                                </div>
+                            </div>
+                            <div class="location-card__tags">
+                                <span class="location-tag region-tag--sido">서울특별시</span>
+                                <span class="location-tag region-tag--sigungu">강남구</span>
+                                <span class="location-tag region-tag--emd">신사동</span>
+                            </div>
                         </div>
-                        <div class="more-content__link pointer">
-                            <div class="link__text">내 매물 관리</div>
-                            <div class="link__icon"></div>
+                        <div class="region-step__location-card pressed">
+                            <div class="location-card__head">
+                                <div class="location-card__addr">주소 2</div>
+                                <div class="location-card__icons">
+                                    <span class="location-card-icon--light-star"></span>
+                                    <span class="location-card-icon--delete"></span>
+                                </div>
+                            </div>
+                            <div class="location-card__tags">
+                                <span class="location-tag region-tag--sido">경기도</span>
+                                <span class="location-tag region-tag--sigungu">오산시</span>
+                                <span class="location-tag region-tag--emd">고현동</span>
+                            </div>
                         </div>
-                        <div class="more-content__link pointer">
-                            <div class="link__text">결제관리</div>
-                            <div class="link__icon"></div>
-                        </div>
-                        <div class="more-content__link pointer">
-                            <div class="link__text">고객센터</div>
-                            <div class="link__icon"></div>
-                        </div>
-                        <div class="more-content__link pointer">
-                            <div class="link__text">내 정보 수정하기</div>
-                            <div class="link__icon"></div>
-                        </div>
-                        <a class="more-content__link" th:href="@{/temp/login}">임시 로그인</a>
-                        <a class="more-content__link" th:href="@{/temp/logout}">임시 로그아웃</a>
+                    </div>
+                    <div class="region-step__buttons">
+                        <div class="region-step__mod-btn btn btn--gray btn--sm">수정하기</div>
+                        <div class="region-step__move-btn btn btn--primary btn--sm">지도로 이동</div>
                     </div>
                 </div>
-            </section>
 
-            <!-- 중개사 찾기 STEP.4 페이지 바텀 시트 -->
-            <div class="region-step__bottom-sheet--4"
-                 th:style="${step} == 4 ? 'display:block' : 'display:none'">
-                <div class="region-step__add-btn btn btn--primary btn--sm">추가하기</div>
+                <!-- 모바일 고정 하단 네비 -->
+                <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
             </div>
-
-            <!-- 중개사 찾기 STEP.5 페이지 바텀 시트 -->
-            <div class="region-step__bottom-sheet--5"
-                 th:style="${step} == 5 ? 'display:flex' : 'display:none'">
-                <div class="region-step__location-cards">
-                    <div class="region-step__location-card">
-                        <div class="location-card__head">
-                            <div class="location-card__addr">주소 1</div>
-                            <div class="location-card__icons">
-                                <span class="location-card-icon--star"></span>
-                                <span class="location-card-icon--delete"></span>
-                            </div>
-                        </div>
-                        <div class="location-card__tags">
-                            <span class="location-tag region-tag--sido">서울특별시</span>
-                            <span class="location-tag region-tag--sigungu">강남구</span>
-                            <span class="location-tag region-tag--emd">신사동</span>
-                        </div>
-                    </div>
-                    <div class="region-step__location-card pressed">
-                        <div class="location-card__head">
-                            <div class="location-card__addr">주소 2</div>
-                            <div class="location-card__icons">
-                                <span class="location-card-icon--light-star"></span>
-                                <span class="location-card-icon--delete"></span>
-                            </div>
-                        </div>
-                        <div class="location-card__tags">
-                            <span class="location-tag region-tag--sido">경기도</span>
-                            <span class="location-tag region-tag--sigungu">오산시</span>
-                            <span class="location-tag region-tag--emd">고현동</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="region-step__buttons">
-                    <div class="region-step__mod-btn btn btn--gray btn--sm">수정하기</div>
-                    <div class="region-step__move-btn btn btn--primary btn--sm">지도로 이동</div>
-                </div>
-            </div>
-
-            <!-- 모바일 고정 하단 네비 -->
-            <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
         </div>
     </div>
 
@@ -177,19 +180,20 @@
 
 <script>
     function updateScale() {
-        const baseWidth = 430;
-        const shell = document.querySelector('.mobile-shell');
-        if (!shell) return;
+        const BASE = 430;
+        const scaleLayer = document.querySelector('.mobile-scale');
+        if (!scaleLayer) return;
 
+        // ✅ PC(768+)에서는 스케일 해제
+        if (window.innerWidth >= 768) {
+            scaleLayer.style.transform = 'none';
+            return;
+        }
+
+        // ✅ 모바일(0~767)에서만 쥐어짜듯 축소
         const vw = window.innerWidth;
-        const scale = Math.min(vw / baseWidth, 1); // 430보다 크면 1, 작으면 비율 축소
-
-        shell.style.transform = `scale(${scale})`;
-        shell.style.transformOrigin = 'top center';
-
-        // 스케일에 맞게 높이 조정
-        const scaledHeight = window.innerHeight * (1 / scale);
-        shell.style.height = scaledHeight + 'px';
+        const scale = Math.min(1, vw / BASE);
+        scaleLayer.style.transform = `scale(${scale})`;
     }
 
     // PC 왼쪽 영역에서 스크롤하면 오른쪽 mobile-frame이 스크롤되도록
@@ -248,5 +252,6 @@
         });
     });
 </script>
+
 </body>
 </html>
