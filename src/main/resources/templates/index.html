@@ -39,17 +39,19 @@
 
                 <h2 class="feature-card__title">지도로 중개사 찾기</h2>
 
-                <div class="find-card__contents">
+                <div class="find-card__contents" style="display: none">
                     <div class="find-card__text">
                         <p class="find-card__headline">
                             <span class="point_t">내가 선택한 위치기준으로</span><br>
                             <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
                         </p>
+
                         <div class="find-card__icons">
                             <span class="find-icon find-icon--house"></span>
                             <span class="find-icon find-icon--building"></span>
                         </div>
                     </div>
+
                     <div class="find-icon--grid">
                         <img src="/img/home-map-card.svg"
                              alt="지도에서 중개사 찾기"
@@ -57,25 +59,36 @@
                     </div>
                 </div>
 
-                <div class="register-card__contents" style="display: none">
-                    <div class="register-card__top">
-                        <span class="register-icon--marker"></span>
-                        <p class="register-card__text">
-                            주소를 등록하면<br>
-                            내 주변 중개사가 자동으로 보여요.
-                        </p>
+                <div class="compare-card__contents" style="display: none">
+                    <div class="compare-card__text">
+                        내 매물에 딱 맞는<br>
+                        <span class="point_g bold">중개사를 자동으로 추천</span> 받아보세요!
                     </div>
-                    <div class="register-card__bottom">
-                        <div class="register-card__rectangle"></div>
-                        <div class="register-card__lines">
-                            <div class="register-card__line bg_d9d9d9"></div>
-                            <div class="register-card__line bg_f2f2f2"></div>
+
+                    <img src="/img/compare-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="compare-card__image" />
+                </div>
+
+                <div class="moment-card__contents">
+                    <div class="moment-card__left">
+                        <div class="moment-card__text">
+                            선택한 중개사에게<br>
+                            매물을 <span class="point_n bold">즉시</span> 전송하세요!
+                        </div>
+                        <div class="moment-card__icons">
+                            <span class="moment-card__icon moment-icon--mail"></span>
+                            <span class="moment-card__icon moment-icon--more-horiz"></span>
+                            <span class="moment-card__icon moment-icon--building"></span>
+                            <span class="moment-card__icon moment-icon--more-horiz"></span>
+                            <span class="moment-card__icon moment-icon--user"></span>
                         </div>
                     </div>
+
+                    <img src="/img/moment-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="moment-card__image moment-card__right" />
                 </div>
 
                 <div class="dot-indicator">
                     <span class="dot is-active"></span>
+                    <span class="dot"></span>
                     <span class="dot"></span>
                 </div>
 
@@ -349,7 +362,8 @@
         // #find-section : 지도 섹션
         initCardSlider("#find-section", [
             ".find-card__contents",
-            ".register-card__contents"
+            ".compare-card__contents",
+            ".moment-card__contents"
         ]);
 
         // #send-section : 내 매물 전송 섹션
