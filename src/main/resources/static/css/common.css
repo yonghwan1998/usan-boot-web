@@ -1,5 +1,5 @@
 /* ================================
-   📌 btn!
+   📌 btn_!
    ================================ */
 .btn {
     display: inline-flex;
@@ -38,7 +38,7 @@
 }
 
 /* ================================
-   📌 inherit!
+   📌 inherit_!
    ================================ */
 .__inherit {
     font-size: inherit;
@@ -48,14 +48,14 @@
 }
 
 /* ================================
-   📌 cursor!
+   📌 cursor_!
    ================================ */
 .pointer {
     cursor: pointer;
 }
 
 /* ================================
-   📌 common-header!
+   📌 common-header_!
    ================================ */
 .common-header {
     position: relative;
@@ -95,7 +95,7 @@
 }
 
 /* ================================
-   📌 common-step!
+   📌 common-step_!
    ================================ */
 .common-step__bar {
     display: flex;
@@ -166,7 +166,7 @@
 }
 
 /* ================================
-   📌 common-input!
+   📌 common-input_!
    ================================ */
 .common-input-wrapper {
     position: relative;
@@ -210,7 +210,7 @@
 }
 
 /* ================================
-   📌 height!
+   📌 height_!
    ================================ */
 .h_178 {
     height: 178px;
@@ -220,7 +220,7 @@
 }
 
 /* ================================
-   📌 color!
+   📌 color_!
    ================================ */
 .point_t {
     color: #3551e3;
@@ -232,9 +232,19 @@
     font-size: inherit;
     line-height: inherit;
 }
+.point_g {
+    color: #105733;
+    font-size: inherit;
+    line-height: inherit;
+}
+.point_n {
+    color: #0f1f70;
+    font-size: inherit;
+    line-height: inherit;
+}
 
 /* ================================
-   📌 font-weight!
+   📌 font-weight_!
    ================================ */
 .normal {
     font-weight: 400 !important;
@@ -254,7 +264,7 @@
 }
 
 /* ================================
-   📌 background!
+   📌 background_!
    ================================ */
 .bg_d9d9d9 {
     background: #d9d9d9;
@@ -264,7 +274,7 @@
 }
 
 /* ================================
-   📌 flex!
+   📌 flex_!
    ================================ */
 .flex_end {
     display: flex;
