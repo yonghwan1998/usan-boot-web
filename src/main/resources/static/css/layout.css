@@ -354,8 +354,6 @@
     align-items: stretch;
     width: 100%;
     border-top: 1px solid #d9d9d9;
-    border-top-right-radius: 16px;
-    border-top-left-radius: 16px;
     background: #ffffff;
     overflow: hidden;
 }
@@ -391,18 +389,32 @@
     -webkit-mask: url("../img/24x24-user.svg") center/contain no-repeat;
 }
 
-.bottom-nav__item.on {
-    background: #5b7cfd1a;
+.bottom-nav__item.on .bottom-nav__icon--home {
+    mask: url("../img/24x24-home-navy.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-home-navy.svg") center/contain no-repeat;
+    background-color: #091243;
 }
 
-.bottom-nav__item.on .bottom-nav__icon {
-    background-color: #5b7cfd;
+.bottom-nav__item.on .bottom-nav__icon--map {
+    mask: url("../img/24x24-home-navy.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-map-navy.svg") center/contain no-repeat;
+    background-color: #091243;
+}
+
+.bottom-nav__item.on .bottom-nav__icon--user {
+    mask: url("../img/24x24-home-navy.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-user-navy.svg") center/contain no-repeat;
+    background-color: #091243;
 }
 
 .bottom-nav__label {
     font-weight: 400;
     font-size: 12px;
     color: #99a1af;
+}
+
+.bottom-nav__item.on .bottom-nav__label {
+    color: #091243;
 }
 
 /* ---------------- 태블릿, pc 레이아웃 ---------------- */
