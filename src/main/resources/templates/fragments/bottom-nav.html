@@ -1,13 +1,15 @@
 <nav th:fragment="bottomNav" class="bottom-nav">
-    <a th:href="@{/}" class="bottom-nav__item on">
+    <a th:href="@{/}" class="bottom-nav__item"
+       th:classappend="${currentUri == '/' ? 'on' : ''}">
         <span class="bottom-nav__icon bottom-nav__icon--home"></span>
         <span class="bottom-nav__label">홈</span>
     </a>
-    <a th:href="@{/map}" class="bottom-nav__item">
+    <a th:href="@{/map}" class="bottom-nav__item"
+       th:classappend="${currentUri.startsWith('/map') ? 'on' : ''}">
         <span class="bottom-nav__icon bottom-nav__icon--map"></span>
         <span class="bottom-nav__label">동네 부동산</span>
     </a>
-    <a th:href="@{#}"
+    <a href="#"
        onclick="toggleMorePanel(event)"
        class="bottom-nav__item">
         <span class="bottom-nav__icon bottom-nav__icon--user"></span>
