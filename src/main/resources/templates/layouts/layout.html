@@ -86,7 +86,9 @@
                             </div>
                         </div>
                         <div class="more-content__links">
-                            <a class="more-content__link pointer" th:href="@{/login}">
+                            <a class="more-content__link pointer"
+                               th:href="@{/login}"
+                               th:if="${login == null}">
                                 <div class="link__double-line">
                                     <div class="link__text">로그인/회원가입</div>
                                     <div class="link__caption">회원가입을 하시면 다양한 기능을 활용할 수 있어요!</div>
@@ -117,8 +119,12 @@
                                 <div class="link__text">내 정보 수정하기</div>
                                 <div class="link__icon"></div>
                             </div>
-                            <a class="more-content__link" th:href="@{/temp/login}">임시 로그인</a>
-                            <a class="more-content__link" th:href="@{/temp/logout}">임시 로그아웃</a>
+                            <a class="more-content__link pointer"
+                               th:href="@{/login}"
+                               th:if="${login != null}">
+                                <div class="link__text">로그아웃</div>
+                                <div class="link__icon"></div>
+                            </a>
                         </div>
                     </div>
                 </section>
