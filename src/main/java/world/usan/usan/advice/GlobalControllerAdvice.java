@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import world.usan.usan.dto.LoginViewModel;
 
 import java.util.Map;
 
@@ -19,26 +20,25 @@ public class GlobalControllerAdvice {
     }
 
     @ModelAttribute("login")
-    public Map<String, Object> loginModel() {
+    public LoginViewModel loginModel() {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
-            return Map.of("authenticated", false);
+            return LoginViewModel.anonymous();
         }
 
         Object principal = auth.getPrincipal();
 
         if (principal instanceof OAuth2User oAuth2User) {
-            return Map.of(
-                    "authenticated", true,
-                    "userId", oAuth2User.getAttribute("app_user_id"),
-                    "email", oAuth2User.getAttribute("app_user_email"),
-                    "nickname", oAuth2User.getAttribute("app_user_nickname"),
-                    "nearbyAddr", "오산시 원동"
+            return LoginViewModel.authenticated(
+                    oAuth2User.getAttribute("app_user_id"),
+                    oAuth2User.getAttribute("app_user_email"),
+                    oAuth2User.getAttribute("app_user_nickname"),
+                    "오산시 원동"
             );
         }
 
-        return Map.of("authenticated", true);
+        return LoginViewModel.anonymous();
     }
 }

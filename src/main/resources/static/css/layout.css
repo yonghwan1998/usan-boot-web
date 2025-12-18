@@ -311,6 +311,8 @@
     width: 100%;
     padding: 16px;
     border-bottom: 1px solid #f2f2f2;
+    background: #ffffff;
+    cursor: pointer;
 }
 
 .link__double-line {
