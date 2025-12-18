@@ -40,15 +40,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 : LocalDateTime.ofInstant(userRequest.getAccessToken().getExpiresAt(), ZoneId.systemDefault());
 
         //DB 저장/연결
-        var user = socialLoginService.upsertUserAndLinkSocial(info, accessToken, refreshToken, expiresAt);
+        var snap = socialLoginService.upsertUserAndLinkSocial(info, accessToken, refreshToken, expiresAt);
 
         //세션 principal로 쓰기 위해 attributes에 우리 userId 주입
         //nameAttributeKey는 provider 별로 다를 수 있어서, 그냥 attributes map에 추가
         //(불변 Map인 경우 대비: 새 Map 만들어 반환)
         Map<String, Object> newAttrs = new java.util.HashMap<>(attributes);
-        newAttrs.put("app_user_id", user.getId());
-        newAttrs.put("app_user_email", user.getEmail());
-        newAttrs.put("app_user_nickname", user.getNickname());
+        newAttrs.put("app_user_id", snap.userId());
+        newAttrs.put("app_user_email", snap.email());
+        newAttrs.put("app_user_nickname", snap.nickname());
 
         //DefaultOAuth2User 생성에 필요한 nameAttributeKey
         String nameKey = userRequest.getClientRegistration()
