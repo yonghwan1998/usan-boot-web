@@ -3,6 +3,7 @@ package world.usan.usan.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import world.usan.usan.dto.LoginUserSnapshot;
 import world.usan.usan.dto.OAuthUserInfo;
 import world.usan.usan.entity.User;
 import world.usan.usan.entity.UserSocialAccount;
@@ -19,10 +20,10 @@ public class SocialLoginService {
     private final UserSocialAccountRepository userSocialAccountRepository;
 
     @Transactional
-    public User upsertUserAndLinkSocial(OAuthUserInfo info,
-                                        String accessToken,
-                                        String refreshToken,
-                                        LocalDateTime expiresAt) {
+    public LoginUserSnapshot upsertUserAndLinkSocial(OAuthUserInfo info,
+                                                     String accessToken,
+                                                     String refreshToken,
+                                                     LocalDateTime expiresAt) {
 
         UserSocialAccount.Provider provider = UserSocialAccount.Provider.valueOf(info.provider());
 
@@ -31,13 +32,15 @@ public class SocialLoginService {
 
         if (socialOpt.isPresent()) {
             var social =  socialOpt.get();
+
             social.setEmail(info.email());
             social.setNickname(info.nickname());
             social.setAccessToken(accessToken);
             social.setRefreshToken(refreshToken);
             social.setTokenExpiresAt(expiresAt);
 
-            return social.getUser();
+            User u = social.getUser();
+            return new LoginUserSnapshot(u.getId(), u.getEmail(), u.getNickname());
         }
 
         //2. 소셜 계정이 처음이면 유저를 찾거나 생성
@@ -70,6 +73,6 @@ public class SocialLoginService {
                 .tokenExpiresAt(expiresAt)
                 .build());
 
-        return user;
+        return new LoginUserSnapshot(user.getId(), user.getEmail(), user.getNickname());
     }
 }
