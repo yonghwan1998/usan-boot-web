@@ -29,7 +29,7 @@
     <link rel="stylesheet" th:href="@{/css/join.css(t=${#dates.createNow().time})}">
 </th:block>
 
-<section>
+<section class="join-page">
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
         <div class="common-header__title" th:text="'STEP.' + ${joinStep}">STEP.1</div>

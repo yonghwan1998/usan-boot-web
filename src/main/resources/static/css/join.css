@@ -1,6 +1,12 @@
+.join-page {
+    min-height: calc(var(--app-vh, 1vh) * 100);
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+}
+
 .join-text {
     width: 100%;
-    padding: 0 16px;
     margin-top: 28px;
     margin-bottom: 32px;
     font-weight: 500;
@@ -14,9 +20,8 @@
     align-items: center;
     gap: 16px;
     width: 100%;
-    position: fixed;
-    bottom: 72px;
-    padding: 36px 16px;
+    padding: 36px 0;
+    margin-top: auto;
 }
 
 .pw__condition {

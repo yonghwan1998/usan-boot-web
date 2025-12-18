@@ -63,7 +63,7 @@
     align-items: center;
     justify-content: center;
     height: 64px;
-    padding: 8px 16px;
+    padding: 8px 0;
     gap: 8px;
 }
 .common-header__back {
