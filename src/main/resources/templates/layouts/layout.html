@@ -40,7 +40,9 @@
 
             <div class="mobile-shell">
                 <!-- 모바일 고정 헤더 -->
-                <th:block th:replace="~{fragments/header :: header}"></th:block>
+                <th:block th:if="${showHeader}">
+                    <th:block th:replace="~{fragments/header :: header}"></th:block>
+                </th:block>
 
                 <!-- 페이지별 본문 -->
                 <main class="mobile-frame">
@@ -182,7 +184,9 @@
                 -->
 
                 <!-- 모바일 고정 하단 네비 -->
-                <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
+                <th:block th:if="${showBottomNav}">
+                    <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
+                </th:block>
             </div>
         </div>
     </div>
