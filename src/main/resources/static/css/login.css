@@ -1,3 +1,7 @@
+.login-page {
+    padding: 0 16px;
+}
+
 .login-wrapper {
     display: flex;
     flex-direction: column;
