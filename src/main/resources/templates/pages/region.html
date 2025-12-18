@@ -29,7 +29,7 @@
     <link rel="stylesheet" th:href="@{/css/region.css(t=${#dates.createNow().time})}">
 </th:block>
 
-<section>
+<section class="region-page">
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
         <div class="common-header__title" th:text="'STEP.' + ${step}">STEP.1</div>
