@@ -34,7 +34,8 @@ public class GlobalControllerAdvice {
                     "authenticated", true,
                     "userId", oAuth2User.getAttribute("app_user_id"),
                     "email", oAuth2User.getAttribute("app_user_email"),
-                    "nickname", oAuth2User.getAttribute("app_user_nickname")
+                    "nickname", oAuth2User.getAttribute("app_user_nickname"),
+                    "nearbyAddr", "오산시 원동"
             );
         }
 

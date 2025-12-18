@@ -177,19 +177,19 @@
 
             <div class="flex_between">
                 <h2 class="feature-card__title"
-                    th:text="${nearbyAddr} ? ${nearbyAddr} : '주변 중개사'">
+                    th:text="${login} ? ${login.nearbyAddr} + '의 중개사' : '주변 중개사'">
                     주변 중개사
                 </h2>
 
                 <a th:href="@{#}"
-                   th:if="${nearbyAddr}"
+                   th:if="${login.nearbyAddr}"
                    class="home-block__go-map flex_center">
                     <span class="go-map__text">전체보기</span>
                     <span class="go-map__icon"></span>
                 </a>
             </div>
             <h3 class="home-block__desc"
-                th:if="${!tempLogin}">
+                th:if="${login == null}">
                 내 매물을 보낼 중개사들을 리스트로 빠르게 찾아봐요!
             </h3>
 
@@ -197,7 +197,7 @@
                 <!--      아래 레이어: 실제 리스트      -->
                 <div class="nearby-list">
                     <!--         더미 데이터(미로그인)           -->
-                    <div class="nearby-placeholder" th:if="${!tempLogin}">
+                    <div class="nearby-placeholder" th:if="${login == null}">
                         <div class="nearby-placeholder__item">
                             <div class="nearby-placeholder__left">
                                 <img src="/img/104x104-rectangle.svg" alt="프로필">
@@ -245,7 +245,7 @@
                         </div>
                     </div>
                     <!--         실제 데이터(로그인)           -->
-                    <div class="nearby-agent" th:if="${tempLogin}">
+                    <div class="nearby-agent" th:if="${login != null}">
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
                                 <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필">
@@ -337,7 +337,7 @@
                 </div>
 
                 <!--      위 레이어: 안내 버블 오버레이      -->
-                <div class="nearby-overlay" th:if="${!tempLogin}">
+                <div class="nearby-overlay" th:if="${login == null}">
                     <div class="tip-bubble">
                         <p class="tip-bubble__text">
                             관심이 있는 지역을 선택하고<br>

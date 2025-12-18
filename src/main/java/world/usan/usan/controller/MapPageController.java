@@ -21,9 +21,6 @@ public class MapPageController {
     public String mapPage(HttpSession session, Model model) {
         model.addAttribute("naverClientId", naverClientId);
 
-        boolean tempLogin = Boolean.TRUE.equals(session.getAttribute("tempLogin"));
-        model.addAttribute("tempLogin", tempLogin);
-
         return "pages/map";
     }
 }
