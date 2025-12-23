@@ -134,9 +134,9 @@
         </div>
     </form>
 
-    <div class="join-bottom-button">
-        <div class="btn btn--outline btn--sm" id="btnPrev">이전</div>
-        <div class="btn btn--primary btn--sm" id="btnNext">다음</div>
+    <div class="btn__wrapper">
+        <div class="btn btn--prev" id="btnPrev">이전</div>
+        <div class="btn btn--next" id="btnNext">다음</div>
     </div>
 
     <script>
@@ -203,10 +203,8 @@
             if (showEl) showEl.hidden = false;
 
             // 버튼 상태
-            const btnPrev = qs('#btnPrev');
             const btnNext = qs('#btnNext');
 
-            if (btnPrev) btnPrev.style.visibility = (step === 1) ? 'hidden' : 'visible';
             if (btnNext) btnNext.textContent =
                 (step === steps.length) ? '회원가입 완료' : '다음';
 
