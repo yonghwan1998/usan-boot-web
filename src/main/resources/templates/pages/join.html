@@ -38,32 +38,30 @@
 
     <div class="common-step__bar join-step" th:with="joinStep=${joinStep} ? ${joinStep} : 1">
 
-        <div class="common-step__step"
-             th:classappend="${joinStep} == 1 ? 'is-current' : ''">
+        <div class="common-step__step">
             <div class="common-step__num">1</div>
             <div class="common-step__caption">Step 1</div>
         </div>
 
-        <div class="common-step__line"
-             th:classappend="${joinStep} == 1 ? 'is-prev' : ''"></div>
+        <div class="common-step__line"></div>
 
-        <div class="common-step__step"
-             th:classappend="
-                ${joinStep} == 1 ? ' is-prev' : ''
-                + ${joinStep == 2 ? ' is-current' : ''}">
+        <div class="common-step__step">
             <div class="common-step__num">2</div>
             <div class="common-step__caption">Step 2</div>
         </div>
 
-        <div class="common-step__line"
-             th:classappend="${joinStep} == 2 ? 'is-prev' : ''"></div>
+        <div class="common-step__line"></div>
 
-        <div class="common-step__step"
-             th:classappend="
-                ${joinStep} == 2 ? ' is-prev' : ''
-                + ${joinStep == 3 ? ' is-current' : ''}">
+        <div class="common-step__step">
             <div class="common-step__num">3</div>
             <div class="common-step__caption">Step 3</div>
+        </div>
+
+        <div class="common-step__line"></div>
+
+        <div class="common-step__step">
+            <div class="common-step__num">4</div>
+            <div class="common-step__caption">Step 4</div>
         </div>
 
     </div>
@@ -143,36 +141,80 @@
 
     <script>
         const steps = [
-            { title: 'STEP.1', text: '이메일을 입력해주세요.', show: '.join-wrapper--email' },
-            { title: 'STEP.2', text: '비밀번호를 입력해주세요.', show: '.join-wrapper--pw' },
-            { title: 'STEP.3', text: '전화번호를 입력해주세요.', show: '.join-wrapper--phone' },
-            { title: 'STEP.4', text: '닉네임을 입력해주세요.', show: '.join-wrapper--nickname' }
+            { text: '이메일을 입력해주세요.',   show: '.join-wrapper--email' },
+            { text: '비밀번호를 입력해주세요.', show: '.join-wrapper--pw' },
+            { text: '전화번호를 입력해주세요.', show: '.join-wrapper--phone' },
+            { text: '닉네임을 입력해주세요.',   show: '.join-wrapper--nickname' }
         ];
 
-        let step = 1;
+        const wrappers = [
+            '.join-wrapper--email',
+            '.join-wrapper--pw',
+            '.join-wrapper--phone',
+            '.join-wrapper--nickname'
+        ];
 
         function qs(sel){ return document.querySelector(sel); }
         function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
 
-        function setStep(n){
-            step = n;
+        /* ================================
+           STEP BAR 렌더링 규칙
+           - is-current : 현재 step
+           - is-next    : 바로 다음 step + line
+        ================================= */
+        function renderStepBar(step) {
+            const stepEls = qsa('.join-step .common-step__step');
+            const lineEls = qsa('.join-step .common-step__line');
 
+            // 전체 초기화
+            stepEls.forEach(el => el.classList.remove('is-current', 'is-next'));
+            lineEls.forEach(el => el.classList.remove('is-next'));
+
+            const currentIdx = step - 1;
+            const nextIdx = step; // 바로 다음
+
+            // 현재 STEP
+            if (stepEls[currentIdx]) {
+                stepEls[currentIdx].classList.add('is-current');
+            }
+
+            // 바로 다음 STEP
+            if (stepEls[nextIdx]) {
+                stepEls[nextIdx].classList.add('is-next');
+            }
+
+            // 바로 다음 LINE (current → next 사이)
+            if (lineEls[currentIdx]) {
+                lineEls[currentIdx].classList.add('is-next');
+            }
+        }
+
+        function setStep(step) {
             // 안내 문구
             const joinText = qs('#joinText');
-            if (joinText) joinText.textContent = steps[step-1].text;
+            if (joinText) joinText.textContent = steps[step - 1].text;
 
-            // wrapper 노출 제어
-            const wrappers = ['.join-wrapper--email', '.join-wrapper--pw', '.join-wrapper--phone', '.join-wrapper--nickname'];
-            wrappers.forEach(w => { const el = qs(w); if (el) el.hidden = true; });
-            const showEl = qs(steps[step-1].show);
+            // 입력 영역 노출
+            wrappers.forEach(w => {
+                const el = qs(w);
+                if (el) el.hidden = true;
+            });
+            const showEl = qs(steps[step - 1].show);
             if (showEl) showEl.hidden = false;
 
-            // 버튼 텍스트
+            // 버튼 상태
             const btnPrev = qs('#btnPrev');
             const btnNext = qs('#btnNext');
 
             if (btnPrev) btnPrev.style.visibility = (step === 1) ? 'hidden' : 'visible';
-            if (btnNext) btnNext.textContent = (step === steps.length) ? '회원가입 완료' : '다음';
+            if (btnNext) btnNext.textContent =
+                (step === steps.length) ? '회원가입 완료' : '다음';
+
+            // STEP BAR 갱신
+            renderStepBar(step);
+
+            // 현재 step 저장
+            window.__JOIN_STEP__ = step;
         }
 
         function valOf(name){
@@ -180,44 +222,51 @@
             return el ? el.value.trim() : '';
         }
 
-        function validateStep(){
-            if (step === 1) {
-                const email = valOf('email');
-                if (!email) { alert('이메일을 입력해주세요.'); return false; }
+        function validateStep(step){
+            if (step === 1 && !valOf('email')) {
+                alert('이메일을 입력해주세요.');
+                return false;
             }
             if (step === 2) {
                 const pw = valOf('password');
                 const pw2 = valOf('passwordConfirm');
-                if (!pw || pw.length < 12) { alert('비밀번호는 12자 이상이어야 합니다.'); return false; }
-                if (pw !== pw2) { alert('비밀번호 확인이 일치하지 않습니다.'); return false; }
+                if (!pw || pw.length < 12) {
+                    alert('비밀번호는 12자 이상이어야 합니다.');
+                    return false;
+                }
+                if (pw !== pw2) {
+                    alert('비밀번호 확인이 일치하지 않습니다.');
+                    return false;
+                }
             }
-            if (step === 3) {
-                const phone = valOf('phone');
-                if (!phone) { alert('전화번호를 입력해주세요.'); return false; }
+            if (step === 3 && !valOf('phone')) {
+                alert('전화번호를 입력해주세요.');
+                return false;
             }
-            if (step === 4) {
-                const nick = valOf('nickname');
-                if (!nick || nick.length < 2) { alert('닉네임을 2자 이상 입력해주세요.'); return false; }
+            if (step === 4 && valOf('nickname').length < 2) {
+                alert('닉네임을 2자 이상 입력해주세요.');
+                return false;
             }
             return true;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 처음 상태
-            setStep(1);
+            const initial = Number(qs('.join-step')?.getAttribute('data-step')) || 1;
+            setStep(initial);
 
             qs('#btnPrev')?.addEventListener('click', () => {
+                const step = window.__JOIN_STEP__ || 1;
                 if (step > 1) setStep(step - 1);
             });
 
             qs('#btnNext')?.addEventListener('click', () => {
-                if (!validateStep()) return;
+                const step = window.__JOIN_STEP__ || 1;
+                if (!validateStep(step)) return;
 
                 if (step < steps.length) {
                     setStep(step + 1);
                 } else {
-                    // 마지막 step: 서버로 한번에 제출
-                    qs('#joinForm').submit();
+                    qs('#joinForm')?.submit();
                 }
             });
         });
