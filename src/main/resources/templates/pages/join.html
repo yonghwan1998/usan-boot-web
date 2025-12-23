@@ -32,7 +32,7 @@
 <section class="join-page">
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title" th:text="'STEP.' + ${joinStep}">STEP.1</div>
+        <div class="common-header__title">회원가입</div>
         <div class="common-header__right btn--X"></div>
     </div>
 
@@ -57,52 +57,158 @@
         </div>
     </div>
 
-    <div class="join-text">STEP을 입력해주세요.</div>
+    <div class="join-text" id="joinText">STEP을 입력해주세요.</div>
 
-    <div class="join-wrapper--id" hidden>
-        <div class="common-input-wrapper target__clear-wrapper">
-            <input type="text" placeholder="아이디를 적어주세요" class="common-input target--clear-input" name="id" oninput="__toggleClearBtn(this)"/>
-            <button type="button" class="common-input-btn common-input__clear-btn target--clear-btn" onclick="__clearInput(this)"></button>
-        </div>
-    </div>
+    <div th:if="${joinError != null}" class="join-error" th:text="${joinError}"></div>
 
-    <div class="join-wrapper--pw">
-        <div class="common-input-wrapper target__view-wrapper">
-            <input type="password" placeholder="비밀번호를 적어주세요" class="common-input target--view-input" name="password"/>
-            <button type="button" class="common-input-btn common-input__eye-slash-btn target--view-btn" onclick="__toggleViewBtn(this)"></button>
+    <form th:action="@{/join}" method="post" th:object="${joinRequest}" id="joinForm">
+        <div class="join-wrapper--email">
+            <div class="common-input-wrapper target__clear-wrapper">
+                <input type="text"
+                       placeholder="이메일을 적어주세요"
+                       class="common-input target--clear-input"
+                       th:field="*{email}"
+                       oninput="__toggleClearBtn(this)"/>
+                <button type="button"
+                        class="common-input-btn common-input__clear-btn target--clear-btn"
+                        onclick="__clearInput(this)"></button>
+            </div>
         </div>
-        <div class="pw__condition">영문,숫자,특수문자,대문자를 조합한 12문자 이상을 적어주세요</div>
-        <div class="pw-confirm__text">비밀번호 확인</div>
-        <div class="common-input-wrapper target__view-wrapper">
-            <input type="password" placeholder="비밀번호를 다시 적어주세요" class="common-input target--view-input" name="password-confirm"/>
-            <button type="button" class="common-input-btn common-input__eye-slash-btn target--view-btn" onclick="__toggleViewBtn(this)"></button>
-        </div>
-    </div>
 
-    <div class="join-wrapper--phone" hidden>
-        <div class="common-input-wrapper target__clear-wrapper">
-            <input type="text" placeholder="전화번호를 적어주세요" class="common-input target--clear-input" name="phone" oninput="__toggleClearBtn(this)"/>
-            <button type="button" class="common-input-btn common-input__clear-btn target--clear-btn" onclick="__clearInput(this)"></button>
+        <div class="join-wrapper--pw" hidden>
+            <div class="common-input-wrapper target__view-wrapper">
+                <input type="password"
+                       placeholder="비밀번호를 적어주세요"
+                       class="common-input target--view-input"
+                       th:field="*{password}"/>
+                <button type="button"
+                        class="common-input-btn common-input__eye-slash-btn target--view-btn"
+                        onclick="__toggleViewBtn(this)"></button>
+            </div>
+            <div class="pw__condition">영문,숫자,특수문자,대문자를 조합한 12문자 이상을 적어주세요</div>
+            <div class="pw-confirm__text">비밀번호 확인</div>
+            <div class="common-input-wrapper target__view-wrapper">
+                <input type="password"
+                       placeholder="비밀번호를 다시 적어주세요"
+                       class="common-input target--view-input"
+                       th:field="*{passwordConfirm}"/>
+                <button type="button"
+                        class="common-input-btn common-input__eye-slash-btn target--view-btn"
+                        onclick="__toggleViewBtn(this)"></button>
+            </div>
         </div>
-    </div>
 
-    <div class="join-wrapper--location" hidden>
-        <div class="common-input-wrapper target__clear-wrapper">
-            <input type="text" placeholder="지역을 적어주세요" class="common-input target--clear-input" name="location" oninput="__toggleClearBtn(this)"/>
-            <button type="button" class="common-input-btn common-input__clear-btn target--clear-btn" onclick="__clearInput(this)"></button>
+        <div class="join-wrapper--phone" hidden>
+            <div class="common-input-wrapper target__clear-wrapper">
+                <input type="text"
+                       placeholder="전화번호를 적어주세요"
+                       class="common-input target--clear-input"
+                       th:field="*{phone}"
+                       oninput="__toggleClearBtn(this)"/>
+                <button type="button"
+                        class="common-input-btn common-input__clear-btn target--clear-btn"
+                        onclick="__clearInput(this)"></button>
+            </div>
         </div>
-    </div>
 
-    <div class="join-wrapper--nickname" hidden>
-        <div class="common-input-wrapper target__clear-wrapper">
-            <input type="text" placeholder="닉네임을 적어주세요" class="common-input target--clear-input" name="nickname" oninput="__toggleClearBtn(this)"/>
-            <button type="button" class="common-input-btn common-input__clear-btn target--clear-btn" onclick="__clearInput(this)"></button>
+        <div class="join-wrapper--nickname" hidden>
+            <div class="common-input-wrapper target__clear-wrapper">
+                <input type="text"
+                       placeholder="닉네임을 적어주세요"
+                       class="common-input target--clear-input"
+                       th:field="*{nickname}"
+                       oninput="__toggleClearBtn(this)"/>
+                <button type="button"
+                        class="common-input-btn common-input__clear-btn target--clear-btn"
+                        onclick="__clearInput(this)"></button>
+            </div>
         </div>
-    </div>
+    </form>
 
     <div class="join-bottom-button">
-        <div class="btn btn--outline btn--sm">이전</div>
-        <div class="btn btn--primary btn--sm">다음</div>
+        <div class="btn btn--outline btn--sm" id="btnPrev">이전</div>
+        <div class="btn btn--primary btn--sm" id="btnNext">다음</div>
     </div>
 
+    <script>
+        const steps = [
+            { title: 'STEP.1', text: '이메일을 입력해주세요.', show: '.join-wrapper--email' },
+            { title: 'STEP.2', text: '비밀번호를 입력해주세요.', show: '.join-wrapper--pw' },
+            { title: 'STEP.3', text: '전화번호를 입력해주세요.', show: '.join-wrapper--phone' },
+            { title: 'STEP.4', text: '닉네임을 입력해주세요.', show: '.join-wrapper--nickname' }
+        ];
+
+        let step = 1;
+
+        function qs(sel){ return document.querySelector(sel); }
+        function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+        function setStep(n){
+            step = n;
+
+            // 안내 문구
+            const joinText = qs('#joinText');
+            if (joinText) joinText.textContent = steps[step-1].text;
+
+            // wrapper 노출 제어
+            const wrappers = ['.join-wrapper--email', '.join-wrapper--pw', '.join-wrapper--phone', '.join-wrapper--nickname'];
+            wrappers.forEach(w => { const el = qs(w); if (el) el.hidden = true; });
+            const showEl = qs(steps[step-1].show);
+            if (showEl) showEl.hidden = false;
+
+            // 버튼 텍스트
+            const btnPrev = qs('#btnPrev');
+            const btnNext = qs('#btnNext');
+
+            if (btnPrev) btnPrev.style.visibility = (step === 1) ? 'hidden' : 'visible';
+            if (btnNext) btnNext.textContent = (step === steps.length) ? '회원가입 완료' : '다음';
+        }
+
+        function valOf(name){
+            const el = document.querySelector(`[name="${name}"]`);
+            return el ? el.value.trim() : '';
+        }
+
+        function validateStep(){
+            if (step === 1) {
+                const email = valOf('email');
+                if (!email) { alert('이메일을 입력해주세요.'); return false; }
+            }
+            if (step === 2) {
+                const pw = valOf('password');
+                const pw2 = valOf('passwordConfirm');
+                if (!pw || pw.length < 12) { alert('비밀번호는 12자 이상이어야 합니다.'); return false; }
+                if (pw !== pw2) { alert('비밀번호 확인이 일치하지 않습니다.'); return false; }
+            }
+            if (step === 3) {
+                const phone = valOf('phone');
+                if (!phone) { alert('전화번호를 입력해주세요.'); return false; }
+            }
+            if (step === 4) {
+                const nick = valOf('nickname');
+                if (!nick || nick.length < 2) { alert('닉네임을 2자 이상 입력해주세요.'); return false; }
+            }
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 처음 상태
+            setStep(1);
+
+            qs('#btnPrev')?.addEventListener('click', () => {
+                if (step > 1) setStep(step - 1);
+            });
+
+            qs('#btnNext')?.addEventListener('click', () => {
+                if (!validateStep()) return;
+
+                if (step < steps.length) {
+                    setStep(step + 1);
+                } else {
+                    // 마지막 step: 서버로 한번에 제출
+                    qs('#joinForm').submit();
+                }
+            });
+        });
+    </script>
 </section>
