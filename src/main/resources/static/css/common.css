@@ -54,6 +54,15 @@
     color: #3551e3;
     border: 1px solid #3551e3;
 }
+.btn-disabled {
+    font-weight: 400 !important;
+    font-size: 16px !important;
+    color: #8c8c8c !important;
+    background: #f2f2f2 !important;
+    border: none !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
 .btn--sm {
     font-size: 16px;
     width: 100%;
