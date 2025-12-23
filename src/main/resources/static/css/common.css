@@ -21,7 +21,7 @@
 }
 .btn--primary {
     font-weight: 600;
-    background: #3b5cff;
+    background: #262626;
     color: #ffffff;
 }
 .btn--secondary {
@@ -51,8 +51,8 @@
 .btn--outline {
     font-weight: 400;
     background: #ffffff;
-    color: #3551e3;
-    border: 1px solid #3551e3;
+    color: #262626;
+    border: 1px solid #262626;
 }
 .btn-disabled {
     font-weight: 400 !important;
