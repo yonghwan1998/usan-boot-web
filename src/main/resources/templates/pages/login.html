@@ -37,32 +37,48 @@
     </div>
 
     <div class="login-wrapper">
-        <div class="login-wrapper--id">
-            <div class="id__text">아이디</div>
-            <div class="common-input-wrapper target__clear-wrapper">
-                <input type="text" placeholder="아이디를 적어주세요" class="common-input target--clear-input" name="id" oninput="__toggleClearBtn(this)"/>
-                <button type="button" class="common-input-btn common-input__clear-btn target--clear-btn" onclick="__clearInput(this)"></button>
+
+        <form th:action="@{/login}" method="post" class="login-form">
+            <div class="login-wrapper--id">
+                <div class="email__text">아이디</div>
+                <div class="common-input-wrapper target__clear-wrapper">
+                    <input type="text"
+                           placeholder="아이디를 적어주세요"
+                           class="common-input target--clear-input"
+                           name="username"
+                           oninput="__toggleClearBtn(this)"/>
+                    <button type="button"
+                            class="common-input-btn common-input__clear-btn target--clear-btn"
+                            onclick="__clearInput(this)"></button>
+                </div>
             </div>
-        </div>
-        <div class="login-wrapper--pw">
-            <div class="pw__text">비밀번호</div>
-            <input type="password" placeholder="비밀번호를 입력해주세요" class="common-input" name="password"/>
-        </div>
+            <div class="login-wrapper--pw">
+                <div class="pw__text">비밀번호</div>
+                <input type="password"
+                       placeholder="비밀번호를 입력해주세요"
+                       class="common-input"
+                       name="password"/>
+            </div>
+            <button class="btn btn--primary login-wrapper--login-btn">로그인</button>
+        </form>
+
         <div class="login-wrapper--find">
             <div class="find__text pointer">아이디 찾기</div>
             <div class="find__text pointer">비밀번호 찾기</div>
         </div>
+
         <div class="login-wrapper--sns">
             <div class="sns__hr"></div>
             <div class="sns__text">SNS 계정으로 간편 가입하기</div>
             <div class="sns__hr"></div>
         </div>
+
         <div class="login-wrapper--sns-icons">
             <a th:href="@{/oauth2/authorization/kakao}" class="sns__icon icon__kakao"></a>
             <a th:href="@{/oauth2/authorization/google}" class="sns__icon icon__google"></a>
             <a th:href="@{/oauth2/authorization/naver}" class="sns__icon icon__naver"></a>
         </div>
-        <button class="btn btn--primary login-wrapper--login-btn">로그인</button>
+
         <a class="btn btn--outline login-wrapper--email-btn" th:href="@{/join}">이메일로 시작하기</a>
     </div>
 
