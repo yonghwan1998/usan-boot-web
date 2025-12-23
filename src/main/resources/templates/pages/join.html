@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">로그인</title>
+    <title th:fragment="title">회원가입</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -36,25 +36,36 @@
         <div class="common-header__right btn--X"></div>
     </div>
 
-    <div class="join-step" th:with="joinStep=${joinStep} ? ${joinStep} : 1">
-        <div class="common-step__bar">
-            <div class="common-step__prev"
-                 th:classappend="${joinStep} == 1 ? 'is-hidden' : ''"></div>
+    <div class="common-step__bar join-step" th:with="joinStep=${joinStep} ? ${joinStep} : 1">
 
-            <div class="common-step__line common-step__line--left"
-                 th:classappend="${joinStep} == 1 ? 'is-hidden' : ''">
-            </div>
-
-            <div class="common-step__current">
-                <span class="common-step__circle" th:text="${joinStep}">1</span>
-            </div>
-
-            <div class="common-step__line common-step__line--right"
-                 th:classappend="${joinStep} == 5 ? 'is-hidden' : ''"></div>
-
-            <div class="common-step__next"
-                 th:classappend="${joinStep} == 5 ? 'is-hidden' : ''"></div>
+        <div class="common-step__step"
+             th:classappend="${joinStep} == 1 ? 'is-current' : ''">
+            <div class="common-step__num">1</div>
+            <div class="common-step__caption">Step 1</div>
         </div>
+
+        <div class="common-step__line"
+             th:classappend="${joinStep} == 1 ? 'is-prev' : ''"></div>
+
+        <div class="common-step__step"
+             th:classappend="
+                ${joinStep} == 1 ? ' is-prev' : ''
+                + ${joinStep == 2 ? ' is-current' : ''}">
+            <div class="common-step__num">2</div>
+            <div class="common-step__caption">Step 2</div>
+        </div>
+
+        <div class="common-step__line"
+             th:classappend="${joinStep} == 2 ? 'is-prev' : ''"></div>
+
+        <div class="common-step__step"
+             th:classappend="
+                ${joinStep} == 2 ? ' is-prev' : ''
+                + ${joinStep == 3 ? ' is-current' : ''}">
+            <div class="common-step__num">3</div>
+            <div class="common-step__caption">Step 3</div>
+        </div>
+
     </div>
 
     <div class="join-text" id="joinText">STEP을 입력해주세요.</div>
