@@ -24,11 +24,20 @@ public class SecurityConfig {
                                 "/join",
                                 "/region/selector",
                                 "/map",
+                                "/.well-known/**",
+                                "/error",
                                 "/css/**",
                                 "/js/**",
                                 "/img/**"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/")
+                        .failureUrl("/login?error")
+                        .permitAll()
                 )
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login")

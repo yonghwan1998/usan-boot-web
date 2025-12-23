@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import world.usan.usan.config.CustomUserDetails;
 import world.usan.usan.dto.LoginViewModel;
 
 import java.util.Map;
@@ -112,6 +113,15 @@ public class GlobalControllerAdvice {
                     oAuth2User.getAttribute("app_user_id"),
                     oAuth2User.getAttribute("app_user_email"),
                     oAuth2User.getAttribute("app_user_nickname"),
+                    "오산시 원동"
+            );
+        }
+
+        if (principal instanceof CustomUserDetails userDetails) {
+            return LoginViewModel.authenticated(
+                    userDetails.getUserId(),
+                    userDetails.getEmail(),
+                    userDetails.getNickname(),
                     "오산시 원동"
             );
         }

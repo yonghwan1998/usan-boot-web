@@ -9,6 +9,10 @@
     padding: 50px 0;
 }
 
+.login-form {
+    width: 100%;
+}
+
 .login-wrapper--id {
     display: flex;
     flex-direction: column;
@@ -18,7 +22,7 @@
     margin-bottom: 12px;
 }
 
-.id__text,
+.email__text,
 .pw__text {
     font-weight: 500;
     font-size: 16px;
