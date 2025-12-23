@@ -1,6 +1,14 @@
 /* ================================
    📌 btn_!
    ================================ */
+.btn__wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    padding: 36px 0;
+    margin-top: auto;
+}
 .btn {
     display: inline-flex;
     justify-content: center;
@@ -20,6 +28,20 @@
     font-weight: 600;
     background: #e7eafe;
     color: #3551e3;
+}
+.btn--prev {
+    flex: 1;
+    font-weight: 400;
+    font-size: 20px;
+    color: #262626;
+    border: 1px solid #a6a6a6;
+}
+.btn--next {
+    flex: 2;
+    font-weight: 600;
+    font-size: 20px;
+    background: #262626;
+    color: #ffffff;
 }
 .btn--gray {
     font-weight: 400;
