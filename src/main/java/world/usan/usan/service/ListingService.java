@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.usan.usan.entity.Broker;
-import world.usan.usan.entity.Listing;
+import world.usan.usan.entity.CrawledListing;
 import world.usan.usan.repository.BrokerRepository;
 import world.usan.usan.repository.ListingRepository;
 
@@ -21,10 +21,10 @@ public class ListingService {
     public void createListing(UUID brokerCode, String listingType) {
 
         Broker broker = brokerRepository.findById(brokerCode).orElseThrow(() -> new IllegalArgumentException("Broker not found: " + brokerCode));
-        Listing listing = new Listing();
-        listing.setCode(UUID.randomUUID());
-        listing.setBroker(broker);
-        listing.setListingType(listingType);
-        listingRepository.save(listing);
+        CrawledListing crawledListing = new CrawledListing();
+        crawledListing.setCode(UUID.randomUUID());
+        crawledListing.setBroker(broker);
+        crawledListing.setListingType(listingType);
+        listingRepository.save(crawledListing);
     }
 }

@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "listing_info")
-public class Listing {
+public class CrawledListing {
 
     @Id
     @Column(name = "code", columnDefinition = "BINARY(16)")
