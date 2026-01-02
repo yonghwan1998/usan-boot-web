@@ -17,7 +17,7 @@ public class CrawledListing {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "broker_code", foreignKey = @ForeignKey(name = "fk_listing_broker"))
-    private Broker broker;
+    private CrawledBroker crawledBroker;
 
     @Column(name = "listing_type", length = 50, nullable = false)
     private String listingType;

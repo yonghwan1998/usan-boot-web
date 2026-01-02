@@ -10,7 +10,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "broker_info", uniqueConstraints = @UniqueConstraint(name = "uk_regnum_name", columnNames = {"registration_number", "broker_name"}))
-public class Broker {
+public class CrawledBroker {
 
     @Id
     @Column(name = "broker_code", columnDefinition = "BINARY(16)")
