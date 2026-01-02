@@ -5,6 +5,6 @@ import world.usan.usan.entity.CrawledListing;
 
 import java.util.UUID;
 
-public interface ListingRepository extends JpaRepository<CrawledListing, UUID> {
+public interface CrawledListingRepository extends JpaRepository<CrawledListing, UUID> {
     boolean existsByCode(UUID code);
 }

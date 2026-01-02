@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import world.usan.usan.batch.job.broker.processor.EnrichedBrokerItem;
 import world.usan.usan.service.CrawledBrokerService;
-import world.usan.usan.service.ListingService;
+import world.usan.usan.service.CrawledListingService;
 
 import java.util.UUID;
 
@@ -16,7 +16,7 @@ import java.util.UUID;
 public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
 
     private final CrawledBrokerService crawledBrokerService;
-    private final ListingService listingService;
+    private final CrawledListingService crawledListingService;
 
     @Override
     @Transactional
@@ -39,7 +39,7 @@ public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
                     e.getLat(),
                     e.getLng()
             );
-            listingService.createListing(brokerCode, e.getListingType());
+            crawledListingService.createListing(brokerCode, e.getListingType());
         }
     }
 }

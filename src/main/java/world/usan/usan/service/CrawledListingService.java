@@ -6,15 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import world.usan.usan.entity.CrawledBroker;
 import world.usan.usan.entity.CrawledListing;
 import world.usan.usan.repository.CrawledBrokerRepository;
-import world.usan.usan.repository.ListingRepository;
+import world.usan.usan.repository.CrawledListingRepository;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ListingService {
+public class CrawledListingService {
 
-    private final ListingRepository listingRepository;
+    private final CrawledListingRepository crawledListingRepository;
     private final CrawledBrokerRepository crawledBrokerRepository;
 
     @Transactional
@@ -25,6 +25,6 @@ public class ListingService {
         crawledListing.setCode(UUID.randomUUID());
         crawledListing.setCrawledBroker(crawledBroker);
         crawledListing.setListingType(listingType);
-        listingRepository.save(crawledListing);
+        crawledListingRepository.save(crawledListing);
     }
 }
