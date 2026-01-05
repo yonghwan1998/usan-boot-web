@@ -249,6 +249,22 @@
 }
 
 /* ================================
+   📌 padding_!
+   ================================ */
+.pt_36 {
+    padding-top: 36px !important;
+}
+.pr_16 {
+    padding-right: 16px !important;
+}
+.pb_36 {
+    padding-bottom: 36px !important;
+}
+.pl_16 {
+    padding-left: 16px !important;
+}
+
+/* ================================
    📌 color_!
    ================================ */
 .point_t {
