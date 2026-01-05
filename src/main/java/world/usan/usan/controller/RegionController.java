@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/region")
-public class RegionPageController {
+public class RegionController {
 
     @GetMapping("/selector")
     public String regionSelectorPage(Model model) {

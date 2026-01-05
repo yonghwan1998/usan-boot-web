@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "listing_info")
-public class Listing {
+public class CrawledListing {
 
     @Id
     @Column(name = "code", columnDefinition = "BINARY(16)")
@@ -17,7 +17,7 @@ public class Listing {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "broker_code", foreignKey = @ForeignKey(name = "fk_listing_broker"))
-    private Broker broker;
+    private CrawledBroker crawledBroker;
 
     @Column(name = "listing_type", length = 50, nullable = false)
     private String listingType;
