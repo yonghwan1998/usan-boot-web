@@ -98,3 +98,7 @@ br {
 a {
     text-decoration: none;
 }
+
+[hidden] {
+    display: none !important;
+}
