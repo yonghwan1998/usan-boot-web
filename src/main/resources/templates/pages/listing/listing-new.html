@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">매물 등록하기</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/listing.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="listing-page">
+    <div class="common-header listing-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">매물 등록하기</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="common-step__bar listing-step" th:with="listingStep=${listingStep} ? ${listingStep} : 1">
+
+        <div class="common-step__step">
+            <div class="common-step__num">1</div>
+            <div class="common-step__caption">Step 1</div>
+        </div>
+
+        <div class="common-step__line"></div>
+
+        <div class="common-step__step">
+            <div class="common-step__num">2</div>
+            <div class="common-step__caption">Step 2</div>
+        </div>
+
+        <div class="common-step__line"></div>
+
+        <div class="common-step__step">
+            <div class="common-step__num">3</div>
+            <div class="common-step__caption">Step 3</div>
+        </div>
+
+    </div>
+
+    <div class="listing-text" id="listingText">집주인이신가요?</div>
+
+    <form th:action="@{/listings}" method="post" th:object="${listingRequest}" id="listingForm">
+
+        <div class="listing-wrapper--listing pr_16 pl_16">
+
+            <div class="role-toggle" role="radiogroup" aria-label="역할 선택">
+                <input type="radio" th:field="*{role}" id="role-owner" value="OWNER">
+                <label for="role-owner" class="listing-pill role-pill">집주인</label>
+                <input type="radio" th:field="*{role}" id="role-tenant" value="TENANT">
+                <label for="role-tenant" class="listing-pill role-pill">세입자</label>
+                <input type="radio" th:field="*{role}" id="role-manager" value="MANAGER">
+                <label for="role-manager" class="listing-pill role-pill">관리인</label>
+            </div>
+
+            <div class="listing-text__type">등록하시려는 매물을 선택해 주세요.</div>
+
+            <div class="type-toggle" role="radiogroup" aria-label="매물 종류 선택">
+                <input type="radio" th:field="*{type}" id="type-apt" value="APT">
+                <label for="type-apt" class="listing-pill type-pill">아파트</label>
+                <input type="radio" th:field="*{type}" id="type-officetel" value="OFFICETEL">
+                <label for="type-officetel" class="listing-pill type-pill">오피스텔</label>
+                <input type="radio" th:field="*{type}" id="type-villa" value="VILLA">
+                <label for="type-villa" class="listing-pill type-pill">빌라/연립</label>
+                <input type="radio" th:field="*{type}" id="type-oneroom" value="ONEROOM">
+                <label for="type-oneroom" class="listing-pill type-pill">원룸</label>
+                <input type="radio" th:field="*{type}" id="type-tworoom" value="TWOROOM">
+                <label for="type-tworoom" class="listing-pill type-pill">투룸</label>
+                <input type="radio" th:field="*{type}" id="type-detached" value="DETACHED">
+                <label for="type-detached" class="listing-pill type-pill">단독/다가구</label>
+                <input type="radio" th:field="*{type}" id="type-rural" value="RURAL">
+                <label for="type-rural" class="listing-pill type-pill">전원주택</label>
+                <input type="radio" th:field="*{type}" id="type-mixedhouse" value="MIXEDHOUSE">
+                <label for="type-mixedhouse" class="listing-pill type-pill">상가주택</label>
+                <input type="radio" th:field="*{type}" id="type-hanok" value="HANOK">
+                <label for="type-hanok" class="listing-pill type-pill">한옥주택</label>
+                <input type="radio" th:field="*{type}" id="type-store" value="STORE">
+                <label for="type-store" class="listing-pill type-pill">상가</label>
+                <input type="radio" th:field="*{type}" id="type-office" value="OFFICE">
+                <label for="type-office" class="listing-pill type-pill">사무실</label>
+                <input type="radio" th:field="*{type}" id="type-building" value="BUILDING">
+                <label for="type-building" class="listing-pill type-pill">건물</label>
+                <input type="radio" th:field="*{type}" id="type-factory" value="FACTORY">
+                <label for="type-factory" class="listing-pill type-pill">공장/창고</label>
+                <input type="radio" th:field="*{type}" id="type-knowledge" value="KNOWLEDGE">
+                <label for="type-knowledge" class="listing-pill type-pill">지식산업센터</label>
+                <input type="radio" th:field="*{type}" id="type-land" value="LAND">
+                <label for="type-land" class="listing-pill type-pill">토지</label>
+                <input type="radio" th:field="*{type}" id="type-apt_sale" value="APT_SALE">
+                <label for="type-apt_sale" class="listing-pill type-pill">아파트분양권</label>
+                <input type="radio" th:field="*{type}" id="type-officetel_sale" value="OFFICETEL_SALE">
+                <label for="type-officetel_sale" class="listing-pill type-pill">오피스텔분양권</label>
+                <input type="radio" th:field="*{type}" id="type-redevelopment" value="REDEVELOPMENT">
+                <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
+                <input type="radio" th:field="*{type}" id="type-reconstruction" value="RECONSTRUCTION">
+                <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
+                <input type="radio" th:field="*{type}" id="type-presale" value="PRESALE">
+                <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
+            </div>
+
+        </div>
+
+        <div class="listing-wrapper--address" hidden>
+
+            <div class="common-input-wrapper pr_16 pl_16">
+                <input type="text"
+                       placeholder="주소를 입력해 주세요"
+                       class="common-input"
+                       th:field="*{address}"/>
+                <button type="button"
+                        class="common-input-btn common-input__magnifier-btn"></button>
+            </div>
+
+            <div class="address-list-wrapper">
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+                <div class="matched-address">
+                    <div class="matched-address__top">
+                        <span class="matched-address__icon"></span>
+                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                    </div>
+                    <div class="matched-address__bottom">
+                        <span class="matched-address__jibun">지번</span>
+                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="listing-wrapper--detail">
+            <div class="selected-address-wrapper">
+                <div class="selected-address__top">
+                    <span class="selected-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                </div>
+                <div class="selected-address__bottom">
+                    <span class="selected-address__jibun">지번</span>
+                    <span class="selected-address__address">부산 해운대구 우산마리나 111-3</span>
+                </div>
+            </div>
+            <div class="common-input-wrapper pr_16 pl_16">
+                <input type="text"
+                       placeholder="상세주소를 입력해 주세요"
+                       class="common-input"/>
+            </div>
+        </div>
+
+    </form>
+
+    <div class="btn__wrapper pt_36 pr_16 pb_36 pl_16">
+        <div class="btn btn--prev" id="btnPrev">이전</div>
+        <div class="btn btn--next" id="btnNext">다음</div>
+    </div>
+
+    <script>
+        const steps = [
+            { text: '집주인이신가요?',   show: '.listing-wrapper--listing' },
+            { text: '등록하시려는 주소를 입력해 주세요.', show: '.listing-wrapper--address' },
+            { text: '상세주소를 입력해 주세요.', show: '.listing-wrapper--detail' },
+        ];
+
+        const wrappers = [
+            '.listing-wrapper--listing',
+            '.listing-wrapper--address',
+            '.listing-wrapper--detail',
+        ];
+
+        function qs(sel){ return document.querySelector(sel); }
+        function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+        /* ================================
+           STEP BAR 렌더링 규칙
+           - is-current : 현재 step
+           - is-next    : 바로 다음 step + line
+        ================================= */
+        function renderStepBar(step) {
+            const stepEls = qsa('.listing-step .common-step__step');
+            const lineEls = qsa('.listing-step .common-step__line');
+
+            // 전체 초기화
+            stepEls.forEach(el => el.classList.remove('is-current', 'is-next'));
+            lineEls.forEach(el => el.classList.remove('is-next'));
+
+            const currentIdx = step - 1;
+            const nextIdx = step; // 바로 다음
+
+            // 현재 STEP
+            if (stepEls[currentIdx]) {
+                stepEls[currentIdx].classList.add('is-current');
+            }
+
+            // 바로 다음 STEP
+            if (stepEls[nextIdx]) {
+                stepEls[nextIdx].classList.add('is-next');
+            }
+
+            // 바로 다음 LINE (current → next 사이)
+            if (lineEls[currentIdx]) {
+                lineEls[currentIdx].classList.add('is-next');
+            }
+        }
+
+        function setStep(step) {
+            // 안내 문구
+            const joinText = qs('#listingText');
+            if (joinText) joinText.textContent = steps[step - 1].text;
+
+            // 입력 영역 노출
+            wrappers.forEach(w => {
+                const el = qs(w);
+                if (el) el.hidden = true;
+            });
+            const showEl = qs(steps[step - 1].show);
+            if (showEl) showEl.hidden = false;
+
+            // 버튼 상태
+            const btnNext = qs('#btnNext');
+
+            if (btnNext) btnNext.textContent =
+                (step === steps.length) ? '완료' : '다음';
+
+            // STEP BAR 갱신
+            renderStepBar(step);
+
+            // 현재 step 저장
+            window.__LISTING_STEP__ = step;
+        }
+
+        function valOf(name){
+            const el = document.querySelector(`[name="${name}"]`);
+            return el ? el.value.trim() : '';
+        }
+
+        function validateStep(step){
+            if (step === 1 && !valOf('email')) {
+                alert('이메일을 입력해주세요.');
+                return false;
+            }
+            if (step === 2) {
+                const pw = valOf('password');
+                const pw2 = valOf('passwordConfirm');
+                if (!pw || pw.length < 12) {
+                    alert('비밀번호는 12자 이상이어야 합니다.');
+                    return false;
+                }
+                if (pw !== pw2) {
+                    alert('비밀번호 확인이 일치하지 않습니다.');
+                    return false;
+                }
+            }
+            if (step === 3 && !valOf('phone')) {
+                alert('전화번호를 입력해주세요.');
+                return false;
+            }
+            if (step === 4 && valOf('nickname').length < 2) {
+                alert('닉네임을 2자 이상 입력해주세요.');
+                return false;
+            }
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const initial = Number(qs('.listing-step')?.getAttribute('data-step')) || 1;
+            setStep(initial);
+
+            qs('#btnPrev')?.addEventListener('click', () => {
+                const step = window.__LISTING_STEP__ || 1;
+                if (step > 1) setStep(step - 1);
+            });
+
+            qs('#btnNext')?.addEventListener('click', () => {
+                const step = window.__LISTING_STEP__ || 1;
+                // if (!validateStep(step)) return;
+
+                if (step < steps.length) {
+                    setStep(step + 1);
+                } else {
+                    qs('#listingForm')?.submit();
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const list = document.querySelector('.address-list-wrapper');
+            if (!list) return;
+
+            list.addEventListener('click', (e) => {
+                const item = e.target.closest('.matched-address');
+                if (!item) return;
+
+                // 1) 기존 선택 해제
+                list.querySelectorAll('.matched-address.is-selected')
+                    .forEach(el => el.classList.remove('is-selected'));
+
+                // 2) 현재 선택
+                item.classList.add('is-selected');
+            });
+        });
+    </script>
+</section>

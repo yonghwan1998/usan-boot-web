@@ -6,8 +6,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import world.usan.usan.batch.job.broker.processor.EnrichedBrokerItem;
-import world.usan.usan.service.BrokerService;
-import world.usan.usan.service.ListingService;
+import world.usan.usan.service.CrawledBrokerService;
+import world.usan.usan.service.CrawledListingService;
 
 import java.util.UUID;
 
@@ -15,15 +15,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
 
-    private final BrokerService brokerService;
-    private final ListingService listingService;
+    private final CrawledBrokerService crawledBrokerService;
+    private final CrawledListingService crawledListingService;
 
     @Override
     @Transactional
     public void write(Chunk<? extends EnrichedBrokerItem> chunk) {
 
         for (EnrichedBrokerItem e : chunk) {
-            UUID brokerCode = brokerService.saveOrUpdate(
+            UUID brokerCode = crawledBrokerService.saveOrUpdate(
                     e.getBrokerName(),
                     e.getOfficeName(),
                     e.getRegistrationNumber(),
@@ -39,7 +39,7 @@ public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
                     e.getLat(),
                     e.getLng()
             );
-            listingService.createListing(brokerCode, e.getListingType());
+            crawledListingService.createListing(brokerCode, e.getListingType());
         }
     }
 }

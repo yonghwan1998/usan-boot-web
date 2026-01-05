@@ -232,6 +232,11 @@
     -webkit-mask: url("../img/24x24-eye-slash.svg") center/contain no-repeat;
     background-color: #a6a6a6;
 }
+.common-input__magnifier-btn {
+    mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
+    background-color: #000000;
+}
 
 /* ================================
    📌 height_!
@@ -241,6 +246,22 @@
 }
 .h_224 {
     height: 224px;
+}
+
+/* ================================
+   📌 padding_!
+   ================================ */
+.pt_36 {
+    padding-top: 36px !important;
+}
+.pr_16 {
+    padding-right: 16px !important;
+}
+.pb_36 {
+    padding-bottom: 36px !important;
+}
+.pl_16 {
+    padding-left: 16px !important;
 }
 
 /* ================================
