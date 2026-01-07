@@ -237,6 +237,101 @@
     -webkit-mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
     background-color: #000000;
 }
+.common-input__expand-btn {
+    mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    background-color: #0d0d0d;
+}
+
+/* ================================
+   📌 common-select_!
+   ================================ */
+.common-select {
+    position: relative;
+    width: 100%;
+}
+.common-select__options {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #bfbfbf;
+
+    list-style: none;
+    z-index: 20;
+
+    display: none;
+}
+.common-select__options li {
+    padding: 12px 16px;
+    font-weight: 500;
+    font-size: 16px;
+    color: #262626;
+}
+.common-select__options li:hover {
+    background: #f2f2f2;
+}
+.common-select.is-open .common-select__options {
+    display: block;
+}
+.common-select.is-open .common-input__expand-btn {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* ================================
+   📌 common-upload_!
+   ================================ */
+.common-upload {
+    position: relative;
+    width: 380px;
+    height: 200px;
+    border-radius: 12px;
+    border: 1px solid #e7eafe;
+    background: #ffffff;
+    box-sizing: border-box;
+    box-shadow: 0 0 4px 0 #0000001A;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    user-select: none;
+}
+.common-upload__input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+.common-upload__icon {
+    width: 36px;
+    height: 36px;
+    mask: url("../img/36x36-upload-cloud.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/36x36-upload-cloud.svg") center/contain no-repeat;
+    background-color: #bfbfbf;
+}
+.common-upload__text {
+    font-weight: 500;
+    font-size: 18px;
+    color: #bfbfbf;
+
+    padding: 8px 0 2px;
+}
+.common-upload__hint {
+    font-weight: 500;
+    font-size: 14px;
+    color: #bfbfbf;
+}
+.common-upload:focus-within {
+    border-color: #5b7cfd;
+    box-shadow: 0 0 0 3px rgba(91,124,253,0.15);
+}
 
 /* ================================
    📌 height_!

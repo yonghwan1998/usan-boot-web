@@ -324,5 +324,65 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const selects = document.querySelectorAll('.common-select');
+
+        selects.forEach(select => {
+            const input   = select.querySelector('.common-select__input');
+            const hidden  = select.querySelector('input[type="hidden"]');
+            const options = select.querySelector('.common-select__options');
+
+            /* =========================
+               열기 / 닫기 (토글)
+            ========================= */
+            const toggleSelect = (e) => {
+                e.stopPropagation();
+
+                const isOpen = select.classList.contains('is-open');
+
+                // 다른 셀렉트는 전부 닫기
+                closeAllSelects();
+
+                // 자기 자신 토글
+                if (!isOpen) {
+                    select.classList.add('is-open');
+                }
+            };
+
+            input.addEventListener('click', toggleSelect);
+            select.querySelector('.common-input__expand-btn')
+                ?.addEventListener('click', toggleSelect);
+
+            /* =========================
+               옵션 선택
+            ========================= */
+            options.querySelectorAll('li').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    input.value = item.textContent.trim();
+                    hidden.value = item.dataset.value || '';
+
+                    select.classList.remove('is-open');
+                });
+            });
+        });
+
+        /* =========================
+           바깥 클릭 → 전체 닫기
+        ========================= */
+        document.addEventListener('click', () => {
+            closeAllSelects();
+        });
+
+        function closeAllSelects() {
+            document.querySelectorAll('.common-select.is-open')
+                .forEach(el => el.classList.remove('is-open'));
+        }
+    });
+</script>
+
 </body>
 </html>

@@ -3,6 +3,7 @@ package world.usan.usan.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import world.usan.usan.dto.ListingRequest;
@@ -39,7 +40,6 @@ public class ListingController {
         return "pages/listing/listing-new";
     }
 
-
     /**
      * @date    2026-01-06
      * @author  yongss
@@ -58,6 +58,26 @@ public class ListingController {
         // TODO(yongss): 검증 완료 시 front에 status를 보내 매물 전송 or 매물 관리로 이동할 수 있게
 
         return "redirect:/listings";
+    }
+
+    /**
+     * @date    2026-01-07
+     * @author  yongss
+     * @param   {}
+     *
+     * 처리 과정:
+     *  - publicId로 매물 조회
+     *  - 수정 폼 바인딩용 ListingRequest 세팅
+     *  - 수정 페이지 렌더링
+     */
+    @GetMapping("/{publicId}/edit")
+    public String editPage(@PathVariable String publicId, Model model) {
+
+        // TODO(yongss): publicId로 Listing 조회
+        // TODO(yongss): 조회 결과를 ListingRequest로 매핑
+        // TODO(yongss): 조회 실패 시 404 처리
+
+        return "pages/listing/listing-edit";
     }
 
 }
