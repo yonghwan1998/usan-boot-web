@@ -94,10 +94,26 @@
             <div class="listing-edit__section-wrapper">
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">거래 유형</div>
-                    <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="해당하는 것을 선택해 주세요."
-                               class="common-input"/>
+                    <div class="common-select" data-name="tradeType">
+                        <div class="common-input-wrapper">
+                            <input type="text"
+                                   placeholder="해당하는 것을 선택해 주세요."
+                                   class="common-input common-select__input"
+                                   readonly />
+                            <button type="button"
+                                    class="common-input-btn common-input__expand-btn"></button>
+                        </div>
+
+                        <ul class="common-select__options">
+                            <li data-value="SALE">매매</li>
+                            <li data-value="JEONSE">전세</li>
+                            <li data-value="MONTHLY">월세</li>
+                            <li data-value="SEMI_JEONSE">반전세</li>
+                            <li data-value="SHORT">단기임대</li>
+                            <li data-value="COMMERCIAL">임대(상가/사무실 등)</li>
+                        </ul>
+
+                        <input type="hidden" name="tradeType">
                     </div>
                 </div>
                 <div class="listing-edit__section">
