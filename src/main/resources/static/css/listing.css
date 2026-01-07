@@ -207,7 +207,7 @@
 }
 
 .listing-list-wrapper,
-.listing-edit-wrapper {
+.listing-edit-form {
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
