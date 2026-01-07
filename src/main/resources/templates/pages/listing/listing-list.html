@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">매물 관리하기</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/listing.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="listing-page">
+    <div class="common-header listing-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">매물 관리하기</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="listing-text mt_20">매물을 더 추가하시겠어요?</div>
+
+    <div class="listing-list-wrapper">
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="listing-list-container">
+            <div class="listing-list__top">
+                <span class="listing-list__label">매물 1</span>
+                <div class="listing-list__title-wrapper">
+                    <span class="listing-list__title-icon">icon</span>
+                    <span class="listing-list__title">우산갤러리아오피스텔</span>
+                </div>
+                <div class="listing-list__address">경기도 평택시 진위면 우산갤러리아 상가 123-45</div>
+            </div>
+            <div class="listing-list__bottom">
+                <div class="listing-list__buttons">
+                    <a class="listing-list__button">수정 및 상세정보</a>
+                    <button class="listing-list__button">삭제</button>
+                </div>
+                <button class="listing-list__send-wrapper">
+                    <span class="listing-list__icon"></span>
+                    <span class="listing-list__send-text">
+                        매물 발송하기
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn__wrapper pt_36 pr_16 pb_36 pl_16">
+        <div class="btn btn--prev" id="btnPrev">이전</div>
+    </div>
+
+</section>
+</html>
