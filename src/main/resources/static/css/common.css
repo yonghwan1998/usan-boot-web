@@ -239,6 +239,58 @@
 }
 
 /* ================================
+   📌 common-upload_!
+   ================================ */
+.common-upload {
+    position: relative;
+    width: 380px;
+    height: 200px;
+    border-radius: 12px;
+    border: 1px solid #e7eafe;
+    background: #ffffff;
+    box-sizing: border-box;
+    box-shadow: 0 0 4px 0 #0000001A;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    user-select: none;
+}
+.common-upload__input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+.common-upload__icon {
+    width: 36px;
+    height: 36px;
+    mask: url("../img/36x36-upload-cloud.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/36x36-upload-cloud.svg") center/contain no-repeat;
+    background-color: #bfbfbf;
+}
+.common-upload__text {
+    font-weight: 500;
+    font-size: 18px;
+    color: #bfbfbf;
+
+    padding: 8px 0 2px;
+}
+.common-upload__hint {
+    font-weight: 500;
+    font-size: 14px;
+    color: #bfbfbf;
+}
+.common-upload:focus-within {
+    border-color: #5b7cfd;
+    box-shadow: 0 0 0 3px rgba(91,124,253,0.15);
+}
+
+/* ================================
    📌 height_!
    ================================ */
 .h_178 {
