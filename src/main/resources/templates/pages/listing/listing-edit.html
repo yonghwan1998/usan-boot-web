@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">매물 상세보기</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/listing.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="listing-page">
+    <div class="common-header listing-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">매물 상세보기</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <form th:action="@{/listings/{publicId}/edit}" method="post" id="listingForm" class="listing-edit-form" enctype="multipart/form-data">
+
+        <div class="listing-edit-wrapper">
+            <div class="listing-edit__basic-wrapper">
+                <div class="listing-edit__basic">
+                    <span class="listing-edit__address">경기도 오산시 원동 821-15</span>
+                    <button class="listing-edit__edit-button">수정</button>
+                </div>
+                <span class="listing-edit__role">집주인</span>
+            </div>
+            <div class="listing-edit__type-wrapper">
+                <div class="listing-edit__section-title">매물 타입</div>
+                <div class="type-toggle" role="radiogroup" aria-label="매물 타입 선택">
+                    <input type="radio" id="type-apt" value="APT">
+                    <label for="type-apt" class="listing-pill type-pill">아파트</label>
+                    <input type="radio" id="type-officetel" value="OFFICETEL">
+                    <label for="type-officetel" class="listing-pill type-pill">오피스텔</label>
+                    <input type="radio" id="type-villa" value="VILLA">
+                    <label for="type-villa" class="listing-pill type-pill">빌라/연립</label>
+                    <input type="radio" id="type-oneroom" value="ONEROOM">
+                    <label for="type-oneroom" class="listing-pill type-pill">원룸</label>
+                    <input type="radio" id="type-tworoom" value="TWOROOM">
+                    <label for="type-tworoom" class="listing-pill type-pill">투룸</label>
+                    <input type="radio" id="type-detached" value="DETACHED">
+                    <label for="type-detached" class="listing-pill type-pill">단독/다가구</label>
+                    <input type="radio" id="type-rural" value="RURAL">
+                    <label for="type-rural" class="listing-pill type-pill">전원주택</label>
+                    <input type="radio" id="type-mixedhouse" value="MIXEDHOUSE">
+                    <label for="type-mixedhouse" class="listing-pill type-pill">상가주택</label>
+                    <input type="radio" id="type-hanok" value="HANOK">
+                    <label for="type-hanok" class="listing-pill type-pill">한옥주택</label>
+                    <input type="radio" id="type-store" value="STORE">
+                    <label for="type-store" class="listing-pill type-pill">상가</label>
+                    <input type="radio" id="type-office" value="OFFICE">
+                    <label for="type-office" class="listing-pill type-pill">사무실</label>
+                    <input type="radio" id="type-building" value="BUILDING">
+                    <label for="type-building" class="listing-pill type-pill">건물</label>
+                    <input type="radio" id="type-factory" value="FACTORY">
+                    <label for="type-factory" class="listing-pill type-pill">공장/창고</label>
+                    <input type="radio" id="type-knowledge" value="KNOWLEDGE">
+                    <label for="type-knowledge" class="listing-pill type-pill">지식산업센터</label>
+                    <input type="radio" id="type-land" value="LAND">
+                    <label for="type-land" class="listing-pill type-pill">토지</label>
+                    <input type="radio" id="type-apt_sale" value="APT_SALE">
+                    <label for="type-apt_sale" class="listing-pill type-pill">아파트분양권</label>
+                    <input type="radio" id="type-officetel_sale" value="OFFICETEL_SALE">
+                    <label for="type-officetel_sale" class="listing-pill type-pill">오피스텔분양권</label>
+                    <input type="radio" id="type-redevelopment" value="REDEVELOPMENT">
+                    <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
+                    <input type="radio" id="type-reconstruction" value="RECONSTRUCTION">
+                    <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
+                    <input type="radio" id="type-presale" value="PRESALE">
+                    <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
+                </div>
+            </div>
+            <div class="listing-edit__section-wrapper">
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">거래 유형</div>
+                    <div class="common-select" data-name="tradeType">
+                        <div class="common-input-wrapper">
+                            <input type="text"
+                                   placeholder="해당하는 것을 선택해 주세요."
+                                   class="common-input common-select__input"
+                                   readonly />
+                            <button type="button"
+                                    class="common-input-btn common-input__expand-btn"></button>
+                        </div>
+
+                        <ul class="common-select__options">
+                            <li data-value="SALE">매매</li>
+                            <li data-value="JEONSE">전세</li>
+                            <li data-value="MONTHLY">월세</li>
+                            <li data-value="SEMI_JEONSE">반전세</li>
+                            <li data-value="SHORT">단기임대</li>
+                            <li data-value="COMMERCIAL">임대(상가/사무실 등)</li>
+                        </ul>
+
+                        <input type="hidden" name="tradeType">
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">상세주소</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="상세주소 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">동·호·수</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="동·호·수 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">층</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="층수 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">면적</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="면적 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">매매가</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="매매가 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">보증금</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="보증금 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">월세</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="월세 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">사진첨부</div>
+
+                    <label class="common-upload" for="photoFiles">
+                        <input id="photoFiles"
+                               name="photoFiles"
+                               type="file"
+                               class="common-upload__input"
+                               accept="png,.jpg,.jpeg,.pdf"
+                               multiple
+                        />
+
+                        <span class="common-upload__icon" aria-hidden="true"></span>
+
+                        <span class="common-upload__text">
+                            여기를 눌러 사진을 첨부해 주세요.
+                        </span>
+
+                        <span class="common-upload__hint">
+                            첨부 가능한 확장자 - PNG, JPG, PDF
+                        </span>
+                    </label>
+                </div>
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">상세정보</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="상세정보 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+    <div class="btn__wrapper pt_36 pr_16 pb_36 pl_16">
+        <div class="btn btn--prev" id="btnPrev">이전</div>
+        <div class="btn btn--next" id="btnNext">다음</div>
+    </div>
+
+</section>
+</html>
