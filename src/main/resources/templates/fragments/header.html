@@ -1,17 +1,11 @@
 <header th:fragment="header" class="mobile-header">
-    <div class="header-left">
+    <a class="header-left" th:href="@{/}">
         <img src="/img/70x40-text.svg"
              alt="우리동네 부동산"
              class="header-logo">
-    </div>
-    <div class="header-center">
-        <div class="header-locations">
-            <div class="header-location on">시/도</div>
-            <div class="header-location">시/군/구</div>
-            <div class="header-location">읍/면/동</div>
-        </div>
-    </div>
+    </a>
     <div class="header-right">
-        <span class="header-right__icon"></span>
+        <span class="header-right__icon header-icon__magnifier"></span>
+        <span class="header-right__icon header-icon__bell"></span>
     </div>
 </header>
