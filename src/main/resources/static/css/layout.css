@@ -67,7 +67,8 @@
 
 /* 헤더(안에 header fragment가 붙음) */
 .mobile-header {
-    flex: 0 0 64px;         /* 헤더 높이 */
+    flex: 0 0 64px;
+    justify-content: space-between;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -108,62 +109,38 @@
     display: block;
 }
 
-.header-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    height: 40px;
-}
-
-.header-locations {
-    display: flex;
-    align-items: stretch;
-    width: 100%;
-    max-width: 238px;
-    border-radius: 16px;
-    border: 1px solid #e7eafe;
-    background: #ffffff;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.header-location {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    font-weight: 400;
-    font-size: 16px;
-    color: #404040;
-}
-
-.header-location + .header-location {
-    border-left: 1px solid #e7eafe;
-}
-
-.header-location.on {
-    background: #e7eafe;
-    font-weight: 600;
-    color: #162b9d;
-}
-
-/* 우측 알림 버튼 */
 .header-right {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
+    gap: 8px;
 }
 
 .header-right__icon {
-    background-image: url("../img/24x24-heart.svg");
-    background-repeat: no-repeat;
-    background-position: center;
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+}
+
+.header-right__icon::before {
+    content: '';
     width: 24px;
     height: 24px;
-    color: #030616;
+    background-color: #0d0d0d;
+}
+
+.header-icon__magnifier::before {
+    mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
+}
+
+.header-icon__bell::before {
+    mask: url("../img/24x24-bell.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-bell.svg") center/contain no-repeat;
 }
 
 /* 전체를 덮는 더보기 패널 (바텀 네비 위까지만) */
