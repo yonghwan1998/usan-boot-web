@@ -143,7 +143,6 @@
     -webkit-mask: url("../img/24x24-bell.svg") center/contain no-repeat;
 }
 
-/* 전체를 덮는 더보기 패널 (바텀 네비 위까지만) */
 .full-panel {
     position: absolute;
     left: 0;
@@ -152,6 +151,7 @@
 
     width: 100%;
     max-width: none;
+    height: 100%;
 
     background: #ffffff;
     z-index: 30;
