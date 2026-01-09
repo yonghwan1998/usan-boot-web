@@ -363,9 +363,9 @@
     -webkit-mask: url("../img/24x24-map.svg") center/contain no-repeat;
 }
 
-.bottom-nav__icon--user {
-    mask: url("../img/24x24-user.svg") center/contain no-repeat;
-    -webkit-mask: url("../img/24x24-user.svg") center/contain no-repeat;
+.bottom-nav__icon--more {
+    mask: url("../img/24x24-more.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-more.svg") center/contain no-repeat;
 }
 
 .bottom-nav__item.on .bottom-nav__icon--home {
@@ -377,12 +377,6 @@
 .bottom-nav__item.on .bottom-nav__icon--map {
     mask: url("../img/24x24-home-navy.svg") center/contain no-repeat;
     -webkit-mask: url("../img/24x24-map-navy.svg") center/contain no-repeat;
-    background-color: #091243;
-}
-
-.bottom-nav__item.on .bottom-nav__icon--user {
-    mask: url("../img/24x24-home-navy.svg") center/contain no-repeat;
-    -webkit-mask: url("../img/24x24-user-navy.svg") center/contain no-repeat;
     background-color: #091243;
 }
 
