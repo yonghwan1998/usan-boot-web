@@ -97,19 +97,24 @@
                                 </div>
                                 <div class="link__icon"></div>
                             </a>
-                            <div class="more-content__link">
+                            <div class="more-content__link"
+                                 th:if="${login.authenticated}">
                                 <div class="link__text">닉네임</div>
                                 <div class="link__icon"></div>
                             </div>
-                            <div class="more-content__link">
+                            <div class="more-content__link"
+                                 th:if="${login.authenticated}">
                                 <div class="link__text">알림</div>
                                 <div class="link__icon"></div>
                             </div>
-                            <a class="more-content__link" th:href="@{/listings}">
+                            <a class="more-content__link"
+                               th:href="@{/listings}"
+                               th:if="${login.authenticated}">
                                 <div class="link__text">내 매물 관리</div>
                                 <div class="link__icon"></div>
                             </a>
-                            <div class="more-content__link">
+                            <div class="more-content__link"
+                                 th:if="${login.authenticated}">
                                 <div class="link__text">결제관리</div>
                                 <div class="link__icon"></div>
                             </div>
@@ -117,7 +122,8 @@
                                 <div class="link__text">고객센터</div>
                                 <div class="link__icon"></div>
                             </div>
-                            <div class="more-content__link">
+                            <div class="more-content__link"
+                                 th:if="${login.authenticated}">
                                 <div class="link__text">내 정보 수정하기</div>
                                 <div class="link__icon"></div>
                             </div>
