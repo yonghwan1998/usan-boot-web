@@ -85,6 +85,23 @@ public class GlobalControllerAdvice {
     }
 
     /**
+     * @date    2026-01-10
+     * @author  yongss
+     * @param   {HttpServletRequest request}
+     * @return  {boolean} 현재 페이지가 search header를 보여주는 페이지인지 boolean 타입으로 반환
+     *
+     * 처리 과정:
+     *  - 현재 uri가 /search 인지 확인
+     *  - 반환 된 boolean 값을 전체 페이지에 전달
+     *  - boolean 값에 따라 search header 노출/미노출 결정
+     */
+    @ModelAttribute("showSearchHeader")
+    public boolean showSearchHeader(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.equals("/search");
+    }
+
+    /**
      * @date    2025-12-18
      * @author  yongss
      * @return  {LoginViewModel}
