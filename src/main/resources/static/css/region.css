@@ -1,31 +1,31 @@
 .region-page {
+    min-height: calc(var(--app-vh, 1vh) * 100);
     padding: 0 16px;
+    display: flex;
+    flex-direction: column;
 }
 
 .region-text {
     font-weight: 500;
     font-size: 20px;
     color: #0d0d0d;
-    padding: 0 16px;
-    margin-top: 12px;
-    margin-bottom: 60px;
     text-align: center;
+    margin-bottom: 42px;
 }
 
-.region-selected,
+.region-selected-wrapper,
 .region-tag-wrapper {
     display: flex;
     justify-content: flex-start;
     gap: 8px;
     flex-wrap: wrap;
-    padding: 0 16px;
-}
-
-.region-selected {
-    margin-bottom: 20px;
 }
 
 .region-selected-wrapper {
+    margin-bottom: 20px;
+}
+
+.region-selected-item {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -35,7 +35,7 @@
 }
 
 .region-selected--sido {
-    background: #3551e3;
+    background: #262626;
     border-radius: 12px;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .region-selected--sigungu {
-    background: #1fad66;
+    background: #17824c;
     border-radius: 12px;
 }
 
@@ -57,12 +57,12 @@
 }
 
 .region-selected--emd {
-    background: #d4f7e5;
+    background: #1c37ca;
     border-radius: 12px;
 }
 
 .region-selected--emd .region-selected__name {
-    color: #17824c;
+    color: #ffffff;
     font-weight: 500;
     font-size: 16px;
 }
@@ -74,10 +74,7 @@
     background-color: #ffffff;
     mask: url("../img/24x24-delete.svg") center/contain no-repeat;
     -webkit-mask: url("../img/24x24-delete.svg") center/contain no-repeat;
-}
-
-.region-selected--emd .region-selected__delete {
-    background-color: #17824c;
+    cursor: pointer;
 }
 
 .region-tag {
@@ -87,19 +84,34 @@
     height: 36px;
     padding: 8px 16px;
     border-radius: 12px;
+    cursor: pointer;
 }
 
 .region-tag--sido {
+    color: #262626;
+    border: 1px solid #262626;
+}
+
+.region-tag--sigungu {
+    color: #1fad66;
+    border: 1px solid #1fad66;
+}
+
+.region-tag--emd {
     color: #3551e3;
     border: 1px solid #3551e3;
 }
 
-.region-tag--sigungu {
-    color: #17824c;
-    border: 1px solid #17824c;
+.region-tag--emd.is-selected {
+    color: #3551e3;
+    background: #e7eafe;
+    border: 1px solid #3551e3;
 }
 
-.region-tag--emd {
-    color: #17824c;
-    border: 1px solid #7de8b2;
+.region-button {
+    display: none;
+}
+
+.region-button.is-visible {
+    display: flex;
 }
