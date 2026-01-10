@@ -23,7 +23,6 @@
 .role-toggle {
     display: flex;
     gap: 12px;
-    justify-content: center;
 }
 
 .role-toggle input[type="radio"] {
@@ -301,8 +300,8 @@
 .listing-list__icon {
     width: 24px;
     height: 24px;
-    mask: url("../img/24x24-mail.svg") center/contain no-repeat;
-    -webkit-mask: url("../img/24x24-mail.svg") center/contain no-repeat;
+    mask: url("../img/24x24-airplane.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-airplane.svg") center/contain no-repeat;
     background-color: #ffffff;
 }
 
@@ -336,14 +335,15 @@
     color: #0d0d0d;
 }
 
-.listing-edit__role {
-    padding: 8px 16px;
-    border-radius: 12px;
-    background: #1fad66;
-    font-weight: 600;
-    font-size: 16px;
-    color: #FFFFFF;
-    align-self: flex-start;
+.address-edit-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
 }
 
 .listing-edit__type-wrapper {
