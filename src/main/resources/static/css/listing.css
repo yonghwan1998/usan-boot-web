@@ -301,8 +301,8 @@
 .listing-list__icon {
     width: 24px;
     height: 24px;
-    mask: url("../img/24x24-mail.svg") center/contain no-repeat;
-    -webkit-mask: url("../img/24x24-mail.svg") center/contain no-repeat;
+    mask: url("../img/24x24-airplane.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-airplane.svg") center/contain no-repeat;
     background-color: #ffffff;
 }
 
