@@ -11,9 +11,6 @@ public class RegionController {
 
     @GetMapping("/selector")
     public String regionSelectorPage(Model model) {
-
-        model.addAttribute("step", 5);
-
         return "pages/region";
     }
 }
