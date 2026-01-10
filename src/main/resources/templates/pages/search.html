@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">검색</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/search.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="search-page">
+
+    <form th:action="@{/search}" method="post" id="searchForm">
+        <div class="newest-search-wrapper">
+            <div class="newest-search__title">
+                <span class="newest-search__left">최근 검색어</span>
+                <button class="newest-search__right">전체 삭제</button>
+            </div>
+
+            <div class="newest-keyword-wrapper">
+
+                <div class="newest-keyword__item">
+                    <div class="newest-keyword__left">
+                        <span class="newest-keyword__watch"></span>
+                        <span class="newest-keyword__keyword">경기도 오산시 고현동</span>
+                    </div>
+                    <div class="newest-keyword__right">
+                        <span class="newest-keyword__date">12.20</span>
+                        <span class="newest-keyword__delete"></span>
+                    </div>
+                </div>
+
+                <div class="newest-keyword__item">
+                    <div class="newest-keyword__left">
+                        <span class="newest-keyword__watch"></span>
+                        <span class="newest-keyword__keyword">중개사 찾기</span>
+                    </div>
+                    <div class="newest-keyword__right">
+                        <span class="newest-keyword__date">12.21</span>
+                        <span class="newest-keyword__delete"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="search__hr">
+
+        <div class="search-nearby-wrapper">
+            <div class="search-nearby__top">
+                <span class="search-nearby__title">주변 중개사 리스트</span>
+                <span class="search-nearby__distance">(100m 기준)</span>
+            </div>
+            <div class="search-nearby__address-wrapper">
+                <span class="search-nearby-address search-nearby-sido">경기도</span>
+                <span class="search-nearby-address search-nearby-sigungu">오산시</span>
+                <span class="search-nearby-address search-nearby-emd">고현동</span>
+            </div>
+        </div>
+        <div class="search-agent-wrapper">
+            <div class="search-agent__item">
+                <div class="search-agent__left">
+                    <div class="search-agent__title">우리동네부동산</div>
+                    <div class="search-agent__address-wrapper">
+                        <div class="search-agent__address">경기도 오산시 고현동</div>
+                        <span class="search-agent__icon"></span>
+                    </div>
+                </div>
+                <span class="search-agent__img"></span>
+            </div>
+            <div class="search-agent__item">
+                <div class="search-agent__left">
+                    <div class="search-agent__title">황금부동산</div>
+                    <div class="search-agent__address-wrapper">
+                        <div class="search-agent__address">경기도 오산시 고현동</div>
+                        <span class="search-agent__icon"></span>
+                    </div>
+                </div>
+                <span class="search-agent__img"></span>
+            </div>
+            <div class="search-agent__item">
+                <div class="search-agent__left">
+                    <div class="search-agent__title">보배로운부동산</div>
+                    <div class="search-agent__address-wrapper">
+                        <div class="search-agent__address">경기도 오산시 고현동</div>
+                        <span class="search-agent__icon"></span>
+                    </div>
+                </div>
+                <span class="search-agent__img"></span>
+            </div>
+        </div>
+    </form>
+
+</section>
