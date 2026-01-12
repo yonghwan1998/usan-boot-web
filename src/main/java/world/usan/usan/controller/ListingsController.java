@@ -10,7 +10,7 @@ import world.usan.usan.dto.ListingRequest;
 
 @RequestMapping("/listings")
 @Controller
-public class ListingController {
+public class ListingsController {
 
     /**
      * @date    2026-01-06
@@ -23,7 +23,7 @@ public class ListingController {
     @GetMapping("")
     public String list() {
 
-        return "pages/listing/listing-list";
+        return "pages/listings/listings-list";
     }
 
     /**
@@ -37,7 +37,7 @@ public class ListingController {
     @GetMapping("/new")
     public String newPage(Model model) {
         model.addAttribute("listingRequest", new ListingRequest(null, null, null));
-        return "pages/listing/listing-new";
+        return "pages/listings/listings-new";
     }
 
     /**
@@ -77,7 +77,7 @@ public class ListingController {
         // TODO(yongss): 조회 결과를 ListingRequest로 매핑
         // TODO(yongss): 조회 실패 시 404 처리
 
-        return "pages/listing/listing-edit";
+        return "pages/listings/listings-edit";
     }
 
 }
