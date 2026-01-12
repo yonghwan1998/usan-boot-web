@@ -33,3 +33,141 @@
     font-size: 16px;
     color: #262626;
 }
+
+.payments-history-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    margin-top: 36px;
+    height: calc(var(--app-vh, 1vh) * 60);
+    min-height: 0;
+}
+
+.payments-history__filter {
+    display: flex;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    border: 1px solid #262626;
+    overflow: hidden;
+}
+
+.payments-history__filter-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    height: 52px;
+    background: #ffffff;
+    font-weight: 400;
+    font-size: 16px;
+    color: #262626;
+}
+
+.payments-history__filter-item:not(:last-child) {
+    border-right: 1px solid #262626;
+}
+
+.payments-history__filter-item.is-active {
+    font-weight: 600;
+    font-size: 16px;
+    background: #262626;
+    color: #ffffff;
+}
+
+.payments-history__list {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 1px;
+    border-radius: 16px;
+    border: 0.67px solid #bfbfbf;
+}
+
+.payments-history__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+}
+
+.payments-history__item:not(:last-child) {
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.payments-history__left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.payments-history__title-wrapper {
+    display: flex;
+    gap: 4px;
+}
+
+.payments-history__title,
+.payments-history__credit {
+    font-weight: 600;
+    font-size: 18px;
+    color: #0d0d0d;
+}
+
+.payments-history__info-wrapper {
+    display: flex;
+    gap: 2px;
+}
+
+.payments-history__date,
+.payments-history__dot,
+.payments-history__price {
+    font-weight: 400;
+    font-size: 16px;
+    color: #737373;
+}
+
+.payments-history__price-tag {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.complete-tag {
+    background: #e6faee;
+    color: #08592a;
+}
+
+.fail-tag {
+    background: #ffebeb;
+    color: #b41f1f;
+}
+
+.payments-btn__wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    padding: 36px 0;
+    margin-top: auto;
+}
+
+.payments-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 20px;
+    color: #262626;
+    border: 1px solid #a6a6a6;
+}
