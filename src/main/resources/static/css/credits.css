@@ -1,0 +1,142 @@
+.credits-page {
+    min-height: calc(var(--app-vh, 1vh) * 100);
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.credits-history-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    margin-top: 36px;
+    height: calc(var(--app-vh, 1vh) * 60);
+    min-height: 0;
+}
+
+.credits-history__filter {
+    display: flex;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    border: 1px solid #262626;
+    overflow: hidden;
+}
+
+.credits-history__filter-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    height: 52px;
+    background: #ffffff;
+    font-weight: 400;
+    font-size: 16px;
+    color: #262626;
+}
+
+.credits-history__filter-item:not(:last-child) {
+    border-right: 1px solid #262626;
+}
+
+.credits-history__filter-item.is-active {
+    font-weight: 600;
+    font-size: 16px;
+    background: #262626;
+    color: #ffffff;
+}
+
+.credits-history__list {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 1px;
+    border-radius: 16px;
+    border: 0.67px solid #bfbfbf;
+}
+
+.credits-history__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+}
+
+.credits-history__item:not(:last-child) {
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.credits-history__left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.credits-history__title-wrapper {
+    display: flex;
+    gap: 4px;
+}
+
+.credits-history__title,
+.credits-history__count {
+    font-weight: 600;
+    font-size: 18px;
+    color: #0d0d0d;
+}
+
+.credits-history__info-wrapper {
+    display: flex;
+    gap: 2px;
+}
+
+.credits-history__date,
+.credits-history__dot,
+.credits-history__time,
+.credits-history__price {
+    font-weight: 400;
+    font-size: 16px;
+    color: #737373;
+}
+
+.credits-history__price-tag {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.used-tag {
+    color: #b41f1f;
+}
+
+.charged-tag {
+    color: #08592a;
+}
+
+.credits-btn__wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    padding: 36px 0;
+    margin-top: auto;
+}
+
+.credits-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 20px;
+    color: #262626;
+    border: 1px solid #a6a6a6;
+}
