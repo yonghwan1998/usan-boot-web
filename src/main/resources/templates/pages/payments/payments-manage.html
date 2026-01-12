@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">결제관리</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/payments.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="payments-page">
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">결제관리</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="payments-wrapper">
+        <img src="/img/135x128-coin.png">
+
+        <div class="payments__links">
+            <div class="payments__link">
+                <div class="link__text">크레딧 충전하기</div>
+                <div class="link__icon"></div>
+            </div>
+            <div class="payments__link">
+                <div class="link__text">크레딧 결제 내역</div>
+                <div class="link__icon"></div>
+            </div>
+            <div class="payments__link">
+                <div class="link__text">크레딧 내역</div>
+                <div class="link__icon"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="btn__wrapper flex_center">
+        <div class="payments__bottom-credits">현재 크레딧 : 7,450 C</div>
+    </div>
+
+</section>

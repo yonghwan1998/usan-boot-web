@@ -116,11 +116,12 @@
                                 <div class="link__text">내 매물 관리</div>
                                 <div class="link__icon"></div>
                             </a>
-                            <div class="more-content__link"
+                            <a class="more-content__link"
+                                 th:href="@{/payments/manage}"
                                  th:if="${login.authenticated}">
                                 <div class="link__text">결제관리</div>
                                 <div class="link__icon"></div>
-                            </div>
+                            </a>
                             <div class="more-content__link">
                                 <div class="link__text">고객센터</div>
                                 <div class="link__icon"></div>
