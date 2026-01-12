@@ -12,4 +12,9 @@ public class PaymentsController {
     public String paymentsPage() {
         return "pages/payments/payments-manage";
     }
+
+    @GetMapping("/history")
+    public String paymentsHistory() {
+        return "pages/payments/payments-history";
+    }
 }
