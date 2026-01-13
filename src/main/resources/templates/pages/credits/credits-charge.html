@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">크레딧 충전하기</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/credits.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="credits-page">
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">icon-U 포인트 충전하기</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="credits-charge-wrapper">
+
+        <div class="credits-charge__selector-wrapper">
+            <div class="credits-charge__own-wrapper">
+                <div class="credits-charge__top">
+                    <span class="credits-charge__semi-title">보유 크레딧</span>
+                    <span class="credits-charge__caption">* 1C = 1건 발송</span>
+                </div>
+                <div class="credits-charge__bottom">
+                    <div class="credits-charge__own">3</div>
+                    <img src="/img/24x24-icon-U.png">
+                </div>
+            </div>
+            <div class="credits-charge__charge-wrapper">
+                <div class="credits-charge__title">충전 금액 선택</div>
+                <div class="credits-charge__price-wrapper">
+                    <div class="credits-charge__item is-active">
+                        <div class="credits-charge__left">
+                            <div class="credits-charge__credits">100 C</div>
+                            <div class="credits-charge__won">5,000원</div>
+                        </div>
+                        <span class="credits-charge__check"></span>
+                    </div>
+                    <div class="credits-charge__item">
+                        <div class="credits-charge__left">
+                            <div class="credits-charge__credits">200 C</div>
+                            <div class="credits-charge__won">9,500원</div>
+                        </div>
+                        <span class="credits-charge__check"></span>
+                    </div>
+                    <div class="credits-charge__item">
+                        <div class="credits-charge__left">
+                            <div class="credits-charge__credits">500 C</div>
+                            <div class="credits-charge__won">20,000원</div>
+                        </div>
+                        <span class="credits-charge__check"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="credits-charge__selected-wrapper">
+            <div class="credits-charge__selected-top">
+                <span class="credits-charge__selected-text">선택한 크레딧</span>
+                <span class="credits-charge__selected-credits">2,000 C</span>
+            </div>
+            <div class="credits-charge__selected-bottom">
+                <span class="credits-charge__expected-text">결졔 예정 금액</span>
+                <span class="credits-charge__expected-won">4,500원</span>
+            </div>
+        </div>
+
+        <div class="credits-charge__question">원하시는 금액이 없으신가요?</div>
+
+        <div class="credits-charge__method-wrapper">
+            <div class="credits-charge__method-title">결제 수단</div>
+            <div class="credits-charge__method-container">
+                <div class="credits-charge__method-item">
+                    <div class="credits-charge__method-left">
+                        <img src="/img/24x24-credit-card.png">
+                        <span class="credits-charge__method-text">신용/체크카드</span>
+                    </div>
+                    <div class="method__icon">화살표</div>
+                </div>
+                <div class="credits-charge__method-item">
+                    <div class="credits-charge__method-left">
+                        <img src="/img/24x24-bill-paper.png">
+                        <span class="credits-charge__method-text">계좌이체</span>
+                    </div>
+                    <div class="method__icon">화살표</div>
+                </div>
+                <div class="credits-charge__method-item">
+                    <div class="credits-charge__method-left">
+                        <img src="/img/74x29-kakao-pay.png">
+                        <span class="credits-charge__method-text">카카오페이</span>
+                    </div>
+                    <div class="method__icon">화살표</div>
+                </div>
+                <div class="credits-charge__method-item">
+                    <div class="credits-charge__method-left">
+                        <img src="/img/71x24-naver-pay.png">
+                        <span class="credits-charge__method-text">네이버페이</span>
+                    </div>
+                    <div class="method__icon">화살표</div>
+                </div>
+                <div class="credits-charge__method-item">
+                    <div class="credits-charge__method-left">
+                        <img src="/img/79x24-toss-pay.png">
+                        <span class="credits-charge__method-text">토스페이</span>
+                    </div>
+                    <div class="method__icon">화살표</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="credits-charge__method-caption">결제 과정에서 외부 결제창으로 이동할 수 있습니다.</div>
+
+    </div>
+
+    <div class="btn__wrapper">
+        <div class="btn btn--next" id="btnNext">충전하기</div>
+    </div>
+
+</section>
