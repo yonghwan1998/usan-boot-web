@@ -124,6 +124,10 @@
     background: url("../img/24x24-X.svg") center/24px 24px no-repeat;
     cursor: pointer;
 }
+.common-header__right.btn--setting {
+    background: url("../img/24x24-setting.svg") center/24px 24px no-repeat;
+    cursor: pointer;
+}
 
 /* ================================
    📌 common-step_!
