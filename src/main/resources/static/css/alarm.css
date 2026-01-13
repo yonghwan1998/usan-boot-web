@@ -1,0 +1,52 @@
+.alarm-page {
+    min-height: calc(var(--app-vh, 1vh) * 100);
+    display: flex;
+    flex-direction: column;
+}
+
+.alarm-header {
+    padding: 8px 16px;
+}
+
+.alarm-wrapper {
+    min-height: calc(var(--app-vh, 1vh) * 100);
+    display: flex;
+    flex-direction: column;
+    background: #f2f2f2;
+}
+
+.alarm-wrapper.non-existing {
+    justify-content: center;
+    align-items: center;
+}
+
+.alarm__non-existing-wrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon__alarm-face {
+    width: 170px;
+    height: 81px;
+}
+
+.non-existing__text-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.non-existing__title {
+    font-weight: 600;
+    font-size: 26px;
+    color: #737373;
+}
+
+.non-existing__text {
+    font-weight: 400;
+    font-size: 16px;
+    color: #8c8c8c;
+}
