@@ -12,4 +12,9 @@ public class CreditsController {
     public String creditsHistory() {
         return "pages/credits/credits-history";
     }
+
+    @GetMapping("/charge")
+    public String chargeCredits() {
+        return "pages/credits/credits-charge";
+    }
 }
