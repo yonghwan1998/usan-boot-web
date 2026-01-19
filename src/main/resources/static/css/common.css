@@ -128,6 +128,10 @@
     background: url("../img/24x24-setting.svg") center/24px 24px no-repeat;
     cursor: pointer;
 }
+.common-header__right.btn--heart {
+    background: url("../img/24x24-heart.svg") center/24px 24px no-repeat;
+    cursor: pointer;
+}
 
 /* ================================
    📌 common-step_!
