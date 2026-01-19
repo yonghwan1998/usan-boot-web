@@ -7,7 +7,7 @@
     bottom: 0;
     transform: translate(-50%, 100%); /* 기본은 아래로 숨김 */
     width: 100%;
-    max-width: 520px;
+    max-width: 430px;
     background: #ffffff;
     border-radius: 24px 24px 0 0;
     box-shadow: 0 -4px 16px 0 #00000014;
@@ -102,8 +102,6 @@
 
 /* 시트 내용 영역 (스크롤) */
 #broker-sheet-content {
-    max-height: 50vh; /* 화면 절반만 차지 */
-    overflow-y: auto;
     padding: 0 2px 16px;
     box-sizing: border-box;
 }
@@ -120,6 +118,333 @@
     font-size: 18px;
     font-weight: 700;
     color: #111;
+}
+
+/* ===============================
+   NEW: 매물 보내기 바텀시트
+   =============================== */
+.send-sheet{
+    position: absolute;   /* 🔥 fixed 금지 */
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    transform: none;      /* 🔥 translateX(-50%) 같은거 금지 */
+    width: 100%;
+    max-width: 430px;     /* 모바일 프레임 폭 */
+    margin: 0 auto;       /* 가운데 정렬 */
+
+    height: min(78vh, 640px);
+    background: transparent;
+    z-index: 910;
+
+    overflow: visible;    /* 시트 그림자 잘리면 visible */
+}
+
+.send-sheet__collapse{
+    position: absolute;
+    left: 0; right: 0;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 24px rgba(0,0,0,.12);
+    overflow: hidden;
+
+    /* ✅ 닫힘 기본값: 핸들만 보이게 */
+    transform: translateY(calc(100% - 60px));
+    transition: transform .25s ease;
+
+    max-height: 500px;
+}
+
+.send-sheet.is-open .send-sheet__collapse {
+    transform: translateY(0);
+}
+
+.send-sheet.is-dragging .send-sheet__collapse {
+    transition: none !important;
+}
+
+/* handle */
+.send-sheet__handle-area{
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.send-sheet__handle{
+    width: 56px;
+    height: 5px;
+    border-radius: 999px;
+    background: #d9d9d9;
+}
+
+/* body */
+.send-sheet__body{
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px 12px;
+    gap: 12px;
+}
+
+/* 상단 select */
+.send-sheet__listing-select{
+    width: 100%;
+    height: 52px;
+    border-radius: 12px;
+    border: 1px solid #e7eafe;
+    background: #fff;
+    padding: 0 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    cursor: pointer;
+}
+.send-sheet__listing-left{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.send-sheet__listing-label{
+    font-weight: 600;
+    font-size: 14px;
+    color: #262626;
+    white-space: nowrap;
+}
+.send-sheet__listing-sep{
+    color: #bfbfbf;
+}
+.send-sheet__listing-title{
+    font-weight: 600;
+    font-size: 14px;
+    color: #262626;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.send-sheet__chev{
+    width: 24px;
+    height: 24px;
+    background-color: #0d0d0d;
+    mask: url("/img/24x24-expand.svg") center/contain no-repeat;
+    -webkit-mask: url("/img/24x24-expand.svg") center/contain no-repeat;
+}
+
+/* options row */
+.send-sheet__options{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.send-sheet__check{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+.send-sheet__check input{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.send-sheet__check-ui{
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid #0d0d0d;
+    display: inline-block;
+    position: relative;
+}
+.send-sheet__check input:checked + .send-sheet__check-ui{
+    background: #0d0d0d;
+}
+.send-sheet__check input:checked + .send-sheet__check-ui::after{
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+.send-sheet__check-text{
+    font-weight: 600;
+    font-size: 14px;
+    color: #262626;
+}
+
+.send-sheet__filter{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #e7eafe;
+    background: #fff;
+    cursor: pointer;
+}
+.send-sheet__filter-icon{
+    width: 18px;
+    height: 18px;
+    background-color: #0d0d0d;
+    mask: url("/img/24x24-filter.svg") center/contain no-repeat;
+    -webkit-mask: url("/img/24x24-filter.svg") center/contain no-repeat;
+}
+.send-sheet__filter-text{
+    font-weight: 600;
+    font-size: 13px;
+    color: #262626;
+}
+
+/* hint */
+.send-sheet__hint{
+    font-size: 13px;
+    color: #595959;
+}
+
+/* list (scroll) */
+.send-sheet__list{
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 8px;
+}
+
+/* broker row */
+.send-broker{
+    border-radius: 12px;
+    background: #f7f7f7;
+    padding: 12px;
+}
+.send-broker__row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    cursor: pointer;
+}
+.send-broker__checkbox{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.send-broker__check-ui{
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid #0d0d0d;
+    background: #fff;
+    position: relative;
+    flex: 0 0 auto;
+}
+.send-broker__checkbox:checked + .send-broker__check-ui{
+    background: #0d0d0d;
+}
+.send-broker__checkbox:checked + .send-broker__check-ui::after{
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+
+.send-broker__info{
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.send-broker__name{
+    font-weight: 700;
+    font-size: 16px;
+    color: #262626;
+}
+.send-broker__tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.send-tag{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #262626;
+    background: #fff;
+}
+.send-tag b{ font-weight: 800; }
+
+.send-tag--home{ background:#fff4e6; }
+.send-tag--store{ background:#ffe8f1; }
+.send-tag--apt{ background:#e9f7ee; }
+.send-tag--office{ background:#fff1e6; }
+.send-tag--etc{ background:#eef6ff; }
+
+.send-broker__thumb{
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background: #d9d9d9; /* 이미지 넣을 거면 background-image로 */
+    flex: 0 0 auto;
+}
+
+/* CTA fixed inside sheet */
+.send-sheet__cta{
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+}
+.send-sheet__send-btn{
+    width: 100%;
+    height: 54px;
+    border-radius: 14px;
+    border: 0;
+    background: #111;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    cursor: pointer;
+}
+.send-sheet__send-icon{
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    mask: url("/img/24x24-send.svg") center/contain no-repeat;
+    -webkit-mask: url("/img/24x24-send.svg") center/contain no-repeat;
+}
+
+/* 모바일에서 max-width 해제 */
+@media (max-width: 600px){
+    .send-sheet{ max-width: 100%; border-radius: 18px 18px 0 0; }
 }
 
 /* ================================
@@ -238,6 +563,363 @@
     font-size: 13px;
 }
 
+/* ===============================
+   SEND SHEET (매물 보내기)
+   - 폰 프레임 중앙 정렬
+   - 접힘 상태에서 지도 클릭 가능(pointer-events 처리)
+   =============================== */
+
+/* ✅ map.css 에 아래 블록 그대로 추가/교체 (send-sheet 관련은 이걸로 갈아끼우기) */
+
+/* 레이아웃 */
+.main-content{
+    position: relative;
+    min-height: calc(var(--app-vh, 1vh) * 100);
+    display: flex;
+    flex-direction: column;
+}
+
+#map.map{
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ===============================
+   SEND SHEET (매물 보내기)
+   - 폰 프레임 중앙 정렬
+   - 접힘 상태에서 지도 클릭 가능(pointer-events 처리)
+   =============================== */
+
+.send-sheet{
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: min(100%, 430px);
+    height: min(78vh, 640px);
+
+    z-index: 910;
+    background: transparent;
+    overflow: visible;
+
+    pointer-events: none;  /* ✅ 핵심: 지도 클릭 통과 */
+}
+
+/* CTA는 항상 보이고 클릭 가능 */
+.send-sheet__cta{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background: #ffffff;
+    border-top: 1px solid #f2f2f2;
+
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+
+    pointer-events: auto;  /* ✅ CTA 클릭 가능 */
+}
+
+.send-sheet__send-btn{
+    width: 100%;
+    height: 54px;
+    border-radius: 14px;
+    border: 0;
+    background: #111;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.send-sheet__send-icon{
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    mask: url("/img/24x24-send.svg") center/contain no-repeat;
+    -webkit-mask: url("/img/24x24-send.svg") center/contain no-repeat;
+}
+
+/* 접히는 본체 */
+.send-sheet__collapse{
+    position: absolute;
+    left: 0;
+    right: 0;
+
+    bottom: calc(72px + env(safe-area-inset-bottom));
+
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 24px rgba(0,0,0,.12);
+    overflow: hidden;
+
+    transform: translateY(calc(100% - 60px)); /* ✅ 기본: 핸들만 */
+    transition: transform .25s ease;
+    will-change: transform;
+
+    pointer-events: auto; /* ✅ 핸들/열림 내용 클릭 가능 */
+}
+
+.send-sheet.is-open .send-sheet__collapse{ transform: translateY(0); }
+.send-sheet.is-dragging .send-sheet__collapse{ transition: none !important; }
+
+/* handle */
+.send-sheet__handle-area{
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+.send-sheet__handle{
+    width: 56px;
+    height: 5px;
+    border-radius: 999px;
+    background: #d9d9d9;
+}
+
+/* body(스크롤 포함) */
+.send-sheet__body{
+    height: calc(100% - 60px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    padding: 0 16px 12px;
+    box-sizing: border-box;
+}
+
+/* 상단 select */
+.send-sheet__listing-select{
+    width: 100%;
+    height: 52px;
+    border-radius: 12px;
+    border: 1px solid #e7eafe;
+    background: #fff;
+    padding: 0 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+.send-sheet__listing-left{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.send-sheet__listing-label,
+.send-sheet__listing-title{
+    font-weight: 600;
+    font-size: 14px;
+    color: #262626;
+}
+.send-sheet__listing-title{
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.send-sheet__listing-sep{ color: #bfbfbf; }
+.send-sheet__chev{
+    width: 24px;
+    height: 24px;
+    background-color: #0d0d0d;
+    mask: url("/img/24x24-expand.svg") center/contain no-repeat;
+    -webkit-mask: url("/img/24x24-expand.svg") center/contain no-repeat;
+}
+
+/* options row */
+.send-sheet__options{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.send-sheet__check{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+.send-sheet__check input{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.send-sheet__check-ui{
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid #0d0d0d;
+    display: inline-block;
+    position: relative;
+}
+.send-sheet__check input:checked + .send-sheet__check-ui{ background: #0d0d0d; }
+.send-sheet__check input:checked + .send-sheet__check-ui::after{
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+.send-sheet__check-text{
+    font-weight: 600;
+    font-size: 14px;
+    color: #262626;
+}
+
+.send-sheet__filter{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #e7eafe;
+    background: #fff;
+    cursor: pointer;
+}
+.send-sheet__filter-icon{
+    width: 18px;
+    height: 18px;
+    background-color: #0d0d0d;
+    mask: url("/img/24x24-filter.svg") center/contain no-repeat;
+    -webkit-mask: url("/img/24x24-filter.svg") center/contain no-repeat;
+}
+.send-sheet__filter-text{
+    font-weight: 600;
+    font-size: 13px;
+    color: #262626;
+}
+
+.send-sheet__hint{
+    font-size: 13px;
+    color: #595959;
+}
+
+/* list scroll */
+.send-sheet__list{
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 8px;
+}
+
+.send-sheet__section-title{
+    font-size: 18px;
+    font-weight: 800;
+    color: #111;
+    margin: 4px 0 8px;
+}
+
+/* broker row */
+.send-broker{
+    border-radius: 12px;
+    background: #f7f7f7;
+    padding: 12px;
+}
+.send-broker__row{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    cursor: pointer;
+}
+.send-broker__checkbox{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.send-broker__check-ui{
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid #0d0d0d;
+    background: #fff;
+    position: relative;
+    flex: 0 0 auto;
+    margin-top: 2px;
+}
+.send-broker__checkbox:checked + .send-broker__check-ui{ background: #0d0d0d; }
+.send-broker__checkbox:checked + .send-broker__check-ui::after{
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+
+.send-broker__info{
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.send-broker__name{
+    font-weight: 800;
+    font-size: 18px;
+    color: #262626;
+}
+.send-broker__tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.send-tag{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #262626;
+    background: #fff;
+}
+.send-tag b{ font-weight: 800; }
+.send-broker__addr{
+    font-size: 14px;
+    color: #4b5563;
+    line-height: 1.2;
+}
+
+.send-broker__thumb{
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background: #d9d9d9;
+    flex: 0 0 auto;
+}
+
+/* 실제 모바일 전체폭이면 max-width 해제 */
+@media (max-width: 600px){
+    .send-sheet{ width: 100%; max-width: 100%; }
+    .send-sheet__collapse{ border-radius: 18px 18px 0 0; }
+}
 /* 모바일 대응 */
 @media (max-width: 600px) {
     .bottom-sheet {

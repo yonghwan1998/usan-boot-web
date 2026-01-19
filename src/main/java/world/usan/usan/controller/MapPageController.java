@@ -13,6 +13,9 @@ public class MapPageController {
     @Value("${NAVER_MAP_CLIENT_ID}")
     private String naverClientId;
 
+    @Value("${NAVER_MAP_DARK_THEME_CUSTOM_ID}")
+    private String naverDarkThemeId;
+
     @GetMapping("")
     public String mapPage(Model model) {
         model.addAttribute("naverClientId", naverClientId);
@@ -23,6 +26,7 @@ public class MapPageController {
     @GetMapping("/listings/share")
     public String listingsSharePage(Model model) {
         model.addAttribute("naverClientId", naverClientId);
+        model.addAttribute("naverDarkThemeId", naverDarkThemeId);
 
         return "pages/map/map-listings-share";
     }
