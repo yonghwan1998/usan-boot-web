@@ -30,6 +30,22 @@
 </th:block>
 
 <section class="listing-page">
+
+    <!-- ✅ 공통 모달 (layout.html에 1번만) -->
+    <div id="common-modal" class="common-modal" aria-hidden="true">
+        <div class="common-modal__backdrop" data-modal-close></div>
+
+        <div class="common-modal__card" role="dialog" aria-modal="true" aria-labelledby="common-modal-title">
+            <div class="common-modal__content">
+                <div id="common-modal-title" class="common-modal__title">제목</div>
+                <div id="common-modal-body" class="common-modal__body"></div>
+            </div>
+
+            <div id="common-modal-actions" class="common-modal__actions">
+            </div>
+        </div>
+    </div>
+
     <div class="common-header listing-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
         <div class="common-header__title">매물 등록하기</div>
@@ -115,7 +131,7 @@
                 <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
                 <input type="radio" th:field="*{type}" id="type-reconstruction" value="RECONSTRUCTION">
                 <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
-                <input type="radio" th:field="*{type}" id="type-presale" value="PRESALE">
+                <input type="radio" th:field="*{type}" id="type-presale" value="PRESALE" th:onclick="openListingCompleteModal()">
                 <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
             </div>
 
@@ -620,5 +636,27 @@
                 item.classList.add('is-selected');
             });
         });
+    </script>
+
+    <script>
+        // 예: 저장 성공 후 호출
+        function openListingCompleteModal() {
+            window.CommonModal.open({
+                title: '매물 등록이 완료되었습니다.',
+                bodyHtml: '',
+                buttons: [
+                    {
+                        text: '매물 전송',
+                        variant: 'outline',
+                        onClick: (close) => { close(); location.href = '/map/listings/share'; }
+                    },
+                    {
+                        text: '매물 관리',
+                        variant: 'primary',
+                        onClick: (close) => { close(); location.href = '/listings'; }
+                    }
+                ]
+            });
+        }
     </script>
 </section>
