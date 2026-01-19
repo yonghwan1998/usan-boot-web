@@ -1,3 +1,4 @@
+<!-- ✅ pages/map/map-listings-share.html (그대로 갈아끼우기) -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layouts/layout :: layout(
@@ -19,37 +20,73 @@
 
 <section>
     <!-- 네이버 지도 API -->
-    <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId} + '&submodules=gl'"></script>
+    <script type="text/javascript"
+            th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId} + '&submodules=gl'"></script>
     <script type="text/javascript" src="/js/MarkerClustering.js"></script>
 
-    <!-- 지도 영역 -->
     <div class="main-content">
+
+        <div class="common-header listing-header">
+            <button class="common-header__back" th:onclick="history.back()"></button>
+            <div class="common-header__title">매물 보내기</div>
+            <div class="common-header__right"></div>
+        </div>
+
         <div id="map" class="map"></div>
 
-        <!-- 선택된 중개사 바텀시트 -->
-        <div id="broker-sheet" class="bottom-sheet">
-            <div class="bottom-sheet__handle-wrapper">
-                <div class="bottom-sheet__handle"></div>
-            </div>
-            <div class="bottom-sheet__contents-wrapper">
-                <div class="bottom-sheet__options">
-                    <div class="bottom-sheet-btn__distance">거리 설정</div>
-                    <div class="bottom-sheet-toggle__wrapper">
-                        <span class="bottom-sheet-txt">중개사</span>
-                        <span class="bottom-sheet-btn__toggle">
-                            <span class="bottom-sheet-toggle__white"></span>
-                        </span>
-                        <span class="bottom-sheet-txt">정보</span>
-                    </div>
+        <!-- ✅ SEND SHEET: 접힘 상태에서 지도 클릭 가능(pointer-events) + 중앙 정렬 -->
+        <div id="broker-sheet" class="send-sheet">
+            <!-- ✅ 접히는 영역(드래그로 열고/닫는 본체) -->
+            <div class="send-sheet__collapse">
+                <div class="send-sheet__handle-area">
+                    <div class="send-sheet__handle"></div>
                 </div>
-                <div class="bottom-sheet__line"></div>
-                <div id="broker-sheet-content"></div>
+
+                <div class="send-sheet__body">
+                    <button type="button" class="send-sheet__listing-select">
+            <span class="send-sheet__listing-left">
+              <span class="send-sheet__listing-label">매물 1</span>
+              <span class="send-sheet__listing-sep">|</span>
+              <span class="send-sheet__listing-title">우산갤러리아아파트</span>
+            </span>
+                        <span class="send-sheet__chev" aria-hidden="true"></span>
+                    </button>
+
+                    <div class="send-sheet__options">
+                        <label class="send-sheet__check">
+                            <input type="checkbox" checked>
+                            <span class="send-sheet__check-ui" aria-hidden="true"></span>
+                            <span class="send-sheet__check-text">중개사 전체 선택</span>
+                        </label>
+
+                        <button type="button" class="send-sheet__filter">
+                            <span class="send-sheet__filter-icon" aria-hidden="true"></span>
+                            <span class="send-sheet__filter-text">필터</span>
+                        </button>
+                    </div>
+
+                    <div class="send-sheet__hint">
+                        매물 1 기준으로 <b>100m</b> 이내에 <b>18명</b>의 중개사가 있습니다.
+                    </div>
+
+                    <!-- 스크롤 리스트 -->
+                    <div class="send-sheet__list" id="broker-sheet-content"></div>
+                </div>
+            </div>
+
+            <!-- ✅ CTA는 항상 보이게(접히지 않음) -->
+            <div class="send-sheet__cta">
+                <button type="button" class="send-sheet__send-btn">
+                    <span class="send-sheet__send-icon" aria-hidden="true"></span>
+                    <span>3개의 중개사에게 매물 보내기</span>
+                </button>
             </div>
         </div>
+
     </div>
 
+    <!-- ✅ MAP + CLUSTER + SHEET OPEN/CLOSE -->
     <script th:inline="javascript">
-
         let map;
         let markers = [];
         let markerClustering = null;
@@ -57,45 +94,14 @@
         let selectedClusterKey = null;
 
         let myLocationMarker = null;
-
         let lastFetchId = 0;
 
-        //[zoom 레벨(숫자가 클수록 zoom 확대)]
-        //- 20 level: 10m
-        //- 19 level: 20m
-        //- 18 level: 30m
-        //- 17 level: 50m
-        //- 16 level: 100m
-        //- 15 level: 300m
-        //- 14 level: 500m
-        //- 13 level: 1km
-        //- 12 level: 3km
-        //- 11 level: 5km
-        //- 10 level: 10km
-        //- 9  level: 20km
-        //- 8  level: 30km
-
-        //[zoom 단계 변수]
-        //(ZOOM_INITIAL)    초기: 13 level (1km)
-        //(ZOOM_MAX)        지도 최대: 19 level (20m)
-        //(ZOOM_MARKER)     마커 보이기: 19 ~ 17 level (20m ~ 50m)
-        //(ZOOM_CLUSTER)    클러스터 보이기: 16 ~ 15 level (100m ~ 300m)
-        //(ZOOM_EMD)        읍면동 보이기: 14 ~ 13 level (500m ~ 1km)
-        //(ZOOM_SIGUNGU)    시군구 보이기: 12 ~ 11 level (3km ~ 5km)
-        //(ZOOM_SIDO)       시도 보이기: 10 ~ 8 level (10km ~ 30km)
-        //(ZOOM_MIN)        지도 최소: 8 level (30km)
         const ZOOM_INITIAL = 13;
         const ZOOM_MAX = 19;
-        const ZOOM_MARKER_MAX = 19;
         const ZOOM_MARKER_MIN = 17;
-        const ZOOM_CLUSTER_MAX = 16;
         const ZOOM_CLUSTER_MIN = 15;
-        const ZOOM_EMD_MAX = 14;
         const ZOOM_EMD_MIN = 13;
-        const ZOOM_SIGUNGU_MAX = 12;
         const ZOOM_SIGUNGU_MIN = 11;
-        const ZOOM_SIDO_MAX = 10;
-        const ZOOM_SIDO_MIN = 8;
         const ZOOM_MIN = 8;
 
         function makeClusterKey(members) {
@@ -107,32 +113,19 @@
         }
 
         function updateClusterOptionsByZoom(zoom) {
-
-            if (!markerClustering) {
-                return;
-            }
+            if (!markerClustering) return;
 
             let gridSize;
+            if (zoom >= ZOOM_MARKER_MIN) gridSize = 56;
+            else if (zoom >= ZOOM_CLUSTER_MIN) gridSize = 120;
+            else if (zoom >= ZOOM_EMD_MIN) gridSize = 180;
+            else if (zoom >= ZOOM_SIGUNGU_MIN) gridSize = 240;
+            else gridSize = 300;
 
-            if (zoom >= ZOOM_MARKER_MIN) {
-                gridSize = 56;
-            } else if (zoom >= ZOOM_CLUSTER_MIN) {
-                gridSize = 120;
-            } else if (zoom >= ZOOM_EMD_MIN) {
-                gridSize = 180;
-            } else if (zoom >= ZOOM_SIGUNGU_MIN) {
-                gridSize = 240;
-            } else {
-                gridSize = 300;
-            }
-
-            markerClustering.setOptions({
-                gridSize: gridSize,
-            });
+            markerClustering.setOptions({ gridSize });
         }
 
         function initMap() {
-
             const center = new naver.maps.LatLng(33.464933, 126.530862);
             const NAVER_DARK_THEME_ID = /*[[${naverDarkThemeId}]]*/ '';
 
@@ -157,30 +150,30 @@
                 maxZoom: 20,
                 icons: [{
                     content: `
-                        <div class="usan-cluster">
-                            <img src="/img/marker-agency-white.png" class="usan-cluster__img" />
-                            <span class="usan-cluster__count"></span>
-                        </div>
-                    `,
+            <div class="usan-cluster">
+              <img src="/img/marker-agency-white.png" class="usan-cluster__img" />
+              <span class="usan-cluster__count"></span>
+            </div>
+          `,
                     size: new naver.maps.Size(56, 56),
                     anchor: new naver.maps.Point(28, 56)
                 }],
                 indexGenerator: [1],
-                stylingFunction: function(clusterMarker, count) {
-
+                stylingFunction: function (clusterMarker, count) {
                     const el = clusterMarker.getElement();
+                    if (!el) return;
+
                     const span = el.querySelector('.usan-cluster__count');
                     const img = el.querySelector('.usan-cluster__img');
 
-                    if (!el) return;
-
-                    if (!span) return;
-                    if (count <= 1) {
-                        span.style.display = 'none';
-                        span.textContent = '';
-                    } else {
-                        span.style.display = 'flex';
-                        span.textContent = String(count);
+                    if (span) {
+                        if (count <= 1) {
+                            span.style.display = 'none';
+                            span.textContent = '';
+                        } else {
+                            span.style.display = 'flex';
+                            span.textContent = String(count);
+                        }
                     }
 
                     if (!img) return;
@@ -195,61 +188,49 @@
                     }
 
                     const key = makeClusterKey(members);
-
-                    if (selectedClusterMarker && key === selectedClusterKey) {
-                        img.src = '/img/marker-agency-orange.png';
-                    } else {
-                        img.src = '/img/marker-agency-white.png';
-                    }
+                    img.src = (selectedClusterMarker && key === selectedClusterKey)
+                        ? '/img/marker-agency-orange.png'
+                        : '/img/marker-agency-white.png';
                 }
             });
 
             updateClusterOptionsByZoom(map.getZoom());
-
             loadBrokersInBounds();
 
             naver.maps.Event.addListener(map, 'zoom_changed', function () {
                 updateClusterOptionsByZoom(map.getZoom());
-                closeBrokerSheet();
+                if (window.closeSendSheet) window.closeSendSheet();
                 loadBrokersInBounds();
             });
 
             naver.maps.Event.addListener(map, 'dragend', function () {
-
                 const sheet = document.getElementById('broker-sheet');
-
-                if (sheet && sheet.classList.contains('open')) {
-                    closeBrokerSheet();
+                if (sheet && sheet.classList.contains('is-open')) {
+                    if (window.closeSendSheet) window.closeSendSheet();
                 }
-
                 loadBrokersInBounds();
             });
 
+            // ✅ 시트가 "접힘"이면 지도 클릭을 막지 않음 (CSS pointer-events로 해결됨)
             naver.maps.Event.addListener(map, 'click', function () {
                 const sheet = document.getElementById('broker-sheet');
                 if (!sheet) return;
 
-                if (sheet.classList.contains('open')) {
-                    closeBrokerSheet();
+                if (sheet.classList.contains('is-open')) {
+                    if (window.closeSendSheet) window.closeSendSheet();
                 }
             });
 
-            naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster, e) {
+            naver.maps.Event.addListener(markerClustering, 'clusterclick', function (cluster) {
                 onClusterClick(cluster);
             });
-
-            document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
         }
 
         function loadBrokersInBounds() {
-
             const bounds = map.getBounds();
-            if (!bounds) {
-                return;
-            }
+            if (!bounds) return;
 
             const zoom = map.getZoom();
-
             if (zoom <= ZOOM_MIN) {
                 clearMarkersAndClusters();
                 return;
@@ -264,73 +245,53 @@
             const east = ne.lng();
 
             const url = `/map/api/brokers?south=${south}&north=${north}&west=${west}&east=${east}`;
-
             const fetchId = ++lastFetchId;
 
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    if (fetchId !== lastFetchId) {
-                        return;
-                    }
+                    if (fetchId !== lastFetchId) return;
 
                     const currentZoom = map.getZoom();
-
                     if (currentZoom <= ZOOM_MIN) {
                         clearMarkersAndClusters();
                         return;
                     }
-
-                    renderMarkers(data, currentZoom);
+                    renderMarkers(data);
                 })
                 .catch(err => console.error('[MAP] fetch error:', err));
         }
 
-        function renderMarkers(brokers, zoom) {
-
+        function renderMarkers(brokers) {
             markers = brokers.map(b => {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(b.lat, b.lng),
                     title: b.officeName
                 });
-
                 marker.__brokerCode = b.brokerCode;
-
                 return marker;
             });
 
             if (markerClustering) {
                 markerClustering.setMarkers(markers);
-
                 naver.maps.Event.trigger(map, 'idle');
             }
         }
 
         async function onClusterClick(cluster) {
-
             const clusterMarker = cluster._clusterMarker;
-
             const members = cluster.getClusterMember() || [];
 
-            let brokerCodes = members
-                .map(m => m.__brokerCode)
-                .filter(Boolean);
-
-            if (!brokerCodes.length) {
-                console.warn('[MAP] cluster has no brokerCodes')
-                return;
-            }
+            const brokerCodes = members.map(m => m.__brokerCode).filter(Boolean);
+            if (!brokerCodes.length) return;
 
             selectedClusterKey = makeClusterKey(members);
 
             if (clusterMarker && typeof clusterMarker.getElement === 'function') {
-
                 resetClusterIcons();
-
                 const el = clusterMarker.getElement();
                 if (el) {
                     const img = el.querySelector('.usan-cluster__img');
-
                     if (img) {
                         img.src = '/img/marker-agency-orange.png';
                         selectedClusterMarker = clusterMarker;
@@ -341,20 +302,12 @@
             try {
                 const res = await fetch('/map/api/brokers/cluster', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        brokerCodes: brokerCodes
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ brokerCodes })
                 });
 
-                if (!res.ok) {
-                    throw new Error('클러스터 중개사 조회 실패');
-                }
-
+                if (!res.ok) throw new Error('클러스터 중개사 조회 실패');
                 const list = await res.json();
-
                 renderClusterSheet(list);
             } catch (e) {
                 console.error(e);
@@ -362,229 +315,142 @@
         }
 
         function renderClusterSheet(brokers) {
-
-            const sheet = document.getElementById('broker-sheet');
             const content = document.getElementById('broker-sheet-content');
-            if (!sheet || !content) {
-                return;
-            }
+            if (!content) return;
 
             const totalCount = brokers.length;
 
             const itemsHtml = brokers.map(b => {
-                const brokerName = b.brokerName ?? '';
                 const officeName = b.officeName ?? '';
-                const addrRoad = b.addrRoad ?? '';
                 const addrJibun = b.addrJibun ?? '';
                 const top5 = (b.top5 ?? []);
 
+                // item.cssClass 그대로 쓰고 싶으면 서버에서 send-tag--apt 같은 값을 내려주면 됨
                 const tags = top5.map(item => `
-                    <span class="listing__tag ${item.cssClass}">
-                        <span class="tag-label">${item.label}</span>&nbsp;
-                        <span class="tag-count">${item.count}</span>
-                    </span>
-                `).join(' ');
+          <span class="send-tag ${item.cssClass}">
+            ${item.label}<b>${item.count}</b>
+          </span>
+        `).join('');
 
                 return `
-                    <div class="cluster-broker-item">
-                        <div class="cluster-broker-item__title">${officeName}</div>
-                        <div class="cluster-broker-item__meta">
-                            ${brokerName ? brokerName + ' 중개사' : ''}<br/>
-                            <span class="cluster-broker-item__addr">${addrJibun}</span>
-                        </div>
-                        <div class="cluster-broker-item__tags">
-                            ${tags}
-                        </div>
-                    </div>
-                `;
+          <div class="send-broker">
+            <label class="send-broker__row">
+              <input type="checkbox" class="send-broker__checkbox" checked>
+              <span class="send-broker__check-ui"></span>
+
+              <div class="send-broker__info">
+                <div class="send-broker__name">${officeName}</div>
+                <div class="send-broker__tags">${tags}</div>
+                <div class="send-broker__addr">${addrJibun}</div>
+              </div>
+
+              <div class="send-broker__thumb"></div>
+            </label>
+          </div>
+        `;
             }).join('');
 
-            const html = `
-                <div class="bottom-sheet__header">
-                    <div class="bottom-sheet__title">
-                        이 지역 중개사 ${totalCount}곳
-                    </div>
-                </div>
-                <div class="bottom-sheet__cluster-list">
-                    ${itemsHtml}
-                </div>
-            `;
+            content.innerHTML = `
+        <div class="send-sheet__section-title">이 지역 중개사 ${totalCount}곳</div>
+        ${itemsHtml}
+      `;
 
-            openBrokerSheet(html);
-        }
-
-        function goToMyLocation() {
-            if (!navigator.geolocation) {
-                alert("현재 브라우저에서는 위치 정보를 사용할 수 없습니다.");
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(function (pos) {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                const location = new naver.maps.LatLng(lat, lng);
-
-                // 지도 중심 이동
-                map.setCenter(location);
-                map.setZoom(17);
-
-                // 기존 마커 제거
-                if (myLocationMarker) {
-                    myLocationMarker.setMap(null);
-                }
-
-                // 내 위치 마커 찍기
-                myLocationMarker = new naver.maps.Marker({
-                    position: location,
-                    map: map,
-                    icon: {
-                        content: `
-                    <div style="
-                        width:14px;
-                        height:14px;
-                        background:#4285f4;
-                        border-radius:50%;
-                        border:3px solid white;
-                        box-shadow:0 0 6px rgba(0,0,0,0.3);
-                    "></div>
-                `,
-                        anchor: new naver.maps.Point(7, 7)
-                    }
-                });
-
-            }, function (err) {
-                alert("위치 정보를 불러오지 못했습니다: " + err.message);
-            });
-        }
-
-        function openBrokerSheet(html) {
-
-            const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
-            if (!sheet || !content) {
-                return;
-            }
-
-            if (html) {
-                content.innerHTML = html;
-            }
-
-            // 다음 프레임에서 open 처리 (애니메이션 자연스럽게)
-            requestAnimationFrame(() => {
-                sheet.classList.add('open');
-                sheet.style.transform = 'translate(-50%, 0)';
-            });
-        }
-
-        // ================================================
-        // 📌 바텀시트 드래그로 닫기
-        // ================================================
-        (function () {
-            const sheet = document.getElementById('broker-sheet');
-
-            if (!sheet) return;
-
-            let startY = 0;          // 터치/마우스 시작 위치
-            let currentY = 0;        // 현재 y 위치
-            let sheetStartY = 0;     // 시트의 transform Y 값
-            let dragging = false;    // 드래그 중 여부
-            let threshold = 80;      // 이 값 이상 아래로 끌면 닫힘
-
-            // 현재 translateY(px) 읽기
-            function getTranslateY(el) {
-                const style = window.getComputedStyle(el);
-                const matrix = new WebKitCSSMatrix(style.transform);
-                return matrix.m42; // translateY
-            }
-
-            function onDragStart(e) {
-                dragging = true;
-                sheet.classList.add('dragging');
-
-                startY = e.touches ? e.touches[0].clientY : e.clientY;
-                sheetStartY = getTranslateY(sheet);
-            }
-
-            function onDragMove(e) {
-                if (!dragging) return;
-
-                currentY = e.touches ? e.touches[0].clientY : e.clientY;
-                const delta = currentY - startY;
-
-                if (delta > 0) {
-                    sheet.style.transform = `translate(-50%, ${delta}px)`;
-                }
-            }
-
-            function onDragEnd() {
-                if (!dragging) return;
-                dragging = false;
-
-                sheet.classList.remove('dragging');
-
-                const delta = currentY - startY;
-
-                if (delta > threshold) {
-                    sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
-                    sheet.classList.remove('open');
-                } else {
-                    sheet.style.transform = `translate(-50%, 0)`;
-                }
-            }
-
-            /** 이벤트 바인딩 **/
-
-            // 모바일 터치
-            sheet.addEventListener('touchstart', onDragStart, { passive: true });
-            sheet.addEventListener('touchmove', onDragMove, { passive: true });
-            sheet.addEventListener('touchend', onDragEnd);
-
-            // PC 마우스
-            sheet.addEventListener('mousedown', onDragStart);
-            window.addEventListener('mousemove', onDragMove);
-            window.addEventListener('mouseup', onDragEnd);
-        })();
-
-        function closeBrokerSheet() {
-
-            const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
-
-            if (!sheet || !content) return;
-
-            const hasContent = content.innerHTML.trim().length > 0;
-
-            if (!hasContent) {
-                return;
-            }
-
-            sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
-            sheet.classList.remove('open');
+            if (window.openSendSheet) window.openSendSheet();
         }
 
         function clearMarkersAndClusters() {
-
             if (markers && markers.length > 0) {
-                markers.forEach(m => {
-                    if (m) m.setMap(null);
-                });
+                markers.forEach(m => { if (m) m.setMap(null); });
             }
             markers = [];
-
-            if (markerClustering) {
-                markerClustering.setMarkers([]);
-            }
+            if (markerClustering) markerClustering.setMarkers([]);
         }
 
         function resetClusterIcons() {
             const imgs = document.querySelectorAll('.usan-cluster__img');
-            imgs.forEach(img => {
-                img.src = '/img/marker-agency-white.png';
-            });
+            imgs.forEach(img => { img.src = '/img/marker-agency-white.png'; });
         }
 
         window.onload = initMap;
+    </script>
 
+    <!-- ✅ SEND SHEET DRAG (이거 하나만 쓰기) -->
+    <script>
+        (function () {
+            const sheet = document.getElementById('broker-sheet');
+            if (!sheet) return;
+
+            const collapse = sheet.querySelector('.send-sheet__collapse');
+            const handleArea = sheet.querySelector('.send-sheet__handle-area');
+            if (!collapse || !handleArea) return;
+
+            let startY = 0;
+            let currentY = 0;
+            let dragging = false;
+
+            const THRESHOLD_OPEN = 80;
+            const THRESHOLD_CLOSE = 120;
+
+            function isOpen() { return sheet.classList.contains('is-open'); }
+
+            function openSheet() {
+                sheet.classList.add('is-open');
+                collapse.style.transform = 'translateY(0)';
+            }
+
+            function closeSheet() {
+                sheet.classList.remove('is-open');
+                collapse.style.transform = 'translateY(calc(100% - 60px))';
+            }
+
+            closeSheet();
+
+            function onStart(e) {
+                dragging = true;
+                sheet.classList.add('is-dragging');
+                startY = (e.touches ? e.touches[0].clientY : e.clientY);
+                currentY = startY;
+            }
+
+            function onMove(e) {
+                if (!dragging) return;
+                currentY = (e.touches ? e.touches[0].clientY : e.clientY);
+                const delta = currentY - startY;
+
+                if (isOpen()) {
+                    if (delta > 0) collapse.style.transform = `translateY(${delta}px)`;
+                } else {
+                    if (delta < 0) collapse.style.transform = `translateY(calc(100% - 60px + ${delta}px))`;
+                }
+            }
+
+            function onEnd() {
+                if (!dragging) return;
+                dragging = false;
+                sheet.classList.remove('is-dragging');
+
+                const delta = currentY - startY;
+
+                if (isOpen()) {
+                    if (delta > THRESHOLD_CLOSE) closeSheet();
+                    else openSheet();
+                } else {
+                    if (-delta > THRESHOLD_OPEN) openSheet();
+                    else closeSheet();
+                }
+            }
+
+            handleArea.addEventListener('touchstart', onStart, { passive: true });
+            handleArea.addEventListener('touchmove', onMove, { passive: true });
+            handleArea.addEventListener('touchend', onEnd);
+
+            handleArea.addEventListener('mousedown', onStart);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+
+            window.openSendSheet = openSheet;
+            window.closeSendSheet = closeSheet;
+        })();
     </script>
 
 </section>
