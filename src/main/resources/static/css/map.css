@@ -7,7 +7,7 @@
     bottom: 0;
     transform: translate(-50%, 100%); /* 기본은 아래로 숨김 */
     width: 100%;
-    max-width: 520px;
+    max-width: 430px;
     background: #ffffff;
     border-radius: 24px 24px 0 0;
     box-shadow: 0 -4px 16px 0 #00000014;
@@ -236,6 +236,16 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 13px;
+}
+
+.main-content {
+    min-height: calc(var(--app-vh, 1vh) * 100);
+    display: flex;
+    flex-direction: column;
+}
+
+.map {
+    min-height: calc(var(--app-vh, 1vh) * 100);
 }
 
 /* 모바일 대응 */

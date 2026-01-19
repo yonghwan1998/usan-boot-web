@@ -19,17 +19,36 @@
 
 <section>
     <!-- 네이버 지도 API -->
-    <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
+    <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId} + '&submodules=gl'"></script>
     <script type="text/javascript" src="/js/MarkerClustering.js"></script>
 
     <!-- 지도 영역 -->
     <div class="main-content">
-        <div id="map" style="width: 100%; height: 500px"></div>
+        <div id="map" class="map"></div>
 
+        <!-- 선택된 중개사 바텀시트 -->
+        <div id="broker-sheet" class="bottom-sheet">
+            <div class="bottom-sheet__handle-wrapper">
+                <div class="bottom-sheet__handle"></div>
+            </div>
+            <div class="bottom-sheet__contents-wrapper">
+                <div class="bottom-sheet__options">
+                    <div class="bottom-sheet-btn__distance">거리 설정</div>
+                    <div class="bottom-sheet-toggle__wrapper">
+                        <span class="bottom-sheet-txt">중개사</span>
+                        <span class="bottom-sheet-btn__toggle">
+                            <span class="bottom-sheet-toggle__white"></span>
+                        </span>
+                        <span class="bottom-sheet-txt">정보</span>
+                    </div>
+                </div>
+                <div class="bottom-sheet__line"></div>
+                <div id="broker-sheet-content"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- map control -->
-    <script>
+    <script th:inline="javascript">
 
         let map;
         let markers = [];
@@ -115,11 +134,14 @@
         function initMap() {
 
             const center = new naver.maps.LatLng(33.464933, 126.530862);
+            const NAVER_DARK_THEME_ID = /*[[${naverDarkThemeId}]]*/ '';
 
             map = new naver.maps.Map('map', {
+                gl: true,
                 center: center,
                 zoom: ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
+                customStyleId: NAVER_DARK_THEME_ID,
                 mapTypeControl: true,
                 zoomControl: true,
                 zoomControlOptions: {
