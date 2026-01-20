@@ -9,7 +9,8 @@
     padding: 36px 0;
     margin-top: auto;
 }
-.btn {
+.btn,
+.action-btn {
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -18,6 +19,14 @@
     font-size: 16px;
     border: none;
     cursor: pointer;
+}
+.action-btn__wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 36px 0;
+    margin-top: auto;
 }
 .btn--primary {
     font-weight: 600;
@@ -66,6 +75,38 @@
 .btn--sm {
     font-size: 16px;
     width: 100%;
+}
+.action-btn--call {
+    width: 60px;
+    min-width: 60px;
+    background: #ffffff;
+    border: 1px solid #262626;
+}
+.action-btn--send {
+    flex: 1;
+    background: #262626;
+    gap: 4px;
+}
+.action-btn__icon {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+.action-btn__icon--call {
+    background-color: #0d0d0d;
+    mask: url("../img/16x16-tel.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/16x16-tel.svg") center/contain no-repeat;
+}
+.action-btn__icon--send {
+    background-color: #ffffff;
+    mask: url("../img/24x24-send.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-send.svg") center/contain no-repeat;
+}
+.action-btn__text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+
 }
 
 /* ================================
@@ -126,6 +167,10 @@
 }
 .common-header__right.btn--setting {
     background: url("../img/24x24-setting.svg") center/24px 24px no-repeat;
+    cursor: pointer;
+}
+.common-header__right.btn--heart {
+    background: url("../img/24x24-heart.svg") center/24px 24px no-repeat;
     cursor: pointer;
 }
 
