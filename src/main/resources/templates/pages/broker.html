@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">중개사 상세 페이지</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <div class="align_center direction_column pc-side-inner">
+        <h1 class="pc-side-title">우리 동네 부동산</h1>
+        <p class="pc-side-desc">
+            내 주변 중개사, 매물 정보를<br/>
+            한 번에 확인하세요.
+        </p>
+        <img src="/img/side-test.jpeg"
+             alt="우리 동네 부동산 소개"
+             class="pc-side-img"
+             style="width: 50%">
+    </div>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/broker.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="broker-page">
+
+    <div class="common-header broker-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">자세히 보기</div>
+        <div class="common-header__right btn--heart"></div>
+    </div>
+
+    <div class="broker-wrapper">
+
+        <div class="img-slider" data-slider>
+            <div class="img-slider__track" data-track>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
+            </div>
+
+            <button type="button" class="img-slider__btn img-slider__btn--prev" data-prev aria-label="이전"></button>
+            <button type="button" class="img-slider__btn img-slider__btn--next" data-next aria-label="다음"></button>
+
+            <div class="img-slider__badge" data-badge>1 / 5</div>
+        </div>
+
+        <div class="broker-content-wrapper">
+            <div class="broker-info-wrapper">
+
+                <div class="broker-info">
+                    <div class="broker-info__basic">
+                        <div class="broker-info__title">
+                            <div class="broker-info__office">서울황금부동산</div>
+                            <div class="broker-info__name">홍길동</div>
+                        </div>
+                        <div class="broker-info__address-wrapper">
+                            <span class="broker-info__address">서울특별시 강남구</span>
+                            <span class="broker-info__address-icon">icon</span>
+                        </div>
+                    </div>
+                    <div class="broker-tags">
+                        <span class="broker-tag listing__tag--apt">
+                            <span class="tag-label">아파트</span>
+                            <span class="tag-count">5</span>
+                        </span>
+                        <span class="broker-tag listing__tag--detached">
+                            <span class="tag-label">단독/다가구</span>
+                            <span class="tag-count">4</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="broker-info__details">
+                    <div class="broker-info__detail">
+                        <span class="broker-icon__scroll"></span>
+                        <div class="broker-info__detail-gap">
+                            <span class="broker-info__detail-text">중개사등록번호</span>
+                            <span class="broker-info__detail-text">:</span>
+                            <span class="broker-info__detail-text">123-456-789</span>
+                        </div>
+                    </div>
+                    <div class="broker-info__detail">
+                        <span class="broker-icon__tel"></span>
+                        <div class="broker-info__detail-gap">
+                            <span class="broker-info__detail-text">전화번호</span>
+                            <span class="broker-info__detail-text">:</span>
+                            <span class="broker-info__detail-text">070-7878-7878</span>
+                        </div>
+                    </div>
+                    <div class="broker-info__detail">
+                        <span class="broker-icon__phone"></span>
+                        <div class="broker-info__detail-gap">
+                            <span class="broker-info__detail-text">휴대전화</span>
+                            <span class="broker-info__detail-text">:</span>
+                            <span class="broker-info__detail-text">010-1234-5678</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="broker-info__line"></div>
+
+            <div class="broker-info__additional-wrapper">
+                <div class="broker-info__additional-title">추가정보</div>
+
+                <div class="broker-info__additional">
+                    <div class="broker-info__additional-item">
+                        <span class="broker-info__additional-text">최근 활동</span>
+                        <span class="broker-info__additional-recent">최근 7일간 12건 응답</span>
+                    </div>
+
+                    <div class="broker-info__additional-item">
+                        <span class="broker-info__additional-text">평점</span>
+                        <span class="broker-info__additional-rating-wrapper">
+                            <span class="broker-info__additional-rating-icon"></span>
+                            <span class="broker-info__additional-rating">4.2점</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="broker-info__line"></div>
+
+            <div class="broker-info__map-wrapper">
+                <div class="broker-info__map-title">지도 보기</div>
+                <div id="brokerMap" class="broker-info__map"></div>
+            </div>
+
+            <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
+
+            <script th:inline="javascript">
+
+                const lat = 37.5664056;
+                const lng = 126.9778222;
+
+                const center = new naver.maps.LatLng(lat, lng);
+
+                const map = new naver.maps.Map('brokerMap', {
+                    center: center,
+                    zoom: 15,
+                    draggable: true,
+                    pinchZoom: true,
+                    scrollWheel: false,   //카드 느낌
+                    zoomControl: false,
+                    mapTypeControl: false
+                });
+
+                const marker = new naver.maps.Marker({
+                    position: center,
+                    map: map,
+                    icon: {
+                        url: '/img/60x60-broker-pin.png',
+                        size: new naver.maps.Size(60, 60),
+                        scaledSize: new naver.maps.Size(60, 60),
+                        anchor: new naver.maps.Point(30, 60) //이미지 하단 중앙 기준
+                    }
+                });
+            </script>
+
+            <div class="action-btn__wrapper">
+                <button class="action-btn action-btn--call" id="btnCall" aria-label="전화하기">
+                    <span class="action-btn__icon action-btn__icon--call"></span>
+                </button>
+
+                <button class="action-btn action-btn--send" id="btnSend">
+                    <span class="action-btn__icon action-btn__icon--send" aria-hidden="true"></span>
+                    <span class="action-btn__text">매물 보내기</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+</html>
