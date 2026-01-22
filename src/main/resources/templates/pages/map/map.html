@@ -24,28 +24,75 @@
 
     <!-- 지도 영역 -->
     <div class="main-content">
-        <div id="map" style="width: 100%; height: 500px"></div>
+        <div id="map" class="map"></div>
+
+        <!-- 지도 UI 오버레이 -->
+        <div class="map-ui">
+
+            <div class="map-ui__top">
+                <div class="map-search">
+                    <button class="map-search__btn map-search__btn--search" type="button" aria-label="검색"></button>
+                    <input class="map-search__input" type="text" placeholder="주소 검색" />
+                </div>
+
+                <button class="map-icon-btn" type="button" aria-label="알림">
+                    <span class="map-icon--bell"></span>
+                </button>
+            </div>
+
+            <div class="map-ui__chips">
+                <button class="map-chip" type="button">
+                    <span class="map-icon--gps"></span>
+                    <span class="map-chip__my-location">위치이동</span>
+                </button>
+                <button class="map-chip is-on" type="button">신사</button>
+                <button class="map-chip" type="button">이태원</button>
+            </div>
+
+            <div class="map-ui__right-bottom">
+                <div class="map-zoom">
+                    <button type="button" class="map-zoom__btn" id="zoomIn" aria-label="줌인">
+                        <span class="map-icon--zoom-in"></span>
+                    </button>
+                    <button type="button" class="map-zoom__btn" id="zoomOut" aria-label="줌아웃">
+                        <span class="map-icon--zoom-out"></span>
+                    </button>
+                </div>
+
+                <div class="map-send-wrapper">
+                    <button class="map-send" type="button" aria-label="매물 보내기">
+                        <span class="map-icon--send"></span>
+                        <span class="map-send__text">매물 보내기</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
 
         <!-- 내 위치 버튼 -->
-        <button id="btn-my-location" class="map-button">내 위치</button>
+<!--        <button id="btn-my-location">내 위치</button>-->
 
         <!-- 선택된 중개사 바텀시트 -->
         <div id="broker-sheet" class="bottom-sheet">
+
             <div class="bottom-sheet__handle-wrapper">
                 <div class="bottom-sheet__handle"></div>
             </div>
+
             <div class="bottom-sheet__contents-wrapper">
+
                 <div class="bottom-sheet__options">
-                    <div class="bottom-sheet-btn__distance">거리 설정</div>
+                    <div class="bottom-sheet-btn__distance">100m</div>
                     <div class="bottom-sheet-toggle__wrapper">
-                        <span class="bottom-sheet-txt">중개사</span>
-                        <span class="bottom-sheet-btn__toggle">
-                            <span class="bottom-sheet-toggle__white"></span>
-                        </span>
+                        <span class="bottom-sheet-txt is-selected">중개사</span>
                         <span class="bottom-sheet-txt">정보</span>
                     </div>
                 </div>
+
                 <div class="bottom-sheet__line"></div>
+
+
+
                 <div id="broker-sheet-content"></div>
             </div>
         </div>
@@ -102,6 +149,9 @@
         const ZOOM_SIDO_MIN = 8;
         const ZOOM_MIN = 8;
 
+        const btnZoomIn = document.getElementById('zoomIn');
+        const btnZoomOut = document.getElementById('zoomOut');
+
         function makeClusterKey(members) {
             return members
                 .map(m => m.__brokerCode)
@@ -144,11 +194,7 @@
                 zoom: ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
                 mapTypeControl: true,
-                zoomControl: true,
-                zoomControlOptions: {
-                    style: naver.maps.ZoomControlStyle.SMALL,
-                    position: naver.maps.Position.TOP_LEFT
-                },
+                zoomControl: false,
             });
 
             markerClustering = new MarkerClustering({
@@ -219,7 +265,7 @@
 
                 const sheet = document.getElementById('broker-sheet');
 
-                if (sheet && sheet.classList.contains('open')) {
+                if (sheet && (sheet.classList.contains('is-half') || sheet.classList.contains('is-full'))) {
                     closeBrokerSheet();
                 }
 
@@ -230,7 +276,7 @@
                 const sheet = document.getElementById('broker-sheet');
                 if (!sheet) return;
 
-                if (sheet.classList.contains('open')) {
+                if (sheet && (sheet.classList.contains('is-half') || sheet.classList.contains('is-full'))) {
                     closeBrokerSheet();
                 }
             });
@@ -381,30 +427,34 @@
 
                 const tags = top5.map(item => `
                     <span class="listing__tag ${item.cssClass}">
-                        <span class="tag-label">${item.label}</span>&nbsp;
+                        <span class="tag-label">${item.label}</span>
                         <span class="tag-count">${item.count}</span>
                     </span>
                 `).join(' ');
 
                 return `
                     <div class="cluster-broker-item">
-                        <div class="cluster-broker-item__title">${officeName}</div>
-                        <div class="cluster-broker-item__meta">
-                            ${brokerName ? brokerName + ' 중개사' : ''}<br/>
-                            <span class="cluster-broker-item__addr">${addrJibun}</span>
+
+                        <div class="cluster-broker-item__info">
+                            <div class="cluster-broker-item__meta">
+                                <div class="cluster-broker-item__title">${officeName}</div>
+                                <div class="cluster-broker-item__tags">${tags}</div>
+                            </div>
+                            <div class="cluster-broker-item__addr-wrapper">
+                                <span class="cluster-broker-item__addr">${addrJibun}</span>
+                                <span class="cluster-broker-item__expand-btn"></span>
+                            </div>
                         </div>
-                        <div class="cluster-broker-item__tags">
-                            ${tags}
-                        </div>
+
+                        <div class="cluster-broker-item__thumb"></div>
+
                     </div>
                 `;
             }).join('');
 
             const html = `
-                <div class="bottom-sheet__header">
-                    <div class="bottom-sheet__title">
-                        이 지역 중개사 ${totalCount}곳
-                    </div>
+                <div class="bottom-sheet__caption">
+                    <span class="bottom-sheet__bold">신사동</span> 기준으로 <span class="bottom-sheet__bold">100m</span> 이내에 <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
                 </div>
                 <div class="bottom-sheet__cluster-list">
                     ${itemsHtml}
@@ -470,80 +520,100 @@
                 content.innerHTML = html;
             }
 
-            // 다음 프레임에서 open 처리 (애니메이션 자연스럽게)
             requestAnimationFrame(() => {
-                sheet.classList.add('open');
-                sheet.style.transform = 'translate(-50%, 0)';
+                window.openBrokerSheetHalf?.();
             });
         }
 
-        // ================================================
-        // 📌 바텀시트 드래그로 닫기
-        // ================================================
         (function () {
             const sheet = document.getElementById('broker-sheet');
-
             if (!sheet) return;
 
-            let startY = 0;          // 터치/마우스 시작 위치
-            let currentY = 0;        // 현재 y 위치
-            let sheetStartY = 0;     // 시트의 transform Y 값
-            let dragging = false;    // 드래그 중 여부
-            let threshold = 80;      // 이 값 이상 아래로 끌면 닫힘
+            const handleArea =
+                sheet.querySelector('.bottom-sheet__handle-wrapper') ||
+                sheet.querySelector('.bottom-sheet__handle')?.parentElement;
+            if (!handleArea) return;
 
-            // 현재 translateY(px) 읽기
-            function getTranslateY(el) {
-                const style = window.getComputedStyle(el);
-                const matrix = new WebKitCSSMatrix(style.transform);
-                return matrix.m42; // translateY
+            const STATE = Object.freeze({ CLOSED: 'CLOSED', HALF: 'HALF', FULL: 'FULL' });
+
+            const THRESHOLD = 80;
+            let state = STATE.CLOSED;
+
+            let startY = 0;
+            let lastY = 0;
+            let dragging = false;
+
+            function applyState(next) {
+                state = next;
+
+                sheet.classList.remove('is-half', 'is-full');
+                if (state === STATE.HALF) sheet.classList.add('is-half');
+                if (state === STATE.FULL) sheet.classList.add('is-full');
             }
 
-            function onDragStart(e) {
+            function isOpen() {
+                return state !== STATE.CLOSED;
+            }
+
+            document.addEventListener('pointerdown', (e) => {
+                if (!isOpen()) return;
+                if (dragging) return;
+                if (sheet.contains(e.target)) return;
+                applyState(STATE.CLOSED);
+            });
+
+            function onDown(e) {
                 dragging = true;
-                sheet.classList.add('dragging');
+                sheet.classList.add('is-dragging');
 
-                startY = e.touches ? e.touches[0].clientY : e.clientY;
-                sheetStartY = getTranslateY(sheet);
+                startY = e.clientY;
+                lastY = startY;
+
+                handleArea.setPointerCapture?.(e.pointerId);
             }
 
-            function onDragMove(e) {
+            function onMove(e) {
                 if (!dragging) return;
-
-                currentY = e.touches ? e.touches[0].clientY : e.clientY;
-                const delta = currentY - startY;
-
-                if (delta > 0) {
-                    sheet.style.transform = `translate(-50%, ${delta}px)`;
-                }
+                lastY = e.clientY;
             }
 
-            function onDragEnd() {
+            function onUp() {
                 if (!dragging) return;
                 dragging = false;
+                sheet.classList.remove('is-dragging');
 
-                sheet.classList.remove('dragging');
+                const delta = lastY - startY;
 
-                const delta = currentY - startY;
-
-                if (delta > threshold) {
-                    sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
-                    sheet.classList.remove('open');
-                } else {
-                    sheet.style.transform = `translate(-50%, 0)`;
+                //위로 드래그
+                if (delta < -THRESHOLD) {
+                    if (state === STATE.CLOSED) applyState(STATE.HALF);
+                    else if (state === STATE.HALF) applyState(STATE.FULL);
+                    return;
                 }
+
+                //아래로 드래그
+                if (delta > THRESHOLD) {
+                    if (state === STATE.FULL) applyState(STATE.HALF);
+                    else if (state === STATE.HALF) applyState(STATE.CLOSED);
+                    return;
+                }
+
+                applyState(state);
             }
 
             /** 이벤트 바인딩 **/
+            handleArea.addEventListener('pointerdown', onDown);
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointercancel', onUp);
 
-            // 모바일 터치
-            sheet.addEventListener('touchstart', onDragStart, { passive: true });
-            sheet.addEventListener('touchmove', onDragMove, { passive: true });
-            sheet.addEventListener('touchend', onDragEnd);
+            //외부 제어 API
+            window.openBrokerSheetHalf = () => applyState(STATE.HALF);
+            window.openBrokerSheetFull = () => applyState(STATE.FULL);
+            window.closeBrokerSheet = () => applyState(STATE.CLOSED);
 
-            // PC 마우스
-            sheet.addEventListener('mousedown', onDragStart);
-            window.addEventListener('mousemove', onDragMove);
-            window.addEventListener('mouseup', onDragEnd);
+            //초기 닫힘
+            applyState(STATE.CLOSED);
         })();
 
         function closeBrokerSheet() {
@@ -559,8 +629,7 @@
                 return;
             }
 
-            sheet.style.transform = 'translate(-50%, calc(100% - 60px))';
-            sheet.classList.remove('open');
+            window.closeBrokerSheet?.();
         }
 
         function clearMarkersAndClusters() {
@@ -583,6 +652,20 @@
                 img.src = '/img/marker-agency-white.png';
             });
         }
+
+        btnZoomIn.addEventListener('click', () => {
+            const zoom = map.getZoom();
+            if (zoom < ZOOM_MAX) {
+                map.setZoom(zoom + 1, true);
+            }
+        });
+
+        btnZoomOut.addEventListener('click', () => {
+            const zoom = map.getZoom();
+            if (zoom > ZOOM_MIN) {
+                map.setZoom(zoom - 1, true);
+            }
+        });
 
         window.onload = initMap;
 
