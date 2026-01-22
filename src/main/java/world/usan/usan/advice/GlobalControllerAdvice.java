@@ -88,6 +88,22 @@ public class GlobalControllerAdvice {
     }
 
     /**
+     * @date    2026-01-20
+     * @author  yongss
+     * @param   {HttpServletRequest request}
+     * @return  {boolean} 현재 페이지가 반응형 페이지를 보여줘야하는지 boolean 타입으로 반환
+     *
+     * 처리 과정:
+     *  - 현재 uri가 반응형 페이지를 보여줘야하는 페이지인지 검증
+     *  - 검증된 boolean 값에 따라 반응형 페이지 노출/미노출 결정
+     */
+    @ModelAttribute("showResponsiveWeb")
+    public boolean showResponsiveWeb(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.equals("/map");
+    }
+
+    /**
      * @date    2025-12-18
      * @author  yongss
      * @return  {LoginViewModel}

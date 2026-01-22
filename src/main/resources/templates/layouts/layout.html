@@ -26,7 +26,32 @@
 
 <body class="usan-body">
 
-<div class="usan-layout">
+<div th:if="${showResponsiveWeb}" class="usan-responsive-layout">
+
+    <!-- 모바일 고정 헤더 -->
+    <th:block th:if="${showHeader}">
+        <th:block th:replace="~{fragments/header :: header}"></th:block>
+    </th:block>
+    <th:block th:if="${showSearchHeader}">
+        <th:block th:replace="~{fragments/search-header :: search-header}"></th:block>
+    </th:block>
+
+    <!-- 페이지별 본문 -->
+    <main class="main-frame">
+        <section th:replace="${content}"></section>
+    </main>
+
+    <!-- 더보기 모달 -->
+    <th:block th:replace="~{fragments/more-panel :: morePanel}"></th:block>
+
+    <!-- 모바일 고정 하단 네비 -->
+    <th:block th:if="${showBottomNav}">
+        <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
+    </th:block>
+
+</div>
+
+<div class="usan-layout" th:unless="${showResponsiveWeb}">
 
     <!-- PC 왼쪽 영역 -->
     <aside class="pc-side-section"

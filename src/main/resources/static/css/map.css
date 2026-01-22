@@ -1,38 +1,302 @@
-/* ================================
-   📌 바텀시트 공통 레이아웃
-   ================================ */
+.main-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.map {
+    width: 100%;
+    height: 100vh;
+}
+
+.map-ui {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 430px;
+    max-width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.map-ui *{
+    pointer-events: auto;
+}
+
+.map-ui__top {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    padding: 8px 16px;
+    margin-bottom: 8px;
+}
+
+.map-search {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    height: 48px;
+    background: #ffffff;
+    border-radius: 12px;
+    align-items: center;
+    padding: 12px 16px;
+    box-shadow: 0 0 4px 0 #0000001a;
+}
+
+.map-search__input {
+    flex: 1;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 16px;
+    color: #a6a6a6;
+}
+
+.map-search__btn {
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.map-search__btn--search {
+    mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
+    background-color: #000000;
+}
+
+.map-icon-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 0;
+    background: #ffffff;
+    box-shadow: 0 0 4px 0 #0000001a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.map-icon--bell {
+    width: 24px;
+    height: 24px;
+    mask: url("../img/24x24-bell.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-bell.svg") center/contain no-repeat;
+    background-color: #000000;
+}
+
+.map-ui__chips {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 16px;
+}
+
+.map-chip {
+    height: 32px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 0;
+    background: #ffffff;
+    box-shadow: 0 4px 10px 0 #00000026;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 400;
+    font-size: 14px;
+    color: #8c8c8c;
+}
+
+.map-chip.is-on{
+    background: #262626;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.map-icon--gps {
+    width: 20px;
+    height: 20px;
+    mask: url("../img/20x20-location.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/20x20-location.svg") center/contain no-repeat;
+    background-color: #262626;
+}
+
+.map-chip__my-location {
+    font-weight: 500;
+    font-size: 16px;
+    color: #0d0d0d;
+}
+
+.map-ui__right-bottom {
+    position: absolute;
+    right: 16px;
+    bottom: calc(72px + 16px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.map-zoom {
+    display: flex;
+    flex-direction: column;
+    width: 40px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #a6a6a6;
+    overflow: hidden;
+}
+
+.map-zoom__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    cursor: pointer;
+    background: #ffffff;
+}
+
+.map-zoom__btn:not(:last-child) {
+    border-bottom: 1px solid #a6a6a6;
+}
+
+.map-icon--zoom-in {
+    width: 20px;
+    height: 20px;
+    mask: url("../img/20x20-plus.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/20x20-plus.svg") center/contain no-repeat;
+    background-color: #262626;
+}
+
+.map-icon--zoom-out {
+    width: 20px;
+    height: 20px;
+    mask: url("../img/20x20-minus.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/20x20-minus.svg") center/contain no-repeat;
+    background-color: #262626;
+}
+
+.map-send {
+    height: 48px;
+    padding: 1px 16px;
+    border-radius: 12px;
+    background: #262626;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.map-icon--send {
+    width: 24px;
+    height: 24px;
+    mask: url("../img/24x24-airplane.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-airplane.svg") center/contain no-repeat;
+    background-color: #ffffff;
+}
+
+.map-send__text {
+    font-weight: 400;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.usan-cluster {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.usan-cluster__img {
+    width: 56px;
+    height: 56px;
+    display: block;
+}
+
+.usan-cluster,
+.usan-cluster * {
+    -webkit-user-drag: none;
+    user-drag: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.usan-cluster__count {
+    position: absolute;
+    top: -4px;
+    left: 30px;
+    height: 20px;
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: 100px;
+    border: 1px solid #ff5a1f;
+    background-color: #ffffff;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: 700;
+    color: #ff5a1f;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
 .bottom-sheet {
+    display: flex;
+    flex-direction: column;
     position: fixed;
     left: 50%;
-    bottom: 0;
-    transform: translate(-50%, 100%); /* 기본은 아래로 숨김 */
+    bottom: 72px;
     width: 100%;
     max-width: 430px;
+    height: calc(100vh - 72px);
+    max-height: calc(100vh - 72px);
+    transform: translate(-50%, 100%);
+    transition: transform 0.25s ease-out;
     background: #ffffff;
     border-radius: 24px 24px 0 0;
     box-shadow: 0 -4px 16px 0 #00000014;
-    transition: transform 0.25s ease-out;
-    z-index: 910;
+    z-index: 99;
     padding: 2px 16px 12px 16px;
     box-sizing: border-box;
+    will-change: transform;
 }
 
-.bottom-sheet.open {
+.bottom-sheet.is-half {
+    height: calc(100vh - 43px * 6);
+    max-height: calc(100vh - 43px * 6);
     transform: translate(-50%, 0);
 }
 
-/* 드래그 중 */
-.bottom-sheet.dragging {
+.bottom-sheet.is-full {
+    transform: translate(-50%, 0);
+}
+
+.bottom-sheet.is-dragging {
     transition: none !important;
 }
 
-/* 핸들바 */
 .bottom-sheet__handle-wrapper {
     display: flex;
     justify-content: center;
     width: 100%;
     height: 30px;
     padding: 12px 0 0 0;
+    touch-action: none;
 }
 
 .bottom-sheet__handle {
@@ -45,8 +309,10 @@
 .bottom-sheet__contents-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    flex: 1;
+    min-height: 0;
     gap: 8px;
+    overflow: hidden;
 }
 
 .bottom-sheet__options {
@@ -56,12 +322,12 @@
 }
 
 .bottom-sheet-btn__distance {
-    font-weight: 500;
-    font-size: 16px;
-    border: 1px solid #3551e3;
+    border: 1px solid #262626;
     border-radius: 12px;
     padding: 8px 16px;
-    color: #3551e3;
+    font-weight: 500;
+    font-size: 16px;
+    color: #262626;
 }
 
 .bottom-sheet-toggle__wrapper {
@@ -71,27 +337,13 @@
 }
 
 .bottom-sheet-txt {
-    font-weight: 600;
-    font-size: 16px;
-    color: #000000;
+    font-weight: 800;
+    font-size: 24px;
+    color: #bfbfbf;
 }
 
-.bottom-sheet-btn__toggle {
-    display: flex;
-    align-items: center;
-    width: 72px;
-    height: 32px;
-    padding: 2px 4px;
-    border-radius: 100px;
-    background: #3551e3;
-}
-
-.bottom-sheet-toggle__white {
-    width: 34px;
-    height: 24px;
-    border-radius: 24px;
-    padding: 11px;
-    background: #ffffff;
+.bottom-sheet-txt.is-selected {
+    color: #0d0d0d;
 }
 
 .bottom-sheet__line {
@@ -100,25 +352,114 @@
     border: 1px solid #f2f2f2;
 }
 
-/* 시트 내용 영역 (스크롤) */
 #broker-sheet-content {
-    padding: 0 2px 16px;
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-right: 2px;
+    padding-left: 2px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
-/* 제목 영역 */
-.bottom-sheet__header {
+.bottom-sheet__caption {
+    font-weight: 500;
+    font-size: 16px;
+    color: #404040;
+    padding-bottom: 8px;
+}
+
+.bottom-sheet__bold {
+    font-weight: 700;
+    font-size: 16px;
+    color: #262626;
+}
+
+.bottom-sheet__cluster-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+}
+
+.cluster-broker-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    padding: 26px 0;
 }
 
-.bottom-sheet__title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #111;
+.cluster-broker-item:not(:last-child) {
+    border-bottom: 1px solid #f2f2f2;
 }
+
+.cluster-broker-item__info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cluster-broker-item__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cluster-broker-item__title {
+    font-weight: 600;
+    font-size: 24px;
+    color: #262626;
+}
+
+.cluster-broker-item__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cluster-broker-item__addr-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cluster-broker-item__addr {
+    font-weight: 400;
+    font-size: 16px;
+    color: #595959;
+}
+
+.cluster-broker-item__expand-btn {
+    width: 24px;
+    height: 24px;
+    mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    background-color: #8c8c8c;
+}
+
+.cluster-broker-item__thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    background: #262626;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ===============================
    NEW: 매물 보내기 바텀시트
@@ -445,145 +786,6 @@
 /* 모바일에서 max-width 해제 */
 @media (max-width: 600px){
     .send-sheet{ max-width: 100%; border-radius: 18px 18px 0 0; }
-}
-
-/* ================================
-   📌 클러스터 스타일 (지도 위 아이콘)
-   ================================ */
-.usan-cluster {
-    position: relative;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.usan-cluster__img {
-    width: 56px;
-    height: 56px;
-    display: block;
-}
-
-/* 클러스터 아이콘은 마우스로 드래그/선택 안 되게 */
-.usan-cluster,
-.usan-cluster * {
-    -webkit-user-drag: none;  /* 사파리, 크롬 */
-    user-drag: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-/* 클러스터 숫자 뱃지 */
-.usan-cluster__count {
-    position: absolute;
-    top: -4px;
-    left: 30px;
-    height: 20px;
-    min-width: 20px;
-    padding: 0 6px;
-    border-radius: 100px;
-    border: 1px solid #ff5a1f;
-    background-color: #ffffff;
-    box-sizing: border-box;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 12px;
-    font-weight: 700;
-    color: #ff5a1f;
-    line-height: 1;
-    white-space: nowrap;
-    pointer-events: none;
-}
-
-/* ================================
-   📌 클러스터 바텀시트 카드 리스트
-   ================================ */
-.bottom-sheet__cluster-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* 한 개 카드 (JS: <div class="cluster-broker-item">...) */
-.cluster-broker-item {
-    padding: 12px 14px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-}
-
-.cluster-broker-item__title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #111;
-}
-
-.cluster-broker-item__meta {
-    font-size: 12px;
-    color: #6b7280;
-    margin-bottom: 6px;
-}
-
-.cluster-broker-item__addr {
-    font-size: 12px;
-    color: #4b5563;
-}
-
-.cluster-broker-item__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-/* 목록 비었을 때용 (필요 시 사용) */
-.bottom-sheet__empty {
-    text-align: center;
-    padding: 16px 0;
-    font-size: 13px;
-    color: #777;
-}
-
-.map-button {
-    position: absolute;
-    top: 160px;
-    right: 90px;
-    z-index: 999;
-    padding: 8px 12px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-/* ===============================
-   SEND SHEET (매물 보내기)
-   - 폰 프레임 중앙 정렬
-   - 접힘 상태에서 지도 클릭 가능(pointer-events 처리)
-   =============================== */
-
-/* ✅ map.css 에 아래 블록 그대로 추가/교체 (send-sheet 관련은 이걸로 갈아끼우기) */
-
-/* 레이아웃 */
-.main-content{
-    position: relative;
-    min-height: calc(var(--app-vh, 1vh) * 100);
-    display: flex;
-    flex-direction: column;
-}
-
-#map.map{
-    flex: 1 1 auto;
-    min-height: 0;
-    width: 100%;
-    height: 100%;
 }
 
 /* ===============================
@@ -919,11 +1121,4 @@
 @media (max-width: 600px){
     .send-sheet{ width: 100%; max-width: 100%; }
     .send-sheet__collapse{ border-radius: 18px 18px 0 0; }
-}
-/* 모바일 대응 */
-@media (max-width: 600px) {
-    .bottom-sheet {
-        max-width: 100%;
-        border-radius: 16px 16px 0 0;
-    }
 }
