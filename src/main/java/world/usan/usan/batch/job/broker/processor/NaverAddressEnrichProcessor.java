@@ -74,11 +74,17 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
                 .registrationNumber(row.getRegistrationNumber())
                 .tel(row.getTel())
                 .phone(row.getPhone())
+                .roadAddress(a.getRoadAddress() == null ? "" : a.getRoadAddress())
+                .jibunAddress(a.getJibunAddress() == null ? "" : a.getJibunAddress())
                 .sido(m.getOrDefault("SIDO", ""))
                 .sigungu(m.getOrDefault("SIGUGUN", ""))
                 .emd(m.getOrDefault("DONGMYUN", ""))
-                .addrRoad(a.getRoadAddress() == null ? "" : a.getRoadAddress())
-                .addrJibun(a.getJibunAddress() == null ? "" : a.getJibunAddress())
+                .ri(m.getOrDefault("RI", ""))
+                .roadName(m.getOrDefault("ROAD_NAME", ""))
+                .buildingNumber(m.getOrDefault("BUILDING_NUMBER", ""))
+                .buildingName(m.getOrDefault("BUILDING_NAME", ""))
+                .landNumber(m.getOrDefault("LAND_NUMBER", ""))
+                .postalCode(m.getOrDefault("POSTAL_CODE", ""))
                 .lat(new BigDecimal(a.getY()))
                 .lng(new BigDecimal(a.getX()))
                 .build();
@@ -114,6 +120,12 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
             if (e.getTypes().contains("SIDO")) m.put("SIDO", e.getLongName());
             if (e.getTypes().contains("SIGUGUN")) m.put("SIGUGUN", e.getLongName());
             if (e.getTypes().contains("DONGMYUN")) m.put("DONGMYUN", e.getLongName());
+            if (e.getTypes().contains("RI")) m.put("RI", e.getLongName());
+            if (e.getTypes().contains("ROAD_NAME")) m.put("ROAD_NAME", e.getLongName());
+            if (e.getTypes().contains("BUILDING_NUMBER")) m.put("BUILDING_NUMBER", e.getLongName());
+            if (e.getTypes().contains("BUILDING_NAME")) m.put("BUILDING_NAME", e.getLongName());
+            if (e.getTypes().contains("LAND_NUMBER")) m.put("LAND_NUMBER", e.getLongName());
+            if (e.getTypes().contains("POSTAL_CODE")) m.put("POSTAL_CODE", e.getLongName());
         }
 
         return m;
