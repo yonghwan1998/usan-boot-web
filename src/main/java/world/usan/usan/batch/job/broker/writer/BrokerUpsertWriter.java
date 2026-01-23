@@ -23,22 +23,7 @@ public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
     public void write(Chunk<? extends EnrichedBrokerItem> chunk) {
 
         for (EnrichedBrokerItem e : chunk) {
-            UUID brokerCode = crawledBrokerService.saveOrUpdate(
-                    e.getBrokerName(),
-                    e.getOfficeName(),
-                    e.getRegistrationNumber(),
-                    "",
-                    e.getTel(),
-                    e.getPhone(),
-                    e.getSido(),
-                    e.getSigungu(),
-                    e.getEmd(),
-                    "",
-                    e.getAddrRoad(),
-                    e.getAddrJibun(),
-                    e.getLat(),
-                    e.getLng()
-            );
+            UUID brokerCode = crawledBrokerService.saveOrUpdate(e);
             crawledListingService.createListing(brokerCode, e.getListingType());
         }
     }
