@@ -3,6 +3,7 @@ package world.usan.usan.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import world.usan.usan.batch.job.broker.processor.EnrichedBrokerItem;
 import world.usan.usan.entity.CrawledBroker;
 import world.usan.usan.repository.CrawledBrokerRepository;
 
@@ -17,13 +18,9 @@ public class CrawledBrokerService {
     private final CrawledBrokerRepository crawledBrokerRepository;
 
     @Transactional
-    public UUID saveOrUpdate(String brokerName, String officeName, String registrationNumber,
-                             String brokerAddress, String tel, String phone,
-                             String sido, String sigungu, String emd,
-                             String roadName, String addrRoad, String addrJibun,
-                             BigDecimal lat, BigDecimal lng) {
+    public UUID saveOrUpdate(EnrichedBrokerItem e) {
 
-        Optional<CrawledBroker> found = crawledBrokerRepository.findByRegistrationNumberAndBrokerName(registrationNumber, brokerName);
+        Optional<CrawledBroker> found = crawledBrokerRepository.findByRegistrationNumberAndBrokerName(e.getRegistrationNumber(), e.getBrokerName());
 
         CrawledBroker crawledBroker = new CrawledBroker();
 
@@ -31,19 +28,24 @@ public class CrawledBrokerService {
         if (found.isPresent()) {
             crawledBroker.setBrokerCode(found.get().getBrokerCode());
         }
-        crawledBroker.setBrokerName(brokerName);
-        crawledBroker.setOfficeName(officeName);
-        crawledBroker.setRegistrationNumber(registrationNumber);
-        crawledBroker.setTel(tel);
-        crawledBroker.setPhone(phone);
-        crawledBroker.setSido(sido);
-        crawledBroker.setSigungu(sigungu);
-        crawledBroker.setEmd(emd);
-        crawledBroker.setRoadName(roadName);
-        crawledBroker.setAddrRoad(addrRoad);
-        crawledBroker.setAddrJibun(addrJibun);
-        crawledBroker.setLat(lat);
-        crawledBroker.setLng(lng);
+        crawledBroker.setBrokerName(e.getBrokerName());
+        crawledBroker.setOfficeName(e.getOfficeName());
+        crawledBroker.setRegistrationNumber(e.getRegistrationNumber());
+        crawledBroker.setTel(e.getTel());
+        crawledBroker.setPhone(e.getPhone());
+        crawledBroker.setRoadAddress(e.getRoadAddress());
+        crawledBroker.setJibunAddress(e.getJibunAddress());
+        crawledBroker.setSido(e.getSido());
+        crawledBroker.setSigungu(e.getSigungu());
+        crawledBroker.setEmd(e.getEmd());
+        crawledBroker.setRi(e.getRi());
+        crawledBroker.setRoadName(e.getRoadName());
+        crawledBroker.setBuildingNumber(e.getBuildingNumber());
+        crawledBroker.setBuildingName(e.getBuildingName());
+        crawledBroker.setLandNumber(e.getLandNumber());
+        crawledBroker.setPostalCode(e.getPostalCode());
+        crawledBroker.setLat(e.getLat());
+        crawledBroker.setLng(e.getLng());
 
         crawledBrokerRepository.save(crawledBroker);
 

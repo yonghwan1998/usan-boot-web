@@ -13,55 +13,70 @@ import java.util.UUID;
 public class CrawledBroker {
 
     @Id
-    @Column(name = "broker_code", columnDefinition = "BINARY(16)")
+    @Column(columnDefinition = "BINARY(16)")
     private UUID brokerCode;
 
-    @Column(name = "broker_name", length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String brokerName;
 
-    @Column(name = "office_name", length = 150)
+    @Column(length = 150)
     private String officeName;
 
-    @Column(name = "registration_number", length = 50, nullable = false)
+    @Column(length = 50, nullable = false)
     private String registrationNumber;
 
-    @Column(name = "tel", length = 30)
+    @Column(length = 30)
     private String tel;
 
-    @Column(name = "phone", length = 30, nullable = false)
+    @Column(length = 30, nullable = false)
     private String phone;
 
-    @Column(name = "sido", length = 50)
+    @Column(length = 255)
+    private String roadAddress;
+
+    @Column(length = 255)
+    private String jibunAddress;
+
+    @Column(length = 50)
     private String sido;
 
-    @Column(name = "sigungu", length = 50)
+    @Column(length = 50)
     private String sigungu;
 
-    @Column(name = "emd", length = 50)
+    @Column(length = 50)
     private String emd;
 
-    @Column(name = "road_name", length = 100)
+    @Column(length = 50)
+    private String ri;
+
+    @Column(length = 50)
     private String roadName;
 
-    @Column(name = "addr_road", length = 255)
-    private String addrRoad;
+    @Column(length = 50)
+    private String buildingNumber;
 
-    @Column(name = "addr_jibun", length = 255)
-    private String addrJibun;
+    @Column(length = 100)
+    private String buildingName;
 
-    @Column(name = "lat", precision = 10, scale = 7, nullable = false)
+    @Column(length = 50)
+    private String landNumber;
+
+    @Column(length = 50)
+    private String postalCode;
+
+    @Column(precision = 10, scale = 7, nullable = false)
     private BigDecimal lat;
 
-    @Column(name = "lng", precision = 10, scale = 7, nullable = false)
+    @Column(precision = 10, scale = 7, nullable = false)
     private BigDecimal lng;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at")
+    @Column
     private LocalDateTime deletedAt;
 
     @PrePersist

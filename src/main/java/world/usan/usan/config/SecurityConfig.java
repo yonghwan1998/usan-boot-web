@@ -25,7 +25,7 @@ public class SecurityConfig {
                                 "/search",
                                 "/region/selector",
                                 "/map/**",
-                                "/broker/{brokerCode}",
+                                "/broker/**",
                                 "/.well-known/**",
                                 "/error",
                                 "/css/**",
