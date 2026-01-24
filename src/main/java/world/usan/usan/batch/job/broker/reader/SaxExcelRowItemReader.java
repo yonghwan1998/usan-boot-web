@@ -119,6 +119,7 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
         currentRowIndex++;
 
         String listingType          = get(row, props.getListingTypeColIndex());
+        String listingCoordinates   = get(row, props.getListingCoordinatesColIndex());
         String officeName           = get(row, props.getOfficeNameColIndex());
         String brokerName           = get(row, props.getBrokerNameColIndex());
         String address              = get(row, props.getAddressColIndex());
@@ -128,6 +129,7 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
 
         return BrokerRow.builder()
                 .listingType(listingType)
+                .listingCoordinates(listingCoordinates)
                 .officeName(officeName)
                 .brokerName(brokerName)
                 .address(address)

@@ -13,6 +13,7 @@ public class BatchExcelProps {
     private String sheetName;
     @Value("${usan.batch.excel.header-rows}") int headerRows;//헤더 스킵 개수
     @Value("${usan.batch.excel.listing-type-col-index}") int listingTypeColIndex;//G 컬럼, 0~6번째 index
+    @Value("${usan.batch.excel.listing-coordinates-col-index}") int listingCoordinatesColIndex;//AU 컬럼, 0~46번째 index
     @Value("${usan.batch.excel.office-name-col-index}") int officeNameColIndex;//BB 컬럼, 0~53번째 index
     @Value("${usan.batch.excel.broker-name-col-index}") int brokerNameColIndex;//BC 컬럼, 0~54번째 index
     @Value("${usan.batch.excel.address-col-index}") int addressColIndex;//BD 컬럼, 0~55번째 index

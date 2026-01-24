@@ -54,6 +54,7 @@ usan:
       sheet-name:
       header-rows: 1 #헤더 스킵 개수
       listing-type-col-index: 6 #G 컬럼, 0~6번째 index
+      listing-coordinates-col-index: 46 #AU 컬럼, 0~46번째 index
       office-name-col-index: 53 #BB 컬럼, 0~53번째 index
       broker-name-col-index: 54 #BC 컬럼, 0~54번째 index
       address-col-index: 55 #BD 컬럼, 0~55번째 index
