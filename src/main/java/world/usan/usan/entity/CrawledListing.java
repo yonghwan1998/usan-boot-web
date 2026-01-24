@@ -3,6 +3,7 @@ package world.usan.usan.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,6 +22,12 @@ public class CrawledListing {
 
     @Column(name = "listing_type", length = 50, nullable = false)
     private String listingType;
+
+    @Column(precision = 10, scale = 7, nullable = false)
+    private BigDecimal lat;
+
+    @Column(precision = 10, scale = 7, nullable = false)
+    private BigDecimal lng;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

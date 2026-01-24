@@ -8,6 +8,7 @@ import lombok.Getter;
 public class BrokerRow {
 
     private String listingType;
+    private String listingCoordinates;
     private String officeName;
     private String brokerName;
     private String address;
