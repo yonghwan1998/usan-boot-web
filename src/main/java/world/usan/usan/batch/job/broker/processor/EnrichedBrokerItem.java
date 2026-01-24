@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 public final class EnrichedBrokerItem {
 
     private String listingType;
+    private BigDecimal listingLat;
+    private BigDecimal listingLng;
     private String brokerName;
     private String officeName;
     private String registrationNumber;

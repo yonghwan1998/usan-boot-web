@@ -24,7 +24,7 @@ public class BrokerUpsertWriter implements ItemWriter<EnrichedBrokerItem> {
 
         for (EnrichedBrokerItem e : chunk) {
             UUID brokerCode = crawledBrokerService.saveOrUpdate(e);
-            crawledListingService.createListing(brokerCode, e.getListingType());
+            crawledListingService.createListing(brokerCode, e);
         }
     }
 }

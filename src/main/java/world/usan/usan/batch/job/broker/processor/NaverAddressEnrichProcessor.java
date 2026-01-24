@@ -62,6 +62,7 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
 
         NaverGeocodeDto.Address a = resp.getAddresses().get(0);
         Map<String, String> m = extract(a.getAddressElements());
+        BigDecimal[] latLng = parseLatLng(row.getListingCoordinates());
 
         log.info("[process] file={} rowIndex={}",
                 row.getSourceFileName(),
@@ -69,6 +70,8 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
 
         return EnrichedBrokerItem.builder()
                 .listingType(row.getListingType())
+                .listingLat(latLng[0])
+                .listingLng(latLng[1])
                 .brokerName(row.getBrokerName())
                 .officeName(row.getOfficeName())
                 .registrationNumber(row.getRegistrationNumber())
@@ -129,5 +132,26 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
         }
 
         return m;
+    }
+
+    private BigDecimal[] parseLatLng(String coordinates) {
+
+        if (coordinates == null || coordinates.isBlank()) {
+            return null;
+        }
+
+        String[] parts = coordinates.split(",");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid coordinates: " + coordinates);
+        }
+
+        try {
+            return new BigDecimal[] {
+                    new BigDecimal(parts[0].trim()),
+                    new BigDecimal(parts[1].trim())
+            };
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid lat.lng value: " + coordinates, e);
+        }
     }
 }
