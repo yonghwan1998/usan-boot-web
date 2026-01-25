@@ -419,10 +419,8 @@
             const totalCount = brokers.length;
 
             const itemsHtml = brokers.map(b => {
-                const brokerName = b.brokerName ?? '';
                 const officeName = b.officeName ?? '';
-                const addrRoad = b.addrRoad ?? '';
-                const addrJibun = b.addrJibun ?? '';
+                const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
                 const top5 = (b.top5 ?? []);
 
                 const tags = top5.map(item => `
@@ -441,7 +439,7 @@
                                 <div class="cluster-broker-item__tags">${tags}</div>
                             </div>
                             <div class="cluster-broker-item__addr-wrapper">
-                                <span class="cluster-broker-item__addr">${addrJibun}</span>
+                                <span class="cluster-broker-item__addr">${address}</span>
                                 <span class="cluster-broker-item__expand-btn"></span>
                             </div>
                         </div>
