@@ -63,6 +63,12 @@
     color: #262626;
     border: 1px solid #262626;
 }
+.btn--bold-outline {
+    font-weight: 400;
+    background: #ffffff;
+    color: #262626;
+    border: 1.5px solid #262626;
+}
 .btn-disabled {
     font-weight: 400 !important;
     font-size: 16px !important;
@@ -255,6 +261,11 @@
     font-weight: 500;
     color: #262626;
     box-sizing: border-box;
+}
+.common-input.common-input-error,
+.common-input.common-input-error:focus {
+    border-color: #f72900;
+    outline: none;
 }
 .common-input-btn {
     position: absolute;
@@ -462,6 +473,20 @@
 body.is-modal-open {
     overflow: hidden;
     touch-action: none;
+}
+
+/* ================================
+   📌 common-text_!
+   ================================ */
+.common-text--error {
+    font-weight: 500;
+    font-size: 14px;
+    color: #f72900;
+
+    visibility: hidden;
+}
+.common-text--error.is-visible {
+    visibility: visible;
 }
 
 /* ================================
