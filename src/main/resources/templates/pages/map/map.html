@@ -47,6 +47,7 @@
                 </button>
                 <button class="map-chip is-on" type="button">신사</button>
                 <button class="map-chip" type="button">이태원</button>
+                <button class="map-chip" type="button" data-lat="33.253912" data-lng="126.528928">테스트 주소</button>
             </div>
 
             <div class="map-ui__right-bottom">
@@ -187,7 +188,10 @@
 
         function initMap() {
 
-            const center = new naver.maps.LatLng(33.464933, 126.530862);
+            const lat = parseFloat(getParam('lat')) || 33.464933;
+            const lng = parseFloat(getParam('lng')) || 126.530862;
+
+            const center = new naver.maps.LatLng(lat, lng);
 
             map = new naver.maps.Map('map', {
                 center: center,
@@ -419,10 +423,9 @@
             const totalCount = brokers.length;
 
             const itemsHtml = brokers.map(b => {
-                const brokerName = b.brokerName ?? '';
+                const brokerCode = b.brokerCode ?? '';
                 const officeName = b.officeName ?? '';
-                const addrRoad = b.addrRoad ?? '';
-                const addrJibun = b.addrJibun ?? '';
+                const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
                 const top5 = (b.top5 ?? []);
 
                 const tags = top5.map(item => `
@@ -433,20 +436,41 @@
                 `).join(' ');
 
                 return `
-                    <div class="cluster-broker-item">
+                    <div class="cluster-broker">
 
-                        <div class="cluster-broker-item__info">
-                            <div class="cluster-broker-item__meta">
-                                <div class="cluster-broker-item__title">${officeName}</div>
-                                <div class="cluster-broker-item__tags">${tags}</div>
+                        <div class="cluster-broker-item" data-broker-code=${brokerCode}>
+
+                            <div class="cluster-broker-item__info">
+                                <div class="cluster-broker-item__meta">
+                                    <div class="cluster-broker-item__title">${officeName}</div>
+                                    <div class="cluster-broker-item__tags">${tags}</div>
+                                </div>
+
+                                <div class="cluster-broker-item__addr-wrapper">
+                                    <span class="cluster-broker-item__addr">${address}</span>
+                                    <span class="cluster-broker-item__expand-btn"></span>
+                                </div>
                             </div>
-                            <div class="cluster-broker-item__addr-wrapper">
-                                <span class="cluster-broker-item__addr">${addrJibun}</span>
-                                <span class="cluster-broker-item__expand-btn"></span>
-                            </div>
+
+                            <div class="cluster-broker-item__thumb"></div>
+
                         </div>
 
-                        <div class="cluster-broker-item__thumb"></div>
+                        <div class="cluster-broker-item__buttons">
+                            <button type="button" class="cluster-btn cluster-btn--send">
+                                <span class="cluster-btn__icon cluster-btn__icon--send"></span>
+                                <span class="cluster-btn__text">매물 보내기</span>
+                            </button>
+
+                            <button type="button" class="cluster-btn cluster-btn--call">
+                                <span class="cluster-btn__icon cluster-btn__icon--call"></span>
+                                <span class="cluster-btn__text">전화하기</span>
+                            </button>
+
+                            <a class="cluster-btn--more" href="/broker/${brokerCode}" aria-label="더보기">
+                                <span class="cluster-btn__icon--more"></span>
+                            </a>
+                        </div>
 
                     </div>
                 `;
@@ -666,6 +690,64 @@
                 map.setZoom(zoom - 1, true);
             }
         });
+
+        /**
+         * @date    2026-01-26
+         * @author  yongss
+         * @desc    .map-chip 클릭 시 해당 주소로 지도 리다이렉트
+         *
+         */
+        document.addEventListener('click', (e) => {
+            const chip = e.target.closest('.map-chip');
+            if (!chip) return;
+
+            const lat = chip.dataset.lat;
+            const lng = chip.dataset.lng;
+            if (!lat || !lng) return;
+
+            location.href = `/map?lat=${lat}&lng=${lng}`;
+        });
+
+        /**
+         * @date    2026-01-25
+         * @author  yongss
+         * @desc    클러스터 리스트 버튼 토글
+         *
+         * 예외/주의:
+         *  - addr-wrapper 클릭은 대상에서 제외
+         *  - renderClusterSheet가 innerHTML을 갈아끼워도 동작하게
+         *  - 다른 아이템 클릭 시 기존 열림 닫힘
+         */
+        (() => {
+            const sheetContent = document.getElementById('broker-sheet-content');
+            if (!sheetContent) return;
+
+            let openedBrokerEl = null;
+
+            sheetContent.addEventListener('click', (e) => {
+                // addr-wrapper 클릭은 제외
+                if (e.target.closest('.cluster-broker-item__addr-wrapper')) return;
+
+                // 버튼 영역 클릭은 제외(버튼 자체 클릭 유지)
+                if (e.target.closest('.cluster-broker-item__buttons')) return;
+
+                const item = e.target.closest('.cluster-broker-item');
+                if (!item) return;
+
+                const broker = item.closest('.cluster-broker');
+                if (!broker) return;
+
+                // 다른 거 열려 있으면 닫기
+                if (openedBrokerEl && openedBrokerEl !== broker) {
+                    openedBrokerEl.classList.remove('is-open');
+                }
+
+                // 같은 거면 토글
+                const willOpen = !broker.classList.contains('is-open');
+                broker.classList.toggle('is-open', willOpen);
+                openedBrokerEl = willOpen ? broker : null;
+            });
+        })();
 
         window.onload = initMap;
 

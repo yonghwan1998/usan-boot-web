@@ -34,6 +34,26 @@ function __toggleViewBtn(btn) {
     }
 }
 
+/**
+ * @date    2026-01-26
+ * @author  yongss
+ * @param   {string} name
+ * @return  {string|null}
+ *
+ * 처리 과정:
+ *  - 현재 페이지 URL의 쿼리 스트링(location.search)을 가져옴
+ *  - URLSearchParams 객체로 파싱
+ *  - 전달받은 name에 해당하는 값을 조회
+ *
+ * 예외/주의:
+ *  - 반환값은 항상 문자열(string) 또는 null
+ *  - 숫자 좌표(lat, lng 등)는 parseFloat 또는 parseInt로 변환 필요
+ *  - 동일한 이름의 파라미터가 여러 개일 경우 첫 번째 값만 반환
+ */
+function getParam(name) {
+    return new URLSearchParams(location.search).get(name);
+}
+
 (function () {
     const modal = document.getElementById('common-modal');
     const titleEl = document.getElementById('common-modal-title');
