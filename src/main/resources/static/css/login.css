@@ -1,12 +1,15 @@
 .login-page {
     min-height: calc(var(--app-vh, 1vh) * 100);
     padding: 0 16px;
+    display: flex;
+    flex-direction: column;
 }
 
 .login-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
+    flex: 1;
     padding: 50px 0;
 }
 
@@ -39,25 +42,12 @@
     margin-bottom: 34px;
 }
 
-.pw__error {
-    font-weight: 500;
-    font-size: 14px;
-    color: #f72900;
-
-    visibility: hidden;
-}
-
-.pw__error.is-visible {
-    visibility: visible;
-}
-
 .login-wrapper--find {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     border-top: 1px solid #f9f9f9;
-    margin-bottom: 34px;
 }
 
 .find__text {
@@ -111,18 +101,22 @@
 }
 
 .icon__kakao {
-    background: url("../img/48x48-kakao.png") center/contain no-repeat;
+    background: url("../img/48x48-kakao.svg") center/contain no-repeat;
 }
 
 .icon__google {
-    background: url("../img/48x48-google.png") center/contain no-repeat;
+    background: url("../img/48x48-google.svg") center/contain no-repeat;
 }
 
 .icon__naver {
-    background: url("../img/48x48-naver.png") center/contain no-repeat;
+    background: url("../img/48x48-naver.svg") center/contain no-repeat;
 }
 
-.login-wrapper--email-btn{
-    margin-top: 95px;
-    margin-bottom: 40px;
+.login-bottom-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    width: 100%;
+    margin-top: auto;
+    padding-bottom: 34px;
 }
