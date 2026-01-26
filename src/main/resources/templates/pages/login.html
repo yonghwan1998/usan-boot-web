@@ -46,6 +46,7 @@
                            placeholder="이메일을 입력해 주세요"
                            class="common-input target--clear-input"
                            name="loginId"
+                           autocomplete="username"
                            oninput="__toggleClearBtn(this)"/>
                     <button type="button"
                             class="common-input-btn common-input__clear-btn target--clear-btn"
@@ -57,8 +58,13 @@
                 <input type="password"
                        placeholder="비밀번호를 입력해 주세요"
                        class="common-input"
+                       th:classappend="${param.error} ? 'common-input-error' : ''"
+                       autocomplete="current-password"
                        name="password"/>
-                <div class="common-text--error">이메일 또는 비밀번호가 틀렸습니다. 다시 한번 시도해주세요.</div>
+                <div class="common-text--error"
+                     th:classappend="${param.error} ? 'is-visible' : ''">
+                    이메일 또는 비밀번호가 틀렸습니다. 다시 한번 시도해주세요.
+                </div>
             </div>
             <button class="btn btn--sm btn--disabled" id="btnLogin">로그인</button>
         </form>
