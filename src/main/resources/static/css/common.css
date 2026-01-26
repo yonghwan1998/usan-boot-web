@@ -256,6 +256,11 @@
     color: #262626;
     box-sizing: border-box;
 }
+.common-input.common-input-error,
+.common-input.common-input-error:focus {
+    border-color: #f72900;
+    outline: none;
+}
 .common-input-btn {
     position: absolute;
     right: 18px;
