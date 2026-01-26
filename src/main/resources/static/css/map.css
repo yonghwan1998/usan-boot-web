@@ -394,15 +394,27 @@
     touch-action: pan-y;
 }
 
+.cluster-broker {
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.cluster-broker-:not(:last-child) {
+    border-bottom: none;
+}
+
 .cluster-broker-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 26px 0;
+    gap: 8px;
+    cursor: pointer;
+    padding-top: 26px;
+    padding-bottom: 26px;
 }
 
-.cluster-broker-item:not(:last-child) {
-    border-bottom: 1px solid #f2f2f2;
+.cluster-broker.is-open .cluster-broker-item {
+    padding-top: 26px;
+    padding-bottom: 0;
 }
 
 .cluster-broker-item__info {
@@ -451,18 +463,103 @@
 
 .cluster-broker-item__thumb {
     width: 80px;
+    min-width: 80px;
     height: 80px;
     border-radius: 12px;
     background: #262626;
 }
 
+.cluster-broker-item__buttons {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-6px);
 
+    transition:
+            max-height 240ms ease,
+            opacity 180ms ease,
+            transform 180ms ease;
 
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
 
+.cluster-broker.is-open .cluster-broker-item__buttons {
+    max-height: 200px;
+    opacity: 1;
+    transform: translateY(0);
+}
 
+.cluster-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 44px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    text-decoration: none;
+}
 
+.cluster-btn--send {
+    flex: 1;
+    background: #262626;
+}
 
+.cluster-btn--send .cluster-btn__text {
+    font-weight: 600;
+    font-size: 16px;
+    color: #ffffff;
+}
 
+.cluster-btn--call {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #262626;
+}
+
+.cluster-btn--call .cluster-btn__text {
+    color: #262626;
+    font-weight: 400;
+    font-size: 16px;
+}
+
+.cluster-btn--more {
+    display: flex;
+    width: 60px;
+    min-width: 60px;
+    background: transparent;
+}
+
+.cluster-btn__icon {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+
+.cluster-btn__icon--send {
+    background-color: #ffffff;
+    mask: url("../img/24x24-send.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-send.svg") center/contain no-repeat;
+}
+
+.cluster-btn__icon--call {
+    background-color: #262626;
+    mask: url("../img/16x16-tel.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/16x16-tel.svg") center/contain no-repeat;
+}
+
+.cluster-btn__icon--more {
+    width: 60px;
+    height: 60px;
+    mask: url("../img/24x24-more-horiz.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-more-horiz.svg") center/contain no-repeat;
+    background-color: #262626;
+}
 
 
 

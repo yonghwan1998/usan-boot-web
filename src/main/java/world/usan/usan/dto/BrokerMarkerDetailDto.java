@@ -18,6 +18,9 @@ public class BrokerMarkerDetailDto {
     private String registrationNumber;
     private String tel;
     private String phone;
+    private String sido;
+    private String sigungu;
+    private String emd;
     private String addrRoad;
     private String addrJibun;
 
