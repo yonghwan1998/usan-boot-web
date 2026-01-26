@@ -470,6 +470,20 @@ body.is-modal-open {
 }
 
 /* ================================
+   📌 common-text_!
+   ================================ */
+.common-text--error {
+    font-weight: 500;
+    font-size: 14px;
+    color: #f72900;
+
+    visibility: hidden;
+}
+.common-text--error.is-visible {
+    visibility: visible;
+}
+
+/* ================================
    📌 height_!
    ================================ */
 .h_178 {
