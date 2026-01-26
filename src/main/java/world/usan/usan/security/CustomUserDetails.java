@@ -1,4 +1,4 @@
-package world.usan.usan.config;
+package world.usan.usan.security;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
