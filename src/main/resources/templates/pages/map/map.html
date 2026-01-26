@@ -47,6 +47,7 @@
                 </button>
                 <button class="map-chip is-on" type="button">신사</button>
                 <button class="map-chip" type="button">이태원</button>
+                <button class="map-chip" type="button" data-lat="33.253912" data-lng="126.528928">테스트 주소</button>
             </div>
 
             <div class="map-ui__right-bottom">
@@ -187,7 +188,10 @@
 
         function initMap() {
 
-            const center = new naver.maps.LatLng(33.464933, 126.530862);
+            const lat = parseFloat(getParam('lat')) || 33.464933;
+            const lng = parseFloat(getParam('lng')) || 126.530862;
+
+            const center = new naver.maps.LatLng(lat, lng);
 
             map = new naver.maps.Map('map', {
                 center: center,
@@ -685,6 +689,23 @@
             if (zoom > ZOOM_MIN) {
                 map.setZoom(zoom - 1, true);
             }
+        });
+
+        /**
+         * @date    2026-01-26
+         * @author  yongss
+         * @desc    .map-chip 클릭 시 해당 주소로 지도 리다이렉트
+         *
+         */
+        document.addEventListener('click', (e) => {
+            const chip = e.target.closest('.map-chip');
+            if (!chip) return;
+
+            const lat = chip.dataset.lat;
+            const lng = chip.dataset.lng;
+            if (!lat || !lng) return;
+
+            location.href = `/map?lat=${lat}&lng=${lng}`;
         });
 
         /**
