@@ -7,10 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import world.usan.usan.config.CustomUserDetails;
+import world.usan.usan.security.CustomUserDetails;
 import world.usan.usan.dto.LoginViewModel;
-
-import java.util.Map;
 
 /**
  * @date    2025-12-18

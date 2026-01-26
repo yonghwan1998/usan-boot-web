@@ -40,12 +40,13 @@
 
         <form th:action="@{/login}" method="post" class="login-form">
             <div class="login-wrapper--id">
-                <div class="email__text">아이디</div>
+                <div class="email__text">이메일</div>
                 <div class="common-input-wrapper target__clear-wrapper">
                     <input type="text"
-                           placeholder="아이디를 적어주세요"
+                           placeholder="이메일을 입력해 주세요"
                            class="common-input target--clear-input"
-                           name="username"
+                           name="loginId"
+                           autocomplete="username"
                            oninput="__toggleClearBtn(this)"/>
                     <button type="button"
                             class="common-input-btn common-input__clear-btn target--clear-btn"
@@ -55,12 +56,17 @@
             <div class="login-wrapper--pw">
                 <div class="pw__text">비밀번호</div>
                 <input type="password"
-                       placeholder="비밀번호를 입력해주세요"
+                       placeholder="비밀번호를 입력해 주세요"
                        class="common-input"
+                       th:classappend="${param.error} ? 'common-input-error' : ''"
+                       autocomplete="current-password"
                        name="password"/>
-                <div class="common-text--error">아이디 또는 비밀번호가 틀렸습니다. 다시 한번 시도해주세요.</div>
+                <div class="common-text--error"
+                     th:classappend="${param.error} ? 'is-visible' : ''">
+                    이메일 또는 비밀번호가 틀렸습니다. 다시 한번 시도해주세요.
+                </div>
             </div>
-            <button class="btn btn--sm btn-disabled">로그인</button>
+            <button class="btn btn--sm btn--disabled" id="btnLogin">로그인</button>
         </form>
 
         <div class="login-wrapper--sns">
@@ -84,6 +90,45 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const $loginId = document.querySelector('input[name="loginId"]');
+            const $pw = document.querySelector('input[name="password"]');
+            const $btn = document.getElementById('btnLogin');
+
+            if (!$loginId || !$pw || !$btn) return;
+
+            /**
+             * @date    2026-01-26
+             * @author  yongss
+             *
+             * 처리 과정:
+             *  - 이메일, 비밀번호 입력(또는 제거)할 때 마다 실행
+             *  - 이메일, 비밀번호가 둘 다 입력되어 있는지 검증
+             *  - 입력 상태에 따라 클래스 추가/제거
+             *
+             * 예외/주의:
+             *  - .btn--disabled: 비활성(grey 컬러, 클릭 불가)
+             *  - .btn--primary: 활성(black 컬러, 클릭 가능)
+             */
+            function syncLoginButton() {
+                const ok = $loginId.value.trim().length > 0 && $pw.value.trim().length > 0;
+
+                $btn.classList.toggle('btn--disabled', !ok);
+                $btn.classList.toggle('btn--primary', ok);
+
+                $btn.disabled = !ok;
+            }
+
+            //초기 1회
+            syncLoginButton();
+
+            //입력할 때마다 갱신
+            $loginId.addEventListener('input', syncLoginButton);
+            $pw.addEventListener('input', syncLoginButton);
+        });
+    </script>
 
 </section>
 </html>
