@@ -7,7 +7,6 @@ import world.usan.usan.batch.job.broker.processor.EnrichedBrokerItem;
 import world.usan.usan.entity.CrawledBroker;
 import world.usan.usan.repository.CrawledBrokerRepository;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,5 +49,11 @@ public class CrawledBrokerService {
         crawledBrokerRepository.save(crawledBroker);
 
         return crawledBroker.getBrokerCode();
+    }
+
+    @Transactional(readOnly = true)
+    public CrawledBroker getBroker(UUID brokerCode) {
+        return crawledBrokerRepository.findById(brokerCode)
+                .orElseThrow(() -> new IllegalArgumentException("Broker not found: " + brokerCode));
     }
 }

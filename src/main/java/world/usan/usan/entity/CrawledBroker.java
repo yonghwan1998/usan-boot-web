@@ -2,6 +2,7 @@ package world.usan.usan.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import world.usan.usan.common.jpa.UuidToBytesConverter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ public class CrawledBroker {
 
     @Id
     @Column(columnDefinition = "BINARY(16)")
+    @Convert(converter = UuidToBytesConverter.class)
     private UUID brokerCode;
 
     @Column(length = 100, nullable = false)

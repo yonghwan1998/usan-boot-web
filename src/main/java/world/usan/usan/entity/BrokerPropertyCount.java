@@ -1,10 +1,8 @@
 package world.usan.usan.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
+import world.usan.usan.common.jpa.UuidToBytesConverter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -15,31 +13,32 @@ import java.util.UUID;
 public class BrokerPropertyCount {
 
     @Id
-    @Column(name = "broker_code", columnDefinition = "BINARY(16)")
+    @Column(columnDefinition = "BINARY(16)")
+    @Convert(converter = UuidToBytesConverter.class)
     private UUID brokerCode;
 
-    @Column(name = "broker_name")
+    @Column()
     private String brokerName;
 
-    @Column(name = "office_name")
+    @Column()
     private String officeName;
 
-    @Column(name = "registration_number")
+    @Column()
     private String registrationNumber;
 
-    @Column(name = "tel")
+    @Column()
     private String tel;
 
-    @Column(name = "phone")
+    @Column()
     private String phone;
 
-    @Column(name = "sido")
+    @Column()
     private String sido;
 
-    @Column(name = "sigungu")
+    @Column()
     private String sigungu;
 
-    @Column(name = "emd")
+    @Column()
     private String emd;
 
     @Column(name = "road_name")

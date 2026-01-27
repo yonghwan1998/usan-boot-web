@@ -46,5 +46,5 @@ public class BrokerMarkerDetailDto {
     private int presaleCnt;
     private int totalCnt;
 
-    private List<BrokerMarkerTopPropertyDto> top5;
+    private List<BrokerPropertyTagDto> top5;
 }
