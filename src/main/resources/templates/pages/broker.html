@@ -60,22 +60,20 @@
                 <div class="broker-info">
                     <div class="broker-info__basic">
                         <div class="broker-info__title">
-                            <div class="broker-info__office">서울황금부동산</div>
-                            <div class="broker-info__name">홍길동</div>
+                            <div class="broker-info__office" th:text="${broker.officeName}">중개사무소명</div>
+                            <div class="broker-info__name" th:text="${broker.brokerName}">홍길동</div>
                         </div>
                         <div class="broker-info__address-wrapper">
-                            <span class="broker-info__address">서울특별시 강남구</span>
+                            <span class="broker-info__address" th:text="${broker.sido} + ' ' + ${broker.sigungu}">서울특별시 강남구</span>
                             <span class="broker-info__address-icon">icon</span>
                         </div>
                     </div>
                     <div class="broker-tags">
-                        <span class="broker-tag listing__tag--apt">
-                            <span class="tag-label">아파트</span>
-                            <span class="tag-count">5</span>
-                        </span>
-                        <span class="broker-tag listing__tag--detached">
-                            <span class="tag-label">단독/다가구</span>
-                            <span class="tag-count">4</span>
+                        <span class="broker-tag"
+                              th:each="tag : ${tags}"
+                              th:classappend="${tag.cssClass}">
+                            <span class="tag-label" th:text="${tag.label}">취급 매물 종류</span>
+                            <span class="tag-label" th:text="${tag.count}">5</span>
                         </span>
                     </div>
                 </div>
@@ -86,7 +84,7 @@
                         <div class="broker-info__detail-gap">
                             <span class="broker-info__detail-text">중개사등록번호</span>
                             <span class="broker-info__detail-text">:</span>
-                            <span class="broker-info__detail-text">123-456-789</span>
+                            <span class="broker-info__detail-text" th:text="${broker.registrationNumber}">123-456-789</span>
                         </div>
                     </div>
                     <div class="broker-info__detail">
@@ -94,7 +92,7 @@
                         <div class="broker-info__detail-gap">
                             <span class="broker-info__detail-text">전화번호</span>
                             <span class="broker-info__detail-text">:</span>
-                            <span class="broker-info__detail-text">070-7878-7878</span>
+                            <span class="broker-info__detail-text" th:text="${broker.tel}">070-1234-5678</span>
                         </div>
                     </div>
                     <div class="broker-info__detail">
@@ -102,7 +100,7 @@
                         <div class="broker-info__detail-gap">
                             <span class="broker-info__detail-text">휴대전화</span>
                             <span class="broker-info__detail-text">:</span>
-                            <span class="broker-info__detail-text">010-1234-5678</span>
+                            <span class="broker-info__detail-text" th:text="${broker.phone}">010-1234-5678</span>
                         </div>
                     </div>
                 </div>
@@ -140,8 +138,8 @@
 
             <script th:inline="javascript">
 
-                const lat = 37.5664056;
-                const lng = 126.9778222;
+                const lat = [[${broker.lat}]];
+                const lng = [[${broker.lng}]];
 
                 const center = new naver.maps.LatLng(lat, lng);
 

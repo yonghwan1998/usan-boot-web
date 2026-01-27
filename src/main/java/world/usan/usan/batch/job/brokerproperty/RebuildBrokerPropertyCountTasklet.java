@@ -77,8 +77,8 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
                     , b.sigungu
                     , b.emd
                     , b.road_name
-                    , b.addr_road
-                    , b.addr_jibun
+                    , b.road_address
+                    , b.jibun_address
                     , b.lat
                     , b.lng
                     , SUM(CASE WHEN l.listing_type = '아파트'        THEN 1 ELSE 0 END) AS apt_cnt
