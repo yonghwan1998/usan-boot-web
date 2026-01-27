@@ -69,13 +69,11 @@
                         </div>
                     </div>
                     <div class="broker-tags">
-                        <span class="broker-tag listing__tag--apt">
-                            <span class="tag-label">아파트</span>
-                            <span class="tag-count">5</span>
-                        </span>
-                        <span class="broker-tag listing__tag--detached">
-                            <span class="tag-label">단독/다가구</span>
-                            <span class="tag-count">4</span>
+                        <span class="broker-tag"
+                              th:each="tag : ${tags}"
+                              th:classappend="${tag.cssClass}">
+                            <span class="tag-label" th:text="${tag.label}">취급 매물 종류</span>
+                            <span class="tag-label" th:text="${tag.count}">5</span>
                         </span>
                     </div>
                 </div>
