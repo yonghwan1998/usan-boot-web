@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class BrokerMarkerTopPropertyDto {
+public class BrokerPropertyTagDto {
 
     private String label;
     private int count;

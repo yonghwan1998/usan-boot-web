@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import world.usan.usan.dto.BrokerMarkerDetailDto;
 import world.usan.usan.dto.BrokerMarkerDto;
-import world.usan.usan.dto.BrokerMarkerTopPropertyDto;
+import world.usan.usan.dto.BrokerPropertyTagDto;
 import world.usan.usan.entity.BrokerPropertyCount;
 import world.usan.usan.repository.BrokerPropertyCountRepository;
 
@@ -47,7 +47,7 @@ public class MapService {
         BrokerPropertyCount broker = brokerPropertyCountRepository.findById(brokerCode)
                 .orElseThrow(() -> new IllegalArgumentException("Broker not found: " + brokerCode));
 
-        List<BrokerMarkerTopPropertyDto> items = getPropertiesTop5(broker);
+        List<BrokerPropertyTagDto> items = getPropertiesTop5(broker);
 
         return BrokerMarkerDetailDto.builder()
                 .brokerCode(broker.getBrokerCode())
@@ -73,7 +73,7 @@ public class MapService {
 
         return list.stream()
                 .map(b -> {
-                    List<BrokerMarkerTopPropertyDto> top5 = getPropertiesTop5(b);
+                    List<BrokerPropertyTagDto> top5 = getPropertiesTop5(b);
                     return BrokerMarkerDetailDto.builder()
                             .brokerCode(b.getBrokerCode())
                             .brokerName(b.getBrokerName())
@@ -92,28 +92,28 @@ public class MapService {
                 .toList();
     }
 
-    private static List<BrokerMarkerTopPropertyDto> getPropertiesTop5(BrokerPropertyCount count) {
-        List<BrokerMarkerTopPropertyDto> items = List.of(
-                new BrokerMarkerTopPropertyDto("아파트", count.getAptCnt(), "listing__tag--apt"),
-                new BrokerMarkerTopPropertyDto("오피스텔", count.getOfficetelCnt(), "listing__tag--officetel"),
-                new BrokerMarkerTopPropertyDto("빌라/연립", count.getVillaCnt(), "listing__tag--villa"),
-                new BrokerMarkerTopPropertyDto("원룸", count.getOneroomCnt(), "listing__tag--oneroom"),
-                new BrokerMarkerTopPropertyDto("투룸", count.getTworoomCnt(), "listing__tag--tworoom"),
-                new BrokerMarkerTopPropertyDto("단독/다가구", count.getDetachedCnt(), "listing__tag--detached"),
-                new BrokerMarkerTopPropertyDto("전원주택", count.getRuralCnt(), "listing__tag--rural"),
-                new BrokerMarkerTopPropertyDto("상가주택", count.getMixedhouseCnt(), "listing__tag--mixedhouse"),
-                new BrokerMarkerTopPropertyDto("한옥주택", count.getHanokCnt(), "listing__tag--hanok"),
-                new BrokerMarkerTopPropertyDto("상가", count.getStoreCnt(), "listing__tag--store"),
-                new BrokerMarkerTopPropertyDto("사무실", count.getOfficeCnt(), "listing__tag--office"),
-                new BrokerMarkerTopPropertyDto("건물", count.getBuildingCnt(), "listing__tag--building"),
-                new BrokerMarkerTopPropertyDto("공장/창고", count.getFactoryCnt(), "listing__tag--factory"),
-                new BrokerMarkerTopPropertyDto("지식산업센터", count.getKnowledgeCnt(), "listing__tag--knowledge"),
-                new BrokerMarkerTopPropertyDto("토지", count.getLandCnt(), "listing__tag--land"),
-                new BrokerMarkerTopPropertyDto("아파트분양권", count.getAptSaleCnt(), "listing__tag--apt-sale"),
-                new BrokerMarkerTopPropertyDto("오피스텔분양권", count.getOfficetelSaleCnt(), "listing__tag--officetel-sale"),
-                new BrokerMarkerTopPropertyDto("재개발", count.getRedevelopmentCnt(), "listing__tag--redevelopment"),
-                new BrokerMarkerTopPropertyDto("재건축", count.getReconstructionCnt(), "listing__tag--reconstruction"),
-                new BrokerMarkerTopPropertyDto("분양중/예정", count.getPresaleCnt(), "listing__tag--presale")
+    private static List<BrokerPropertyTagDto> getPropertiesTop5(BrokerPropertyCount count) {
+        List<BrokerPropertyTagDto> items = List.of(
+                new BrokerPropertyTagDto("아파트", count.getAptCnt(), "listing__tag--apt"),
+                new BrokerPropertyTagDto("오피스텔", count.getOfficetelCnt(), "listing__tag--officetel"),
+                new BrokerPropertyTagDto("빌라/연립", count.getVillaCnt(), "listing__tag--villa"),
+                new BrokerPropertyTagDto("원룸", count.getOneroomCnt(), "listing__tag--oneroom"),
+                new BrokerPropertyTagDto("투룸", count.getTworoomCnt(), "listing__tag--tworoom"),
+                new BrokerPropertyTagDto("단독/다가구", count.getDetachedCnt(), "listing__tag--detached"),
+                new BrokerPropertyTagDto("전원주택", count.getRuralCnt(), "listing__tag--rural"),
+                new BrokerPropertyTagDto("상가주택", count.getMixedhouseCnt(), "listing__tag--mixedhouse"),
+                new BrokerPropertyTagDto("한옥주택", count.getHanokCnt(), "listing__tag--hanok"),
+                new BrokerPropertyTagDto("상가", count.getStoreCnt(), "listing__tag--store"),
+                new BrokerPropertyTagDto("사무실", count.getOfficeCnt(), "listing__tag--office"),
+                new BrokerPropertyTagDto("건물", count.getBuildingCnt(), "listing__tag--building"),
+                new BrokerPropertyTagDto("공장/창고", count.getFactoryCnt(), "listing__tag--factory"),
+                new BrokerPropertyTagDto("지식산업센터", count.getKnowledgeCnt(), "listing__tag--knowledge"),
+                new BrokerPropertyTagDto("토지", count.getLandCnt(), "listing__tag--land"),
+                new BrokerPropertyTagDto("아파트분양권", count.getAptSaleCnt(), "listing__tag--apt-sale"),
+                new BrokerPropertyTagDto("오피스텔분양권", count.getOfficetelSaleCnt(), "listing__tag--officetel-sale"),
+                new BrokerPropertyTagDto("재개발", count.getRedevelopmentCnt(), "listing__tag--redevelopment"),
+                new BrokerPropertyTagDto("재건축", count.getReconstructionCnt(), "listing__tag--reconstruction"),
+                new BrokerPropertyTagDto("분양중/예정", count.getPresaleCnt(), "listing__tag--presale")
         );
 
         return items.stream()
