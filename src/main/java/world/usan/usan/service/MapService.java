@@ -44,7 +44,8 @@ public class MapService {
     @Transactional(readOnly = true)
     public BrokerMarkerDetailDto getBrokerDetail(UUID brokerCode) {
 
-        BrokerPropertyCount broker = brokerPropertyCountRepository.findByBrokerCode(brokerCode);
+        BrokerPropertyCount broker = brokerPropertyCountRepository.findById(brokerCode)
+                .orElseThrow(() -> new IllegalArgumentException("Broker not found: " + brokerCode));
 
         List<BrokerMarkerTopPropertyDto> items = getPropertiesTop5(broker);
 
