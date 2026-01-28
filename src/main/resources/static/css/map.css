@@ -285,9 +285,7 @@
 }
 
 .bottom-sheet.is-half {
-    height: calc((var(--app-h) - var(--nav-total-h)) * 0.6);
-    max-height: calc((var(--app-h) - var(--nav-total-h)) * 0.6);
-    transform: translate(-50%, 0);
+    transform: translate(-50%, 40%);
 }
 
 .bottom-sheet.is-full {
