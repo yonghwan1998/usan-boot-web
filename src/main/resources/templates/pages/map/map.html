@@ -560,19 +560,63 @@
 
             const STATE = Object.freeze({ CLOSED: 'CLOSED', HALF: 'HALF', FULL: 'FULL' });
 
-            const THRESHOLD = 80;
+            function yByStatePx(State) {
+                const h = sheet.getBoundingClientRect().height;
+                if (state ===STATE.FULL) return 0;
+                if (state ===STATE.HALF) return h * 0.4;
+                return h;
+            }
+
+            function getCurrentY() {
+                const style = window.getComputedStyle(sheet);
+                const m = new DOMMatrixReadOnly(style.transform);
+                return m.m42;
+            }
+
+            function clamp(n, min, max) {
+                return Math.max(min, Math.min(max, n));
+            }
+
             let state = STATE.CLOSED;
 
-            let startY = 0;
-            let lastY = 0;
             let dragging = false;
+            let startY = 0;
+            let startSheetY = 0;
 
-            function applyState(next) {
+            function applyState(next, {animate = true} = {}) {
                 state = next;
 
-                sheet.classList.remove('is-half', 'is-full');
+                sheet.classList.remove('is-half', 'is-full', 'is-dragging');
+                if (animate) {
+                    // CSS transition 사용
+                } else {
+                    sheet.classList.add('is-dragging');//transition off
+                }
+
                 if (state === STATE.HALF) sheet.classList.add('is-half');
                 if (state === STATE.FULL) sheet.classList.add('is-full');
+
+                // 상태별 transform은 CSS가 담당(translateY %)
+                // 드래그 중에 남긴 inline transform이 있으면 제거해서 CSS로 복귀
+                if (animate) sheet.style.transform = '';
+            }
+
+            function snapToNearest(y) {
+                const h = sheet.getBoundingClientRect().height;
+                const points = [
+                    { s: STATE.FULL,  y: 0 },
+                    { s: STATE.HALF,  y: h * 0.4 },
+                    { s: STATE.CLOSED,y: h }
+                ];
+
+                // 가장 가까운 점 선택
+                let best = points[0];
+                let bestDist = Math.abs(y - best.y);
+                for (const p of points.slice(1)) {
+                    const d = Math.abs(y - p.y);
+                    if (d < bestDist) { best = p; bestDist = d; }
+                }
+                applyState(best.s, { animate: true });
             }
 
             function isOpen() {
@@ -583,46 +627,44 @@
                 if (!isOpen()) return;
                 if (dragging) return;
                 if (sheet.contains(e.target)) return;
-                applyState(STATE.CLOSED);
+                applyState(STATE.CLOSED, { animate: true });
             });
 
             function onDown(e) {
                 dragging = true;
+
+                //드래그 시작 시점의 실제 translateY를 기준으로 잡기
+                startY = e.clientY;
+                startSheetY = (sheet.style.transform ? getCurrentY() : yByStatePx(state));
+
                 sheet.classList.add('is-dragging');
 
-                startY = e.clientY;
-                lastY = startY;
+                //드래그 중에는 inline transform으로 직접 따라가게
+                sheet.style.transform = `translate(-50%, ${startSheetY}px)`;
 
                 handleArea.setPointerCapture?.(e.pointerId);
             }
 
             function onMove(e) {
                 if (!dragging) return;
-                lastY = e.clientY;
+
+                const h = sheet.getBoundingClientRect().height;
+                const delta = e.clientY - startY;
+
+                //y는 0~h 사이
+                const nextY = clamp(startSheetY + delta, 0, h);
+
+                sheet.style.transform = `translate(-50%, ${nextY}px)`;
             }
 
             function onUp() {
                 if (!dragging) return;
                 dragging = false;
+
                 sheet.classList.remove('is-dragging');
 
-                const delta = lastY - startY;
-
-                //위로 드래그
-                if (delta < -THRESHOLD) {
-                    if (state === STATE.CLOSED) applyState(STATE.HALF);
-                    else if (state === STATE.HALF) applyState(STATE.FULL);
-                    return;
-                }
-
-                //아래로 드래그
-                if (delta > THRESHOLD) {
-                    if (state === STATE.FULL) applyState(STATE.HALF);
-                    else if (state === STATE.HALF) applyState(STATE.CLOSED);
-                    return;
-                }
-
-                applyState(state);
+                const y = getCurrentY();
+                snapToNearest(y);
             }
 
             /** 이벤트 바인딩 **/
@@ -631,23 +673,16 @@
             window.addEventListener('pointerup', onUp);
             window.addEventListener('pointercancel', onUp);
 
-            handleArea.addEventListener('touchstart', (e) => {
-                onDown({clientY: e.touches[0].clientY, pointerId: 0});
-            }, {passive: true});
-            handleArea.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                onMove({clientY: e.touches[0].clientY});
-            }, {passive: false});
-            handleArea.addEventListener('touchend', () => onUp(), {passive: true});
-            handleArea.addEventListener('touchcancel', () => onUp(), {passive: true});
-
             //외부 제어 API
-            window.openBrokerSheetHalf = () => applyState(STATE.HALF);
-            window.openBrokerSheetFull = () => applyState(STATE.FULL);
-            window.closeBrokerSheet = () => applyState(STATE.CLOSED);
+            window.openBrokerSheetHalf = () => applyState(STATE.HALF, { animate: true });
+            window.openBrokerSheetFull = () => applyState(STATE.FULL, { animate: true });
+            window.closeBrokerSheet = () => applyState(STATE.CLOSED, { animate: true });
+
+            // 리사이즈 시 현재 상태를 다시 적용(좌표 재계산 필요)
+            window.addEventListener('resize', () => applyState(state, { animate: false }));
 
             //초기 닫힘
-            applyState(STATE.CLOSED);
+            applyState(STATE.CLOSED, { animate: true });
         })();
 
         function closeBrokerSheet() {
