@@ -191,8 +191,8 @@
         function initMap() {
 
             //1순위: 쿼리스트링, 2순위: localStorage, 3순위: 임의 주소
-            const qLat = parseFloat(getParam('lat'));
-            const qLng = parseFloat(getParam('lng'));
+            const qLat = parseFloat(__getParam('lat'));
+            const qLng = parseFloat(__getParam('lng'));
 
             let lat, lng;
 

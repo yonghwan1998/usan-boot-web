@@ -50,7 +50,7 @@ function __toggleViewBtn(btn) {
  *  - 숫자 좌표(lat, lng 등)는 parseFloat 또는 parseInt로 변환 필요
  *  - 동일한 이름의 파라미터가 여러 개일 경우 첫 번째 값만 반환
  */
-function getParam(name) {
+function __getParam(name) {
     return new URLSearchParams(location.search).get(name);
 }
 
