@@ -102,6 +102,8 @@
     <!-- map control -->
     <script>
 
+        const MAP_CENTER_KEY = 'usan.map.center';
+
         let map;
         let markers = [];
         let markerClustering = null;
@@ -188,8 +190,19 @@
 
         function initMap() {
 
-            const lat = parseFloat(getParam('lat')) || 33.464933;
-            const lng = parseFloat(getParam('lng')) || 126.530862;
+            //1순위: 쿼리스트링, 2순위: localStorage, 3순위: 임의 주소
+            const qLat = parseFloat(getParam('lat'));
+            const qLng = parseFloat(getParam('lng'));
+
+            let lat, lng;
+
+            if (!Number.isNaN(qLat) && !Number.isNaN(qLng)) {
+                lat = qLat; lng = qLng;
+            } else {
+                const saved = loadMapCenter();
+                lat = saved?.lat ?? 33.464933;
+                lng = saved?.lng ?? 126.530862;
+            }
 
             const center = new naver.maps.LatLng(lat, lng);
 
@@ -739,9 +752,9 @@
         });
 
         /**
-         * @date    2026-01-26
+         * @date    2026-01-31
          * @author  yongss
-         * @desc    .map-chip 클릭 시 해당 주소로 지도 리다이렉트
+         * @desc    .map-chip 클릭 시 localStorage에 데이터 저장 후 지도 페이지 리로드
          */
         document.addEventListener('click', (e) => {
             const chip = e.target.closest('.map-chip');
@@ -751,7 +764,8 @@
             const lng = chip.dataset.lng;
             if (!lat || !lng) return;
 
-            location.href = `/map?lat=${lat}&lng=${lng}`;
+            saveMapCenter(lat, lng);
+            location.href = '/map';
         });
 
         /**
@@ -802,8 +816,6 @@
          *
          * 예외/주의:
          *  - 첫번째 .map-chip은 남기고 나머지 제거
-         *  -
-         *  -
          */
         async function loadMyListings() {
             const chipsWrap = document.querySelector('.map-ui__chips');
@@ -861,6 +873,60 @@
             });
 
             chipsWrap.appendChild(frag);
+
+            const saved = loadMapCenter();
+            if (saved) {
+                const chipEls = Array.from(chipsWrap.querySelectorAll('.map-chip[data-lat][data-lng]'));
+
+                chipEls.forEach(c => c.classList.remove('is-on'));
+
+                let best = null;
+                let bestDist = Infinity;
+
+                chipEls.forEach(c => {
+                    const clat = Number(c.dataset.lat);
+                    const clng = Number(c.dataset.lng);
+                    const d = Math.abs(clat - saved.lat) + Math.abs(clng - saved.lng);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        best = c;
+                    }
+                });
+
+                if (best) best.classList.add('is-on');
+            }
+        }
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장
+         */
+        function saveMapCenter(lat, lng) {
+            localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
+                lat: Number(lat),
+                lng: Number(lng),
+                at: Date.now()
+            }));
+        }
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 localStorage의 MAP_CENTER 데이터 로드
+         */
+        function loadMapCenter() {
+            try {
+                const raw = localStorage.getItem(MAP_CENTER_KEY);
+                if (!raw) return;
+
+                const v = JSON.parse(raw);
+                if (typeof v?.lat !== 'number' || typeof v?.lng !== 'number') return null;
+
+                return v;
+            } catch (_) {
+                return null;
+            }
         }
 
         window.onload = initMap;
