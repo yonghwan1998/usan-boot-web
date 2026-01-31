@@ -14,7 +14,8 @@
     text-align: center;
 }
 
-.join-wrapper--email {
+.join-wrapper--email,
+.join-wrapper--phone {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -22,13 +23,16 @@
     width: 100%;
 }
 
-.pw__condition {
-    font-weight: 400;
-    font-size: 14px;
-    color: #595959;
+.join-error-text--pw {
     padding: 0 4px;
     margin-top: 6px;
     margin-bottom: 20px;
+}
+
+.pw__caption {
+    font-weight: 400;
+    font-size: 14px;
+    color: #595959;
 }
 
 .pw-confirm__text {

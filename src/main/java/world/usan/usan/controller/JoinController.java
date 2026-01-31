@@ -55,6 +55,24 @@ public class JoinController {
     }
 
     /**
+     * @date    2026-01-31
+     * @author  yongss
+     * @param   {String phone}
+     *
+     * 처리 과정:
+     *  - phone을 전달 받아 DB에 존재하는지 AJAX 검증
+     */
+    @GetMapping("/api/phone-exists")
+    @ResponseBody
+    public Map<String, Object> phoneExists(@RequestParam String phone) {
+
+        String normalizedPhone = phone.replaceAll("[^0-9]", "");
+
+        boolean exists = userRepository.existsByPhone(normalizedPhone);
+        return Map.of("exists", exists);
+    }
+
+    /**
      * @date    2025-12-22
      * @author  yongss
      * @param   {JoinRequest joinRequest, BindingResult bindingResult, Model model}
@@ -73,7 +91,8 @@ public class JoinController {
                              Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("joinError", "입력값을 확인해주세요.");
+            String msg = bindingResult.getAllErrors().get(0).getDefaultMessage();
+            model.addAttribute("joinError", msg);
             return "pages/join";
         }
 

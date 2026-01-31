@@ -103,6 +103,78 @@ async function __checkEmailExists(email) {
     return await res.json();
 }
 
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} phone
+ * @return  {Promise<{exists: boolean}>}
+ */
+async function __checkPhoneExists(phone) {
+    const qs = new URLSearchParams({ phone });
+
+    const res = await fetch(`/join/api/phone-exists?${qs.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error('phone check failed');
+
+    return await res.json();
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} pw
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 영문 + 숫자 + 특수문자, 8자 이상인지 검증
+ */
+function __isValidPassword(pw) {
+    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(pw);
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} phone
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 하이픈/공백 제외 후 01[016789] + 7~8자리 인지 확인
+ */
+function __isValidPhone(phone) {
+    const v = String(phone ?? '').trim();
+
+    const digits = v.replace(/[^\d]/g, '');
+
+    return /^01[016789]\d{7,8}$/.test(digits);
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} phone
+ * @return  {string}
+ *
+ * 처리 과정:
+ *  - 입력 받은 값을 전화번호 형식으로 하이픈 처리
+ */
+function __formatPhone(phone) {
+    const digits = String(phone ?? '').replace(/[^\d]/g, '');
+
+    // 010 / 011~019 기준으로 하이픈 포맷
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 7) return digits.replace(/(\d{3})(\d+)/, '$1-$2');
+    if (digits.length <= 11) {
+        // 010 4자리 + 4자리 (11) / 010 3자리 + 4자리 (10)
+        if (digits.length === 10) return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        return digits.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+    }
+    return digits.slice(0, 11).replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+}
+
 (function () {
     const modal = document.getElementById('common-modal');
     const titleEl = document.getElementById('common-modal-title');

@@ -69,7 +69,7 @@
             <div class="common-input-wrapper target__clear-wrapper">
                 <input type="text"
                        placeholder="이메일을 입력해 주세요."
-                       class="common-input target--clear-input input--email"
+                       class="common-input target--clear-input join-input--email"
                        th:field="*{email}"
                        oninput="__toggleClearBtn(this)"/>
                 <button type="button"
@@ -77,7 +77,7 @@
                         onclick="__clearInput(this)"></button>
             </div>
 
-            <div class="common-text--error error-text--email">
+            <div class="common-text--error join-error-text--email">
                 이메일 오류입니다.
             </div>
         </div>
@@ -86,13 +86,13 @@
             <div class="common-input-wrapper target__view-wrapper">
                 <input type="password"
                        placeholder="비밀번호를 적어주세요"
-                       class="common-input target--view-input"
+                       class="common-input target--view-input join-input--pw"
                        th:field="*{password}"/>
                 <button type="button"
                         class="common-input-btn common-input__eye-slash-btn target--view-btn"
                         onclick="__toggleViewBtn(this)"></button>
             </div>
-            <div class="pw__condition">영문, 숫자, 특수문자를 조합한 12문자 이상을 적어주세요</div>
+            <div class="join-error-text--pw pw__caption">영문, 숫자, 특수문자를 조합해 8자 이상 적어주세요.</div>
             <div class="pw-confirm__text">비밀번호 확인</div>
             <div class="common-input-wrapper target__view-wrapper">
                 <input type="password"
@@ -105,39 +105,23 @@
             </div>
         </div>
 
-
-
-
-
-
-
-
-
         <div class="join-wrapper--phone" hidden>
             <div class="common-input-wrapper target__clear-wrapper">
                 <input type="text"
-                       placeholder="전화번호를 적어주세요"
-                       class="common-input target--clear-input"
+                       placeholder="전화번호를 입력해 주세요."
+                       class="common-input target--clear-input join-input--phone"
                        th:field="*{phone}"
                        oninput="__toggleClearBtn(this)"/>
                 <button type="button"
                         class="common-input-btn common-input__clear-btn target--clear-btn"
                         onclick="__clearInput(this)"></button>
             </div>
-        </div>
 
-        <div class="join-wrapper--nickname" hidden>
-            <div class="common-input-wrapper target__clear-wrapper">
-                <input type="text"
-                       placeholder="닉네임을 적어주세요"
-                       class="common-input target--clear-input"
-                       th:field="*{nickname}"
-                       oninput="__toggleClearBtn(this)"/>
-                <button type="button"
-                        class="common-input-btn common-input__clear-btn target--clear-btn"
-                        onclick="__clearInput(this)"></button>
+            <div class="common-text--error join-error-text--phone">
+                전화번호 오류입니다.
             </div>
         </div>
+
     </form>
 
     <div class="btn__wrapper">
@@ -147,17 +131,15 @@
 
     <script>
         const steps = [
-            { text: '이메일을 입력해주세요.',   show: '.join-wrapper--email' },
-            { text: '비밀번호를 입력해주세요.', show: '.join-wrapper--pw' },
-            { text: '전화번호를 입력해주세요.', show: '.join-wrapper--phone' },
-            { text: '닉네임을 입력해주세요.',   show: '.join-wrapper--nickname' }
+            { text: '이메일을 입력해 주세요.',   show: '.join-wrapper--email' },
+            { text: '비밀번호를 입력해 주세요.', show: '.join-wrapper--pw' },
+            { text: '전화번호를 입력해 주세요.', show: '.join-wrapper--phone' },
         ];
 
         const wrappers = [
             '.join-wrapper--email',
             '.join-wrapper--pw',
             '.join-wrapper--phone',
-            '.join-wrapper--nickname'
         ];
 
         function qs(sel){ return document.querySelector(sel); }
@@ -212,7 +194,7 @@
             const btnNext = qs('#btnNext');
 
             if (btnNext) btnNext.textContent =
-                (step === steps.length) ? '회원가입 완료' : '다음';
+                (step === steps.length) ? '완료' : '다음';
 
             // STEP BAR 갱신
             renderStepBar(step);
@@ -227,8 +209,8 @@
                 const emailInput = document.querySelector('[name="email"]');
                 const email = emailInput ? emailInput.value : '';
 
-                const errorInput = document.querySelector('.common-input.input--email');
-                const errorText = document.querySelector('.common-text--error.error-text--email');
+                const errorInput = document.querySelector('.common-input.join-input--email');
+                const errorText = document.querySelector('.common-text--error.join-error-text--email');
 
                 if (!errorText || !errorInput) return false;
 
@@ -271,24 +253,87 @@
                 errorText.textContent = '';
             }
             if (step === 2) {
-                const pw = valOf('password');
-                const pw2 = valOf('passwordConfirm');
-                if (!pw || pw.length < 12) {
-                    alert('비밀번호는 12자 이상이어야 합니다.');
+                const passwordInput = document.querySelector('[name="password"]');
+                const passwordConfirmInput = document.querySelector('[name="passwordConfirm"]');
+                const password = passwordInput ? passwordInput.value : '';
+                const passwordConfirm = passwordConfirmInput ? passwordConfirmInput.value : '';
+
+                const errorText = document.querySelector('.join-error-text--pw');
+
+                if (!passwordInput || !passwordConfirmInput || !errorText) return false;
+
+                errorText.classList.remove(
+                    'pw__caption',
+                    'common-text--error',
+                    'is-visible',
+                    'pw_condition'
+                );
+                errorText.textContent = '';
+
+                passwordInput.classList.remove('common-input-error');
+                passwordConfirmInput.classList.remove('common-input-error');
+
+                if (!__isValidPassword(password)) {
+                    passwordInput.classList.add('common-input-error');
+
+                    errorText.classList.add('common-text--error', 'is-visible');
+                    errorText.textContent = '영문, 숫자, 특수문자를 조합해 8자 이상 적어주세요.';
                     return false;
                 }
-                if (pw !== pw2) {
-                    alert('비밀번호 확인이 일치하지 않습니다.');
+
+                if (password !== passwordConfirm) {
+                    passwordInput.classList.add('common-input-error');
+                    passwordConfirmInput.classList.add('common-input-error');
+
+                    errorText.classList.add('common-text--error', 'is-visible');
+                    errorText.textContent = '비밀번호와 비밀번호 확인을 검증해 주세요.';
                     return false;
                 }
+
+                errorText.classList.add('pw_condition');
+                errorText.textContent = '사용 가능한 비밀번호입니다.';
+
             }
-            if (step === 3 && !valOf('phone')) {
-                alert('전화번호를 입력해주세요.');
-                return false;
-            }
-            if (step === 4 && valOf('nickname').length < 2) {
-                alert('닉네임을 2자 이상 입력해주세요.');
-                return false;
+            if (step === 3) {
+                const phoneInput = document.querySelector('[name="phone"]');
+                const phone = phoneInput ? phoneInput.value : '';
+
+                const errorInput = document.querySelector('.join-input--phone');
+                const errorText = document.querySelector('.common-text--error.join-error-text--phone');
+
+                if (!errorInput || !errorText) return false;
+
+                errorInput.classList.remove('common-input-error');
+                errorText.classList.remove('is-visible');
+                errorText.textContent = '';
+
+                if (!__isValidPhone(phone)) {
+                    errorInput.classList.add('common-input-error');
+                    errorText.classList.add('is-visible');
+                    errorText.textContent = '전화번호 형식을 확인해 주세요. 예) 010-1234-5678';
+                    return false;
+                }
+
+                try {
+                    const { exists } = await __checkPhoneExists(phone);
+
+                    if (exists) {
+                        errorInput.classList.add('common-input-error');
+                        errorText.classList.add('is-visible');
+                        errorText.textContent = '이미 가입된 전화번호입니다.';
+                        return false;
+                    }
+
+                } catch (e) {
+                    errorInput.classList.add('common-input-error');
+                    errorText.classList.add('is-visible');
+                    errorText.textContent = '전화번호 확인 중 오류가 발생했습니다.';
+                    return false;
+                }
+
+                errorInput.classList.remove('common-input-error');
+                errorText.classList.remove('is-visible');
+                errorText.textContent = '';
             }
             return true;
         }
@@ -312,8 +357,23 @@
                     setStep(step + 1);
                 } else {
                     qs('#joinForm')?.submit();
+                    alert('회원가입이 완료됐습니다!');
                 }
             });
         });
+
+        document.querySelector('[name="phone"]')?.addEventListener('input', (e) => {
+            e.target.value = __formatPhone(e.target.value);
+        });
+    </script>
+
+    <script th:if="${joinError != null}" th:inline="javascript">
+        /*<![CDATA[*/
+        const msg = /*[[${joinError}]]*/ '';
+        if (msg) {
+            alert(msg);
+            window.location.replace('/join');
+        }
+        /*]]>*/
     </script>
 </section>
