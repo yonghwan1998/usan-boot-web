@@ -45,7 +45,7 @@
                     <span class="map-icon--gps"></span>
                     <span class="map-chip__my-location">위치이동</span>
                 </button>
-                <button class="map-chip is-on" type="button">신사</button>
+                <button class="map-chip" type="button" data-lat="33.497234" data-lng="126.513691">신사</button>
                 <button class="map-chip" type="button">이태원</button>
                 <button class="map-chip" type="button" data-lat="33.253912" data-lng="126.528928">테스트 주소</button>
             </div>
@@ -256,6 +256,8 @@
             });
 
             updateClusterOptionsByZoom(map.getZoom());
+
+            loadMyListings();
 
             loadBrokersInBounds();
 
@@ -740,7 +742,6 @@
          * @date    2026-01-26
          * @author  yongss
          * @desc    .map-chip 클릭 시 해당 주소로 지도 리다이렉트
-         *
          */
         document.addEventListener('click', (e) => {
             const chip = e.target.closest('.map-chip');
@@ -793,6 +794,74 @@
                 openedBrokerEl = willOpen ? broker : null;
             });
         })();
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 backend 에서 저장한 매물 데이터 받아온 뒤 .map-chip 으로 뿌려주기
+         *
+         * 예외/주의:
+         *  - 첫번째 .map-chip은 남기고 나머지 제거
+         *  -
+         *  -
+         */
+        async function loadMyListings() {
+            const chipsWrap = document.querySelector('.map-ui__chips');
+            if (!chipsWrap) return;
+
+            const chips = Array.from(chipsWrap.querySelectorAll('.map-chip'));
+            const keepChip = chips[0];
+            chipsWrap.innerHTML = '';
+            if (keepChip) chipsWrap.appendChild(keepChip);
+
+            const url = '/map/api/listings/my-listings';
+
+            let data;
+            try {
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!res.ok) {
+                    console.warn('[loadMyListings] fetch failed:', res.status);
+                    return;
+                }
+
+                data = await res.json();
+            } catch (e) {
+                console.error('[loadMyListings] fetch error:', e);
+                return;
+            }
+
+            const list = Array.isArray(data) ? data : (data?.items ?? []);
+            if (!Array.isArray(list) || list.length === 0) return;
+
+            const frag = document.createDocumentFragment();
+
+            list.forEach((item) => {
+                const lat = item?.lat;
+                const lng = item?.lng;
+
+                if (lat == null || lng == null) return;
+
+                const label = item?.name;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'map-chip';
+                btn.textContent = String(label);
+
+                btn.dataset.lat = String(lat);
+                btn.dataset.lng = String(lng);
+
+                if (item?.listingId != null) btn.dataset.listingId = String(item.listingId);
+
+                frag.appendChild(btn);
+            });
+
+            chipsWrap.appendChild(frag);
+        }
 
         window.onload = initMap;
 
