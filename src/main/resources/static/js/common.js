@@ -50,8 +50,129 @@ function __toggleViewBtn(btn) {
  *  - 숫자 좌표(lat, lng 등)는 parseFloat 또는 parseInt로 변환 필요
  *  - 동일한 이름의 파라미터가 여러 개일 경우 첫 번째 값만 반환
  */
-function getParam(name) {
+function __getParam(name) {
     return new URLSearchParams(location.search).get(name);
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} value
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 공백인지 검증
+ */
+function __isBlank(value) {
+    return value.trim().length === 0;
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} email
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 이메일 형식인지 검증
+ */
+function __isValidEmail(email) {
+    const EMAIL_REGEX =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return EMAIL_REGEX.test(email);
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} email
+ * @return  {Promise<{exists: boolean}>}
+ *
+ * 처리 과정:
+ *  - email을 전달 받아 DB에 존재하는지 AJAX 검증
+ */
+async function __checkEmailExists(email) {
+    const qs = new URLSearchParams({ email });
+    const res = await fetch(`/join/api/email-exists?${qs.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error('email check failed');
+    return await res.json();
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} phone
+ * @return  {Promise<{exists: boolean}>}
+ */
+async function __checkPhoneExists(phone) {
+    const qs = new URLSearchParams({ phone });
+
+    const res = await fetch(`/join/api/phone-exists?${qs.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error('phone check failed');
+
+    return await res.json();
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} pw
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 영문 + 숫자 + 특수문자, 8자 이상인지 검증
+ */
+function __isValidPassword(pw) {
+    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(pw);
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} phone
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 하이픈/공백 제외 후 01[016789] + 7~8자리 인지 확인
+ */
+function __isValidPhone(phone) {
+    const v = String(phone ?? '').trim();
+
+    const digits = v.replace(/[^\d]/g, '');
+
+    return /^01[016789]\d{7,8}$/.test(digits);
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} phone
+ * @return  {string}
+ *
+ * 처리 과정:
+ *  - 입력 받은 값을 전화번호 형식으로 하이픈 처리
+ */
+function __formatPhone(phone) {
+    const digits = String(phone ?? '').replace(/[^\d]/g, '');
+
+    // 010 / 011~019 기준으로 하이픈 포맷
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 7) return digits.replace(/(\d{3})(\d+)/, '$1-$2');
+    if (digits.length <= 11) {
+        // 010 4자리 + 4자리 (11) / 010 3자리 + 4자리 (10)
+        if (digits.length === 10) return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        return digits.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+    }
+    return digits.slice(0, 11).replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
 }
 
 (function () {
