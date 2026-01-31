@@ -14,6 +14,14 @@
     text-align: center;
 }
 
+.join-wrapper--email {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+}
+
 .pw__condition {
     font-weight: 400;
     font-size: 14px;

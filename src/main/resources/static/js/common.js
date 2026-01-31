@@ -54,6 +54,55 @@ function __getParam(name) {
     return new URLSearchParams(location.search).get(name);
 }
 
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} value
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 공백인지 검증
+ */
+function __isBlank(value) {
+    return value.trim().length === 0;
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} email
+ * @return  {boolean}
+ *
+ * 처리 과정:
+ *  - 전달받은 값이 이메일 형식인지 검증
+ */
+function __isValidEmail(email) {
+    const EMAIL_REGEX =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return EMAIL_REGEX.test(email);
+}
+
+/**
+ * @date    2026-01-31
+ * @author  yongss
+ * @param   {string} email
+ * @return  {Promise<{exists: boolean}>}
+ *
+ * 처리 과정:
+ *  - email을 전달 받아 DB에 존재하는지 AJAX 검증
+ */
+async function __checkEmailExists(email) {
+    const qs = new URLSearchParams({ email });
+    const res = await fetch(`/join/api/email-exists?${qs.toString()}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error('email check failed');
+    return await res.json();
+}
+
 (function () {
     const modal = document.getElementById('common-modal');
     const titleEl = document.getElementById('common-modal-title');

@@ -20,8 +20,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
-                                "/login",
-                                "/join",
+                                "/login/**",
+                                "/join/**",
                                 "/search",
                                 "/region/selector",
                                 "/map/**",

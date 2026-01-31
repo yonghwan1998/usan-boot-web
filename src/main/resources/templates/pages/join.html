@@ -57,13 +57,6 @@
             <div class="common-step__caption">Step 3</div>
         </div>
 
-        <div class="common-step__line"></div>
-
-        <div class="common-step__step">
-            <div class="common-step__num">4</div>
-            <div class="common-step__caption">Step 4</div>
-        </div>
-
     </div>
 
     <div class="join-text" id="joinText">STEP을 입력해주세요.</div>
@@ -71,16 +64,21 @@
     <div th:if="${joinError != null}" class="join-error" th:text="${joinError}"></div>
 
     <form th:action="@{/join}" method="post" th:object="${joinRequest}" id="joinForm">
+
         <div class="join-wrapper--email">
             <div class="common-input-wrapper target__clear-wrapper">
                 <input type="text"
-                       placeholder="이메일을 적어주세요"
-                       class="common-input target--clear-input"
+                       placeholder="이메일을 입력해 주세요."
+                       class="common-input target--clear-input input--email"
                        th:field="*{email}"
                        oninput="__toggleClearBtn(this)"/>
                 <button type="button"
                         class="common-input-btn common-input__clear-btn target--clear-btn"
                         onclick="__clearInput(this)"></button>
+            </div>
+
+            <div class="common-text--error error-text--email">
+                이메일 오류입니다.
             </div>
         </div>
 
@@ -94,7 +92,7 @@
                         class="common-input-btn common-input__eye-slash-btn target--view-btn"
                         onclick="__toggleViewBtn(this)"></button>
             </div>
-            <div class="pw__condition">영문,숫자,특수문자,대문자를 조합한 12문자 이상을 적어주세요</div>
+            <div class="pw__condition">영문, 숫자, 특수문자를 조합한 12문자 이상을 적어주세요</div>
             <div class="pw-confirm__text">비밀번호 확인</div>
             <div class="common-input-wrapper target__view-wrapper">
                 <input type="password"
@@ -106,6 +104,14 @@
                         onclick="__toggleViewBtn(this)"></button>
             </div>
         </div>
+
+
+
+
+
+
+
+
 
         <div class="join-wrapper--phone" hidden>
             <div class="common-input-wrapper target__clear-wrapper">
@@ -215,15 +221,54 @@
             window.__JOIN_STEP__ = step;
         }
 
-        function valOf(name){
-            const el = document.querySelector(`[name="${name}"]`);
-            return el ? el.value.trim() : '';
-        }
+        async function validateStep(step){
 
-        function validateStep(step){
-            if (step === 1 && !valOf('email')) {
-                alert('이메일을 입력해주세요.');
-                return false;
+            if (step === 1) {
+                const emailInput = document.querySelector('[name="email"]');
+                const email = emailInput ? emailInput.value : '';
+
+                const errorInput = document.querySelector('.common-input.input--email');
+                const errorText = document.querySelector('.common-text--error.error-text--email');
+
+                if (!errorText || !errorInput) return false;
+
+                errorInput.classList.remove('common-input-error');
+                errorText.classList.remove('is-visible');
+                errorText.textContent = '';
+
+                if (__isBlank(email)) {
+                    errorInput.classList.add('common-input-error');
+                    errorText.classList.add('is-visible');
+                    errorText.textContent = '이메일을 입력해 주세요.';
+                    return false;
+                }
+
+                if (!__isValidEmail(email)) {
+                    errorInput.classList.add('common-input-error');
+                    errorText.classList.add('is-visible');
+                    errorText.textContent = '이메일 형식을 확인해 주세요.';
+                    return false;
+                }
+
+                try {
+                    const {exists} = await __checkEmailExists(email);
+                    if (exists) {
+                        errorInput.classList.add('common-input-error');
+                        errorText.classList.add('is-visible');
+                        errorText.textContent = '이미 가입된 이메일입니다.';
+                        return false;
+                    }
+
+                } catch (e) {
+                    errorInput.classList.add('common-input-error');
+                    errorText.classList.add('is-visible');
+                    errorText.textContent = '이메일 확인 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.';
+                    return false;
+                }
+
+                errorInput.classList.remove('common-input-error');
+                errorText.classList.remove('is-visible');
+                errorText.textContent = '';
             }
             if (step === 2) {
                 const pw = valOf('password');
@@ -257,9 +302,11 @@
                 if (step > 1) setStep(step - 1);
             });
 
-            qs('#btnNext')?.addEventListener('click', () => {
+            qs('#btnNext')?.addEventListener('click', async () => {
                 const step = window.__JOIN_STEP__ || 1;
-                if (!validateStep(step)) return;
+
+                const ok = await validateStep(step);
+                if (!ok) return;
 
                 if (step < steps.length) {
                     setStep(step + 1);
