@@ -31,21 +31,6 @@
 
 <section class="listing-page">
 
-    <!-- ✅ 공통 모달 (layout.html에 1번만) -->
-    <div id="common-modal" class="common-modal" aria-hidden="true">
-        <div class="common-modal__backdrop" data-modal-close></div>
-
-        <div class="common-modal__card" role="dialog" aria-modal="true" aria-labelledby="common-modal-title">
-            <div class="common-modal__content">
-                <div id="common-modal-title" class="common-modal__title">제목</div>
-                <div id="common-modal-body" class="common-modal__body"></div>
-            </div>
-
-            <div id="common-modal-actions" class="common-modal__actions">
-            </div>
-        </div>
-    </div>
-
     <div class="common-header listing-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
         <div class="common-header__title">매물 등록하기</div>
