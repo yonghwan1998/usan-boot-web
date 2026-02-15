@@ -44,6 +44,21 @@
     <!-- 더보기 모달 -->
     <th:block th:replace="~{fragments/more-panel :: morePanel}"></th:block>
 
+    <!-- 공통 모달 -->
+    <div class="common-modal" aria-hidden="true">
+        <div class="common-modal__backdrop" data-modal-close></div>
+
+        <div class="common-modal__card" role="dialog" aria-modal="true" aria-labelledby="common-modal-title">
+            <div class="common-modal__content">
+                <div class="common-modal__title">제목</div>
+                <div class="common-modal__body"></div>
+            </div>
+
+            <div class="common-modal__actions">
+            </div>
+        </div>
+    </div>
+
     <!-- 모바일 고정 하단 네비 -->
     <th:block th:if="${showBottomNav}">
         <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
@@ -79,6 +94,21 @@
 
                 <!-- 더보기 모달 -->
                 <th:block th:replace="~{fragments/more-panel :: morePanel}"></th:block>
+
+                <!-- 공통 모달 -->
+                <div class="common-modal" aria-hidden="true">
+                    <div class="common-modal__backdrop" data-modal-close></div>
+
+                    <div class="common-modal__card" role="dialog" aria-modal="true" aria-labelledby="common-modal-title">
+                        <div class="common-modal__content">
+                            <div class="common-modal__title">제목</div>
+                            <div class="common-modal__body"></div>
+                        </div>
+
+                        <div class="common-modal__actions">
+                        </div>
+                    </div>
+                </div>
 
                 <!-- 모바일 고정 하단 네비 -->
                 <th:block th:if="${showBottomNav}">
