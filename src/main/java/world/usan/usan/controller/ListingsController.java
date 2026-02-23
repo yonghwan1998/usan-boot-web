@@ -1,12 +1,14 @@
 package world.usan.usan.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import world.usan.usan.dto.ListingRequest;
+
+import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/listings")
 @Controller
@@ -36,7 +38,14 @@ public class ListingsController {
      */
     @GetMapping("/new")
     public String newPage(Model model) {
-        model.addAttribute("listingRequest", new ListingRequest(null, null, null));
+        model.addAttribute("listingRequest",
+                new ListingRequest(
+                        null, null,
+                        "", null, null,
+                        null, null,
+                        null
+                )
+        );
         return "pages/listings/listings-new";
     }
 
@@ -51,9 +60,14 @@ public class ListingsController {
      *  - 매물 관리하기 페이지로 리다이렉트
      */
     @PostMapping("")
-    public String create(ListingRequest listingRequest) {
+    public String create(@Valid @ModelAttribute("listingRequest") ListingRequest listingRequest,
+                         BindingResult bindingResult,
+                         Model model) {
 
-        // TODO(yongss): 요청 데이터 검증
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("listingStep", 1);
+            return "pages/listings/listings-new";
+        }
         // TODO(yongss): 검증 완료 된 데이터 DB에 저장
         // TODO(yongss): 검증 완료 시 front에 status를 보내 매물 전송 or 매물 관리로 이동할 수 있게
 
@@ -78,6 +92,33 @@ public class ListingsController {
         // TODO(yongss): 조회 실패 시 404 처리
 
         return "pages/listings/listings-edit";
+    }
+
+    @GetMapping("/api/address/search")
+    @ResponseBody
+    public Map<String, Object> searchAddress(@RequestParam("q") String q) {
+
+        // TODO: 나중에 도로명/지번/키워드 검색 실제 API 붙이면 됨
+        // 지금은 더미 5개 (제주도)
+        var items = List.of(
+                Map.of("name","제주특별자치도청", "roadAddress","제주특별자치도 제주시 문연로 6", "jibunAddress","제주시 연동 312-1", "lat",33.489011, "lng",126.498302),
+                Map.of("name","제주국제공항", "roadAddress","제주특별자치도 제주시 공항로 2", "jibunAddress","제주시 용담2동 2002", "lat",33.510414, "lng",126.492200),
+                Map.of("name","동문시장", "roadAddress","제주특별자치도 제주시 관덕로14길 20", "jibunAddress","제주시 건입동 1319-1", "lat",33.512467, "lng",126.527053),
+                Map.of("name","이호테우해변", "roadAddress","제주특별자치도 제주시 이호일동", "jibunAddress","제주시 이호1동 1665-13", "lat",33.498889, "lng",126.452778),
+                Map.of("name","한라수목원", "roadAddress","제주특별자치도 제주시 수목원길 72", "jibunAddress","제주시 연동 1000", "lat",33.469444, "lng",126.496389)
+        );
+
+        // 간단 필터: q가 포함된 것만 (나중에 실제 검색으로 교체)
+        var filtered = items.stream()
+                .filter(m -> {
+                    String name = String.valueOf(m.get("name"));
+                    String road = String.valueOf(m.get("roadAddress"));
+                    String jibun = String.valueOf(m.get("jibunAddress"));
+                    return name.contains(q) || road.contains(q) || jibun.contains(q);
+                })
+                .toList();
+
+        return Map.of("items", filtered);
     }
 
 }

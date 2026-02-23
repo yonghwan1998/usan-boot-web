@@ -175,6 +175,24 @@ function __formatPhone(phone) {
     return digits.slice(0, 11).replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
 }
 
+/**
+ * @date    2026-02-16
+ * @author  yongss
+ * @param   {string} input
+ * @return  {string}
+ *
+ * 처리 과정:
+ *  - 입력 받은 HTML의 특수문자를 HTML 엔티티로 치환하여 XSS 위험 줄임
+ */
+function __escapeHtml(input) {
+    return String(input)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
 (function () {
     const modal = document.getElementById('common-modal');
     const titleEl = document.getElementById('common-modal-title');
