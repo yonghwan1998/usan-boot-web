@@ -41,7 +41,7 @@
             </div>
 
             <div class="map-ui__chips">
-                <button class="map-chip" type="button">
+                <button class="map-chip" id="btn-my-location" type="button">
                     <span class="map-icon--gps"></span>
                     <span class="map-chip__my-location">위치이동</span>
                 </button>
@@ -69,9 +69,6 @@
             </div>
 
         </div>
-
-        <!-- 내 위치 버튼 -->
-<!--        <button id="btn-my-location">내 위치</button>-->
 
         <!-- 선택된 중개사 바텀시트 -->
         <div id="broker-sheet" class="bottom-sheet">
@@ -503,11 +500,24 @@
             openBrokerSheet(html);
         }
 
-        function goToMyLocation() {
+        function clearChipOn() {
+            document.querySelectorAll('.map-ui__chips .map-chip.is-on')
+                .forEach(el => el.classList.remove('is-on'));
+        }
+
+        function setChipOn(el) {
+            if (!el) return;
+            el.classList.add('is-on');
+        }
+
+        function goToMyLocation(e) {
             if (!navigator.geolocation) {
                 alert("현재 브라우저에서는 위치 정보를 사용할 수 없습니다.");
                 return;
             }
+
+            clearChipOn();
+            setChipOn(e?.currentTarget);
 
             navigator.geolocation.getCurrentPosition(function (pos) {
                 const lat = pos.coords.latitude;
