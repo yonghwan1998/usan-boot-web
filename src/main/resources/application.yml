@@ -66,3 +66,5 @@ naver:
     base-url: https://maps.apigw.ntruss.com
     client-id: ${NAVER_MAP_CLIENT_ID}
     client-secret: ${NAVER_MAP_CLIENT_SECRET}
+kakao:
+  rest-api-key: ${KAKAO_REST_API_KEY}
