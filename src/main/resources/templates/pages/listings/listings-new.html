@@ -143,11 +143,11 @@
             <div class="listing-wrapper--detail" hidden>
                 <div class="selected-address-wrapper">
                     <div class="selected-address__top">
-                        <span class="selected-address__title listing-detail__address-summary">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                        <span class="selected-address__title listing-detail__address-summary">건물명</span>
                     </div>
                     <div class="selected-address__bottom">
                         <span class="selected-address__jibun">지번</span>
-                        <span class="selected-address__address">부산 해운대구 우산마리나 111-3</span>
+                        <span class="selected-address__address">지번 주소</span>
                     </div>
                 </div>
                 <div class="common-input-wrapper pr_16 pl_16">
@@ -166,17 +166,62 @@
 
                     <div class="selected-address-new-wrapper">
                         <div class="selected-address__left">
-                            <span class="selected-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
+                            <span class="selected-address__title">건물명</span>
                             <div class="selected-address__bottom">
                                 <span class="selected-address__jibun">지번</span>
-                                <span class="selected-address__address">부산 해운대구 우산마리나 111-3</span>
+                                <span class="selected-address__address">지번 주소</span>
                             </div>
                         </div>
                         <div class="selected-address__right">
                             <button class="listing-edit__edit-button">수정</button>
                         </div>
                     </div>
+                </div>
 
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">소유주 이름</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="이름 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">통신사</div>
+                    <div class="common-select" data-name="통신사">
+                        <div class="common-input-wrapper">
+                            <input type="text"
+                                   placeholder="해당하는 것을 선택해 주세요."
+                                   class="common-input common-select__input"
+                                   readonly />
+                            <button type="button"
+                                    class="common-input-btn common-input__expand-btn"></button>
+                        </div>
+
+                        <ul class="common-select__options">
+                            <li data-value="">SKT</li>
+                            <li data-value="">KT</li>
+                            <li data-value="">LGU+</li>
+                            <li data-value="">알뜰폰 SKT</li>
+                            <li data-value="">알뜰폰 KT</li>
+                            <li data-value="">알뜰폰 LGU+</li>
+                        </ul>
+
+                        <input type="hidden" name="통신사">
+                    </div>
+                </div>
+
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">소유주 휴대폰 번호</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="소유주 휴대폰 번호 입력"
+                               class="common-input"/>
+                    </div>
+                </div>
+
+                <div class="listing-edit__section">
                     <div class="listing-edit__section-title">거래 유형</div>
                     <div class="common-select" data-name="tradeType">
                         <div class="common-input-wrapper">
