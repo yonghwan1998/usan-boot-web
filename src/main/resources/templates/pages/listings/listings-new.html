@@ -62,7 +62,7 @@
 
     <div class="listing-text" id="listingText">집주인이신가요?</div>
 
-    <form th:action="@{/listings}" method="post" th:object="${listingRequest}" id="listingForm">
+    <form th:action="@{/listings}" method="post" th:object="${listingRequest}" id="listingForm" enctype="multipart/form-data">
 
         <div class="listing-wrapper--listing pr_16 pl_16">
 

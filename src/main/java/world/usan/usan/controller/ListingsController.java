@@ -6,8 +6,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import world.usan.usan.dto.ListingRequest;
 import world.usan.usan.service.AddressSearchService;
+import world.usan.usan.service.storage.FileStorageService;
+import world.usan.usan.service.storage.StoredFile;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,7 @@ import java.util.Map;
 public class ListingsController {
 
     private final AddressSearchService addressSearchService;
+    private final FileStorageService fileStorageService;
 
     /**
      * @date    2026-01-06
@@ -67,13 +71,21 @@ public class ListingsController {
     @PostMapping("")
     public String create(@Valid @ModelAttribute("listingRequest") ListingRequest listingRequest,
                          BindingResult bindingResult,
-                         Model model) {
+                         Model model,
+                         @RequestParam(value = "photoFiles", required = false)List<MultipartFile> photoFiles) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("listingStep", 1);
             return "pages/listings/listings-new";
         }
         // TODO(yongss): 검증 완료 된 데이터 DB에 저장
+
+        // TODO(yongss): Listing 저장해서 publicId 확보
+        String publicId = "임시publicId";
+
+        // TODO(yongss): 업로드 저장
+        List<StoredFile> stored = fileStorageService.storeListingPhotos(publicId, photoFiles);
+
         // TODO(yongss): 검증 완료 시 front에 status를 보내 매물 전송 or 매물 관리로 이동할 수 있게
 
         return "redirect:/listings";
