@@ -2,7 +2,6 @@ package world.usan.usan.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import world.usan.usan.dto.ListingRequest;
 import world.usan.usan.repository.ListingPhotoRepository;
-import world.usan.usan.security.CustomUserDetails;
 import world.usan.usan.security.SecurityUtils;
 import world.usan.usan.service.AddressSearchService;
 import world.usan.usan.service.ListingPhotoService;
@@ -29,7 +27,6 @@ public class ListingsController {
     private final AddressSearchService addressSearchService;
     private final FileStorageService fileStorageService;
     private final ListingService listingService;
-    private final ListingPhotoRepository listingPhotoRepository;
     private final ListingPhotoService listingPhotoService;
     private final SecurityUtils securityUtils;
 
