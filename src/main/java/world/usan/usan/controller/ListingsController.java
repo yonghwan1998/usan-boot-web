@@ -2,6 +2,7 @@ package world.usan.usan.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import world.usan.usan.dto.ListingRequest;
 import world.usan.usan.repository.ListingPhotoRepository;
+import world.usan.usan.security.CustomUserDetails;
+import world.usan.usan.security.SecurityUtils;
 import world.usan.usan.service.AddressSearchService;
 import world.usan.usan.service.ListingPhotoService;
 import world.usan.usan.service.ListingService;
@@ -28,6 +31,7 @@ public class ListingsController {
     private final ListingService listingService;
     private final ListingPhotoRepository listingPhotoRepository;
     private final ListingPhotoService listingPhotoService;
+    private final SecurityUtils securityUtils;
 
     /**
      * @date    2026-01-06
@@ -80,8 +84,7 @@ public class ListingsController {
             return "pages/listings/listings-new";
         }
 
-        // TODO(yongss): 로그인 붙이면 여기서 currentUserId 가져와서 넣기
-        Long userId = 1L;
+        Long userId = securityUtils.currentUserIdOrThrow();
 
         var listing = listingService.createDraft(listingRequest, userId);
         String publicId = listing.getPublicId();
