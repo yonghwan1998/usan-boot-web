@@ -73,11 +73,14 @@ public class LocalFileStorageService implements FileStorageService {
 
             String publicUrl = props.getPublicPrefix() + "/listings/" + listingPublicId + "/" + storedName;
 
+            String mimeType = (f.getContentType() == null) ? null : f.getContentType();
+
             result.add(new StoredFile(
                     order,
-                    original,
+                    original.isBlank() ? null : original,
                     storedName,
                     publicUrl,
+                    mimeType,
                     f.getSize()
             ));
 

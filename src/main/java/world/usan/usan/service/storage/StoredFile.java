@@ -4,7 +4,8 @@ public record StoredFile(
         int sortOrder,
         String originalName,
         String storedName,
-        String publicUrl,
+        String filePath,
+        String mimeType,
         long sizeBytes
 ) {
 }

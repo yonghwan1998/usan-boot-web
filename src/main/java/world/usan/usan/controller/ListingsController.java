@@ -8,8 +8,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import world.usan.usan.dto.ListingRequest;
-import world.usan.usan.entity.Listing;
+import world.usan.usan.repository.ListingPhotoRepository;
 import world.usan.usan.service.AddressSearchService;
+import world.usan.usan.service.ListingPhotoService;
 import world.usan.usan.service.ListingService;
 import world.usan.usan.service.storage.FileStorageService;
 import world.usan.usan.service.storage.StoredFile;
@@ -25,6 +26,8 @@ public class ListingsController {
     private final AddressSearchService addressSearchService;
     private final FileStorageService fileStorageService;
     private final ListingService listingService;
+    private final ListingPhotoRepository listingPhotoRepository;
+    private final ListingPhotoService listingPhotoService;
 
     /**
      * @date    2026-01-06
@@ -85,8 +88,7 @@ public class ListingsController {
 
         List<StoredFile> storedFiles = fileStorageService.storeListingPhotos(publicId, photoFiles);
 
-        // TODO(yongss): listing_photo 테이블에 storedFiles 저장
-//        listingPhotoService.saveAll(listing.getId(), storedFiles);
+        listingPhotoService.saveAll(listing.getId(), storedFiles);
 
         // TODO(yongss): 검증 완료 시 front에 status를 보내 매물 전송 or 매물 관리로 이동할 수 있게
 
