@@ -71,7 +71,7 @@ public class LocalFileStorageService implements FileStorageService {
                 throw new IllegalStateException("파일 저장 실패: " + target, e);
             }
 
-            String publicUrl = props.getPublicPrefix() + "/listings/" + listingPublicId + "/" + storedName;
+            String filePath = props.getPublicPrefix() + "/listings/" + listingPublicId + "/" + storedName;
 
             String mimeType = (f.getContentType() == null) ? null : f.getContentType();
 
@@ -79,7 +79,7 @@ public class LocalFileStorageService implements FileStorageService {
                     order,
                     original.isBlank() ? null : original,
                     storedName,
-                    publicUrl,
+                    filePath,
                     mimeType,
                     f.getSize()
             ));
