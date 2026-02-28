@@ -64,6 +64,12 @@
 
     <form th:action="@{/listings}" method="post" th:object="${listingRequest}" id="listingForm" enctype="multipart/form-data">
 
+        <input type="hidden" th:field="*{addressName}" />
+        <input type="hidden" th:field="*{roadAddress}" />
+        <input type="hidden" th:field="*{jibunAddress}" />
+        <input type="hidden" th:field="*{lat}" />
+        <input type="hidden" th:field="*{lng}" />
+
         <div class="listing-wrapper--listing pr_16 pl_16">
 
             <div class="role-toggle flex_center" role="radiogroup" aria-label="역할 선택">
@@ -183,13 +189,14 @@
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="이름 입력"
-                               class="common-input"/>
+                               class="common-input"
+                               th:field="*{ownerName}" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">통신사</div>
-                    <div class="common-select" data-name="통신사">
+                    <div class="common-select" data-name="carrier">
                         <div class="common-input-wrapper">
                             <input type="text"
                                    placeholder="해당하는 것을 선택해 주세요."
@@ -200,15 +207,15 @@
                         </div>
 
                         <ul class="common-select__options">
-                            <li data-value="">SKT</li>
-                            <li data-value="">KT</li>
-                            <li data-value="">LGU+</li>
-                            <li data-value="">알뜰폰 SKT</li>
-                            <li data-value="">알뜰폰 KT</li>
-                            <li data-value="">알뜰폰 LGU+</li>
+                            <li data-value="SKT">SKT</li>
+                            <li data-value="KT">KT</li>
+                            <li data-value="LGU">LGU+</li>
+                            <li data-value="MVNO_SKT">알뜰폰 SKT</li>
+                            <li data-value="MVNO_KT">알뜰폰 KT</li>
+                            <li data-value="MVNO_LGU">알뜰폰 LGU+</li>
                         </ul>
 
-                        <input type="hidden" name="통신사">
+                        <input type="hidden" th:field="*{carrier}" />
                     </div>
                 </div>
 
@@ -217,7 +224,8 @@
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="소유주 휴대폰 번호 입력"
-                               class="common-input"/>
+                               class="common-input"
+                               th:field="*{ownerPhone}" />
                     </div>
                 </div>
 
@@ -242,34 +250,43 @@
                             <li data-value="COMMERCIAL">임대(상가/사무실 등)</li>
                         </ul>
 
-                        <input type="hidden" name="tradeType">
+                        <input type="hidden" th:field="*{tradeType}">
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">보증금</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="보증금 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               min="0"
+                               step="1"
+                               class="common-input"
+                               th:field="*{depositManwon}"
+                               placeholder="보증금(만원) 입력" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">월세</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="월세 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               min="0"
+                               step="1"
+                               class="common-input"
+                               th:field="*{rentManwon}"
+                               placeholder="월세(만원) 입력" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">매매가</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="매매가 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               min="0"
+                               step="1"
+                               class="common-input"
+                               th:field="*{priceManwon}"
+                               placeholder="매매가(만원) 입력" />
                     </div>
                 </div>
 
@@ -277,8 +294,9 @@
                     <div class="listing-edit__section-title">동·호수</div>
                     <div class="common-input-wrapper">
                         <input type="text"
-                               placeholder="동·호수 입력"
-                               class="common-input"/>
+                               class="common-input"
+                               th:field="*{dongho}"
+                               placeholder="동·호수 입력" />
                     </div>
                 </div>
 
@@ -286,17 +304,21 @@
                     <div class="listing-edit__section-title">층</div>
                     <div class="common-input-wrapper">
                         <input type="text"
-                               placeholder="층수 입력"
-                               class="common-input"/>
+                               class="common-input"
+                               th:field="*{floorInfo}"
+                               placeholder="층수 입력" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">면적</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="면적 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               step="0.01"
+                               min="0"
+                               class="common-input"
+                               th:field="*{areaM2}"
+                               placeholder="면적(㎡) 입력" />
                     </div>
                 </div>
 
@@ -327,9 +349,9 @@
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">상세정보</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="상세정보 입력"
-                               class="common-input"/>
+                        <textarea class="common-input"
+                                  th:field="*{description}"
+                                  placeholder="상세정보 입력"></textarea>
                     </div>
                 </div>
 
@@ -694,22 +716,16 @@
 
                 window.__SELECTED_ADDRESS__ = selected;
 
-                const setHidden = (name, value) => {
-                    let el = document.querySelector(`input[name="${name}"]`);
-                    if (!el) {
-                        el = document.createElement('input');
-                        el.type = 'hidden';
-                        el.name = name;
-                        document.querySelector('form')?.appendChild(el);
-                    }
-                    el.value = value ?? '';
-                };
+                function setValue(name, value) {
+                    const el = document.querySelector(`[name="${name}"]`);
+                    if (el) el.value = value ?? '';
+                }
 
-                setHidden('addressName', selected.name);
-                setHidden('roadAddress', selected.roadAddress);
-                setHidden('jibunAddress', selected.jibunAddress);
-                setHidden('lat', String(selected.lat || ''));
-                setHidden('lng', String(selected.lng || ''));
+                setValue('addressName', selected.name);
+                setValue('roadAddress', selected.roadAddress);
+                setValue('jibunAddress', selected.jibunAddress);
+                setValue('lat', String(selected.lat ?? ''));
+                setValue('lng', String(selected.lng ?? ''));
 
                 applySelectedAddressToUI(selected);
 
