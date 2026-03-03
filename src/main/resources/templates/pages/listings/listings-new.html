@@ -556,7 +556,71 @@
             window.__LISTING_STEP__ = step;
         }
 
-        function validateStep(step){
+        function validateStep(step) {
+            const $ = (sel) => document.querySelector(sel);
+
+            const getByName = (name) => document.querySelector(`[name="${name}"]`);
+            const val = (el) => (el?.value ?? '').trim();
+
+            const role = val($('#roleHidden'));
+            const type = val($('#typeHidden'));
+
+            const addressDetailEl = getByName('addressDetail'); // th:field="*{addressDetail}" -> name="addressDetail"
+            const addressDetail = val(addressDetailEl);
+
+            const ownerNameEl = getByName('ownerName');
+            const carrierEl = getByName('carrier');
+            const ownerPhoneEl = getByName('ownerPhone');
+            const tradeTypeEl = getByName('tradeType');
+
+            const ownerName = val(ownerNameEl);
+            const carrier = val(carrierEl);
+            const ownerPhoneRaw = val(ownerPhoneEl);
+            const tradeType = val(tradeTypeEl);
+
+            // 공통: 경고 + 포커스
+            const fail = (message, focusEl) => {
+                alert(message);
+                if (focusEl && typeof focusEl.focus === 'function') {
+                    focusEl.focus();
+                }
+                return false;
+            };
+
+            // Step 1
+            if (step === 1) {
+                if (!role) return fail('역할을 선택해 주세요.');
+                if (!type) return fail('매물 종류를 선택해 주세요.');
+                return true;
+            }
+
+            // Step 2
+            if (step === 2) {
+                // search 상태면 detail 입력으로 유도
+                if (window.__ADDRESS_SUB_STEP__ !== 'detail') {
+                    alert('주소를 먼저 선택해 주세요.');
+                    return false;
+                }
+                if (!addressDetail) return fail('상세주소를 입력해 주세요.', addressDetailEl);
+                return true;
+            }
+
+            // Step 3
+            if (step === 3) {
+                if (!ownerName) return fail('소유주 이름을 입력해 주세요.', ownerNameEl);
+                if (!carrier) return fail('통신사를 선택해 주세요.', $('.common-select[data-name="carrier"] .common-select__input') || carrierEl);
+
+                // 휴대폰: 숫자만 남기고 10~11자리 체크 (01012345678 or 0111234567 등)
+                const phoneDigits = ownerPhoneRaw.replace(/\D/g, '');
+                if (!phoneDigits) return fail('소유주 휴대폰 번호를 입력해 주세요.', ownerPhoneEl);
+                if (!(phoneDigits.length === 10 || phoneDigits.length === 11)) {
+                    return fail('휴대폰 번호를 정확히 입력해 주세요. (숫자 10~11자리)', ownerPhoneEl);
+                }
+
+                if (!tradeType) return fail('거래 유형을 선택해 주세요.', $('.common-select[data-name="tradeType"] .common-select__input') || tradeTypeEl);
+
+                return true;
+            }
 
             return true;
         }
