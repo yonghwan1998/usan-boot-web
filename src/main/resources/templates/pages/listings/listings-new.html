@@ -70,59 +70,83 @@
         <input type="hidden" th:field="*{lat}" />
         <input type="hidden" th:field="*{lng}" />
 
+        <input type="hidden" th:field="*{role}" id="roleHidden" />
+        <input type="hidden" th:field="*{type}" id="typeHidden" />
+
         <div class="listing-wrapper--listing pr_16 pl_16">
 
             <div class="role-toggle flex_center" role="radiogroup" aria-label="역할 선택">
-                <input type="radio" th:field="*{role}" id="role-owner" value="OWNER">
+                <input type="radio" name="role_ui_1" id="role-owner" value="OWNER">
                 <label for="role-owner" class="listing-pill role-pill">집주인</label>
-                <input type="radio" th:field="*{role}" id="role-tenant" value="TENANT">
+
+                <input type="radio" name="role_ui_1" id="role-tenant" value="TENANT">
                 <label for="role-tenant" class="listing-pill role-pill">세입자</label>
-                <input type="radio" th:field="*{role}" id="role-manager" value="MANAGER">
+
+                <input type="radio" name="role_ui_1" id="role-manager" value="MANAGER">
                 <label for="role-manager" class="listing-pill role-pill">관리인</label>
             </div>
 
             <div class="listing-text__type">등록하시려는 매물을 선택해 주세요.</div>
 
             <div class="type-toggle" role="radiogroup" aria-label="매물 종류 선택">
-                <input type="radio" th:field="*{type}" id="type-apt" value="APT">
+                <input type="radio" name="type_ui_1" id="type-apt" value="APT">
                 <label for="type-apt" class="listing-pill type-pill">아파트</label>
-                <input type="radio" th:field="*{type}" id="type-officetel" value="OFFICETEL">
+
+                <input type="radio" name="type_ui_1" id="type-officetel" value="OFFICETEL">
                 <label for="type-officetel" class="listing-pill type-pill">오피스텔</label>
-                <input type="radio" th:field="*{type}" id="type-villa" value="VILLA">
+
+                <input type="radio" name="type_ui_1" id="type-villa" value="VILLA">
                 <label for="type-villa" class="listing-pill type-pill">빌라/연립</label>
-                <input type="radio" th:field="*{type}" id="type-oneroom" value="ONEROOM">
+
+                <input type="radio" name="type_ui_1" id="type-oneroom" value="ONEROOM">
                 <label for="type-oneroom" class="listing-pill type-pill">원룸</label>
-                <input type="radio" th:field="*{type}" id="type-tworoom" value="TWOROOM">
+
+                <input type="radio" name="type_ui_1" id="type-tworoom" value="TWOROOM">
                 <label for="type-tworoom" class="listing-pill type-pill">투룸</label>
-                <input type="radio" th:field="*{type}" id="type-detached" value="DETACHED">
+
+                <input type="radio" name="type_ui_1" id="type-detached" value="DETACHED">
                 <label for="type-detached" class="listing-pill type-pill">단독/다가구</label>
-                <input type="radio" th:field="*{type}" id="type-rural" value="RURAL">
+
+                <input type="radio" name="type_ui_1" id="type-rural" value="RURAL">
                 <label for="type-rural" class="listing-pill type-pill">전원주택</label>
-                <input type="radio" th:field="*{type}" id="type-mixedhouse" value="MIXEDHOUSE">
+
+                <input type="radio" name="type_ui_1" id="type-mixedhouse" value="MIXEDHOUSE">
                 <label for="type-mixedhouse" class="listing-pill type-pill">상가주택</label>
-                <input type="radio" th:field="*{type}" id="type-hanok" value="HANOK">
+
+                <input type="radio" name="type_ui_1" id="type-hanok" value="HANOK">
                 <label for="type-hanok" class="listing-pill type-pill">한옥주택</label>
-                <input type="radio" th:field="*{type}" id="type-store" value="STORE">
+
+                <input type="radio" name="type_ui_1" id="type-store" value="STORE">
                 <label for="type-store" class="listing-pill type-pill">상가</label>
-                <input type="radio" th:field="*{type}" id="type-office" value="OFFICE">
+
+                <input type="radio" name="type_ui_1" id="type-office" value="OFFICE">
                 <label for="type-office" class="listing-pill type-pill">사무실</label>
-                <input type="radio" th:field="*{type}" id="type-building" value="BUILDING">
+
+                <input type="radio" name="type_ui_1" id="type-building" value="BUILDING">
                 <label for="type-building" class="listing-pill type-pill">건물</label>
-                <input type="radio" th:field="*{type}" id="type-factory" value="FACTORY">
+
+                <input type="radio" name="type_ui_1" id="type-factory" value="FACTORY">
                 <label for="type-factory" class="listing-pill type-pill">공장/창고</label>
-                <input type="radio" th:field="*{type}" id="type-knowledge" value="KNOWLEDGE">
+
+                <input type="radio" name="type_ui_1" id="type-knowledge" value="KNOWLEDGE">
                 <label for="type-knowledge" class="listing-pill type-pill">지식산업센터</label>
-                <input type="radio" th:field="*{type}" id="type-land" value="LAND">
+
+                <input type="radio" name="type_ui_1" id="type-land" value="LAND">
                 <label for="type-land" class="listing-pill type-pill">토지</label>
-                <input type="radio" th:field="*{type}" id="type-apt_sale" value="APT_SALE">
+
+                <input type="radio" name="type_ui_1" id="type-apt_sale" value="APT_SALE">
                 <label for="type-apt_sale" class="listing-pill type-pill">아파트분양권</label>
-                <input type="radio" th:field="*{type}" id="type-officetel_sale" value="OFFICETEL_SALE">
+
+                <input type="radio" name="type_ui_1" id="type-officetel_sale" value="OFFICETEL_SALE">
                 <label for="type-officetel_sale" class="listing-pill type-pill">오피스텔분양권</label>
-                <input type="radio" th:field="*{type}" id="type-redevelopment" value="REDEVELOPMENT">
+
+                <input type="radio" name="type_ui_1" id="type-redevelopment" value="REDEVELOPMENT">
                 <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
-                <input type="radio" th:field="*{type}" id="type-reconstruction" value="RECONSTRUCTION">
+
+                <input type="radio" name="type_ui_1" id="type-reconstruction" value="RECONSTRUCTION">
                 <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
-                <input type="radio" th:field="*{type}" id="type-presale" value="PRESALE" th:onclick="openListingCompleteModal()">
+
+                <input type="radio" name="type_ui_1" id="type-presale" value="PRESALE">
                 <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
             </div>
 
@@ -368,59 +392,81 @@
                 <div class="listing-edit__section-wrapper">
                     <div class="listing-edit__section">
                         <div class="listing-edit__section-title">소유 관계</div>
+
                         <div class="role-toggle" role="radiogroup" aria-label="역할 선택">
-                            <input type="radio" th:field="*{role}" value="OWNER">
-                            <label for="role-owner" class="listing-pill role-pill">집주인</label>
-                            <input type="radio" th:field="*{role}" value="TENANT">
-                            <label for="role-tenant" class="listing-pill role-pill">세입자</label>
-                            <input type="radio" th:field="*{role}" value="MANAGER">
-                            <label for="role-manager" class="listing-pill role-pill">관리인</label>
+                            <input type="radio" name="role_ui_3" id="role-owner-3" value="OWNER">
+                            <label for="role-owner-3" class="listing-pill role-pill">집주인</label>
+
+                            <input type="radio" name="role_ui_3" id="role-tenant-3" value="TENANT">
+                            <label for="role-tenant-3" class="listing-pill role-pill">세입자</label>
+
+                            <input type="radio" name="role_ui_3" id="role-manager-3" value="MANAGER">
+                            <label for="role-manager-3" class="listing-pill role-pill">관리인</label>
                         </div>
                     </div>
                     <div class="listing-edit__section">
                         <div class="listing-edit__section-title">매물종류</div>
 
                         <div class="type-toggle" role="radiogroup" aria-label="매물 종류 선택">
-                            <input type="radio" th:field="*{type}" value="APT">
-                            <label for="type-apt" class="listing-pill type-pill">아파트</label>
-                            <input type="radio" th:field="*{type}" value="OFFICETEL">
-                            <label for="type-officetel" class="listing-pill type-pill">오피스텔</label>
-                            <input type="radio" th:field="*{type}" value="VILLA">
-                            <label for="type-villa" class="listing-pill type-pill">빌라/연립</label>
-                            <input type="radio" th:field="*{type}" value="ONEROOM">
-                            <label for="type-oneroom" class="listing-pill type-pill">원룸</label>
-                            <input type="radio" th:field="*{type}" value="TWOROOM">
-                            <label for="type-tworoom" class="listing-pill type-pill">투룸</label>
-                            <input type="radio" th:field="*{type}" value="DETACHED">
-                            <label for="type-detached" class="listing-pill type-pill">단독/다가구</label>
-                            <input type="radio" th:field="*{type}" value="RURAL">
-                            <label for="type-rural" class="listing-pill type-pill">전원주택</label>
-                            <input type="radio" th:field="*{type}" value="MIXEDHOUSE">
-                            <label for="type-mixedhouse" class="listing-pill type-pill">상가주택</label>
-                            <input type="radio" th:field="*{type}" value="HANOK">
-                            <label for="type-hanok" class="listing-pill type-pill">한옥주택</label>
-                            <input type="radio" th:field="*{type}" value="STORE">
-                            <label for="type-store" class="listing-pill type-pill">상가</label>
-                            <input type="radio" th:field="*{type}" value="OFFICE">
-                            <label for="type-office" class="listing-pill type-pill">사무실</label>
-                            <input type="radio" th:field="*{type}" value="BUILDING">
-                            <label for="type-building" class="listing-pill type-pill">건물</label>
-                            <input type="radio" th:field="*{type}" value="FACTORY">
-                            <label for="type-factory" class="listing-pill type-pill">공장/창고</label>
-                            <input type="radio" th:field="*{type}" value="KNOWLEDGE">
-                            <label for="type-knowledge" class="listing-pill type-pill">지식산업센터</label>
-                            <input type="radio" th:field="*{type}" value="LAND">
-                            <label for="type-land" class="listing-pill type-pill">토지</label>
-                            <input type="radio" th:field="*{type}" value="APT_SALE">
-                            <label for="type-apt_sale" class="listing-pill type-pill">아파트분양권</label>
-                            <input type="radio" th:field="*{type}" value="OFFICETEL_SALE">
-                            <label for="type-officetel_sale" class="listing-pill type-pill">오피스텔분양권</label>
-                            <input type="radio" th:field="*{type}" value="REDEVELOPMENT">
-                            <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
-                            <input type="radio" th:field="*{type}" value="RECONSTRUCTION">
-                            <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
-                            <input type="radio" th:field="*{type}" value="PRESALE">
-                            <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
+                            <input type="radio" name="type_ui_3" id="type-apt-3" value="APT">
+                            <label for="type-apt-3" class="listing-pill type-pill">아파트</label>
+
+                            <input type="radio" name="type_ui_3" id="type-officetel-3" value="OFFICETEL">
+                            <label for="type-officetel-3" class="listing-pill type-pill">오피스텔</label>
+
+                            <input type="radio" name="type_ui_3" id="type-villa-3" value="VILLA">
+                            <label for="type-villa-3" class="listing-pill type-pill">빌라/연립</label>
+
+                            <input type="radio" name="type_ui_3" id="type-oneroom-3" value="ONEROOM">
+                            <label for="type-oneroom-3" class="listing-pill type-pill">원룸</label>
+
+                            <input type="radio" name="type_ui_3" id="type-tworoom-3" value="TWOROOM">
+                            <label for="type-tworoom-3" class="listing-pill type-pill">투룸</label>
+
+                            <input type="radio" name="type_ui_3" id="type-detached-3" value="DETACHED">
+                            <label for="type-detached-3" class="listing-pill type-pill">단독/다가구</label>
+
+                            <input type="radio" name="type_ui_3" id="type-rural-3" value="RURAL">
+                            <label for="type-rural-3" class="listing-pill type-pill">전원주택</label>
+
+                            <input type="radio" name="type_ui_3" id="type-mixedhouse-3" value="MIXEDHOUSE">
+                            <label for="type-mixedhouse-3" class="listing-pill type-pill">상가주택</label>
+
+                            <input type="radio" name="type_ui_3" id="type-hanok-3" value="HANOK">
+                            <label for="type-hanok-3" class="listing-pill type-pill">한옥주택</label>
+
+                            <input type="radio" name="type_ui_3" id="type-store-3" value="STORE">
+                            <label for="type-store-3" class="listing-pill type-pill">상가</label>
+
+                            <input type="radio" name="type_ui_3" id="type-office-3" value="OFFICE">
+                            <label for="type-office-3" class="listing-pill type-pill">사무실</label>
+
+                            <input type="radio" name="type_ui_3" id="type-building-3" value="BUILDING">
+                            <label for="type-building-3" class="listing-pill type-pill">건물</label>
+
+                            <input type="radio" name="type_ui_3" id="type-factory-3" value="FACTORY">
+                            <label for="type-factory-3" class="listing-pill type-pill">공장/창고</label>
+
+                            <input type="radio" name="type_ui_3" id="type-knowledge-3" value="KNOWLEDGE">
+                            <label for="type-knowledge-3" class="listing-pill type-pill">지식산업센터</label>
+
+                            <input type="radio" name="type_ui_3" id="type-land-3" value="LAND">
+                            <label for="type-land-3" class="listing-pill type-pill">토지</label>
+
+                            <input type="radio" name="type_ui_3" id="type-apt_sale-3" value="APT_SALE">
+                            <label for="type-apt_sale-3" class="listing-pill type-pill">아파트분양권</label>
+
+                            <input type="radio" name="type_ui_3" id="type-officetel_sale-3" value="OFFICETEL_SALE">
+                            <label for="type-officetel_sale-3" class="listing-pill type-pill">오피스텔분양권</label>
+
+                            <input type="radio" name="type_ui_3" id="type-redevelopment-3" value="REDEVELOPMENT">
+                            <label for="type-redevelopment-3" class="listing-pill type-pill">재개발</label>
+
+                            <input type="radio" name="type_ui_3" id="type-reconstruction-3" value="RECONSTRUCTION">
+                            <label for="type-reconstruction-3" class="listing-pill type-pill">재건축</label>
+
+                            <input type="radio" name="type_ui_3" id="type-presale-3" value="PRESALE">
+                            <label for="type-presale-3" class="listing-pill type-pill">분양중/예정</label>
                         </div>
                     </div>
                 </div>
@@ -754,5 +800,97 @@
                 ]
             });
         }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Step1/Step3 라디오 동기화 (hidden = 실제 submit 값)
+            bindDualRadioToHidden('roleHidden', ['role_ui_1', 'role_ui_3']);
+            bindDualRadioToHidden('typeHidden', ['type_ui_1', 'type_ui_3']);
+
+            function bindDualRadioToHidden(hiddenId, uiNames) {
+                const hidden = document.getElementById(hiddenId);
+                if (!hidden) return;
+
+                const groups = uiNames
+                    .map(name => Array.from(document.querySelectorAll(`input[type="radio"][name="${name}"]`)))
+                    .filter(radios => radios.length > 0);
+
+                if (groups.length === 0) return;
+
+                let syncing = false;
+                const defer = (fn) =>
+                    (typeof queueMicrotask === 'function') ? queueMicrotask(fn) : setTimeout(fn, 0);
+
+                const setAll = (value) => {
+                    syncing = true;
+                    groups.forEach(radios => radios.forEach(r => (r.checked = (r.value === value))));
+                    defer(() => (syncing = false));
+                };
+
+                const getAnyChecked = () => {
+                    for (const radios of groups) {
+                        const c = radios.find(r => r.checked);
+                        if (c) return c.value;
+                    }
+                    return '';
+                };
+
+                const init = (hidden.value || '').trim();
+                if (init) setAll(init);
+                else {
+                    const v = getAnyChecked();
+                    if (v) hidden.value = v;
+                }
+
+                groups.forEach(radios => {
+                    radios.forEach(r => {
+                        r.addEventListener('change', () => {
+                            if (syncing || !r.checked) return;
+                            hidden.value = r.value;
+                            setAll(r.value);
+                        });
+                    });
+                });
+            }
+
+            // Step3 클릭 시 화면 하얘짐 방지 (전역 click 핸들러로 이벤트가 못 올라가게 캡처링에서 차단)
+            const isStep3RoleTypeArea = (el) =>
+                !!el.closest('.listing-wrapper--info .role-toggle, .listing-wrapper--info .type-toggle');
+
+            const findRadio = (target) => {
+                const label = target.closest('label');
+                if (label) {
+                    const id = label.getAttribute('for');
+                    if (id) {
+                        const radio = document.getElementById(id);
+                        if (radio && radio.type === 'radio') return radio;
+                    }
+                }
+                return target.closest('input[type="radio"]');
+            };
+
+            document.addEventListener('click', (e) => {
+                if (!isStep3RoleTypeArea(e.target)) return;
+
+                const radio = findRadio(e.target);
+                if (!radio) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
+                if (!radio.checked) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }, true);
+
+            document.addEventListener('change', (e) => {
+                if (!isStep3RoleTypeArea(e.target)) return;
+                e.stopPropagation();
+                if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            }, true);
+        });
     </script>
 </section>
