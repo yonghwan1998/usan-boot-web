@@ -6,8 +6,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import world.usan.usan.dto.ListingRequest;
+import world.usan.usan.repository.ListingPhotoRepository;
+import world.usan.usan.security.SecurityUtils;
 import world.usan.usan.service.AddressSearchService;
+import world.usan.usan.service.ListingPhotoService;
+import world.usan.usan.service.ListingService;
+import world.usan.usan.service.storage.FileStorageService;
+import world.usan.usan.service.storage.StoredFile;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +25,10 @@ import java.util.Map;
 public class ListingsController {
 
     private final AddressSearchService addressSearchService;
+    private final FileStorageService fileStorageService;
+    private final ListingService listingService;
+    private final ListingPhotoService listingPhotoService;
+    private final SecurityUtils securityUtils;
 
     /**
      * @date    2026-01-06
@@ -43,14 +54,9 @@ public class ListingsController {
      */
     @GetMapping("/new")
     public String newPage(Model model) {
-        model.addAttribute("listingRequest",
-                new ListingRequest(
-                        null, null,
-                        "", null, null,
-                        null, null,
-                        null
-                )
-        );
+        model.addAttribute("listingRequest", ListingRequest.empty());
+        model.addAttribute("listingStep", 1);
+
         return "pages/listings/listings-new";
     }
 
@@ -67,13 +73,23 @@ public class ListingsController {
     @PostMapping("")
     public String create(@Valid @ModelAttribute("listingRequest") ListingRequest listingRequest,
                          BindingResult bindingResult,
-                         Model model) {
+                         Model model,
+                         @RequestParam(value = "photoFiles", required = false)List<MultipartFile> photoFiles) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("listingStep", 1);
             return "pages/listings/listings-new";
         }
-        // TODO(yongss): 검증 완료 된 데이터 DB에 저장
+
+        Long userId = securityUtils.currentUserIdOrThrow();
+
+        var listing = listingService.createDraft(listingRequest, userId);
+        String publicId = listing.getPublicId();
+
+        List<StoredFile> storedFiles = fileStorageService.storeListingPhotos(publicId, photoFiles);
+
+        listingPhotoService.saveAll(listing.getId(), storedFiles);
+
         // TODO(yongss): 검증 완료 시 front에 status를 보내 매물 전송 or 매물 관리로 이동할 수 있게
 
         return "redirect:/listings";
