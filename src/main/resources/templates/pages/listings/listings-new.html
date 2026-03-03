@@ -691,29 +691,35 @@
         });
 
         function applySelectedAddressToUI(selected) {
-            // 타이틀(건물명/도로명/지번/입력값 우선순위) -> 이미 selected.name 에 들어있다고 가정
+            const detailEl = document.querySelector('[name="addressDetail"]');
+            const detail = (detailEl?.value ?? '').trim();
+
+            const baseTitle = (selected?.name || '').trim();
+            const displayTitle = detail ? `${baseTitle} ${detail}` : baseTitle;
+
+            // 화면 표시(Step2/Step3 공통)
             document.querySelectorAll('.selected-address__title').forEach(el => {
-                el.textContent = selected.name || '';
+                el.textContent = displayTitle;
             });
-
-            // Step2 상단의 summary(지금 title이랑 같은 텍스트로 가도 됨)
             document.querySelectorAll('.listing-detail__address-summary').forEach(el => {
-                el.textContent = selected.name || '';
+                el.textContent = displayTitle;
             });
 
-            // 주소 라인: 도로명 있으면 도로명, 없으면 지번, 없으면 name
+            // 주소 라인
             const addressLine = selected.roadAddress || selected.jibunAddress || selected.name || '';
-
             document.querySelectorAll('.selected-address__address').forEach(el => {
                 el.textContent = addressLine;
             });
 
-            // '지번' 배지: 도로명 있으면 숨김, 지번만 있으면 표시
+            // 지번 배지
             const showJibunBadge = !selected.roadAddress && !!selected.jibunAddress;
-
             document.querySelectorAll('.selected-address__jibun').forEach(el => {
                 el.style.display = showJibunBadge ? '' : 'none';
             });
+
+            // hidden addressName에 "주소+상세주소" 저장
+            const addressNameHidden = document.querySelector('[name="addressName"]');
+            if (addressNameHidden) addressNameHidden.value = displayTitle;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -864,6 +870,21 @@
                 ]
             });
         }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const detailEl = document.querySelector('[name="addressDetail"]');
+            if (!detailEl) return;
+
+            const update = () => {
+                if (!window.__SELECTED_ADDRESS__) return;
+                applySelectedAddressToUI(window.__SELECTED_ADDRESS__);
+            };
+
+            detailEl.addEventListener('input', update);
+            detailEl.addEventListener('change', update);
+        });
     </script>
 
     <script>
