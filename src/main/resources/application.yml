@@ -12,6 +12,10 @@ spring:
       initialize-schema: always
     job:
       enabled: false
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 60MB
   security:
     oauth2:
       client:
@@ -68,3 +72,6 @@ naver:
     client-secret: ${NAVER_MAP_CLIENT_SECRET}
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
+file:
+  upload-dir: uploads
+  public-prefix: /uploads

@@ -54,10 +54,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String nameKey = userRequest.getClientRegistration()
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
-        return new org.springframework.security.oauth2.core.user.DefaultOAuth2User(
-                oAuth2User.getAuthorities(),
-                newAttrs,
-                nameKey
+        return new world.usan.usan.security.CustomOAuth2User(
+                snap.userId(),
+                snap.email(),
+                snap.nickname(),
+                newAttrs
         );
     }
 }
