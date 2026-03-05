@@ -69,10 +69,34 @@
     cursor: pointer;
 }
 
+
 .map-search__btn--search {
     mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
     -webkit-mask: url("../img/24x24-magnifier.svg") center/contain no-repeat;
     background-color: #000000;
+}
+
+.map-temp__btn {
+    width: 24px;
+    height: 31px;
+    background: transparent;
+    cursor: pointer;
+/*// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)*/
+}
+.map-temp__btn--temp {
+    background: url("../img/24x31-logo.svg") center / contain no-repeat;
+/*// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)*/
+}
+.map-temp__input {
+    flex: 1;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 18px;
+    color: #000000;
+    /*// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)*/
+
 }
 
 .map-icon-btn {
