@@ -31,8 +31,10 @@
 
             <div class="map-ui__top">
                 <div class="map-search">
-                    <button class="map-search__btn map-search__btn--search" type="button" aria-label="검색"></button>
-                    <input class="map-search__input" type="text" placeholder="주소 검색" />
+                    <button class="map-temp__btn map-temp__btn--temp" type="button" aria-label="검색" th:onclick="|location.href='@{/index2}'|"></button>
+<!--                    <button class="map-search__btn map-search__btn&#45;&#45;search" type="button" aria-label="검색"></button>// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)-->
+<!--                    <input class="map-search__input" type="text" placeholder="주소 검색" />// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)-->
+                    <div class="map-temp__input">우리 동네 부동산, 우산 ☂️</div>
                 </div>
 
                 <button class="map-icon-btn" type="button" aria-label="알림">
@@ -43,7 +45,7 @@
             <div class="map-ui__chips">
                 <button class="map-chip" id="btn-my-location" type="button">
                     <span class="map-icon--gps"></span>
-                    <span class="map-chip__my-location">위치이동</span>
+                    <span class="map-chip__my-location">내 위치</span>
                 </button>
                 <button class="map-chip" type="button" data-lat="33.497234" data-lng="126.513691">신사</button>
                 <button class="map-chip" type="button">이태원</button>
@@ -438,6 +440,7 @@
                 const brokerCode = b.brokerCode ?? '';
                 const officeName = b.officeName ?? '';
                 const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
+                const tel = b.phone ?? b.tel ?? '';
                 const top5 = (b.top5 ?? []);
 
                 const tags = top5.map(item => `
@@ -474,7 +477,7 @@
                                 <span class="cluster-btn__text">매물 보내기</span>
                             </button>
 
-                            <button type="button" class="cluster-btn cluster-btn--call">
+                            <button type="button" class="cluster-btn cluster-btn--call" data-tel="${tel}">
                                 <span class="cluster-btn__icon cluster-btn__icon--call"></span>
                                 <span class="cluster-btn__text">전화하기</span>
                             </button>
@@ -498,6 +501,50 @@
             `;
 
             openBrokerSheet(html);
+        }
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cluster-btn--call');
+            if (!btn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const raw = btn.getAttribute('data-tel') || '';
+            const tel = normalizePhone(raw);
+
+            if (!tel) {
+                alert('전화번호가 없습니다.');
+                return;
+            }
+
+            // 모바일: 전화 앱 열기 / PC: 기본 앱이 없으면 반응 없을 수 있음
+            window.location.href = `tel:${tel}`;
+        });
+
+        function normalizePhone(value) {
+            if (!value) return '';
+
+            // "02-123-4567", "010 1234 5678", "+82 10-1234-5678" 대응
+            let v = String(value).trim();
+
+            // 내선 제거 (예: "02-123-4567 내선123")
+            v = v.replace(/(내선|ext\.?)\s*\d+/gi, '').trim();
+
+            // 숫자/플러스만 남기기
+            v = v.replace(/[^\d+]/g, '');
+
+            // +82 케이스를 0으로 변환(간단 처리)
+            // +8210xxxxxxxx -> 010xxxxxxxx
+            if (v.startsWith('+82')) {
+                v = '0' + v.slice(3);
+            }
+
+            // 너무 짧으면 무효
+            const digits = v.replace(/[^\d]/g, '');
+            if (digits.length < 9) return '';
+
+            return v;
         }
 
         function clearChipOn() {
