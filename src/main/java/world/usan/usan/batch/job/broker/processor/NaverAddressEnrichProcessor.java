@@ -62,7 +62,18 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
 
         NaverGeocodeDto.Address a = resp.getAddresses().get(0);
         Map<String, String> m = extract(a.getAddressElements());
-        BigDecimal[] latLng = parseLatLng(row.getListingCoordinates());
+
+        BigDecimal[] latLng;
+        try {
+            latLng = parseLatLng(row.getListingCoordinates());
+        } catch (Exception e) {
+            log.warn("[coordinate error] coordinates={}", row.getListingCoordinates());
+
+            errorMessage = "[coordinate error] coordinates=" + row.getListingCoordinates();
+            collectingErrorWithMessage(row, errorMessage);
+
+            return null;
+        }
 
         log.info("[process] file={} rowIndex={}",
                 row.getSourceFileName(),
