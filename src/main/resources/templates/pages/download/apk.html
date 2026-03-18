@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우산 APK 다운로드</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+            background: #f7f8fa;
+            color: #222;
+            line-height: 1.6;
+        }
+
+        .download-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 20px 80px;
+        }
+
+        .download-header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .download-header h1 {
+            margin: 0 0 12px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #111;
+        }
+
+        .download-header p {
+            margin: 0;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .notice-box {
+            margin-bottom: 32px;
+            padding: 18px 20px;
+            border: 1px solid #ffe2a8;
+            border-radius: 14px;
+            background: #fff8e8;
+        }
+
+        .notice-box strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #9a6500;
+        }
+
+        .notice-box p {
+            margin: 0;
+            font-size: 15px;
+            color: #6b5300;
+        }
+
+        .version-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .version-card {
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+        }
+
+        .version-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .version-title-wrap h2 {
+            margin: 0 0 6px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .version-date {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .version-badge {
+            flex-shrink: 0;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #eef4ff;
+            color: #2354d8;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .version-desc {
+            margin: 0 0 18px;
+            font-size: 15px;
+            color: #4b5563;
+        }
+
+        .download-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .download-btn.apk {
+            background: #1f6fff;
+            color: #fff;
+        }
+
+        .download-btn.zip {
+            background: #f3f4f6;
+            color: #111827;
+            border: 1px solid #d1d5db;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.95;
+        }
+
+        .guide-box {
+            margin-top: 40px;
+            padding: 24px;
+            border-radius: 18px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+        }
+
+        .guide-box h3 {
+            margin: 0 0 14px;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .guide-box ol {
+            margin: 0;
+            padding-left: 20px;
+            color: #374151;
+        }
+
+        .guide-box li + li {
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .download-page {
+                padding: 32px 16px 60px;
+            }
+
+            .download-header h1 {
+                font-size: 26px;
+            }
+
+            .version-top {
+                flex-direction: column;
+            }
+
+            .download-links {
+                flex-direction: column;
+            }
+
+            .download-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="download-page">
+    <div class="download-header">
+        <h1>우산 APK 다운로드</h1>
+        <p>안드로이드 설치형 앱 파일을 버전별로 다운로드할 수 있습니다.</p>
+    </div>
+
+    <div class="notice-box">
+        <strong>설치가 바로 되지 않나요?</strong>
+        <p>
+            일부 기기에서는 <b>.apk</b> 파일이 바로 설치되지 않을 수 있습니다.<br>
+            그런 경우 아래의 <b>.zip</b> 파일을 다운로드한 뒤 압축을 해제해서 설치를 진행해주세요.
+        </p>
+    </div>
+
+    <div class="version-list">
+        <!-- 버전 1 -->
+        <div class="version-card">
+            <div class="version-top">
+                <div class="version-title-wrap">
+                    <h2>우산 v1</h2>
+                    <div class="version-date">배포일: 2026-03-18</div>
+                </div>
+                <div class="version-badge">최신 버전</div>
+            </div>
+
+            <p class="version-desc">
+                우산 안드로이드 앱 첫 배포 버전입니다.
+            </p>
+
+            <div class="download-links">
+                <a class="download-btn apk"
+                   th:href="@{/download/apk/usan-v1.apk}"
+                   href="/download/apk/usan-v1.apk"
+                   download>
+                    APK 다운로드
+                </a>
+
+                <a class="download-btn zip"
+                   th:href="@{/download/apk/usan-v1.apk.zip}"
+                   href="/download/apk/usan-v1.apk.zip"
+                   download>
+                    ZIP 다운로드
+                </a>
+            </div>
+        </div>
+
+        <!--
+        버전 추가 예시
+
+        <div class="version-card">
+            <div class="version-top">
+                <div class="version-title-wrap">
+                    <h2>우산 v2</h2>
+                    <div class="version-date">배포일: 2026-03-25</div>
+                </div>
+                <div class="version-badge">최신 버전</div>
+            </div>
+
+            <p class="version-desc">
+                로그인 안정성 및 웹뷰 기능 개선 버전입니다.
+            </p>
+
+            <div class="download-links">
+                <a class="download-btn apk"
+                   th:href="@{/download/apk/usan-v2.apk}"
+                   href="/apk/usan-v2.apk"
+                   download>
+                    APK 다운로드
+                </a>
+
+                <a class="download-btn zip"
+                   th:href="@{/download/apk/usan-v2.apk.zip}"
+                   href="/apk/usan-v2.apk.zip"
+                   download>
+                    ZIP 다운로드
+                </a>
+            </div>
+        </div>
+        -->
+    </div>
+
+    <div class="guide-box">
+        <h3>설치 방법 안내</h3>
+        <ol>
+            <li>원하는 버전의 APK 또는 ZIP 파일을 다운로드합니다.</li>
+            <li>APK가 바로 설치되지 않으면 ZIP 파일을 다운로드한 뒤 압축을 해제합니다.</li>
+            <li>안드로이드 기기에서 파일을 열고 설치를 진행합니다.</li>
+            <li>설치 중 차단되면 기기 설정에서 출처를 알 수 없는 앱 설치 허용 여부를 확인해주세요.</li>
+        </ol>
+    </div>
+</div>
+</body>
+</html>
