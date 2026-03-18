@@ -18,4 +18,9 @@ public class MainController {
         // TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
         return "index";
     }
+
+    @RequestMapping("/download/apk")
+    public String downloadApk() {
+        return "pages/download/apk";
+    }
 }
