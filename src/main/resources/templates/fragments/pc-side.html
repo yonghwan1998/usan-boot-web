@@ -1,0 +1,47 @@
+<div th:fragment="pcSideContent" class="pc-side-ad">
+
+    <div class="pc-side-ad__inner">
+        <div class="pc-side-ad__brand">
+            <div class="pc-side-ad__logo-box">
+                <img src="/img/temp-logo.png"
+                     alt="우산 로고"
+                     class="pc-side-ad__logo">
+            </div>
+            <div class="pc-side-ad__brand-text">
+                <div class="pc-side-ad__brand-sub">우리 동네 부동산 플랫폼</div>
+                <div class="pc-side-ad__brand-name">우산</div>
+            </div>
+        </div>
+
+        <div class="pc-side-ad__headline-strong">
+            지도 기반 중개사 추천 · 매물 등록 · 전송까지
+        </div>
+
+        <div class="pc-side-ad__tags">
+            <span>#내주변중개사</span>
+            <span>#매물등록</span>
+            <span>#중개사추천</span>
+            <span>#매물전송</span>
+            <span>#지도기반</span>
+            <span>#우리동네부동산</span>
+        </div>
+
+        <div class="pc-side-ad__cta">
+            <a th:href="@{/download/about/about-usan.pdf}" download class="pc-side-ad__btn pc-side-ad__btn--primary">
+                회사소개서 보기
+            </a>
+            <a th:href="@{/map}" class="pc-side-ad__btn pc-side-ad__btn--ghost">
+                서비스 둘러보기
+            </a>
+        </div>
+
+        <div class="pc-side-ad__info">
+            <div><span>상호</span><strong>우산 컴퍼니</strong></div>
+            <div><span>대표</span><strong>방용환</strong></div>
+            <div><span>사업자등록번호</span><strong>174-48-00884</strong></div>
+            <div><span>문의</span><strong>contact@usanmap.com</strong></div>
+            <div><span>주소</span><strong>경기도 오산시 삼미로 34</strong></div>
+        </div>
+    </div>
+
+</div>
