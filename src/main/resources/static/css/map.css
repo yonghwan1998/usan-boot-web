@@ -876,19 +876,10 @@
 .send-tag {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #262626;
-    background: #fff;
+    gap: 2px;
+    padding: 4px;
+    border-radius: 4px;
 }
-.send-tag b { font-weight: 800; }
-.send-tag--home  { background: #fff4e6; }
-.send-tag--store { background: #ffe8f1; }
-.send-tag--apt   { background: #e9f7ee; }
-.send-tag--office{ background: #fff1e6; }
-.send-tag--etc   { background: #eef6ff; }
 .send-broker__addr {
     font-size: 14px;
     color: #4b5563;

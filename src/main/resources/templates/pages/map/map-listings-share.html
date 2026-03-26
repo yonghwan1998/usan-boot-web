@@ -230,7 +230,7 @@
             content.innerHTML = `
                 ${brokers.map(b => {
                     const tags      = (b.top5 ?? []).map(t =>
-                        `<span class="send-tag ${t.cssClass ?? ''}">${t.label}<b>${t.count}</b></span>`
+                        `<span class="send-tag ${t.cssClass ?? ''}"><span class="tag-label">${t.label}</span><span class="tag-count">${t.count}</span></span>`
                     ).join('');
                     const isChecked = selectedBrokers.has(String(b.brokerCode));
                     return `
