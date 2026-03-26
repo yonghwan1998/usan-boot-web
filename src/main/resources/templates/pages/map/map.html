@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="map-send-wrapper">
-                    <button class="map-send" type="button" aria-label="매물 보내기">
+                    <button th:onclick="|location.href='@{/map/listings/share}'|" class="map-send" type="button" aria-label="매물 보내기">
                         <span class="map-icon--send"></span>
                         <span class="map-send__text">매물 보내기</span>
                     </button>
@@ -474,7 +474,7 @@
                         <div class="cluster-broker-item__buttons">
                             <button type="button" class="cluster-btn cluster-btn--send">
                                 <span class="cluster-btn__icon cluster-btn__icon--send"></span>
-                                <span class="cluster-btn__text">매물 보내기</span>
+                                <a href="/map/listings/share" class="cluster-btn__text">매물 보내기</a>
                             </button>
 
                             <button type="button" class="cluster-btn cluster-btn--call" data-tel="${tel}">

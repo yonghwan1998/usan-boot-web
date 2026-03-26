@@ -102,7 +102,8 @@ public class GlobalControllerAdvice {
     @ModelAttribute("showResponsiveWeb")
     public boolean showResponsiveWeb(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return uri.equals("/map");
+        return uri.equals("/map")
+                || uri.equals("/map/listings/share");
     }
 
     /**
