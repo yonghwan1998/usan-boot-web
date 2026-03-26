@@ -44,3 +44,9 @@ src/main/resources/application-dev.yml
 ### upload files ###
 /uploads/
 /uploads/**
+
+# Claude Code
+.claude/
+.claude/*
+.claude.json
+.claude-config.json
