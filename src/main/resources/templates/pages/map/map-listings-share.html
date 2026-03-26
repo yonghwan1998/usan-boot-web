@@ -1,4 +1,3 @@
-<!-- ✅ pages/map/map-listings-share.html (그대로 갈아끼우기) -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layouts/layout :: layout(
@@ -9,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">우리 동네 부동산 지도</title>
+    <title th:fragment="title">매물 보내기</title>
 </head>
 
 <th:block th:fragment="pcSideContent"></th:block>
@@ -19,175 +18,388 @@
 </th:block>
 
 <section>
-    <!-- 네이버 지도 API -->
     <script type="text/javascript"
             th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId} + '&submodules=gl'"></script>
     <script type="text/javascript" src="/js/MarkerClustering.js"></script>
 
     <div class="main-content">
 
-        <div class="common-header listing-header">
-            <button class="common-header__back" th:onclick="history.back()"></button>
-            <div class="common-header__title">매물 보내기</div>
-            <div class="common-header__right"></div>
-        </div>
-
         <div id="map" class="map"></div>
 
-        <!-- ✅ SEND SHEET: 접힘 상태에서 지도 클릭 가능(pointer-events) + 중앙 정렬 -->
+        <div class="map-ui">
+            <div class="common-header map-header">
+                <button class="common-header__back" onclick="history.back()"></button>
+                <div class="common-header__title">매물 보내기</div>
+                <div class="common-header__right"></div>
+            </div>
+
+            <!-- 항상 보이는 시트 열기 버튼 -->
+            <div class="map-ui__send-fab">
+                <button type="button" class="map-send-fab" id="open-sheet-btn">
+                    <span class="map-send-fab__icon" aria-hidden="true"></span>
+                    매물 보내기
+                </button>
+            </div>
+        </div>
+
+        <!-- 토스트 -->
+        <div id="send-toast" class="send-toast" aria-live="polite"></div>
+
+        <!-- 바텀시트 -->
         <div id="broker-sheet" class="send-sheet">
-            <!-- ✅ 접히는 영역(드래그로 열고/닫는 본체) -->
+
+            <!-- 접히는 영역: 핸들 + 매물선택 + 중개사 목록 -->
             <div class="send-sheet__collapse">
                 <div class="send-sheet__handle-area">
                     <div class="send-sheet__handle"></div>
                 </div>
 
-                <div class="send-sheet__body">
-                    <button type="button" class="send-sheet__listing-select">
-            <span class="send-sheet__listing-left">
-              <span class="send-sheet__listing-label">매물 1</span>
-              <span class="send-sheet__listing-sep">|</span>
-              <span class="send-sheet__listing-title">우산갤러리아아파트</span>
-            </span>
-                        <span class="send-sheet__chev" aria-hidden="true"></span>
-                    </button>
+                <!-- 매물 선택 (항상 보임, collapse 상단 고정) -->
+                <div class="send-sheet__listing-area">
+                    <div class="common-select" id="listing-select">
+                        <div class="common-input-wrapper">
+                            <button type="button"
+                                    class="common-input common-select__input"
+                                    id="listing-select-btn"
+                                    aria-haspopup="listbox">
+                                <span class="send-sheet__listing-left">
+                                    <span class="send-sheet__listing-label" id="listing-label-text">매물 선택</span>
+                                    <span class="send-sheet__listing-sep" id="listing-sep" style="display:none">|</span>
+                                    <span class="send-sheet__listing-title" id="listing-title-text"></span>
+                                </span>
+                            </button>
+                            <span class="common-input-btn common-input__expand-btn" aria-hidden="true"></span>
+                            <ul class="common-select__options" id="listing-options" role="listbox"></ul>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="send-sheet__body">
+                    <!-- 전체선택 + 필터 -->
                     <div class="send-sheet__options">
                         <label class="send-sheet__check">
-                            <input type="checkbox" checked>
+                            <input type="checkbox" id="select-all-checkbox">
                             <span class="send-sheet__check-ui" aria-hidden="true"></span>
                             <span class="send-sheet__check-text">중개사 전체 선택</span>
                         </label>
-
                         <button type="button" class="send-sheet__filter">
                             <span class="send-sheet__filter-icon" aria-hidden="true"></span>
                             <span class="send-sheet__filter-text">필터</span>
                         </button>
                     </div>
 
-                    <div class="send-sheet__hint">
-                        매물 1 기준으로 <b>100m</b> 이내에 <b>18명</b>의 중개사가 있습니다.
-                    </div>
+                    <!-- 힌트 -->
+                    <div class="send-sheet__hint" id="broker-hint" style="display:none"></div>
 
-                    <!-- 스크롤 리스트 -->
-                    <div class="send-sheet__list" id="broker-sheet-content"></div>
+                    <!-- 중개사 목록 -->
+                    <div class="send-sheet__list" id="broker-sheet-content">
+                        <p class="send-sheet__empty-msg">지도에서 중개사 마커를 선택하면<br>목록이 표시됩니다.</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- ✅ CTA는 항상 보이게(접히지 않음) -->
+            <!-- 항상 보이는 하단: 보내기 버튼 -->
             <div class="send-sheet__cta">
-                <button type="button" class="send-sheet__send-btn">
+                <!-- 보내기 버튼 -->
+                <button type="button" id="send-btn" class="send-sheet__send-btn" disabled>
                     <span class="send-sheet__send-icon" aria-hidden="true"></span>
-                    <span>3개의 중개사에게 매물 보내기</span>
+                    <span id="send-btn-text">중개사를 선택해주세요</span>
                 </button>
             </div>
         </div>
 
     </div>
 
-    <!-- ✅ MAP + CLUSTER + SHEET OPEN/CLOSE -->
+    <!-- =============================================
+         JS 1: 상태 관리 / 매물 / 보내기 / 토스트
+    ============================================== -->
     <script th:inline="javascript">
+
+        /* ---- 상태 ---- */
+        let myListings      = [];
+        let selectedListing = null;
+        const selectedBrokers = new Map(); // brokerCode → {brokerCode, officeName}
+
+        /* ---- 내 매물 로드 ---- */
+        async function loadMyListings() {
+            try {
+                const res = await fetch('/map/api/listings/my-listings');
+                if (res.status === 401) { location.href = '/login'; return; }
+                if (!res.ok) throw new Error('매물 목록을 불러올 수 없습니다.');
+
+                myListings = await res.json();
+                if (!myListings.length) { updateCtaInfo(); return; }
+
+                const paramId = new URLSearchParams(location.search).get('listingId');
+                const target  = myListings.find(l => String(l.listingId) === paramId) ?? myListings[0];
+                selectListing(target);
+            } catch (e) {
+                console.error('[MY-LISTINGS]', e);
+                showToast(e.message, true);
+            }
+        }
+
+        function selectListing(listing) {
+            selectedListing = listing;
+            const label = document.getElementById('listing-label-text');
+            const sep   = document.getElementById('listing-sep');
+            const title = document.getElementById('listing-title-text');
+            if (!listing) {
+                label.textContent = '매물 선택';
+                sep.style.display = 'none';
+                title.textContent = '';
+            } else {
+                label.textContent = `매물 ${myListings.indexOf(listing) + 1}`;
+                sep.style.display = '';
+                title.textContent = listing.addressName;
+            }
+            updateCtaInfo();
+        }
+
+        function updateCtaInfo() {
+            const cnt     = selectedBrokers.size;
+            const btn     = document.getElementById('send-btn');
+            const btnText = document.getElementById('send-btn-text');
+            const canSend = selectedListing !== null && cnt > 0;
+            btn.disabled  = !canSend;
+            btnText.textContent = canSend
+                ? `${cnt}개의 중개사에게 매물 보내기`
+                : cnt > 0 ? '매물을 선택해주세요' : '중개사를 선택해주세요';
+        }
+
+        /* ---- 매물 드롭다운 렌더링 ---- */
+        function renderListingOptions() {
+            const ul = document.getElementById('listing-options');
+            if (!ul) return;
+            ul.innerHTML = myListings.length === 0
+                ? '<li style="color:#8b8b8b;cursor:default;pointer-events:none">등록된 매물이 없습니다.</li>'
+                : myListings.map((l, i) => {
+                    const active = selectedListing?.listingId === l.listingId;
+                    return `<li data-id="${l.listingId}" role="option"
+                                style="${active ? 'font-weight:700;background:#f7f7f7;' : ''}">
+                                <span style="font-weight:700">매물 ${i + 1}</span>
+                                <span style="margin-left:8px;color:#595959;font-size:14px">${l.addressName}</span>
+                            </li>`;
+                }).join('');
+
+            ul.querySelectorAll('li[data-id]').forEach(li => {
+                li.addEventListener('click', () => {
+                    const found = myListings.find(l => l.listingId === Number(li.dataset.id));
+                    if (found) {
+                        selectListing(found);
+                        document.getElementById('listing-select')?.classList.remove('is-open');
+                    }
+                });
+            });
+        }
+
+        /* ---- 중개사 전체선택 ---- */
+        function bindSelectAll() {
+            document.getElementById('select-all-checkbox')?.addEventListener('change', e => {
+                document.querySelectorAll('.send-broker__checkbox').forEach(cb => {
+                    cb.checked = e.target.checked;
+                    if (e.target.checked) selectedBrokers.set(cb.dataset.brokerCode, { brokerCode: cb.dataset.brokerCode, officeName: cb.dataset.officeName });
+                    else                  selectedBrokers.delete(cb.dataset.brokerCode);
+                });
+                updateCtaInfo();
+            });
+        }
+
+        /* ---- 중개사 시트 렌더링 ---- */
+        function renderBrokerSheet(brokers) {
+            const content = document.getElementById('broker-sheet-content');
+            const hint    = document.getElementById('broker-hint');
+            const allCb   = document.getElementById('select-all-checkbox');
+            if (!content) return;
+
+            brokers.forEach(b => {
+                const code = String(b.brokerCode);
+                if (!selectedBrokers.has(code)) {
+                    selectedBrokers.set(code, { brokerCode: code, officeName: b.officeName ?? '' });
+                }
+            });
+
+            if (hint) {
+                const listingLabel = selectedListing
+                    ? `매물 ${myListings.indexOf(selectedListing) + 1} 기준으로 `
+                    : '';
+                hint.textContent   = `${listingLabel}${brokers.length}명의 중개사가 있습니다.`;
+                hint.style.display = 'block';
+            }
+
+            content.innerHTML = `
+                ${brokers.map(b => {
+                    const tags      = (b.top5 ?? []).map(t =>
+                        `<span class="send-tag ${t.cssClass ?? ''}">${t.label}<b>${t.count}</b></span>`
+                    ).join('');
+                    const isChecked = selectedBrokers.has(String(b.brokerCode));
+                    return `
+                        <div class="send-broker">
+                            <label class="send-broker__row">
+                                <input type="checkbox"
+                                       class="send-broker__checkbox"
+                                       data-broker-code="${b.brokerCode}"
+                                       data-office-name="${b.officeName ?? ''}"
+                                       ${isChecked ? 'checked' : ''}>
+                                <span class="send-broker__check-ui"></span>
+                                <div class="send-broker__info">
+                                    <div class="send-broker__name">${b.officeName ?? ''}</div>
+                                    <div class="send-broker__tags">${tags}</div>
+                                    <div class="send-broker__addr">${b.addrJibun ?? ''}</div>
+                                </div>
+                                <div class="send-broker__thumb"></div>
+                            </label>
+                        </div>`;
+                }).join('')}`;
+
+            content.querySelectorAll('.send-broker__checkbox').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    if (cb.checked) selectedBrokers.set(cb.dataset.brokerCode, { brokerCode: cb.dataset.brokerCode, officeName: cb.dataset.officeName });
+                    else            selectedBrokers.delete(cb.dataset.brokerCode);
+
+                    const all = [...content.querySelectorAll('.send-broker__checkbox')];
+                    if (allCb) allCb.checked = all.length > 0 && all.every(c => c.checked);
+                    updateCtaInfo();
+                });
+            });
+
+            const all = [...content.querySelectorAll('.send-broker__checkbox')];
+            if (allCb) allCb.checked = all.length > 0 && all.every(c => c.checked);
+
+            updateCtaInfo();
+            if (window.openSendSheet) window.openSendSheet();
+        }
+
+        /* ---- 보내기 ---- */
+        async function sendListing() {
+            if (!selectedListing)           { showToast('보낼 매물을 선택해주세요.', true); return; }
+            if (selectedBrokers.size === 0) { showToast('중개사를 선택해주세요.', true);    return; }
+
+            const btn = document.getElementById('send-btn');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/map/api/listings/share', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        listingId:   selectedListing.listingId,
+                        brokerCodes: Array.from(selectedBrokers.keys())
+                    })
+                });
+                if (res.status === 401) { location.href = '/login'; return; }
+
+                const body = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(body.message ?? '전송에 실패했습니다.');
+
+                showToast(`${selectedBrokers.size}개의 중개사에게 전송했습니다.`);
+                selectedBrokers.clear();
+                document.querySelectorAll('.send-broker__checkbox').forEach(cb => cb.checked = false);
+                const allCb = document.getElementById('select-all-checkbox');
+                if (allCb) allCb.checked = false;
+                updateCtaInfo();
+                if (window.closeSendSheet) window.closeSendSheet();
+            } catch (e) {
+                showToast(e.message, true);
+            } finally {
+                updateCtaInfo();
+            }
+        }
+
+        /* ---- 토스트 ---- */
+        let _toastTimer = null;
+        function showToast(msg, isError = false) {
+            const el = document.getElementById('send-toast');
+            if (!el) return;
+            el.textContent = msg;
+            el.className   = 'send-toast' + (isError ? ' send-toast--error' : '');
+            el.classList.add('is-visible');
+            clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(() => el.classList.remove('is-visible'), 3000);
+        }
+
+    </script>
+
+    <!-- =============================================
+         JS 2: 지도 / 마커 / 클러스터
+    ============================================== -->
+    <script th:inline="javascript">
+
         let map;
-        let markers = [];
-        let markerClustering = null;
+        let markers               = [];
+        let markerClustering      = null;
         let selectedClusterMarker = null;
-        let selectedClusterKey = null;
+        let selectedClusterKey    = null;
+        let lastFetchId           = 0;
 
-        let myLocationMarker = null;
-        let lastFetchId = 0;
-
-        const ZOOM_INITIAL = 13;
-        const ZOOM_MAX = 19;
-        const ZOOM_MARKER_MIN = 17;
+        const ZOOM_INITIAL     = 13;
+        const ZOOM_MAX         = 19;
+        const ZOOM_MARKER_MIN  = 17;
         const ZOOM_CLUSTER_MIN = 15;
-        const ZOOM_EMD_MIN = 13;
+        const ZOOM_EMD_MIN     = 13;
         const ZOOM_SIGUNGU_MIN = 11;
-        const ZOOM_MIN = 8;
+        const ZOOM_MIN         = 8;
 
         function makeClusterKey(members) {
-            return members
-                .map(m => m.__brokerCode)
-                .filter(Boolean)
-                .sort()
-                .join(',');
+            return members.map(m => m.__brokerCode).filter(Boolean).sort().join(',');
         }
 
         function updateClusterOptionsByZoom(zoom) {
             if (!markerClustering) return;
-
-            let gridSize;
-            if (zoom >= ZOOM_MARKER_MIN) gridSize = 56;
-            else if (zoom >= ZOOM_CLUSTER_MIN) gridSize = 120;
-            else if (zoom >= ZOOM_EMD_MIN) gridSize = 180;
-            else if (zoom >= ZOOM_SIGUNGU_MIN) gridSize = 240;
-            else gridSize = 300;
-
-            markerClustering.setOptions({ gridSize });
+            let g;
+            if      (zoom >= ZOOM_MARKER_MIN)  g = 56;
+            else if (zoom >= ZOOM_CLUSTER_MIN) g = 120;
+            else if (zoom >= ZOOM_EMD_MIN)     g = 180;
+            else if (zoom >= ZOOM_SIGUNGU_MIN) g = 240;
+            else                               g = 300;
+            markerClustering.setOptions({ gridSize: g });
         }
 
         function initMap() {
-            const center = new naver.maps.LatLng(33.464933, 126.530862);
+            const center              = new naver.maps.LatLng(33.464933, 126.530862);
             const NAVER_DARK_THEME_ID = /*[[${naverDarkThemeId}]]*/ '';
 
             map = new naver.maps.Map('map', {
                 gl: true,
-                center: center,
-                zoom: ZOOM_INITIAL,
-                maxZoom: ZOOM_MAX,
+                center,
+                zoom:     ZOOM_INITIAL,
+                maxZoom:  ZOOM_MAX,
                 customStyleId: NAVER_DARK_THEME_ID,
                 mapTypeControl: true,
                 zoomControl: true,
                 zoomControlOptions: {
-                    style: naver.maps.ZoomControlStyle.SMALL,
+                    style:    naver.maps.ZoomControlStyle.SMALL,
                     position: naver.maps.Position.TOP_LEFT
-                },
+                }
             });
 
             markerClustering = new MarkerClustering({
-                map: map,
-                markers: [],
+                map,
+                markers:        [],
                 minClusterSize: 1,
-                maxZoom: 20,
+                maxZoom:        20,
                 icons: [{
-                    content: `
-            <div class="usan-cluster">
-              <img src="/img/marker-agency-white.png" class="usan-cluster__img" />
-              <span class="usan-cluster__count"></span>
-            </div>
-          `,
-                    size: new naver.maps.Size(56, 56),
+                    content: `<div class="usan-cluster">
+                                  <img src="/img/marker-agency-white.png" class="usan-cluster__img"/>
+                                  <span class="usan-cluster__count"></span>
+                              </div>`,
+                    size:   new naver.maps.Size(56, 56),
                     anchor: new naver.maps.Point(28, 56)
                 }],
                 indexGenerator: [1],
-                stylingFunction: function (clusterMarker, count) {
-                    const el = clusterMarker.getElement();
+                stylingFunction(clusterMarker, count) {
+                    const el   = clusterMarker.getElement();
                     if (!el) return;
-
                     const span = el.querySelector('.usan-cluster__count');
-                    const img = el.querySelector('.usan-cluster__img');
-
+                    const img  = el.querySelector('.usan-cluster__img');
                     if (span) {
-                        if (count <= 1) {
-                            span.style.display = 'none';
-                            span.textContent = '';
-                        } else {
-                            span.style.display = 'flex';
-                            span.textContent = String(count);
-                        }
+                        span.style.display = count <= 1 ? 'none' : 'flex';
+                        span.textContent   = count <= 1 ? '' : String(count);
                     }
-
                     if (!img) return;
-
-                    const members = (typeof clusterMarker.getClusterMember === 'function')
-                        ? clusterMarker.getClusterMember()
-                        : [];
-
-                    if (!members || members.length === 0) {
-                        img.src = '/img/marker-agency-white.png';
-                        return;
-                    }
-
-                    const key = makeClusterKey(members);
+                    const members = typeof clusterMarker.getClusterMember === 'function'
+                        ? clusterMarker.getClusterMember() : [];
+                    const key = members.length ? makeClusterKey(members) : null;
                     img.src = (selectedClusterMarker && key === selectedClusterKey)
                         ? '/img/marker-agency-orange.png'
                         : '/img/marker-agency-white.png';
@@ -197,258 +409,198 @@
             updateClusterOptionsByZoom(map.getZoom());
             loadBrokersInBounds();
 
-            naver.maps.Event.addListener(map, 'zoom_changed', function () {
+            naver.maps.Event.addListener(map, 'zoom_changed', () => {
                 updateClusterOptionsByZoom(map.getZoom());
                 if (window.closeSendSheet) window.closeSendSheet();
                 loadBrokersInBounds();
             });
-
-            naver.maps.Event.addListener(map, 'dragend', function () {
-                const sheet = document.getElementById('broker-sheet');
-                if (sheet && sheet.classList.contains('is-open')) {
+            naver.maps.Event.addListener(map, 'dragend', () => {
+                if (document.getElementById('broker-sheet')?.classList.contains('is-open')) {
                     if (window.closeSendSheet) window.closeSendSheet();
                 }
                 loadBrokersInBounds();
             });
-
-            // ✅ 시트가 "접힘"이면 지도 클릭을 막지 않음 (CSS pointer-events로 해결됨)
-            naver.maps.Event.addListener(map, 'click', function () {
-                const sheet = document.getElementById('broker-sheet');
-                if (!sheet) return;
-
-                if (sheet.classList.contains('is-open')) {
+            naver.maps.Event.addListener(map, 'click', () => {
+                document.getElementById('listing-select')?.classList.remove('is-open');
+                if (document.getElementById('broker-sheet')?.classList.contains('is-open')) {
                     if (window.closeSendSheet) window.closeSendSheet();
                 }
             });
-
-            naver.maps.Event.addListener(markerClustering, 'clusterclick', function (cluster) {
-                onClusterClick(cluster);
-            });
+            naver.maps.Event.addListener(markerClustering, 'clusterclick', onClusterClick);
         }
 
         function loadBrokersInBounds() {
             const bounds = map.getBounds();
             if (!bounds) return;
-
             const zoom = map.getZoom();
-            if (zoom <= ZOOM_MIN) {
-                clearMarkersAndClusters();
-                return;
-            }
+            if (zoom <= ZOOM_MIN) { clearMarkersAndClusters(); return; }
 
-            const sw = bounds.getSW();
-            const ne = bounds.getNE();
-
-            const south = sw.lat();
-            const north = ne.lat();
-            const west = sw.lng();
-            const east = ne.lng();
-
-            const url = `/map/api/brokers?south=${south}&north=${north}&west=${west}&east=${east}`;
-            const fetchId = ++lastFetchId;
+            const sw  = bounds.getSW(), ne = bounds.getNE();
+            const url = `/map/api/brokers?south=${sw.lat()}&north=${ne.lat()}&west=${sw.lng()}&east=${ne.lng()}`;
+            const fid = ++lastFetchId;
 
             fetch(url)
-                .then(res => res.json())
+                .then(r => r.json())
                 .then(data => {
-                    if (fetchId !== lastFetchId) return;
-
-                    const currentZoom = map.getZoom();
-                    if (currentZoom <= ZOOM_MIN) {
-                        clearMarkersAndClusters();
-                        return;
-                    }
+                    if (fid !== lastFetchId) return;
+                    if (map.getZoom() <= ZOOM_MIN) { clearMarkersAndClusters(); return; }
                     renderMarkers(data);
                 })
-                .catch(err => console.error('[MAP] fetch error:', err));
+                .catch(e => console.error('[MAP]', e));
         }
 
         function renderMarkers(brokers) {
+            clearMarkersAndClusters();
             markers = brokers.map(b => {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(b.lat, b.lng),
-                    title: b.officeName
+                    title:    b.officeName
                 });
                 marker.__brokerCode = b.brokerCode;
+
+                naver.maps.Event.addListener(marker, 'click', () => {
+                    fetchAndShowBrokers([String(b.brokerCode)]);
+                });
+
                 return marker;
             });
-
             if (markerClustering) {
                 markerClustering.setMarkers(markers);
                 naver.maps.Event.trigger(map, 'idle');
             }
         }
 
-        async function onClusterClick(cluster) {
-            const clusterMarker = cluster._clusterMarker;
-            const members = cluster.getClusterMember() || [];
+        async function fetchAndShowBrokers(brokerCodes) {
+            try {
+                const res = await fetch('/map/api/brokers/cluster', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ brokerCodes })
+                });
+                if (!res.ok) throw new Error('중개사 조회 실패');
+                renderBrokerSheet(await res.json());
+            } catch (e) {
+                console.error(e);
+                showToast('중개사 정보를 불러올 수 없습니다.', true);
+            }
+        }
 
+        function onClusterClick(cluster) {
+            const members     = cluster.getClusterMember() || [];
             const brokerCodes = members.map(m => m.__brokerCode).filter(Boolean);
             if (!brokerCodes.length) return;
 
             selectedClusterKey = makeClusterKey(members);
+            resetClusterIcons();
 
-            if (clusterMarker && typeof clusterMarker.getElement === 'function') {
-                resetClusterIcons();
-                const el = clusterMarker.getElement();
-                if (el) {
-                    const img = el.querySelector('.usan-cluster__img');
-                    if (img) {
-                        img.src = '/img/marker-agency-orange.png';
-                        selectedClusterMarker = clusterMarker;
-                    }
-                }
-            }
+            const el  = cluster._clusterMarker?.getElement?.();
+            const img = el?.querySelector('.usan-cluster__img');
+            if (img) { img.src = '/img/marker-agency-orange.png'; selectedClusterMarker = cluster._clusterMarker; }
 
-            try {
-                const res = await fetch('/map/api/brokers/cluster', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ brokerCodes })
-                });
-
-                if (!res.ok) throw new Error('클러스터 중개사 조회 실패');
-                const list = await res.json();
-                renderClusterSheet(list);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function renderClusterSheet(brokers) {
-            const content = document.getElementById('broker-sheet-content');
-            if (!content) return;
-
-            const totalCount = brokers.length;
-
-            const itemsHtml = brokers.map(b => {
-                const officeName = b.officeName ?? '';
-                const addrJibun = b.addrJibun ?? '';
-                const top5 = (b.top5 ?? []);
-
-                // item.cssClass 그대로 쓰고 싶으면 서버에서 send-tag--apt 같은 값을 내려주면 됨
-                const tags = top5.map(item => `
-          <span class="send-tag ${item.cssClass}">
-            ${item.label}<b>${item.count}</b>
-          </span>
-        `).join('');
-
-                return `
-          <div class="send-broker">
-            <label class="send-broker__row">
-              <input type="checkbox" class="send-broker__checkbox" checked>
-              <span class="send-broker__check-ui"></span>
-
-              <div class="send-broker__info">
-                <div class="send-broker__name">${officeName}</div>
-                <div class="send-broker__tags">${tags}</div>
-                <div class="send-broker__addr">${addrJibun}</div>
-              </div>
-
-              <div class="send-broker__thumb"></div>
-            </label>
-          </div>
-        `;
-            }).join('');
-
-            content.innerHTML = `
-        <div class="send-sheet__section-title">이 지역 중개사 ${totalCount}곳</div>
-        ${itemsHtml}
-      `;
-
-            if (window.openSendSheet) window.openSendSheet();
+            fetchAndShowBrokers(brokerCodes.map(String));
         }
 
         function clearMarkersAndClusters() {
-            if (markers && markers.length > 0) {
-                markers.forEach(m => { if (m) m.setMap(null); });
-            }
+            markers.forEach(m => m?.setMap(null));
             markers = [];
             if (markerClustering) markerClustering.setMarkers([]);
         }
 
         function resetClusterIcons() {
-            const imgs = document.querySelectorAll('.usan-cluster__img');
-            imgs.forEach(img => { img.src = '/img/marker-agency-white.png'; });
+            document.querySelectorAll('.usan-cluster__img').forEach(img => {
+                img.src = '/img/marker-agency-white.png';
+            });
+            selectedClusterMarker = null;
         }
 
-        window.onload = initMap;
+        /* ---- 초기화 ---- */
+        window.onload = async function () {
+            initMap();
+            await loadMyListings();
+
+            // 매물 드롭다운 토글
+            document.getElementById('listing-select-btn')?.addEventListener('click', e => {
+                e.stopPropagation();
+                const sel = document.getElementById('listing-select');
+                const wasOpen = sel?.classList.contains('is-open');
+                sel?.classList.toggle('is-open');
+                if (!wasOpen) renderListingOptions();
+            });
+
+            // 드롭다운 외부 클릭 시 닫기
+            document.addEventListener('click', e => {
+                const sel = document.getElementById('listing-select');
+                if (sel && !sel.contains(e.target)) sel.classList.remove('is-open');
+            });
+
+            // 시트 열기 버튼
+            document.getElementById('open-sheet-btn')?.addEventListener('click', () => {
+                if (window.openSendSheet) window.openSendSheet();
+            });
+
+            document.getElementById('send-btn')?.addEventListener('click', sendListing);
+            bindSelectAll();
+        };
+
     </script>
 
-    <!-- ✅ SEND SHEET DRAG (이거 하나만 쓰기) -->
+    <!-- =============================================
+         JS 3: 드래그 시트 열기/닫기
+    ============================================== -->
     <script>
         (function () {
-            const sheet = document.getElementById('broker-sheet');
-            if (!sheet) return;
+            const sheet    = document.getElementById('broker-sheet');
+            const collapse = sheet?.querySelector('.send-sheet__collapse');
+            const handle   = sheet?.querySelector('.send-sheet__handle-area');
+            if (!sheet || !collapse || !handle) return;
 
-            const collapse = sheet.querySelector('.send-sheet__collapse');
-            const handleArea = sheet.querySelector('.send-sheet__handle-area');
-            if (!collapse || !handleArea) return;
+            let startY = 0, currentY = 0, dragging = false;
+            const OPEN_TH = 80, CLOSE_TH = 120;
 
-            let startY = 0;
-            let currentY = 0;
-            let dragging = false;
-
-            const THRESHOLD_OPEN = 80;
-            const THRESHOLD_CLOSE = 120;
-
-            function isOpen() { return sheet.classList.contains('is-open'); }
+            const isOpen = () => sheet.classList.contains('is-open');
 
             function openSheet() {
                 sheet.classList.add('is-open');
                 collapse.style.transform = 'translateY(0)';
             }
-
             function closeSheet() {
                 sheet.classList.remove('is-open');
-                collapse.style.transform = 'translateY(calc(100% - 60px))';
+                collapse.style.transform = 'translateY(calc(100% - 108px))';
             }
 
             closeSheet();
 
             function onStart(e) {
+                // 드롭다운 닫기
+                document.getElementById('listing-select')?.classList.remove('is-open');
                 dragging = true;
                 sheet.classList.add('is-dragging');
-                startY = (e.touches ? e.touches[0].clientY : e.clientY);
-                currentY = startY;
+                startY = currentY = e.touches ? e.touches[0].clientY : e.clientY;
             }
-
             function onMove(e) {
                 if (!dragging) return;
-                currentY = (e.touches ? e.touches[0].clientY : e.clientY);
+                currentY    = e.touches ? e.touches[0].clientY : e.clientY;
                 const delta = currentY - startY;
-
-                if (isOpen()) {
-                    if (delta > 0) collapse.style.transform = `translateY(${delta}px)`;
-                } else {
-                    if (delta < 0) collapse.style.transform = `translateY(calc(100% - 60px + ${delta}px))`;
-                }
+                if (isOpen()) { if (delta > 0)  collapse.style.transform = `translateY(${delta}px)`; }
+                else          { if (delta < 0)  collapse.style.transform = `translateY(calc(100% - 108px + ${delta}px))`; }
             }
-
             function onEnd() {
                 if (!dragging) return;
                 dragging = false;
                 sheet.classList.remove('is-dragging');
-
                 const delta = currentY - startY;
-
-                if (isOpen()) {
-                    if (delta > THRESHOLD_CLOSE) closeSheet();
-                    else openSheet();
-                } else {
-                    if (-delta > THRESHOLD_OPEN) openSheet();
-                    else closeSheet();
-                }
+                if (isOpen()) { delta > CLOSE_TH ? closeSheet() : openSheet(); }
+                else          { -delta > OPEN_TH ? openSheet()  : closeSheet(); }
             }
 
-            handleArea.addEventListener('touchstart', onStart, { passive: true });
-            handleArea.addEventListener('touchmove', onMove, { passive: true });
-            handleArea.addEventListener('touchend', onEnd);
+            handle.addEventListener('touchstart', onStart, { passive: true });
+            handle.addEventListener('touchmove',  onMove,  { passive: true });
+            handle.addEventListener('touchend',   onEnd);
+            handle.addEventListener('mousedown',  onStart);
+            window.addEventListener('mousemove',  onMove);
+            window.addEventListener('mouseup',    onEnd);
 
-            handleArea.addEventListener('mousedown', onStart);
-            window.addEventListener('mousemove', onMove);
-            window.addEventListener('mouseup', onEnd);
-
-            window.openSendSheet = openSheet;
+            window.openSendSheet  = openSheet;
             window.closeSendSheet = closeSheet;
         })();
     </script>
