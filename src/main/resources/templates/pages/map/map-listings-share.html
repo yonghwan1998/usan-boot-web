@@ -128,6 +128,7 @@
                 if (!res.ok) throw new Error('매물 목록을 불러올 수 없습니다.');
 
                 myListings = await res.json();
+                renderListingOptions();
                 if (!myListings.length) { updateCtaInfo(); return; }
 
                 const paramId = new URLSearchParams(location.search).get('listingId');
@@ -163,7 +164,7 @@
             const canSend = selectedListing !== null && cnt > 0;
             btn.disabled  = !canSend;
             btnText.textContent = canSend
-                ? `${cnt}개의 중개사에게 매물 보내기`
+                ? `${cnt}명의 중개사에게 매물 보내기`
                 : cnt > 0 ? '매물을 선택해주세요' : '중개사를 선택해주세요';
         }
 
@@ -183,7 +184,8 @@
                 }).join('');
 
             ul.querySelectorAll('li[data-id]').forEach(li => {
-                li.addEventListener('click', () => {
+                li.addEventListener('click', e => {
+                    e.stopPropagation(); // listing-select 핸들러로 버블링 방지
                     const found = myListings.find(l => l.listingId === Number(li.dataset.id));
                     if (found) {
                         selectListing(found);
@@ -292,7 +294,7 @@
                 const body = await res.json().catch(() => ({}));
                 if (!res.ok) throw new Error(body.message ?? '전송에 실패했습니다.');
 
-                showToast(`${selectedBrokers.size}개의 중개사에게 전송했습니다.`);
+                showToast(`${selectedBrokers.size}명의 중개사에게 전송했습니다.`);
                 selectedBrokers.clear();
                 document.querySelectorAll('.send-broker__checkbox').forEach(cb => cb.checked = false);
                 const allCb = document.getElementById('select-all-checkbox');
@@ -518,19 +520,15 @@
             initMap();
             await loadMyListings();
 
-            // 매물 드롭다운 토글
-            document.getElementById('listing-select-btn')?.addEventListener('click', e => {
+            // 매물 드롭다운 토글 (.common-select 전체 클릭 시 열림)
+            document.getElementById('listing-select')?.addEventListener('click', e => {
                 e.stopPropagation();
-                const sel = document.getElementById('listing-select');
-                const wasOpen = sel?.classList.contains('is-open');
-                sel?.classList.toggle('is-open');
-                if (!wasOpen) renderListingOptions();
+                document.getElementById('listing-select')?.classList.toggle('is-open');
             });
 
             // 드롭다운 외부 클릭 시 닫기
-            document.addEventListener('click', e => {
-                const sel = document.getElementById('listing-select');
-                if (sel && !sel.contains(e.target)) sel.classList.remove('is-open');
+            document.addEventListener('click', () => {
+                document.getElementById('listing-select')?.classList.remove('is-open');
             });
 
             // 시트 열기 버튼
