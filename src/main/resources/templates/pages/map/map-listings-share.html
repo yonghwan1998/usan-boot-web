@@ -214,11 +214,11 @@
             const allCb   = document.getElementById('select-all-checkbox');
             if (!content) return;
 
+            selectedBrokers.clear();
+
             brokers.forEach(b => {
                 const code = String(b.brokerCode);
-                if (!selectedBrokers.has(code)) {
-                    selectedBrokers.set(code, { brokerCode: code, officeName: b.officeName ?? '' });
-                }
+                selectedBrokers.set(code, { brokerCode: code, officeName: b.officeName ?? '' });
             });
 
             if (hint) {
