@@ -37,6 +37,10 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login?message=needLogin");
+                        }))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")

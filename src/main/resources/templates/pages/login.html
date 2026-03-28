@@ -20,6 +20,10 @@
 </th:block>
 
 <section class="login-page">
+    <script th:if="${#strings.equals(param.message, 'needLogin')}">
+        alert("로그인이 필요합니다.");
+    </script>
+
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
         <div class="common-header__title">로그인</div>
