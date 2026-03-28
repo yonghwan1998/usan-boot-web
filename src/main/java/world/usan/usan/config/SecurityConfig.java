@@ -37,6 +37,10 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login?message=needLogin");
+                        }))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
@@ -49,7 +53,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login")
                         .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/", false)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
