@@ -33,6 +33,9 @@ public class SmsService {
     @Value("${ncp.sens.from}")
     private String fromNumber;
 
+    @Value("${usan.base-url}")
+    private String baseUrl;
+
     public SmsService(WebClient sensWebClient, BrokerPropertyCountRepository brokerRepository) {
         this.sensWebClient = sensWebClient;
         this.brokerRepository = brokerRepository;
@@ -113,8 +116,9 @@ public class SmsService {
             sb.append("매매가: ").append(listing.getPriceManwon()).append("만\n");
         }
         if (listing.getOwnerPhone() != null && !listing.getOwnerPhone().isBlank()) {
-            sb.append("연락처: ").append(listing.getOwnerPhone());
+            sb.append("연락처: ").append(listing.getOwnerPhone()).append("\n");
         }
+        sb.append("상세보기: ").append(baseUrl).append("/share/").append(listing.getId());
         return sb.toString().trim();
     }
 
