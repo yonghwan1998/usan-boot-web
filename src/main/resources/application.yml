@@ -53,6 +53,7 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
 usan:
+  base-url: ${USAN_BASE_URL}
   batch:
     excel:
       sheet-name:
@@ -65,6 +66,12 @@ usan:
       registration-number-col-index: 56 #BE 컬럼, 0~56번째 index
       tel-col-index: 57 #BF 컬럼, 0~57번째 index
       phone-col-index: 58 #BG 컬럼, 0~58번째 index
+ncp:
+  access-key: ${NCP_ACCESS_KEY}
+  secret-key: ${NCP_SECRET_KEY}
+  sens:
+    service-id: ${NCP_SENS_SERVICE_ID}
+    from: ${NCP_SENS_FROM}
 naver:
   geocode:
     base-url: https://maps.apigw.ntruss.com

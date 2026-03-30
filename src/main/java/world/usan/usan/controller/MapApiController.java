@@ -8,6 +8,7 @@ import world.usan.usan.entity.Listing;
 import world.usan.usan.repository.ListingRepository;
 import world.usan.usan.security.SecurityUtils;
 import world.usan.usan.service.MapService;
+import world.usan.usan.service.SmsService;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class MapApiController {
     private final MapService        mapService;
     private final SecurityUtils     securityUtils;
     private final ListingRepository listingRepository;
+    private final SmsService        smsService;
 
     @GetMapping("/brokers")
     public List<BrokerMarkerDto> getBrokersInBounds(
@@ -80,7 +82,8 @@ public class MapApiController {
             return ResponseEntity.status(403).body(Map.of("message", "유효하지 않은 매물입니다."));
         }
 
-        // TODO(yongss): 실제 발송 이력 저장 (2차 구현)
+        smsService.sendListingShare(request.brokerCodes(), listing);
+        // TODO(yongss): 발송 이력 저장 (2차 구현)
         return ResponseEntity.ok(Map.of("message", "전송 요청이 완료되었습니다."));
     }
 }
