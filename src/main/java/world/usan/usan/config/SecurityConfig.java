@@ -28,6 +28,7 @@ public class SecurityConfig {
                                 "/map",
                                 "/map/api/**",
                                 "/broker/**",
+                                "/share/**",
                                 "/download/**",
                                 "/.well-known/**",
                                 "/error",

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">매물 상세보기</title>
+</head>
+
+<th:block th:fragment="pcSideContent"></th:block>
+
+<th:block th:fragment="extraCss">
+</th:block>
+
+<section class="share-page">
+    <div class="common-header">
+        <div class="common-header__title">매물 안내</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="share-listing-wrapper">
+
+        <div class="share-listing__address-block">
+            <div class="share-listing__address" th:text="${listing.addressName}"></div>
+            <div class="share-listing__address-detail"
+                 th:if="${listing.addressDetail != null and !#strings.isEmpty(listing.addressDetail)}"
+                 th:text="${listing.addressDetail}"></div>
+        </div>
+
+        <div class="share-listing__info-block">
+
+            <div class="share-listing__row" th:if="${listing.type != null}">
+                <span class="share-listing__label">종류</span>
+                <span class="share-listing__value" th:text="${listing.type}"></span>
+            </div>
+
+            <div class="share-listing__row" th:if="${listing.tradeType != null}">
+                <span class="share-listing__label">거래</span>
+                <span class="share-listing__value" th:text="${listing.tradeType}"></span>
+            </div>
+
+            <div class="share-listing__row" th:if="${listing.depositManwon != null}">
+                <span class="share-listing__label">보증금</span>
+                <span class="share-listing__value" th:text="${listing.depositManwon} + '만'"></span>
+            </div>
+
+            <div class="share-listing__row" th:if="${listing.rentManwon != null}">
+                <span class="share-listing__label">월세</span>
+                <span class="share-listing__value" th:text="${listing.rentManwon} + '만'"></span>
+            </div>
+
+            <div class="share-listing__row" th:if="${listing.priceManwon != null}">
+                <span class="share-listing__label">매매가</span>
+                <span class="share-listing__value" th:text="${listing.priceManwon} + '만'"></span>
+            </div>
+
+            <div class="share-listing__row" th:if="${listing.floorInfo != null}">
+                <span class="share-listing__label">층</span>
+                <span class="share-listing__value" th:text="${listing.floorInfo}"></span>
+            </div>
+
+            <div class="share-listing__row" th:if="${listing.areaM2 != null}">
+                <span class="share-listing__label">면적</span>
+                <span class="share-listing__value" th:text="${listing.areaM2} + '㎡'"></span>
+            </div>
+
+            <div class="share-listing__row"
+                 th:if="${listing.ownerPhone != null and !#strings.isEmpty(listing.ownerPhone)}">
+                <span class="share-listing__label">연락처</span>
+                <span class="share-listing__value" th:text="${listing.ownerPhone}"></span>
+            </div>
+
+        </div>
+
+        <div class="share-listing__desc-block"
+             th:if="${listing.description != null and !#strings.isEmpty(listing.description)}">
+            <div class="share-listing__desc-title">상세정보</div>
+            <div class="share-listing__desc" th:text="${listing.description}"></div>
+        </div>
+
+    </div>
+</section>
+</html>
