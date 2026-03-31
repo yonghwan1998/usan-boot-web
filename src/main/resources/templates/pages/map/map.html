@@ -1252,21 +1252,31 @@
 
     <!-- iOS Safari pull-to-refresh 방지 -->
     <script>
-        // iOS Safari는 overscroll-behavior를 지원하지 않아 touchmove로 처리
-        // 스크롤 가능한 영역(바텀시트 콘텐츠)은 예외 처리
-        document.addEventListener('touchmove', function (e) {
-            const scrollable = e.target.closest(
-                '#broker-sheet-content, .broker-detail-sheet__body'
-            );
-            if (scrollable) {
-                // 스크롤 영역 최상단에서 아래로 당기는 경우만 차단
-                if (scrollable.scrollTop <= 0 && e.touches[0].clientY > 0) {
-                    if (e.cancelable) e.preventDefault();
+        (function () {
+            let touchStartY = 0;
+
+            document.addEventListener('touchstart', function (e) {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function (e) {
+                const scrollable = e.target.closest(
+                    '#broker-sheet-content, .broker-detail-sheet__body'
+                );
+
+                if (scrollable) {
+                    const swipingDown = e.touches[0].clientY > touchStartY;
+                    // 최상단에서 아래로 당길 때만 차단 (pull-to-refresh 방지)
+                    if (swipingDown && scrollable.scrollTop <= 0) {
+                        if (e.cancelable) e.preventDefault();
+                    }
+                    return;
                 }
-                return;
-            }
-            if (e.cancelable) e.preventDefault();
-        }, { passive: false });
+
+                // 스크롤 영역 밖(지도, 핸들 등)은 모두 차단
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+        })();
     </script>
 
 </section>
