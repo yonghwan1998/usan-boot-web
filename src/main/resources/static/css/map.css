@@ -5,6 +5,11 @@
     --nav-total-h: calc(var(--bottom-nav-h) + var(--safe-bottom));
 }
 
+/* pull-to-refresh 방지 (Chrome/Android) */
+body {
+    overscroll-behavior-y: none;
+}
+
 .main-content {
     position: relative;
     display: flex;
