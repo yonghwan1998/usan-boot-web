@@ -405,6 +405,16 @@
     padding-left: 2px;
     overflow-y: auto;
     overscroll-behavior: contain;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#broker-sheet-content::-webkit-scrollbar {
+    display: none;
+}
+
+.bottom-sheet.is-half #broker-sheet-content {
+    max-height: calc(0.6 * (var(--app-h) - var(--nav-total-h)) - 90px);
 }
 
 .bottom-sheet__caption {
