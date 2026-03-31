@@ -94,31 +94,43 @@ public class SmsService {
 
     private String buildMessage(Listing listing) {
         StringBuilder sb = new StringBuilder();
-        sb.append("[우산] 매물 안내\n");
-        sb.append("주소: ").append(listing.getAddressName());
-        if (listing.getAddressDetail() != null && !listing.getAddressDetail().isBlank()) {
-            sb.append(" ").append(listing.getAddressDetail());
+
+        if (listing.getTradeType().equals("SALE")) {
+            sb.append("[우산] 매도합니다.\n");
+
+            sb.append("@매물 정보\n");
+            sb.append("주소: ").append(listing.getAddressName()).append("\n");
+            sb.append("가격: ").append(listing.getPriceManwon()).append("만원\n");
+            sb.append("설명: ").append(listing.getDescription()).append("\n\n");
+
+            sb.append("@소유주 정보\n");
+            sb.append("이름: ").append(listing.getOwnerName()).append("\n");
+            sb.append("전화번호: ").append(listing.getOwnerPhone()).append("\n");
+            sb.append("통신사: ").append(listing.getCarrier()).append("\n\n");
+
+            sb.append("상세보기(매물 이미지, 상세 설명)\n");
+            sb.append(baseUrl).append("/share/").append(listing.getId());
+        } else {
+            sb.append("[우산] 임대합니다.\n");
+
+            sb.append("@매물 정보\n");
+            sb.append("주소: ").append(listing.getAddressName()).append("\n");
+            sb.append("보증금: ").append(listing.getDepositManwon()).append("만원\n");
+            sb.append("월세: ").append(listing.getRentManwon()).append("만원\n");
+            sb.append("동·호수: ").append(listing.getDongho()).append("\n");
+            sb.append("층수: ").append(listing.getFloorInfo()).append("\n");
+            sb.append("면적(㎡): ").append(listing.getAreaM2()).append("\n");
+            sb.append("설명: ").append(listing.getDescription()).append("\n\n");
+
+            sb.append("@소유주 정보\n");
+            sb.append("이름: ").append(listing.getOwnerName()).append("\n");
+            sb.append("전화번호: ").append(listing.getOwnerPhone()).append("\n");
+            sb.append("통신사: ").append(listing.getCarrier()).append("\n\n");
+
+            sb.append("상세보기(매물 이미지, 상세 설명)\n");
+            sb.append(baseUrl).append("/share/").append(listing.getId());
         }
-        sb.append("\n");
-        if (listing.getType() != null) {
-            sb.append("종류: ").append(listing.getType()).append("\n");
-        }
-        if (listing.getTradeType() != null) {
-            sb.append("거래: ").append(listing.getTradeType()).append("\n");
-        }
-        if (listing.getDepositManwon() != null) {
-            sb.append("보증금: ").append(listing.getDepositManwon()).append("만\n");
-        }
-        if (listing.getRentManwon() != null) {
-            sb.append("월세: ").append(listing.getRentManwon()).append("만\n");
-        }
-        if (listing.getPriceManwon() != null) {
-            sb.append("매매가: ").append(listing.getPriceManwon()).append("만\n");
-        }
-        if (listing.getOwnerPhone() != null && !listing.getOwnerPhone().isBlank()) {
-            sb.append("연락처: ").append(listing.getOwnerPhone()).append("\n");
-        }
-        sb.append("상세보기: ").append(baseUrl).append("/share/").append(listing.getId());
+
         return sb.toString().trim();
     }
 
