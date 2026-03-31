@@ -1,0 +1,15 @@
+package com.usanmap.usan;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+@ActiveProfiles("test")
+@SpringBootTest
+class UsanApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
