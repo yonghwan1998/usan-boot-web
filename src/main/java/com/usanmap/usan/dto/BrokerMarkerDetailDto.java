@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +15,8 @@ public class BrokerMarkerDetailDto {
 
     private UUID brokerCode;
     private String brokerName;
+    private BigDecimal lat;
+    private BigDecimal lng;
     private String officeName;
     private String registrationNumber;
     private String tel;

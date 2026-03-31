@@ -59,6 +59,8 @@ public class MapService {
                 .phone(broker.getPhone())
                 .addrRoad(broker.getAddrRoad())
                 .addrJibun(broker.getAddrJibun())
+                .lat(broker.getLat())
+                .lng(broker.getLng())
                 .top5(items)
                 .build();
     }
@@ -87,6 +89,8 @@ public class MapService {
                             .emd(b.getEmd())
                             .addrRoad(b.getAddrRoad())
                             .addrJibun(b.getAddrJibun())
+                            .lat(b.getLat())
+                            .lng(b.getLng())
                             .top5(top5)
                             .build();
                 })
