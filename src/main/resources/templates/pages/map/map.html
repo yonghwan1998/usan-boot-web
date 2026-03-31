@@ -14,6 +14,7 @@
 <th:block th:fragment="pcSideContent"></th:block>
 
 <th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/broker.css(t=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/map.css(t=${#dates.createNow().time})}">
 </th:block>
 
@@ -96,12 +97,41 @@
                 <div id="broker-sheet-content"></div>
             </div>
         </div>
+
+        <!-- 중개사 자세히 보기 시트 -->
+        <div id="broker-detail-sheet" class="broker-detail-sheet">
+
+            <div class="broker-detail-sheet__header">
+                <button type="button" class="broker-detail-sheet__close" id="brokerDetailClose" aria-label="닫기"></button>
+                <span class="broker-detail-sheet__title">자세히 보기</span>
+                <button type="button" class="broker-detail-sheet__heart" aria-label="찜하기"></button>
+            </div>
+
+            <div class="broker-detail-sheet__body" id="brokerDetailBody">
+                <!-- JS로 동적 렌더링 -->
+            </div>
+
+            <div class="broker-detail-sheet__footer">
+                <button type="button" class="action-btn action-btn--call" id="brokerDetailCall" aria-label="전화하기">
+                    <span class="action-btn__icon action-btn__icon--call"></span>
+                </button>
+                <button type="button" class="action-btn action-btn--send" id="brokerDetailSend">
+                    <span class="action-btn__icon action-btn__icon--send" aria-hidden="true"></span>
+                    <span class="action-btn__text">매물 보내기</span>
+                </button>
+            </div>
+
+        </div>
+
     </div>
 
     <!-- map control -->
     <script>
 
         const MAP_CENTER_KEY = 'usan.map.center';
+
+        // brokerCode → broker 데이터 캐시 (자세히 보기 시트에서 사용)
+        const brokerDataMap = {};
 
         let map;
         let markers = [];
@@ -209,7 +239,7 @@
                 center: center,
                 zoom: ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
-                mapTypeControl: true,
+                // mapTypeControl: true, // TODO(yongss): 위성, 로드뷰 기능 추가 시 롤백
                 zoomControl: false,
             });
 
@@ -282,7 +312,6 @@
             naver.maps.Event.addListener(map, 'dragend', function () {
 
                 const sheet = document.getElementById('broker-sheet');
-
                 if (sheet && (sheet.classList.contains('is-half') || sheet.classList.contains('is-full'))) {
                     closeBrokerSheet();
                 }
@@ -290,14 +319,8 @@
                 loadBrokersInBounds();
             });
 
-            naver.maps.Event.addListener(map, 'click', function () {
-                const sheet = document.getElementById('broker-sheet');
-                if (!sheet) return;
-
-                if (sheet && (sheet.classList.contains('is-half') || sheet.classList.contains('is-full'))) {
-                    closeBrokerSheet();
-                }
-            });
+            // map click 시 시트 닫기는 document pointerdown 핸들러에서 처리
+            // (pointerdown → click 순서로 인해 여기서 처리하면 detail-sheet 닫힌 후 broker-sheet도 닫히는 버그 발생)
 
             naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster, e) {
                 onClusterClick(cluster);
@@ -441,6 +464,9 @@
                 const officeName = b.officeName ?? '';
                 const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
                 const tel = b.phone ?? b.tel ?? '';
+
+                // 자세히 보기 시트를 위해 데이터 캐시
+                brokerDataMap[brokerCode] = b;
                 const top5 = (b.top5 ?? []);
 
                 const tags = top5.map(item => `
@@ -482,9 +508,9 @@
                                 <span class="cluster-btn__text">전화하기</span>
                             </button>
 
-                            <a class="cluster-btn--more" href="/broker/${brokerCode}" aria-label="더보기">
+                            <button type="button" class="cluster-btn cluster-btn--more" data-broker-code="${brokerCode}" aria-label="자세히 보기">
                                 <span class="cluster-btn__icon--more"></span>
-                            </a>
+                            </button>
                         </div>
 
                     </div>
@@ -521,6 +547,168 @@
             // 모바일: 전화 앱 열기 / PC: 기본 앱이 없으면 반응 없을 수 있음
             window.location.href = `tel:${tel}`;
         });
+
+        // 자세히 보기 시트 - 더보기 버튼 클릭
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cluster-btn--more');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const code = btn.dataset.brokerCode;
+            const broker = brokerDataMap[code];
+            if (broker) openBrokerDetail(broker);
+        });
+
+        // 자세히 보기 시트 - 닫기
+        document.getElementById('brokerDetailClose')?.addEventListener('click', closeBrokerDetail);
+
+        // 자세히 보기 시트 열기
+        let brokerDetailMap = null;
+
+        function openBrokerDetail(broker) {
+            const sheet = document.getElementById('broker-detail-sheet');
+            const body  = document.getElementById('brokerDetailBody');
+            const btnCall = document.getElementById('brokerDetailCall');
+            const btnSend = document.getElementById('brokerDetailSend');
+            if (!sheet || !body) return;
+
+            const officeName = broker.officeName ?? '';
+            const brokerName = broker.brokerName ?? '';
+            const address    = [broker.sido, broker.sigungu].filter(Boolean).join(' ');
+            const regNum     = broker.registrationNumber ?? '';
+            const tel        = broker.tel ?? '';
+            const phone      = broker.phone ?? '';
+
+            const tags = (broker.top5 ?? []).map(t => `
+                <span class="broker-tag ${t.cssClass ?? ''}">
+                    <span class="tag-label">${t.label}</span>
+                    <span class="tag-label">${t.count}</span>
+                </span>
+            `).join('');
+
+            body.innerHTML = `
+                <div class="broker-content-wrapper">
+                    <div class="broker-info-wrapper">
+                        <div class="broker-info">
+                            <div class="broker-info__basic">
+                                <div class="broker-info__title">
+                                    <div class="broker-info__office">${officeName}</div>
+                                    <div class="broker-info__name">${brokerName}</div>
+                                </div>
+                                <div class="broker-info__address-wrapper">
+                                    <span class="broker-info__address">${address}</span>
+                                </div>
+                            </div>
+                            <div class="broker-tags">${tags}</div>
+                        </div>
+                        <div class="broker-info__details">
+                            ${regNum ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__scroll"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">중개사등록번호</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${regNum}</span>
+                                </div>
+                            </div>` : ''}
+                            ${tel ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__tel"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">전화번호</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${tel}</span>
+                                </div>
+                            </div>` : ''}
+                            ${phone ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__phone"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">휴대전화</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${phone}</span>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="broker-info__line"></div>
+
+                    <div class="broker-info__additional-wrapper">
+                        <div class="broker-info__additional-title">추가정보</div>
+                        <div class="broker-info__additional">
+                            <div class="broker-info__additional-item">
+                                <span class="broker-info__additional-text">최근 활동</span>
+                                <span class="broker-info__additional-recent">최근 7일간 12건 응답</span>
+                            </div>
+                            <div class="broker-info__additional-item">
+                                <span class="broker-info__additional-text">평점</span>
+                                <span class="broker-info__additional-rating-wrapper">
+                                    <span class="broker-info__additional-rating-icon"></span>
+                                    <span class="broker-info__additional-rating">4.2점</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${(broker.lat && broker.lng) ? `
+                    <div class="broker-info__line"></div>
+                    <div class="broker-info__map-wrapper">
+                        <div class="broker-info__map-title">지도 보기</div>
+                        <div id="brokerDetailMap" class="broker-info__map"></div>
+                    </div>` : ''}
+                </div>
+            `;
+
+            // 전화 버튼 연결
+            const callTel = normalizePhone(phone || tel);
+            btnCall.onclick = () => {
+                if (!callTel) { alert('전화번호가 없습니다.'); return; }
+                window.location.href = `tel:${callTel}`;
+            };
+
+            // 매물 보내기 버튼 연결
+            btnSend.onclick = () => { location.href = '/map/listings/share'; };
+
+            // 시트 열기
+            sheet.classList.add('is-open');
+
+            // 미니 지도 초기화 (시트가 visible 된 뒤)
+            if (broker.lat && broker.lng) {
+                requestAnimationFrame(() => {
+                    const mapEl = document.getElementById('brokerDetailMap');
+                    if (!mapEl || typeof naver === 'undefined') return;
+                    const center = new naver.maps.LatLng(broker.lat, broker.lng);
+                    brokerDetailMap = new naver.maps.Map(mapEl, {
+                        center: center,
+                        zoom: 15,
+                        draggable: true,
+                        pinchZoom: true,
+                        scrollWheel: false,
+                        zoomControl: false,
+                        mapTypeControl: false
+                    });
+                    new naver.maps.Marker({
+                        position: center,
+                        map: brokerDetailMap,
+                        icon: {
+                            url: '/img/60x60-broker-pin.png',
+                            size: new naver.maps.Size(60, 60),
+                            scaledSize: new naver.maps.Size(60, 60),
+                            anchor: new naver.maps.Point(30, 60)
+                        }
+                    });
+                });
+            }
+        }
+
+        function closeBrokerDetail() {
+            const sheet = document.getElementById('broker-detail-sheet');
+            if (!sheet) return;
+            sheet.classList.remove('is-open');
+            brokerDetailMap = null;
+        }
 
         function normalizePhone(value) {
             if (!value) return '';
@@ -760,7 +948,18 @@
                 if (!isOpen()) return;
                 if (dragging) return;
                 if (sheet.contains(e.target)) return;
+                // 자세히 보기 시트가 열려 있으면 broker-sheet는 닫지 않음
+                const detailSheet = document.getElementById('broker-detail-sheet');
+                if (detailSheet && detailSheet.classList.contains('is-open')) return;
                 applyState(STATE.CLOSED, { animate: true });
+            });
+
+            // 자세히 보기 시트 바깥 클릭 → 자세히 보기만 닫기
+            document.addEventListener('pointerdown', (e) => {
+                const detailSheet = document.getElementById('broker-detail-sheet');
+                if (!detailSheet || !detailSheet.classList.contains('is-open')) return;
+                if (detailSheet.contains(e.target)) return;
+                closeBrokerDetail();
             });
 
             function onDown(e) {
