@@ -577,6 +577,7 @@
             }
             function onMove(e) {
                 if (!dragging) return;
+                if (e.cancelable) e.preventDefault(); // pull-to-refresh 방지
                 currentY    = e.touches ? e.touches[0].clientY : e.clientY;
                 const delta = currentY - startY;
                 if (isOpen()) { if (delta > 0)  collapse.style.transform = `translateY(${delta}px)`; }
@@ -592,7 +593,7 @@
             }
 
             handle.addEventListener('touchstart', onStart, { passive: true });
-            handle.addEventListener('touchmove',  onMove,  { passive: true });
+            handle.addEventListener('touchmove',  onMove,  { passive: false });
             handle.addEventListener('touchend',   onEnd);
             handle.addEventListener('mousedown',  onStart);
             window.addEventListener('mousemove',  onMove);
@@ -600,6 +601,27 @@
 
             window.openSendSheet  = openSheet;
             window.closeSendSheet = closeSheet;
+        })();
+    </script>
+
+    <!-- pull-to-refresh 방지 (iOS Safari) -->
+    <script>
+        (function () {
+            let touchStartY = 0;
+            document.addEventListener('touchstart', function (e) {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            document.addEventListener('touchmove', function (e) {
+                const scrollable = e.target.closest('#broker-sheet-content');
+                if (scrollable) {
+                    const swipingDown = e.touches[0].clientY > touchStartY;
+                    if (swipingDown && scrollable.scrollTop <= 0) {
+                        if (e.cancelable) e.preventDefault();
+                    }
+                    return;
+                }
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
         })();
     </script>
 
