@@ -22,7 +22,7 @@
 - 인프라: AWS EC2
 
 ## 패키지 규칙
-- base package: world.usan.usan
+- base package: com.usanmap.usan
 - 현재 구조 최대한 유지
 - MVC 구조 유지
 
