@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">결제 완료</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/credits.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="credits-page credits-complete-page">
+
+    <style>
+        .credits-complete-page {
+            justify-content: center;
+        }
+
+        .credits-complete {
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .credits-complete__icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 36px;
+        }
+
+        .credits-complete__circle {
+            width: 120px;
+            height: 120px;
+            border: 7px solid #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .credits-complete__check {
+            font-size: 64px;
+            line-height: 1;
+            color: #2ecc71;
+            font-weight: 700;
+            transform: translateY(-2px);
+        }
+
+        .credits-complete__title {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #222222;
+            margin-bottom: 12px;
+        }
+
+        .credits-complete__desc {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #8b8b8b;
+            margin-bottom: 96px;
+        }
+
+        .credits-complete__button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 64px;
+            border-radius: 18px;
+            background: #222222;
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <div class="credits-complete">
+        <div class="credits-complete__icon">
+            <div class="credits-complete__circle">
+                <span class="credits-complete__check">✓</span>
+            </div>
+        </div>
+
+        <div class="credits-complete__title">크레딧 충전이 완료되었어요!</div>
+        <div class="credits-complete__desc">이제 매물을 보낼 수 있어요</div>
+
+        <a th:href="@{/map}" class="credits-complete__button">확인</a>
+    </div>
+
+</section>
+</html>
