@@ -30,6 +30,7 @@ public class SecurityConfig {
                                 "/broker/**",
                                 "/share/**",
                                 "/download/**",
+                                "/policy/**",
                                 "/.well-known/**",
                                 "/error",
                                 "/css/**",
