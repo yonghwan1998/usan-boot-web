@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">환불정책</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/policy.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="policy-page">
+
+    <div class="common-header policy-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">환불정책</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="policy-content">
+        <div class="policy-content__title">우산 컴퍼니 환불정책</div>
+        <br>
+
+        <div class="policy-content__text">
+
+            <div>
+                우산 컴퍼니(이하 “회사”)는 「전자상거래 등에서의 소비자보호에 관한 법률」 등
+                관련 법령을 준수하며, 디지털 서비스의 특성을 고려한 환불정책을 운영합니다.
+            </div>
+
+            <br>
+
+            <div>제1조 (환불 기본 원칙)</div>
+            <ul>
+                <li>
+                    회사의 서비스는 디지털 콘텐츠 및 SaaS 형태로 제공되며, 결제 즉시 이용 가능한 서비스입니다.
+                </li>
+                <li>
+                    환불은 관계 법령 및 본 정책에 따라 처리됩니다.
+                </li>
+                <li>
+                    크레딧의 유효기간은 구매일로부터 1년이며, 기간 만료 시 자동 소멸됩니다.
+                </li>
+            </ul>
+
+            <div>제2조 (환불 가능 기준)</div>
+            <ul>
+                <li>
+                    다음의 경우 환불이 가능합니다.
+                    <ul>
+                        <li>구매 후 7일 이내이며, 크레딧을 전혀 사용하지 않은 경우 (전액 환불)</li>
+                        <li>회사의 귀책 사유로 서비스 이용이 불가능한 경우</li>
+                        <li>시스템 장애로 인해 24시간 이상 정상 이용이 불가능한 경우</li>
+                        <li>법령에 따라 환불이 요구되는 경우</li>
+                        <li>기타 회사가 별도로 공지한 환불 조건이 적용되는 경우</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div>제3조 (환불 제한 또는 불가 사유)</div>
+            <ul>
+                <li>
+                    다음의 경우 환불이 제한될 수 있습니다.
+                    <ul>
+                        <li>크레딧을 일부라도 사용한 경우</li>
+                        <li>이용자의 귀책 사유로 서비스 이용이 불가능한 경우</li>
+                        <li>구매일로부터 7일이 경과한 경우</li>
+                        <li>유효기간이 만료된 크레딧</li>
+                        <li>프로모션 등으로 무상 지급된 크레딧</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div>제4조 (환불 절차 및 방법)</div>
+            <ul>
+                <li>환불은 고객센터(contact@usanmap.com)를 통해 신청할 수 있습니다.</li>
+                <li>
+                    신청 시 다음 정보를 제출해야 합니다.
+                    <ul>
+                        <li>회원 계정(이메일)</li>
+                        <li>결제 내역 또는 영수증</li>
+                        <li>환불 사유</li>
+                    </ul>
+                </li>
+                <li>회사는 접수 후 영업일 기준 7일 이내에 환불 여부를 안내합니다.</li>
+                <li>
+                    승인된 환불은 결제 수단에 따라 처리됩니다.
+                    <ul>
+                        <li>카드 결제: 승인 취소</li>
+                        <li>계좌이체: 지정 계좌 환불</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div>제5조 (책임 및 유의사항)</div>
+            <ul>
+                <li>
+                    회사는 고의 또는 중대한 과실이 없는 한 환불 지연으로 인한 추가 손해에 대해 책임을 제한할 수 있습니다.
+                </li>
+                <li>
+                    본 환불정책은 이용약관과 함께 적용되며, 관련 법령을 우선합니다.
+                </li>
+            </ul>
+
+            <div>제6조 (정책 변경)</div>
+            <ul>
+                <li>회사는 법령 또는 서비스 변경에 따라 본 정책을 수정할 수 있습니다.</li>
+                <li>변경 시 사전 공지합니다.</li>
+            </ul>
+
+            <div>부칙</div>
+            <ul>
+                <li>본 정책은 2026년 4월 1일부터 시행됩니다.</li>
+            </ul>
+
+        </div>
+    </div>
+
+    <div class="policy-footer">
+        <th:block th:replace="~{fragments/footer :: footerFragment}"></th:block>
+    </div>
+
+</section>
+</html>

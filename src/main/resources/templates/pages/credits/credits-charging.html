@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">결제 진행중</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/credits.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="credits-page">
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <div class="common-header__title">결제 진행중</div>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="credits-charge-wrapper">
+        <div class="loading-box">
+            <div class="loading-text">
+                결제가 진행중입니다. (<span id="countdown">3</span>초)
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .credits-charge-wrapper {
+            height: calc(100vh - 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-box {
+            text-align: center;
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        #countdown {
+            color: #007aff;
+            font-weight: 700;
+        }
+    </style>
+
+    <script>
+        let time = 3;
+        const countdownEl = document.getElementById('countdown');
+
+        const timer = setInterval(() => {
+            time--;
+            countdownEl.textContent = time;
+
+            if (time <= 0) {
+                clearInterval(timer);
+                window.location.href = "/credits/complete";
+            }
+        }, 1000);
+    </script>
+</section>

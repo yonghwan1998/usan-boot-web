@@ -1,8 +1,56 @@
 <!-- footer Start -->
 <footer th:fragment="footerFragment">
     <div class="footer-container">
-        <p>© 2025 우리 동네 부동산. All rights reserved.</p>
-        <p>문의: <a href="mailto:usan.master.help@gmail.com">usan.master.help@gmail.com</a></p>
+
+        <hr class="footer-separator">
+
+        <div class="footer-logo">
+            <img src="/img/24x31-logo.svg" alt="우리동네 부동산" class="footer-logo__logo">
+            <span>
+                <span class="footer-logo__top">우리동네</span>
+                <span class="footer-logo__bottom">
+                    <span class="footer-logo__text">부</span>
+                    <span class="footer-logo__text">동</span>
+                    <span class="footer-logo__text">산</span>
+                </span>
+            </span>
+        </div>
+
+        <div class="footer-links">
+            <span class="footer-links__link">회사소개</span>
+            <span class="footer-links__link">저작권</span>
+            <a th:href="@{/policy/refund}" class="footer-links__link">환불정책</a>
+        </div>
+
+        <div class="footer-info">
+            <div class="footer-info__rights">ⓒ 2026 우산 컴퍼니. All rights reserved.</div>
+            <div class="footer-info__links">
+                <a th:href="@{/policy/privacy}" class="footer-info__link">개인정보처리방침</a>
+                <span class="footer-info__link-separator">|</span>
+                <a th:href="@{/policy/terms}" class="footer-info__link">이용약관</a>
+            </div>
+            <div class="footer-info__business">
+                상호명: 우산 컴퍼니 | 대표자: 방용환 | 사업자등록번호: 174-48-00884
+                <br>
+                통신판매업신고번호: 제9999-경기오산-9999호 | 주소: 경기도 오산시 삼미로 34
+            </div>
+        </div>
+
+        <div class="footer-date">
+            Last Updated April 1st, 2026
+        </div>
+
+        <div class="footer-contact">
+            <div class="footer-contact__wrapper">
+                <span class="footer-contact__tel-icon"></span>
+                <span class="footer-contact__text">010-3393-3402</span>
+            </div>
+            <div class="footer-contact__wrapper">
+                <span class="footer-contact__mail-icon"></span>
+                <span class="footer-contact__text">contact@usanmap.com</span>
+            </div>
+        </div>
+
     </div>
 </footer>
 <!-- footer End -->
