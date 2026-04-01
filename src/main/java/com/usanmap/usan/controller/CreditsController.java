@@ -17,4 +17,14 @@ public class CreditsController {
     public String chargeCredits() {
         return "pages/credits/credits-charge";
     }
+
+    @GetMapping("/charging")
+    public String chargingCredits() {
+        return "pages/credits/credits-charging";
+    }
+
+    @GetMapping("/complete")
+    public String completeCredits() {
+        return "pages/credits/credits-complete";
+    }
 }
