@@ -35,10 +35,10 @@ public class CreditsController {
         return "pages/credits/credits-charge";
     }
 
-    @GetMapping("/charging")
-    public String chargingCredits(@RequestParam Long productId, Model model) {
+    @GetMapping("/checkout")
+    public String checkoutCredits(@RequestParam Long productId, Model model) {
         model.addAttribute("productId", productId);
-        return "pages/credits/credits-charging";
+        return "pages/credits/credits-checkout";
     }
 
     @GetMapping("/complete")

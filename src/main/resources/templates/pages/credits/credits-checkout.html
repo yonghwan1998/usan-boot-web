@@ -85,8 +85,8 @@
                 }, 1000);
             });
 
-            // 3. Mock 승인
-            const confirmRes = await fetch('/api/credits/orders/' + orderNo + '/mock-confirm', { method: 'POST' });
+            // 3. 결제 승인 (토스 연동 전: Mock / 연동 후: 실제 승인)
+            const confirmRes = await fetch('/api/credits/orders/' + orderNo + '/confirm', { method: 'POST' });
             if (!confirmRes.ok) {
                 alert('결제 처리에 실패했습니다.');
                 history.back();

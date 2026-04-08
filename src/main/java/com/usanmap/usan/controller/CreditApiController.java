@@ -23,10 +23,10 @@ public class CreditApiController {
         return ResponseEntity.ok(Map.of("orderNo", orderNo));
     }
 
-    @PostMapping("/orders/{orderNo}/mock-confirm")
-    public ResponseEntity<Map<String, String>> mockConfirm(@PathVariable String orderNo) {
+    @PostMapping("/orders/{orderNo}/confirm")
+    public ResponseEntity<Map<String, String>> confirmCharge(@PathVariable String orderNo) {
         Long userId = securityUtils.currentUserIdOrThrow();
-        creditService.mockConfirm(orderNo, userId);
+        creditService.confirmCharge(orderNo, userId);
         return ResponseEntity.ok(Map.of("status", "ok"));
     }
 }

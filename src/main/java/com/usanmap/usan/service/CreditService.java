@@ -105,7 +105,7 @@ public class CreditService {
     }
 
     @Transactional
-    public void mockConfirm(String orderNo, Long userId) {
+    public void confirmCharge(String orderNo, Long userId) {
         CreditOrder order = creditOrderRepository.findByOrderNo(orderNo)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
