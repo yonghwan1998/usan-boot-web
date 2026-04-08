@@ -4,6 +4,7 @@ import com.usanmap.usan.entity.*;
 import com.usanmap.usan.entity.enums.*;
 import com.usanmap.usan.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,15 @@ public class CreditService {
         return memberCreditBalanceRepository.findByMember(user)
                 .map(MemberCreditBalance::getBalance)
                 .orElse(0);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Payment> getPayments(Long userId, PaymentStatus status) {
+        Pageable pageable = PageRequest.of(0, 50);
+        if (status == null) {
+            return paymentRepository.findByMemberId(userId, pageable).getContent();
+        }
+        return paymentRepository.findByMemberIdAndStatus(userId, status, pageable).getContent();
     }
 
     @Transactional(readOnly = true)
