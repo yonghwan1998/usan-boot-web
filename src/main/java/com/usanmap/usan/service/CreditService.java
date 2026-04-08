@@ -34,6 +34,19 @@ public class CreditService {
                 .orElse(0);
     }
 
+    @Transactional(readOnly = true)
+    public CreditOrder getCompletedOrder(String orderNo, Long userId) {
+        CreditOrder order = creditOrderRepository.findByOrderNo(orderNo)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+        if (!order.getMember().getId().equals(userId)) {
+            throw new IllegalStateException("접근 권한이 없습니다.");
+        }
+        if (order.getOrderStatus() != OrderStatus.PAID) {
+            throw new IllegalStateException("완료된 주문이 아닙니다.");
+        }
+        return order;
+    }
+
     @Transactional
     public String createOrder(Long userId, Long productId) {
         User user = userRepository.findById(userId)

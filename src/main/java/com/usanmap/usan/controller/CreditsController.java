@@ -37,7 +37,11 @@ public class CreditsController {
     }
 
     @GetMapping("/complete")
-    public String completeCredits() {
+    public String completeCredits(@RequestParam String orderNo, Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        var order = creditService.getCompletedOrder(orderNo, userId);
+        model.addAttribute("chargedCredit", order.getTotalCreditSnapshot());
+        model.addAttribute("balance", creditService.getBalance(userId));
         return "pages/credits/credits-complete";
     }
 }
