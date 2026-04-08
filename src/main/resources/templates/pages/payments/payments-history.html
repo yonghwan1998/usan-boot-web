@@ -29,116 +29,47 @@
     <div class="payments-history-wrapper">
 
         <div class="payments-history__filter">
-            <button class="payments-history__filter-item filter-item__left is-active">전체</button>
-            <button class="payments-history__filter-item filter-item__center">결제 완료</button>
-            <button class="payments-history__filter-item filter-item__right">결제 실패</button>
+            <a th:href="@{/payments/history(status='ALL')}"
+               class="payments-history__filter-item filter-item__left"
+               th:classappend="${status == 'ALL'} ? ' is-active'">전체</a>
+            <a th:href="@{/payments/history(status='SUCCESS')}"
+               class="payments-history__filter-item filter-item__center"
+               th:classappend="${status == 'SUCCESS'} ? ' is-active'">결제 완료</a>
+            <a th:href="@{/payments/history(status='FAILED')}"
+               class="payments-history__filter-item filter-item__right"
+               th:classappend="${status == 'FAILED'} ? ' is-active'">결제 실패</a>
         </div>
 
         <div class="payments-history__list">
-            <div class="payments-history__item">
-                <div class="payments-history__left">
-                    <div class="payments-history__title-wrapper">
-                        <span class="payments-history__title">크레딧 충전</span>
-                        <span class="payments-history__credit">100C</span>
-                    </div>
-                    <div class="payments-history__info-wrapper">
-                        <span class="payments-history__date">2026.01.02</span>
-                        <span class="payments-history__dot">·</span>
-                        <span class="payments-history__price">4,800원</span>
-                    </div>
-                </div>
-                <div class="payments-history__price-tag complete-tag">결제 완료</div>
+            <div th:if="${#lists.isEmpty(payments)}" class="payments-history__empty">
+                내역이 없습니다.
             </div>
-            <div class="payments-history__item">
+            <div th:each="payment : ${payments}" class="payments-history__item">
                 <div class="payments-history__left">
                     <div class="payments-history__title-wrapper">
-                        <span class="payments-history__title">크레딧 충전</span>
-                        <span class="payments-history__credit">250C</span>
+                        <span class="payments-history__title" th:text="${payment.creditOrder.productNameSnapshot}">크레딧 충전</span>
+                        <span class="payments-history__credit" th:text="${payment.creditOrder.totalCreditSnapshot} + 'C'">0C</span>
                     </div>
                     <div class="payments-history__info-wrapper">
-                        <span class="payments-history__date">2026.01.05</span>
+                        <span class="payments-history__date"
+                              th:text="${#temporals.format(payment.requestedAt, 'yyyy.MM.dd')}">-</span>
                         <span class="payments-history__dot">·</span>
-                        <span class="payments-history__price">12,000원</span>
+                        <span class="payments-history__price"
+                              th:text="${#numbers.formatInteger(payment.requestedAmount, 1, 'COMMA')} + '원'">0원</span>
                     </div>
                 </div>
-                <div class="payments-history__price-tag fail-tag">결제 실패</div>
-            </div>
-            <div class="payments-history__item">
-                <div class="payments-history__left">
-                    <div class="payments-history__title-wrapper">
-                        <span class="payments-history__title">크레딧 충전</span>
-                        <span class="payments-history__credit">150C</span>
-                    </div>
-                    <div class="payments-history__info-wrapper">
-                        <span class="payments-history__date">2026.01.10</span>
-                        <span class="payments-history__dot">·</span>
-                        <span class="payments-history__price">7,200원</span>
-                    </div>
-                </div>
-                <div class="payments-history__price-tag complete-tag">결제 완료</div>
-            </div>
-            <div class="payments-history__item">
-                <div class="payments-history__left">
-                    <div class="payments-history__title-wrapper">
-                        <span class="payments-history__title">크레딧 충전</span>
-                        <span class="payments-history__credit">300C</span>
-                    </div>
-                    <div class="payments-history__info-wrapper">
-                        <span class="payments-history__date">2026.01.15</span>
-                        <span class="payments-history__dot">·</span>
-                        <span class="payments-history__price">5,000원</span>
-                    </div>
-                </div>
-                <div class="payments-history__price-tag complete-tag">결제 완료</div>
-            </div>
-            <div class="payments-history__item">
-                <div class="payments-history__left">
-                    <div class="payments-history__title-wrapper">
-                        <span class="payments-history__title">크레딧 충전</span>
-                        <span class="payments-history__credit">200C</span>
-                    </div>
-                    <div class="payments-history__info-wrapper">
-                        <span class="payments-history__date">2026.01.20</span>
-                        <span class="payments-history__dot">·</span>
-                        <span class="payments-history__price">9,600원</span>
-                    </div>
-                </div>
-                <div class="payments-history__price-tag fail-tag">결제 실패</div>
-            </div>
-            <div class="payments-history__item">
-                <div class="payments-history__left">
-                    <div class="payments-history__title-wrapper">
-                        <span class="payments-history__title">크레딧 충전</span>
-                        <span class="payments-history__credit">750C</span>
-                    </div>
-                    <div class="payments-history__info-wrapper">
-                        <span class="payments-history__date">2026.01.25</span>
-                        <span class="payments-history__dot">·</span>
-                        <span class="payments-history__price">3,600원</span>
-                    </div>
-                </div>
-                <div class="payments-history__price-tag complete-tag">결제 완료</div>
-            </div>
-            <div class="payments-history__item">
-                <div class="payments-history__left">
-                    <div class="payments-history__title-wrapper">
-                        <span class="payments-history__title">크레딧 충전</span>
-                        <span class="payments-history__credit">120C</span>
-                    </div>
-                    <div class="payments-history__info-wrapper">
-                        <span class="payments-history__date">2026.01.30</span>
-                        <span class="payments-history__dot">·</span>
-                        <span class="payments-history__price">5,800원</span>
-                    </div>
-                </div>
-                <div class="payments-history__price-tag complete-tag">결제 완료</div>
+                <div class="payments-history__price-tag"
+                     th:classappend="${payment.paymentStatus.name() == 'SUCCESS'} ? ' complete-tag' : ' fail-tag'"
+                     th:text="${payment.paymentStatus.name() == 'SUCCESS'} ? '결제 완료' : '결제 실패'">-</div>
             </div>
         </div>
     </div>
 
     <div class="payments-btn__wrapper">
-        <div class="payments__bottom-credits">현재 크레딧 : 7,450 C</div>
-        <div class="payments-btn">크레딧 충전하기</div>
+        <div class="payments__bottom-credits">현재 크레딧 :
+            <span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">0</span> C
+        </div>
+        <a th:href="@{/credits/charge}" class="payments-btn">크레딧 충전하기</a>
     </div>
 
 </section>

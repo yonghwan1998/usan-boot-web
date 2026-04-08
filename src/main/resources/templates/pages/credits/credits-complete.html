@@ -97,7 +97,10 @@
         </div>
 
         <div class="credits-complete__title">크레딧 충전이 완료되었어요!</div>
-        <div class="credits-complete__desc">이제 매물을 보낼 수 있어요</div>
+        <div class="credits-complete__desc">
+            <span th:text="${#numbers.formatInteger(chargedCredit, 1, 'COMMA')}">0</span>C 충전 완료<br>
+            현재 잔액 <span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">0</span>C
+        </div>
 
         <a th:href="@{/map}" class="credits-complete__button">확인</a>
     </div>
