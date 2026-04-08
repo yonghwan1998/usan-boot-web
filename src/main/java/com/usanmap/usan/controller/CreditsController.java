@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/credits")
@@ -30,7 +31,8 @@ public class CreditsController {
     }
 
     @GetMapping("/charging")
-    public String chargingCredits() {
+    public String chargingCredits(@RequestParam Long productId, Model model) {
+        model.addAttribute("productId", productId);
         return "pages/credits/credits-charging";
     }
 
