@@ -1,5 +1,6 @@
 package com.usanmap.usan.controller;
 
+import com.usanmap.usan.entity.enums.LedgerType;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.CreditService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,11 @@ public class CreditsController {
     private final SecurityUtils securityUtils;
 
     @GetMapping("/history")
-    public String creditsHistory() {
+    public String creditsHistory(@RequestParam(defaultValue = "USE") LedgerType type, Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        model.addAttribute("ledgers", creditService.getLedgers(userId, type));
+        model.addAttribute("balance", creditService.getBalance(userId));
+        model.addAttribute("type", type);
         return "pages/credits/credits-history";
     }
 

@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.PageRequest;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +34,13 @@ public class CreditService {
         return memberCreditBalanceRepository.findByMember(user)
                 .map(MemberCreditBalance::getBalance)
                 .orElse(0);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CreditLedger> getLedgers(Long userId, LedgerType type) {
+        User user = userRepository.getReferenceById(userId);
+        return creditLedgerRepository.findByMemberAndLedgerTypeOrderByCreatedAtDesc(user, type, PageRequest.of(0, 50))
+                .getContent();
     }
 
     @Transactional(readOnly = true)

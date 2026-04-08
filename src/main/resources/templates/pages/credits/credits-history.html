@@ -29,115 +29,43 @@
     <div class="credits-history-wrapper">
 
         <div class="credits-history__filter">
-            <button class="credits-history__filter-item is-active">사용</button>
-            <button class="credits-history__filter-item">충전</button>
+            <a th:href="@{/credits/history(type='USE')}"
+               class="credits-history__filter-item"
+               th:classappend="${type.name() == 'USE'} ? ' is-active'">사용</a>
+            <a th:href="@{/credits/history(type='CHARGE')}"
+               class="credits-history__filter-item"
+               th:classappend="${type.name() == 'CHARGE'} ? ' is-active'">충전</a>
         </div>
 
         <div class="credits-history__list">
-            <div class="credits-history__item">
-                <div class="credits-history__left">
-                    <div class="credits-history__title-wrapper">
-                        <span class="credits-history__title">메시지 발송</span>
-                        <span class="credits-history__count">9건</span>
-                    </div>
-                    <div class="credits-history__info-wrapper">
-                        <span class="credits-history__date">2026.01.02</span>
-                        <span class="credits-history__dot">·</span>
-                        <span class="credits-history__time">18:05</span>
-                    </div>
-                </div>
-                <div class="credits-history__price-tag used-tag">-27C</div>
+            <div th:if="${#lists.isEmpty(ledgers)}" class="credits-history__empty">
+                내역이 없습니다.
             </div>
-            <div class="credits-history__item">
+            <div th:each="ledger : ${ledgers}" class="credits-history__item">
                 <div class="credits-history__left">
                     <div class="credits-history__title-wrapper">
-                        <span class="credits-history__title">메시지 발송</span>
-                        <span class="credits-history__count">15건</span>
+                        <span class="credits-history__title" th:text="${ledger.description}">-</span>
                     </div>
                     <div class="credits-history__info-wrapper">
-                        <span class="credits-history__date">2026.01.03</span>
+                        <span class="credits-history__date"
+                              th:text="${#temporals.format(ledger.createdAt, 'yyyy.MM.dd')}">-</span>
                         <span class="credits-history__dot">·</span>
-                        <span class="credits-history__price">09:30</span>
+                        <span class="credits-history__time"
+                              th:text="${#temporals.format(ledger.createdAt, 'HH:mm')}">-</span>
                     </div>
                 </div>
-                <div class="credits-history__price-tag used-tag">-45C</div>
-            </div>
-            <div class="credits-history__item">
-                <div class="credits-history__left">
-                    <div class="credits-history__title-wrapper">
-                        <span class="credits-history__title">메시지 발송</span>
-                        <span class="credits-history__count">7건</span>
-                    </div>
-                    <div class="credits-history__info-wrapper">
-                        <span class="credits-history__date">2026.01.04</span>
-                        <span class="credits-history__dot">·</span>
-                        <span class="credits-history__price">11:15</span>
-                    </div>
-                </div>
-                <div class="credits-history__price-tag used-tag">-21C</div>
-            </div>
-            <div class="credits-history__item">
-                <div class="credits-history__left">
-                    <div class="credits-history__title-wrapper">
-                        <span class="credits-history__title">메시지 발송</span>
-                        <span class="credits-history__count">20건</span>
-                    </div>
-                    <div class="credits-history__info-wrapper">
-                        <span class="credits-history__date">2026.01.05</span>
-                        <span class="credits-history__dot">·</span>
-                        <span class="credits-history__price">14:45</span>
-                    </div>
-                </div>
-                <div class="credits-history__price-tag used-tag">-60C</div>
-            </div>
-            <div class="credits-history__item">
-                <div class="credits-history__left">
-                    <div class="credits-history__title-wrapper">
-                        <span class="credits-history__title">메시지 발송</span>
-                        <span class="credits-history__count">5건</span>
-                    </div>
-                    <div class="credits-history__info-wrapper">
-                        <span class="credits-history__date">2026.01.06</span>
-                        <span class="credits-history__dot">·</span>
-                        <span class="credits-history__price">16:00</span>
-                    </div>
-                </div>
-                <div class="credits-history__price-tag used-tag">-15C</div>
-            </div>
-            <div class="credits-history__item">
-                <div class="credits-history__left">
-                    <div class="credits-history__title-wrapper">
-                        <span class="credits-history__title">메시지 발송</span>
-                        <span class="credits-history__count">12건</span>
-                    </div>
-                    <div class="credits-history__info-wrapper">
-                        <span class="credits-history__date">2026.01.07</span>
-                        <span class="credits-history__dot">·</span>
-                        <span class="credits-history__price">10:30</span>
-                    </div>
-                </div>
-                <div class="credits-history__price-tag used-tag">-36C</div>
-            </div>
-            <div class="credits-history__item">
-                <div class="credits-history__left">
-                    <div class="credits-history__title-wrapper">
-                        <span class="credits-history__title">메시지 발송</span>
-                        <span class="credits-history__count">3건</span>
-                    </div>
-                    <div class="credits-history__info-wrapper">
-                        <span class="credits-history__date">2026.01.08</span>
-                        <span class="credits-history__dot">·</span>
-                        <span class="credits-history__price">08:00</span>
-                    </div>
-                </div>
-                <div class="credits-history__price-tag used-tag">-9C</div>
+                <div class="credits-history__price-tag"
+                     th:classappend="${ledger.changeAmount >= 0} ? ' charge-tag' : ' used-tag'"
+                     th:text="${ledger.changeAmount >= 0} ? '+' + ${ledger.changeAmount} + 'C' : ${ledger.changeAmount} + 'C'">0C</div>
             </div>
         </div>
     </div>
 
     <div class="credits-btn__wrapper">
-        <div class="credits__bottom-credits">현재 크레딧 : 7,450 C</div>
-        <div class="credits-btn">크레딧 충전하기</div>
+        <div class="credits__bottom-credits">현재 크레딧 :
+            <span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">0</span> C
+        </div>
+        <a th:href="@{/credits/charge}" class="credits-btn">크레딧 충전하기</a>
     </div>
 
 </section>
