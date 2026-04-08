@@ -28,7 +28,7 @@ public class CreditOrder {
     private User member;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "credit_product_id")
+    @JoinColumn(name = "credit_product_id", nullable = false)
     private CreditProduct creditProduct;
 
     @Column(nullable = false, length = 50)

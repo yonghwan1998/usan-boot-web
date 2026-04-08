@@ -24,6 +24,10 @@ public class CreditLedger {
     private User member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "credit_order_id")
+    private CreditOrder creditOrder;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")
     private Payment payment;
 

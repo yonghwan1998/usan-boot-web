@@ -29,7 +29,7 @@ public class Payment {
     @Column(nullable = false, length = 30)
     private PgProvider pgProvider;
 
-    @Column(name = "payment_key", nullable = false, length = 200)
+    @Column(name = "payment_key", length = 200)
     private String paymentKey;
 
     @Column(length = 50)

@@ -75,10 +75,6 @@ public class CreditProduct {
     @PreUpdate
     void preUpdate() {
         updatedAt = LocalDateTime.now();
-
-        if (totalCreditAmount == null) {
-            totalCreditAmount = (baseCreditAmount != null ? baseCreditAmount : 0)
-                    + (bonusCreditAmount != null ? bonusCreditAmount : 0);
-        }
+        totalCreditAmount = baseCreditAmount + bonusCreditAmount;
     }
 }

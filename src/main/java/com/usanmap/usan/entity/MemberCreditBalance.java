@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "member_credit_balance")
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,6 +24,10 @@ public class MemberCreditBalance {
 
     @Column(nullable = false)
     private Integer balance;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -45,5 +48,16 @@ public class MemberCreditBalance {
     @PreUpdate
     public void preUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public void addBalance(int amount) {
+        this.balance += amount;
+    }
+
+    public void deductBalance(int amount) {
+        if (this.balance < amount) {
+            throw new IllegalStateException("크레딧이 부족합니다.");
+        }
+        this.balance -= amount;
     }
 }
