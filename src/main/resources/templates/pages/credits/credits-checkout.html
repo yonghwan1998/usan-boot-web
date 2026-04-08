@@ -58,18 +58,44 @@
         }
     </style>
 
-    <script>
-        let time = 3;
-        const countdownEl = document.getElementById('countdown');
+    <script th:inline="javascript">
+        const productId = /*[[${productId}]]*/ null;
 
-        const timer = setInterval(() => {
-            time--;
-            countdownEl.textContent = time;
-
-            if (time <= 0) {
-                clearInterval(timer);
-                window.location.href = "/credits/complete";
+        async function run() {
+            // 1. 주문 생성
+            const orderRes = await fetch('/api/credits/orders?productId=' + productId, { method: 'POST' });
+            if (!orderRes.ok) {
+                alert('주문 생성에 실패했습니다.');
+                history.back();
+                return;
             }
-        }, 1000);
+            const { orderNo } = await orderRes.json();
+
+            // 2. 3초 카운트다운
+            const countdownEl = document.getElementById('countdown');
+            await new Promise(resolve => {
+                let time = 3;
+                const timer = setInterval(() => {
+                    time--;
+                    countdownEl.textContent = time;
+                    if (time <= 0) {
+                        clearInterval(timer);
+                        resolve();
+                    }
+                }, 1000);
+            });
+
+            // 3. 결제 승인 (토스 연동 전: Mock / 연동 후: 실제 승인)
+            const confirmRes = await fetch('/api/credits/orders/' + orderNo + '/confirm', { method: 'POST' });
+            if (!confirmRes.ok) {
+                alert('결제 처리에 실패했습니다.');
+                history.back();
+                return;
+            }
+
+            window.location.href = '/credits/complete?orderNo=' + orderNo;
+        }
+
+        run();
     </script>
 </section>
