@@ -1,12 +1,20 @@
 package com.usanmap.usan.controller;
 
+import com.usanmap.usan.security.SecurityUtils;
+import com.usanmap.usan.service.CreditService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/credits")
+@RequiredArgsConstructor
 public class CreditsController {
+
+    private final CreditService creditService;
+    private final SecurityUtils securityUtils;
 
     @GetMapping("/history")
     public String creditsHistory() {
@@ -14,7 +22,10 @@ public class CreditsController {
     }
 
     @GetMapping("/charge")
-    public String chargeCredits() {
+    public String chargeCredits(Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        model.addAttribute("products", creditService.getActiveProducts());
+        model.addAttribute("balance", creditService.getBalance(userId));
         return "pages/credits/credits-charge";
     }
 
