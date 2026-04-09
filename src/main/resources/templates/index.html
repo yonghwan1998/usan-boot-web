@@ -166,90 +166,25 @@
         <!--    주변 중개사    -->
         <section class="home-block" id="agent-section">
 
-            <div class="flex_between">
-                <h2 class="feature-card__title"
-                    th:text="${login.authenticated} ? ${login.nearbyAddr} + '의 중개사' : '주변 중개사'">
-                    주변 중개사
-                </h2>
-
-                <a th:href="@{#}"
-                   th:if="${login.authenticated}"
-                   class="home-block__go-map flex_center">
-                    <span class="go-map__text">전체보기</span>
-                    <span class="go-map__icon"></span>
-                </a>
+            <div th:unless="${login.authenticated}" class="nearby-agent--logout">
+                <h2 class="nearby-agent__title">주변 중개사</h2>
+                <h3 class="home-block__desc">내 매물을 보낼 중개사들을 리스트로 빠르게 찾아봐요!</h3>
             </div>
-            <h3 class="home-block__desc"
-                th:unless="${login.authenticated}">
-                내 매물을 보낼 중개사들을 리스트로 빠르게 찾아봐요!
-            </h3>
+
+            <div th:if="${login.authenticated}"
+                 class="nearby-agent--login"
+                 th:text="${login.nearbyAddr} + '의 주변 중개사'">
+                    선택한 주소의 주변 중개사
+            </div>
 
             <div class="home-block__nearby">
-                <!--      아래 레이어: 실제 리스트      -->
-                <div class="nearby-list">
-                    <!--         더미 데이터(미로그인)           -->
-                    <div class="nearby-placeholder" th:unless="${login.authenticated}">
-                        <div class="nearby-placeholder__item">
-                            <div class="nearby-placeholder__left">
-                                <img src="/img/104x104-rectangle.svg" alt="프로필">
-                                <div class="nearby-placeholder__text">
-                                    <h3 class="nearby-placeholder__name">우리동네 부동산</h3>
-                                    <h4 class="nearby-placeholder__listing">아파트 8 오피스텔 6 상가 4</h4>
-                                </div>
-                            </div>
-                            <div class="nearby-placeholder__right">
-                                <div class="nearby-placeholder__icons">
-                                    <span class="nearby-placeholder__call nearby-placeholder__icon"></span>
-                                    <span class="nearby-placeholder__home nearby-placeholder__icon"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="nearby-placeholder__item">
-                            <div class="nearby-placeholder__left">
-                                <img src="/img/104x104-rectangle.svg" alt="프로필">
-                                <div class="nearby-placeholder__text">
-                                    <h3 class="nearby-placeholder__name">금산부동산</h3>
-                                    <h4 class="nearby-placeholder__listing">빌라 3 상가주택 2 아파트 1</h4>
-                                </div>
-                            </div>
-                            <div class="nearby-placeholder__right">
-                                <div class="nearby-placeholder__icons">
-                                    <span class="nearby-placeholder__call nearby-placeholder__icon"></span>
-                                    <span class="nearby-placeholder__home nearby-placeholder__icon"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="nearby-placeholder__item">
-                            <div class="nearby-placeholder__left">
-                                <img src="/img/104x104-rectangle.svg" alt="프로필">
-                                <div class="nearby-placeholder__text">
-                                    <h3 class="nearby-placeholder__name">황금동 부동산</h3>
-                                    <h4 class="nearby-placeholder__listing">주택 10 빌라/연립 7 원룸 5</h4>
-                                </div>
-                            </div>
-                            <div class="nearby-placeholder__right">
-                                <div class="nearby-placeholder__icons">
-                                    <span class="nearby-placeholder__call nearby-placeholder__icon"></span>
-                                    <span class="nearby-placeholder__home nearby-placeholder__icon"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--         실제 데이터(로그인)           -->
-                    <div class="nearby-agent" th:if="${login.authenticated}">
+                <div class="nearby-wrapper">
+                    <div class="nearby-agent">
+
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
-                                <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필">
-                            </div>
-                            <div class="nearby-agent__right">
-                                <div class="nearby-agent__text">
-                                    <h3 class="nearby-agent__name">우리동네 부동산</h3>
-                                    <h4 class="nearby-agent__desc">
-                                        <span class="nearby-agent__distance">85.2m</span>
-                                        <span>·</span>
-                                        <span class="nearby-agent__addr">경기도 오산시</span>
-                                    </h4>
-                                </div>
+                                <h3 class="nearby-agent__name">우리동네 부동산</h3>
+
                                 <div class="nearby-agent__tags">
                                     <span class="listing__tag listing__tag--apt">
                                         <span class="tag-label">아파트</span>
@@ -264,21 +199,25 @@
                                         <span class="tag-count">7</span>
                                     </span>
                                 </div>
+
+                                <div class="nearby-agent__address-wrapper">
+                                    <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
+                                    <span class="nearby-agent__expand-btn"></span>
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필">
                             </div>
                         </div>
+
                         <div class="nearby-agent__hr"></div>
+
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
-                                <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필">
-                            </div>
-                            <div class="nearby-agent__right">
-                                <div class="nearby-agent__text">
-                                    <h3 class="nearby-agent__name">우리동네 부동산</h3>
-                                    <h4>
-                                        <span class="nearby-agent__distance">85.2m</span>
-                                        <span class="nearby-agent__addr">경기도 오산시</span>
-                                    </h4>
-                                </div>
+                                <h3 class="nearby-agent__name">우리동네 부동산</h3>
+
                                 <div class="nearby-agent__tags">
                                     <span class="listing__tag listing__tag--villa">
                                         <span class="tag-label">빌라/연립</span>
@@ -293,21 +232,25 @@
                                         <span class="tag-count">5</span>
                                     </span>
                                 </div>
+
+                                <div class="nearby-agent__address-wrapper">
+                                    <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
+                                    <span class="nearby-agent__expand-btn"></span>
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필">
                             </div>
                         </div>
+
                         <div class="nearby-agent__hr"></div>
+
                         <div class="nearby-agent__item">
                             <div class="nearby-agent__left">
-                                <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필">
-                            </div>
-                            <div class="nearby-agent__right">
-                                <div class="nearby-agent__text">
-                                    <h3 class="nearby-agent__name">우리동네 부동산</h3>
-                                    <h4>
-                                        <span class="nearby-agent__distance">85.2m</span>
-                                        <span class="nearby-agent__addr">경기도 오산시</span>
-                                    </h4>
-                                </div>
+                                <h3 class="nearby-agent__name">우리동네 부동산</h3>
+
                                 <div class="nearby-agent__tags">
                                     <span class="listing__tag listing__tag--detached">
                                         <span class="tag-label">단독/다가구</span>
@@ -322,9 +265,26 @@
                                         <span class="tag-count">2</span>
                                     </span>
                                 </div>
+
+                                <div class="nearby-agent__address-wrapper">
+                                    <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
+                                    <span class="nearby-agent__expand-btn"></span>
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필">
                             </div>
                         </div>
+
                     </div>
+
+                    <div class="nearby-agent__more-wrapper">
+                        <span class="nearby-agent__more-btn"></span>
+                        <span class="nearby-agent__more-text">더보기</span>
+                    </div>
+
                 </div>
 
                 <!--      위 레이어: 안내 버블 오버레이      -->
@@ -335,7 +295,7 @@
                             주변 중개사님 리스트를 찾아봐요!
                         </p>
                         <button type="button"
-                                class="btn btn--secondary btn--sm"
+                                class="btn btn--outline btn--sm"
                                 th:onclick="|location.href='@{/region/selector}'|">
                             주변 중개사 보기
                         </button>
