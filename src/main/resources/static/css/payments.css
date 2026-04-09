@@ -74,6 +74,29 @@
     color: #ffffff;
 }
 
+.payments-history__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 20px;
+}
+
+.icon__payments-face {
+    background-color: #d9d9d9;
+    width: 119px;
+    height: 64px;
+    mask: url("../img/119x64-payments-face.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/119x64-payments-face.svg") center/contain no-repeat;
+}
+
+.payments-history__empty-text {
+    font-weight: 600;
+    font-size: 26px;
+    color: #737373;
+}
+
 .payments-history__list {
     display: flex;
     flex-direction: column;
