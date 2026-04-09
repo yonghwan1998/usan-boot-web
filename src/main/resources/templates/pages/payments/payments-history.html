@@ -42,7 +42,7 @@
 
         <div th:if="${#lists.isEmpty(payments)}" class="payments-history__empty">
             <span class="icon__payments-face"></span>
-            <div th:if="${status == null or status == 'ALL'}" class="payments-history__empty-text">결제 내역이 없어요.</div>
+            <div th:if="${status == 'ALL'}" class="payments-history__empty-text">결제 내역이 없어요.</div>
             <div th:if="${status == 'SUCCESS'}" class="payments-history__empty-text">결제 완료된 내역이 없어요.</div>
             <div th:if="${status == 'FAILED'}" class="payments-history__empty-text">결제 실패된 내역이 없어요.</div>
         </div>
