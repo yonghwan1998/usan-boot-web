@@ -40,10 +40,14 @@
                th:classappend="${status == 'FAILED'} ? ' is-active'">결제 실패</a>
         </div>
 
-        <div class="payments-history__list">
-            <div th:if="${#lists.isEmpty(payments)}" class="payments-history__empty">
-                내역이 없습니다.
-            </div>
+        <div th:if="${#lists.isEmpty(payments)}" class="payments-history__empty">
+            <span class="icon__payments-face"></span>
+            <div th:if="${status == null or status == 'ALL'}" class="payments-history__empty-text">결제 내역이 없어요.</div>
+            <div th:if="${status == 'SUCCESS'}" class="payments-history__empty-text">결제 완료된 내역이 없어요.</div>
+            <div th:if="${status == 'FAILED'}" class="payments-history__empty-text">결제 실패된 내역이 없어요.</div>
+        </div>
+
+        <div th:if="${not #lists.isEmpty(payments)}" class="payments-history__list">
             <div th:each="payment : ${payments}" class="payments-history__item">
                 <div class="payments-history__left">
                     <div class="payments-history__title-wrapper">
