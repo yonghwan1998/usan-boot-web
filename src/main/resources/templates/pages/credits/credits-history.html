@@ -37,10 +37,13 @@
                th:classappend="${type.name() == 'CHARGE'} ? ' is-active'">충전</a>
         </div>
 
-        <div class="credits-history__list">
-            <div th:if="${#lists.isEmpty(ledgers)}" class="credits-history__empty">
-                내역이 없습니다.
-            </div>
+        <div th:if="${#lists.isEmpty(ledgers)}" class="credits-history__empty">
+            <span class="icon__payments-face"></span>
+            <div th:if="${type.name() == 'USE'}" class="credits-history__empty-text">사용한 크레딧 내역이 없어요.</div>
+            <div th:if="${type.name() == 'CHARGE'}" class="credits-history__empty-text">충전한 크레딧 내역이 없어요.</div>
+        </div>
+
+        <div th:if="not ${#lists.isEmpty(ledgers)}" class="credits-history__list">
             <div th:each="ledger : ${ledgers}" class="credits-history__item">
                 <div class="credits-history__left">
                     <div class="credits-history__title-wrapper">
