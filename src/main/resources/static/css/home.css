@@ -39,7 +39,6 @@
     font-weight: 600;
     font-size: 24px;
     height: 40px;
-    padding: 0 8px;
     color: #262626;
 }
 
@@ -280,30 +279,27 @@
     align-self: center;
 }
 
-.home-block__go-map {
-    gap: 2px;
-    text-decoration: none;
-}
-
-.go-map__text {
-    font-weight: 400;
-    font-size: 16px;
-    color: #6a7282;
-}
-
-.go-map__icon {
-    background-image: url("../img/6x10-arrow.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 4px 8px;
-    width: 16px;
-    height: 16px;
-}
-
 #agent-section {
-    background: #ffffff;
     border-radius: 16px;
     padding: 16px 0;
+}
+
+.nearby-agent--logout {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nearby-agent__title {
+    font-weight: 600;
+    font-size: 20px;
+    color: #000000;
+}
+
+.nearby-agent--login {
+    font-weight: 600;
+    font-size: 20px;
+    color: #000000;
 }
 
 .home-block__desc {
@@ -315,67 +311,90 @@
 }
 
 .home-block__nearby {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     position: relative;
-    margin-top: 18px;
+    margin-top: 16px;
 }
 
-.nearby-list {
-    position: relative;
-    z-index: 1;
+.nearby-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.nearby-placeholder {
+.nearby-agent {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.nearby-placeholder__item {
+.nearby-agent__item {
     display: flex;
+    gap: 16px;
     justify-content: space-between;
-    padding: 8px;
-    background: #d9d9d9;
+    padding: 16px;
     border-radius: var(--radius-card);
+    background-color: #ffffff;
 }
 
-.nearby-placeholder__left {
-    display: flex;
-}
-
-.nearby-placeholder__text {
+.nearby-agent__left {
     display: flex;
     flex-direction: column;
+    gap: 2px;
+    height: 79px;
+}
+
+.nearby-agent__name {
+    font-weight: 500;
+    font-size: 20px;
+    color: #0d0d0d;
+}
+
+.nearby-agent__address-wrapper {
+    display: flex;
     gap: 8px;
-    color: #000000;
 }
 
-.nearby-placeholder__name {
-    font-weight: 600;
-    font-size: 18px;
-}
-
-.nearby-placeholder__listing {
+.nearby-agent__address {
     font-weight: 400;
-    font-size: 14px;
+    font-size: 16px;
+    color: #595959;
 }
 
-.nearby-placeholder__icons {
+.nearby-agent__expand-btn {
+    width: 20px;
+    height: 20px;
+    mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    background-color: #8c8c8c;
+}
+
+.nearby-agent__hr {
+    border-top: 1px dashed #d9d9d9;
+}
+
+.nearby-agent__more-wrapper {
     display: flex;
-    flex-direction: column;
     gap: 4px;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
 }
 
-.nearby-placeholder__call {
-    background-image: url("../img/50x50-call.svg");
+.nearby-agent__more-btn {
+    width: 20px;
+    height: 20px;
+    mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    background-color: #262626;
 }
 
-.nearby-placeholder__home {
-    background-image: url("../img/50x50-home.svg");
-}
-
-.nearby-placeholder__icon {
-    width: 50px;
-    height: 50px;
+.nearby-agent__more-text {
+    font-weight: 500;
+    font-size: 16px;
+    color: #262626;
 }
 
 .nearby-overlay {
@@ -394,59 +413,6 @@
     background: rgba(242, 242, 242, 0.6);
     backdrop-filter: blur(2px);
     border-radius: var(--radius-card);
-}
-
-.nearby-agent {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.nearby-agent__item {
-    display: flex;
-    gap: 16px;
-    padding: 16px;
-    border-radius: var(--radius-card);
-}
-
-.nearby-agent__right {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.nearby-agent__text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.nearby-agent__name {
-    font-weight: 500;
-    font-size: 20px;
-    color: #091243;
-}
-
-.nearby-agent__desc {
-    display: flex;
-    gap: 4px;
-}
-
-.nearby-agent__distance {
-    font-weight: 600;
-    font-size: 16px;
-    color: #404040;
-}
-
-.nearby-agent__addr {
-    font-weight: 400;
-    font-size: 16px;
-    color: #595959;
-}
-
-.nearby-agent__hr {
-    border-top: 1px dashed #e7eafe;
-    margin: 0 16px;
 }
 
 .dot-indicator {
