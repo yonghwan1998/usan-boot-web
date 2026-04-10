@@ -1,6 +1,6 @@
 package com.usanmap.usan.service;
 
-import com.usanmap.usan.dto.RegionCodeResponse;
+import com.usanmap.usan.dto.BoundaryCodeResponse;
 import com.usanmap.usan.entity.AdministrativeBoundary;
 import com.usanmap.usan.entity.enums.AdministrativeLevel;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository;
@@ -11,27 +11,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MapRegionService {
+public class AdministrativeBoundaryService {
 
     private final AdministrativeBoundaryRepository administrativeBoundaryRepository;
 
-    public RegionCodeResponse getRegionCodes(double lat, double lng) {
+    public BoundaryCodeResponse getRegionCodes(double lat, double lng) {
         AdministrativeBoundary sido = administrativeBoundaryRepository
-                .findContainingRegion(AdministrativeLevel.SIDO.name(), lat, lng)
+                .findBoundaryContaining(AdministrativeLevel.SIDO.name(), lat, lng)
                 .orElse(null);
 
         AdministrativeBoundary sigungu = administrativeBoundaryRepository
-                .findContainingRegion(AdministrativeLevel.SIGUNGU.name(), lat, lng)
+                .findBoundaryContaining(AdministrativeLevel.SIGUNGU.name(), lat, lng)
                 .orElse(null);
 
         AdministrativeBoundary emd = administrativeBoundaryRepository
-                .findContainingRegion(AdministrativeLevel.EMD.name(), lat, lng)
+                .findBoundaryContaining(AdministrativeLevel.EMD.name(), lat, lng)
                 .orElse(null);
 
-        return RegionCodeResponse.builder()
+        return BoundaryCodeResponse.builder()
                 .sidoCode(extractSidoCode(sido))
                 .sigunguCode(extractSigunguCode(sigungu))
-                .emdCode(extractCode(emd))
+                .emdCode(extractEmdCode(emd))
                 .sidoName(extractName(sido))
                 .sigunguName(extractName(sigungu))
                 .emdName(extractName(emd))
@@ -52,7 +52,7 @@ public class MapRegionService {
         return boundary.getAdmCd().substring(0, 5);
     }
 
-    private String extractCode(AdministrativeBoundary boundary) {
+    private String extractEmdCode(AdministrativeBoundary boundary) {
         return boundary != null ? boundary.getAdmCd() : null;
     }
 

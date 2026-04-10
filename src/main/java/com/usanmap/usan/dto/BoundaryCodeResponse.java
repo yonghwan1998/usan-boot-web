@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class RegionCodeResponse {
+public class BoundaryCodeResponse {
 
     private String sidoCode;
     private String sigunguCode;

@@ -161,12 +161,12 @@ public class AdministrativeBoundarySeedService {
 
             jdbcTemplate.update("""
                 INSERT INTO administrative_boundary
-                    (adm_cd, name, level, parent_adm_cd, geom, created_at, updated_at)
+                    (adm_cd, name, adm_level, parent_adm_cd, geom, created_at, updated_at)
                 VALUES
                     (?, ?, ?, ?, ST_SRID(ST_GeomFromGeoJSON(?), 4326), NOW(), NOW())
                 ON DUPLICATE KEY UPDATE
                     name = VALUES(name),
-                    level = VALUES(level),
+                    adm_level = VALUES(adm_level),
                     parent_adm_cd = VALUES(parent_adm_cd),
                     geom = VALUES(geom),
                     updated_at = NOW()

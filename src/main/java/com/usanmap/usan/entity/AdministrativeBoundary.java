@@ -27,8 +27,8 @@ public class AdministrativeBoundary {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "level", nullable = false, length = 20)
-    private AdministrativeLevel level;
+    @Column(name = "adm_level", nullable = false, length = 20)
+    private AdministrativeLevel admLevel;
 
     @Column(name = "parent_adm_cd", length = 10)
     private String parentAdmCd;

@@ -12,15 +12,15 @@ public interface AdministrativeBoundaryRepository extends JpaRepository<Administ
     @Query(value = """
         SELECT *
         FROM administrative_boundary ab
-        WHERE ab.level = :level
+        WHERE ab.adm_level = :admLevel
           AND ST_Contains(
                 ab.geom,
                 ST_SRID(POINT(:lng, :lat), 4326)
           )
         LIMIT 1
         """, nativeQuery = true)
-    Optional<AdministrativeBoundary> findContainingRegion(
-            @Param("level") String level,
+    Optional<AdministrativeBoundary> findBoundaryContaining(
+            @Param("admLevel") String admLevel,
             @Param("lat") double lat,
             @Param("lng") double lng
     );

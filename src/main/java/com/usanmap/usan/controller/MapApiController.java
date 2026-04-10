@@ -1,9 +1,8 @@
 package com.usanmap.usan.controller;
 
 import com.usanmap.usan.service.AdministrativeBoundarySeedService;
-import com.usanmap.usan.service.MapRegionService;
+import com.usanmap.usan.service.AdministrativeBoundaryService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.usanmap.usan.dto.*;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Slf4j
 @RequestMapping("/map/api")
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +25,7 @@ public class MapApiController {
     private final SecurityUtils     securityUtils;
     private final ListingRepository listingRepository;
     private final SmsService        smsService;
-    private final MapRegionService mapRegionService;
+    private final AdministrativeBoundaryService administrativeBoundaryService;
     private final AdministrativeBoundarySeedService administrativeBoundarySeedService;
 
     @GetMapping("/brokers")
@@ -94,21 +92,15 @@ public class MapApiController {
     }
 
     @GetMapping("/region-code")
-    public RegionCodeResponse getRegionCode(
+    public BoundaryCodeResponse getRegionCodes(
             @RequestParam double lat,
             @RequestParam double lng
     ) {
-        return mapRegionService.getRegionCodes(lat, lng);
+        return administrativeBoundaryService.getRegionCodes(lat, lng);
     }
 
     @PostMapping("/admin/boundaries/seed/all")
     public ResponseEntity<BoundarySeedResponse> seedAll() {
-        log.info("[BOUNDARY-SEED] API 호출 - 전국 적재 시작");
-
-        BoundarySeedResponse response = administrativeBoundarySeedService.seedAll();
-
-        log.info("[BOUNDARY-SEED] API 호출 - 전국 적재 종료");
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(administrativeBoundarySeedService.seedAll());
     }
 }
