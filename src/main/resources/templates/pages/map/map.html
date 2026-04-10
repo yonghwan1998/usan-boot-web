@@ -141,6 +141,12 @@
 
         let myLocationMarker = null;
 
+        let boundaryFeatures = [];
+        let boundaryCache = new Map();
+        let currentBoundaryKey = null;
+        let lastBoundaryRequestId = 0;
+        let regionCodeCache = new Map();
+
         let lastFetchId = 0;
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
@@ -217,6 +223,237 @@
             });
         }
 
+        function getBoundaryLevelByZoom(zoom) {
+            if (zoom >= ZOOM_EMD_MIN && zoom <= ZOOM_EMD_MAX) {
+                return 'EMD';
+            }
+
+            if (zoom >= ZOOM_SIGUNGU_MIN && zoom <= ZOOM_SIGUNGU_MAX) {
+                return 'SIGUNGU';
+            }
+
+            if (zoom >= ZOOM_SIDO_MIN && zoom <= ZOOM_SIDO_MAX) {
+                return 'SIDO';
+            }
+
+            return null;
+        }
+
+        function clearBoundaryFeatures() {
+            if (!map || !map.data) return;
+
+            boundaryFeatures.forEach(feature => {
+                map.data.removeFeature(feature);
+            });
+
+            boundaryFeatures = [];
+            currentBoundaryKey = null;
+        }
+
+        async function fetchGeoJson(url) {
+            if (boundaryCache.has(url)) {
+                return boundaryCache.get(url);
+            }
+
+            const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`GeoJSON 로딩 실패: ${url}`);
+            }
+
+            const data = await res.json();
+            boundaryCache.set(url, data);
+            return data;
+        }
+
+        async function fetchRegionCodeByCenter() {
+            if (!map) {
+                throw new Error('map is not initialized');
+            }
+
+            const center = map.getCenter();
+            const lat = center.lat();
+            const lng = center.lng();
+
+            const cacheKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+            if (regionCodeCache.has(cacheKey)) {
+                return regionCodeCache.get(cacheKey);
+            }
+
+            const res = await fetch(`/map/api/region-code?lat=${lat}&lng=${lng}`);
+            if (!res.ok) {
+                throw new Error('행정구역 코드 조회 실패');
+            }
+
+            const data = await res.json();
+
+            /**
+             * 기대 응답 예시
+             * {
+             *   "sidoCode": "41",
+             *   "sigunguCode": "41131",
+             *   "emdCode": "4113110200"
+             * }
+             */
+            regionCodeCache.set(cacheKey, data);
+            return data;
+        }
+
+        async function resolveBoundaryRequest() {
+            const zoom = map.getZoom();
+            const level = getBoundaryLevelByZoom(zoom);
+
+            if (!level) {
+                return null;
+            }
+
+            if (level === 'SIDO') {
+                return {
+                    key: 'SIDO_ALL',
+                    url: '/geo/sido.geo.json'
+                };
+            }
+
+            const region = await fetchRegionCodeByCenter();
+
+            if (level === 'SIGUNGU') {
+                if (!region?.sidoCode) {
+                    return null;
+                }
+
+                return {
+                    key: `SIGUNGU_${region.sidoCode}`,
+                    url: `/geo/sigungu/${region.sidoCode}.geo.json`
+                };
+            }
+
+            if (level === 'EMD') {
+                if (!region?.sigunguCode) {
+                    return null;
+                }
+
+                return {
+                    key: `EMD_${region.sigunguCode}`,
+                    url: `/geo/emd/${region.sigunguCode}.geo.json`
+                };
+            }
+
+            return null;
+        }
+
+        function applyBoundaryStyle() {
+            map.data.setStyle(function(feature) {
+                const level = feature.getProperty('level');
+
+                if (level === 'SIDO') {
+                    return {
+                        fillColor: '#4A6CF7',
+                        fillOpacity: 0.04,
+                        strokeColor: '#4A6CF7',
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8,
+                        clickable: true
+                    };
+                }
+
+                if (level === 'SIGUNGU') {
+                    return {
+                        fillColor: '#4A6CF7',
+                        fillOpacity: 0.03,
+                        strokeColor: '#4A6CF7',
+                        strokeWeight: 1.5,
+                        strokeOpacity: 0.75,
+                        clickable: true
+                    };
+                }
+
+                return {
+                    fillColor: '#4A6CF7',
+                    fillOpacity: 0.025,
+                    strokeColor: '#4A6CF7',
+                    strokeWeight: 1.2,
+                    strokeOpacity: 0.7,
+                    clickable: true
+                };
+            });
+        }
+
+        async function loadAdministrativeBoundaries() {
+            try {
+                const requestId = ++lastBoundaryRequestId;
+                const request = await resolveBoundaryRequest();
+
+                if (requestId !== lastBoundaryRequestId) {
+                    return;
+                }
+
+                if (!request) {
+                    clearBoundaryFeatures();
+                    return;
+                }
+
+                if (currentBoundaryKey === request.key) {
+                    return;
+                }
+
+                clearBoundaryFeatures();
+
+                const geojson = await fetchGeoJson(request.url);
+
+                if (requestId !== lastBoundaryRequestId) {
+                    return;
+                }
+
+                boundaryFeatures = map.data.addGeoJson(geojson);
+                currentBoundaryKey = request.key;
+
+                applyBoundaryStyle();
+            } catch (e) {
+                console.error('[MAP] boundary load error:', e);
+                clearBoundaryFeatures();
+            }
+        }
+
+        function bindBoundaryEvents() {
+            map.data.addListener('mouseover', function (e) {
+                map.data.overrideStyle(e.feature, {
+                    fillOpacity: 0.10,
+                    strokeWeight: 3,
+                    strokeOpacity: 1
+                });
+            });
+
+            map.data.addListener('mouseout', function (e) {
+                map.data.revertStyle(e.feature);
+            });
+
+            map.data.addListener('click', function (e) {
+                const level = e.feature.getProperty('level');
+                const geometry = e.feature.getGeometry();
+
+                if (geometry) {
+                    const bounds = geometry.getBounds?.();
+                    if (bounds) {
+                        map.fitBounds(bounds, {
+                            top: 40,
+                            right: 40,
+                            bottom: 40,
+                            left: 40
+                        });
+                    }
+                }
+
+                if (level === 'SIDO') {
+                    map.setZoom(ZOOM_SIGUNGU_MAX, true);
+                    return;
+                }
+
+                if (level === 'SIGUNGU') {
+                    map.setZoom(ZOOM_EMD_MAX, true);
+                }
+            });
+        }
+
         function initMap() {
 
             //1순위: 쿼리스트링, 2순위: localStorage, 3순위: 임의 주소
@@ -239,7 +476,6 @@
                 center: center,
                 zoom: ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
-                // mapTypeControl: true, // TODO(yongss): 위성, 로드뷰 기능 추가 시 롤백
                 zoomControl: false,
             });
 
@@ -262,12 +498,13 @@
                 stylingFunction: function(clusterMarker, count) {
 
                     const el = clusterMarker.getElement();
+                    if (!el) return;
+
                     const span = el.querySelector('.usan-cluster__count');
                     const img = el.querySelector('.usan-cluster__img');
 
-                    if (!el) return;
-
                     if (!span) return;
+
                     if (count <= 1) {
                         span.style.display = 'none';
                         span.textContent = '';
@@ -298,31 +535,30 @@
             });
 
             updateClusterOptionsByZoom(map.getZoom());
+            bindBoundaryEvents();
 
             loadMyListings();
-
+            loadAdministrativeBoundaries();
             loadBrokersInBounds();
 
             naver.maps.Event.addListener(map, 'zoom_changed', function () {
                 updateClusterOptionsByZoom(map.getZoom());
                 closeBrokerSheet();
+                loadAdministrativeBoundaries();
                 loadBrokersInBounds();
             });
 
             naver.maps.Event.addListener(map, 'dragend', function () {
-
                 const sheet = document.getElementById('broker-sheet');
                 if (sheet && (sheet.classList.contains('is-half') || sheet.classList.contains('is-full'))) {
                     closeBrokerSheet();
                 }
 
+                loadAdministrativeBoundaries();
                 loadBrokersInBounds();
             });
 
-            // map click 시 시트 닫기는 document pointerdown 핸들러에서 처리
-            // (pointerdown → click 순서로 인해 여기서 처리하면 detail-sheet 닫힌 후 broker-sheet도 닫히는 버그 발생)
-
-            naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster, e) {
+            naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster) {
                 onClusterClick(cluster);
             });
 
@@ -338,7 +574,8 @@
 
             const zoom = map.getZoom();
 
-            if (zoom <= ZOOM_MIN) {
+            // 행정경계만 보여야 하는 구간
+            if (zoom < ZOOM_CLUSTER_MIN) {
                 clearMarkersAndClusters();
                 return;
             }
@@ -364,7 +601,7 @@
 
                     const currentZoom = map.getZoom();
 
-                    if (currentZoom <= ZOOM_MIN) {
+                    if (currentZoom < ZOOM_CLUSTER_MIN) {
                         clearMarkersAndClusters();
                         return;
                     }
