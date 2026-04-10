@@ -45,8 +45,11 @@ src/main/resources/application-dev.yml
 /uploads/
 /uploads/**
 
-# Claude Code
+### Claude Code ###
 .claude/
 .claude/*
 .claude.json
 .claude-config.json
+
+### GeoJSON ###
+data/
