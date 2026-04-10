@@ -57,7 +57,8 @@ dependencies {
 
 	implementation "io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64"//Mac DNS 경고 해소(선택: Apple Silicon)
 
-
+	implementation 'org.hibernate.orm:hibernate-spatial'
+	implementation 'org.locationtech.jts:jts-core'
 }
 
 tasks.named('test') {
