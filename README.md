@@ -53,3 +53,7 @@ nohup java -jar build/libs/usan-0.0.1-SNAPSHOT.jar &
 ````
 tail -f nohup.out
 ````
+
+## 📍 지도/행정경계
+
+- [행정경계 GeoJSON 구축 가이드](docs/geo-boundary-build-guide.md)
