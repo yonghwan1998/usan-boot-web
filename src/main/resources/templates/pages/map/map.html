@@ -347,9 +347,9 @@
 
                 if (level === 'SIDO') {
                     return {
-                        fillColor: '#4A6CF7',
-                        fillOpacity: 0.04,
-                        strokeColor: '#4A6CF7',
+                        fillColor: '#a4a4a4',
+                        fillOpacity: 0,
+                        strokeColor: '#475569',
                         strokeWeight: 2,
                         strokeOpacity: 0.8,
                         clickable: true
@@ -358,20 +358,20 @@
 
                 if (level === 'SIGUNGU') {
                     return {
-                        fillColor: '#4A6CF7',
-                        fillOpacity: 0.03,
-                        strokeColor: '#4A6CF7',
-                        strokeWeight: 1.5,
+                        fillColor: '#a4a4a4',
+                        fillOpacity: 0,
+                        strokeColor: '#475569',
+                        strokeWeight: 2,
                         strokeOpacity: 0.75,
                         clickable: true
                     };
                 }
 
                 return {
-                    fillColor: '#4A6CF7',
-                    fillOpacity: 0.025,
-                    strokeColor: '#4A6CF7',
-                    strokeWeight: 1.2,
+                    fillColor: '#a4a4a4',
+                    fillOpacity: 0,
+                    strokeColor: '#475569',
+                    strokeWeight: 1,
                     strokeOpacity: 0.7,
                     clickable: true
                 };
@@ -417,7 +417,9 @@
         function bindBoundaryEvents() {
             map.data.addListener('mouseover', function (e) {
                 map.data.overrideStyle(e.feature, {
-                    fillOpacity: 0.10,
+                    fillColor: '#98adff',
+                    fillOpacity: 0.2,
+                    strokeColor: '#475569',
                     strokeWeight: 3,
                     strokeOpacity: 1
                 });
