@@ -1121,6 +1121,10 @@ body {
 
 .info-sheet__region-tabs {
     display: flex;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 8px 0;
 }
 
 .info-sheet__tab {
@@ -1130,13 +1134,16 @@ body {
     font-size: 14px;
     font-weight: 500;
     color: #8f8f8f;
-    border-bottom: 2px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+}
+
+.info-sheet__tab:last-child {
+    border-right: none;
 }
 
 .info-sheet__tab.is-active {
     color: #262626;
     font-weight: 700;
-    border-bottom-color: #262626;
 }
 
 .info-sheet__stat-list {
@@ -1148,12 +1155,19 @@ body {
 
 .info-sheet__stat-item {
     display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-sheet__stat-header {
+    display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
 }
 
 .info-sheet__stat-bar-wrap {
-    flex: 1;
+    display: flex;
+    justify-content: flex-end;
     height: 4px;
     background: #f0f0f0;
     border-radius: 2px;
@@ -1166,10 +1180,8 @@ body {
 }
 
 .info-sheet__stat-pct {
-    font-size: 14px;
-    font-weight: 600;
-    color: #595959;
-    min-width: 42px;
+    font-size: 16px;
+    font-weight: 700;
     text-align: right;
 }
 
@@ -1184,3 +1196,15 @@ body {
 .info-sheet__stat-bar--office       { background: #4c6bb2; }
 .info-sheet__stat-bar--building     { background: #6b6b6b; }
 .info-sheet__stat-bar--land         { background: #b28b4d; }
+
+/* 매물 유형별 퍼센트 글씨 색상 */
+.info-sheet__stat-pct--apt          { color: #a65959; }
+.info-sheet__stat-pct--officetel    { color: #b2884d; }
+.info-sheet__stat-pct--villa        { color: #b2aa4d; }
+.info-sheet__stat-pct--oneroom      { color: #7db24d; }
+.info-sheet__stat-pct--tworoom      { color: #4db24d; }
+.info-sheet__stat-pct--detached     { color: #4d9db2; }
+.info-sheet__stat-pct--store        { color: #914cb2; }
+.info-sheet__stat-pct--office       { color: #4c6bb2; }
+.info-sheet__stat-pct--building     { color: #6b6b6b; }
+.info-sheet__stat-pct--land         { color: #b28b4d; }

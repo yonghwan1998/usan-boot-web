@@ -532,16 +532,19 @@
 
             const statsHtml = data.propertyStats.map(stat => {
                 const barClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-bar--');
+                const pctClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-pct--');
                 return `
                     <div class="info-sheet__stat-item">
-                        <div class="listing__tag ${stat.cssClass}">
-                            <span class="tag-label">${stat.label}</span>
-                            <span class="tag-count">${stat.count}</span>
+                        <div class="info-sheet__stat-header">
+                            <div class="listing__tag ${stat.cssClass}">
+                                <span class="tag-label">${stat.label}</span>
+                                <span class="tag-count">${stat.count}</span>
+                            </div>
+                            <span class="info-sheet__stat-pct ${pctClass}">${stat.percentage} %</span>
                         </div>
                         <div class="info-sheet__stat-bar-wrap">
                             <div class="info-sheet__stat-bar ${barClass}" style="width:${stat.percentage}%"></div>
                         </div>
-                        <span class="info-sheet__stat-pct">${stat.percentage} %</span>
                     </div>`;
             }).join('');
 
