@@ -99,6 +99,17 @@ public class MapApiController {
         return administrativeBoundaryService.getRegionCodes(lat, lng);
     }
 
+    @GetMapping("/region-labels")
+    public List<RegionLabelDto> getRegionLabels(
+            @RequestParam String level,
+            @RequestParam double south,
+            @RequestParam double north,
+            @RequestParam double west,
+            @RequestParam double east
+    ) {
+        return administrativeBoundaryService.getRegionLabels(level, south, north, west, east);
+    }
+
     @PostMapping("/admin/boundaries/seed/all")
     public ResponseEntity<BoundarySeedResponse> seedAll() {
         return ResponseEntity.ok(administrativeBoundarySeedService.seedAll());

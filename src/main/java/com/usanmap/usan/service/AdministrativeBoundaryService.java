@@ -1,12 +1,16 @@
 package com.usanmap.usan.service;
 
 import com.usanmap.usan.dto.BoundaryCodeResponse;
+import com.usanmap.usan.dto.RegionLabelDto;
 import com.usanmap.usan.entity.AdministrativeBoundary;
 import com.usanmap.usan.entity.enums.AdministrativeLevel;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository;
+import com.usanmap.usan.repository.AdministrativeBoundaryRepository.RegionLabelProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,5 +62,14 @@ public class AdministrativeBoundaryService {
 
     private String extractName(AdministrativeBoundary boundary) {
         return boundary != null ? boundary.getName() : null;
+    }
+
+    public List<RegionLabelDto> getRegionLabels(String level, double south, double north, double west, double east) {
+        List<RegionLabelProjection> projections = administrativeBoundaryRepository
+                .findLabelsByLevelInBounds(level, south, north, west, east);
+
+        return projections.stream()
+                .map(p -> new RegionLabelDto(p.getName(), p.getLat(), p.getLng()))
+                .toList();
     }
 }

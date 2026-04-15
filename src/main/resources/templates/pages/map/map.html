@@ -147,6 +147,8 @@
         let lastBoundaryRequestId = 0;
         let regionCodeCache = new Map();
 
+        let regionLabelOverlays = [];
+
         let lastFetchId = 0;
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
@@ -239,8 +241,76 @@
             return null;
         }
 
+        function createRegionLabelOverlay(lat, lng, name) {
+            function Overlay() {
+                this._position = new naver.maps.LatLng(lat, lng);
+                this._name = name;
+                this._div = null;
+            }
+
+            Overlay.prototype = new naver.maps.OverlayView();
+
+            Overlay.prototype.onAdd = function () {
+                const div = document.createElement('div');
+                div.className = 'region-pill';
+                div.textContent = this._name;
+                this.getPanes().floatPane.appendChild(div);
+                this._div = div;
+            };
+
+            Overlay.prototype.draw = function () {
+                if (!this._div) return;
+                const pos = this.getProjection().fromCoordToOffset(this._position);
+                this._div.style.left = pos.x + 'px';
+                this._div.style.top = pos.y + 'px';
+            };
+
+            Overlay.prototype.onRemove = function () {
+                if (this._div && this._div.parentNode) {
+                    this._div.parentNode.removeChild(this._div);
+                    this._div = null;
+                }
+            };
+
+            return new Overlay();
+        }
+
+        function clearRegionLabels() {
+            regionLabelOverlays.forEach(o => o.setMap(null));
+            regionLabelOverlays = [];
+        }
+
+        async function loadRegionLabels(level) {
+            clearRegionLabels();
+
+            const bounds = map.getBounds();
+            if (!bounds) return;
+
+            const sw = bounds.getSW();
+            const ne = bounds.getNE();
+
+            const url = `/map/api/region-labels?level=${level}&south=${sw.lat()}&north=${ne.lat()}&west=${sw.lng()}&east=${ne.lng()}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return;
+
+                const labels = await res.json();
+
+                labels.forEach(label => {
+                    const overlay = createRegionLabelOverlay(label.lat, label.lng, label.name);
+                    overlay.setMap(map);
+                    regionLabelOverlays.push(overlay);
+                });
+            } catch (e) {
+                console.error('[MAP] region labels load error:', e);
+            }
+        }
+
         function clearBoundaryFeatures() {
             if (!map || !map.data) return;
+
+            clearRegionLabels();
 
             boundaryFeatures.forEach(feature => {
                 map.data.removeFeature(feature);
@@ -309,6 +379,7 @@
 
             if (level === 'SIDO') {
                 return {
+                    level: 'SIDO',
                     key: 'SIDO_ALL',
                     url: '/geo/sido.geo.json'
                 };
@@ -322,6 +393,7 @@
                 }
 
                 return {
+                    level: 'SIGUNGU',
                     key: `SIGUNGU_${region.sidoCode}`,
                     url: `/geo/sigungu/${region.sidoCode}.geo.json`
                 };
@@ -333,6 +405,7 @@
                 }
 
                 return {
+                    level: 'EMD',
                     key: `EMD_${region.sigunguCode}`,
                     url: `/geo/emd/${region.sigunguCode}.geo.json`
                 };
@@ -393,6 +466,7 @@
                 }
 
                 if (currentBoundaryKey === request.key) {
+                    loadRegionLabels(request.level);
                     return;
                 }
 
@@ -408,6 +482,7 @@
                 currentBoundaryKey = request.key;
 
                 applyBoundaryStyle();
+                loadRegionLabels(request.level);
             } catch (e) {
                 console.error('[MAP] boundary load error:', e);
                 clearBoundaryFeatures();
