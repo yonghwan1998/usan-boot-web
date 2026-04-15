@@ -119,15 +119,26 @@ public class AdministrativeBoundaryService {
         if (stats.isEmpty()) return List.of();
 
         Map<String, String> cssClassMap = Map.ofEntries(
-                Map.entry("아파트",    "listing__tag--apt"),
-                Map.entry("오피스텔",  "listing__tag--officetel"),
-                Map.entry("빌라/연립", "listing__tag--villa"),
-                Map.entry("원룸",      "listing__tag--oneroom"),
-                Map.entry("투룸",      "listing__tag--tworoom"),
-                Map.entry("상가",      "listing__tag--store"),
-                Map.entry("사무실",    "listing__tag--office"),
-                Map.entry("건물",      "listing__tag--building"),
-                Map.entry("토지",      "listing__tag--land")
+                Map.entry("아파트",        "listing__tag--apt"),
+                Map.entry("오피스텔",      "listing__tag--officetel"),
+                Map.entry("빌라/연립",     "listing__tag--villa"),
+                Map.entry("원룸",          "listing__tag--oneroom"),
+                Map.entry("투룸",          "listing__tag--tworoom"),
+                Map.entry("단독/다가구",   "listing__tag--detached"),
+                Map.entry("전원주택",      "listing__tag--rural"),
+                Map.entry("상가주택",      "listing__tag--mixedhouse"),
+                Map.entry("한옥주택",      "listing__tag--hanok"),
+                Map.entry("상가",          "listing__tag--store"),
+                Map.entry("사무실",        "listing__tag--office"),
+                Map.entry("건물",          "listing__tag--building"),
+                Map.entry("공장/창고",     "listing__tag--factory"),
+                Map.entry("지식산업센터",  "listing__tag--knowledge"),
+                Map.entry("토지",          "listing__tag--land"),
+                Map.entry("아파트분양권",  "listing__tag--apt-sale"),
+                Map.entry("오피스텔분양권","listing__tag--officetel-sale"),
+                Map.entry("재개발",        "listing__tag--redevelopment"),
+                Map.entry("재건축",        "listing__tag--reconstruction"),
+                Map.entry("분양중/예정",   "listing__tag--presale")
         );
 
         List<ListingTypeStat> sorted = stats.stream()

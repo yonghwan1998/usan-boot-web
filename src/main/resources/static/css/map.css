@@ -1184,27 +1184,3 @@ body {
     font-weight: 700;
     text-align: right;
 }
-
-/* 매물 유형별 바 색상 */
-.info-sheet__stat-bar--apt          { background: #a65959; }
-.info-sheet__stat-bar--officetel    { background: #b2884d; }
-.info-sheet__stat-bar--villa        { background: #b2aa4d; }
-.info-sheet__stat-bar--oneroom      { background: #7db24d; }
-.info-sheet__stat-bar--tworoom      { background: #4db24d; }
-.info-sheet__stat-bar--detached     { background: #4d9db2; }
-.info-sheet__stat-bar--store        { background: #914cb2; }
-.info-sheet__stat-bar--office       { background: #4c6bb2; }
-.info-sheet__stat-bar--building     { background: #6b6b6b; }
-.info-sheet__stat-bar--land         { background: #b28b4d; }
-
-/* 매물 유형별 퍼센트 글씨 색상 */
-.info-sheet__stat-pct--apt          { color: #a65959; }
-.info-sheet__stat-pct--officetel    { color: #b2884d; }
-.info-sheet__stat-pct--villa        { color: #b2aa4d; }
-.info-sheet__stat-pct--oneroom      { color: #7db24d; }
-.info-sheet__stat-pct--tworoom      { color: #4db24d; }
-.info-sheet__stat-pct--detached     { color: #4d9db2; }
-.info-sheet__stat-pct--store        { color: #914cb2; }
-.info-sheet__stat-pct--office       { color: #4c6bb2; }
-.info-sheet__stat-pct--building     { color: #6b6b6b; }
-.info-sheet__stat-pct--land         { color: #b28b4d; }
