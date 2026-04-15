@@ -1098,3 +1098,89 @@ body {
     background: #475569;
     color: #ffffff;
 }
+
+#info-sheet-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#info-sheet-content::-webkit-scrollbar {
+    display: none;
+}
+
+.bottom-sheet.is-half #info-sheet-content {
+    max-height: calc(0.6 * (var(--app-h) - var(--nav-total-h)) - 90px);
+}
+
+.info-sheet__region-tabs {
+    display: flex;
+}
+
+.info-sheet__tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #8f8f8f;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.info-sheet__tab.is-active {
+    color: #262626;
+    font-weight: 700;
+    border-bottom-color: #262626;
+}
+
+.info-sheet__stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 12px;
+}
+
+.info-sheet__stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.info-sheet__stat-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.info-sheet__stat-bar {
+    height: 100%;
+    border-radius: 2px;
+}
+
+.info-sheet__stat-pct {
+    font-size: 14px;
+    font-weight: 600;
+    color: #595959;
+    min-width: 42px;
+    text-align: right;
+}
+
+/* 매물 유형별 바 색상 */
+.info-sheet__stat-bar--apt          { background: #a65959; }
+.info-sheet__stat-bar--officetel    { background: #b2884d; }
+.info-sheet__stat-bar--villa        { background: #b2aa4d; }
+.info-sheet__stat-bar--oneroom      { background: #7db24d; }
+.info-sheet__stat-bar--tworoom      { background: #4db24d; }
+.info-sheet__stat-bar--detached     { background: #4d9db2; }
+.info-sheet__stat-bar--store        { background: #914cb2; }
+.info-sheet__stat-bar--office       { background: #4c6bb2; }
+.info-sheet__stat-bar--building     { background: #6b6b6b; }
+.info-sheet__stat-bar--land         { background: #b28b4d; }

@@ -73,6 +73,31 @@
 
         </div>
 
+        <!-- 행정구역 정보 바텀시트 -->
+        <div id="info-sheet" class="bottom-sheet">
+
+            <div class="bottom-sheet__handle-wrapper">
+                <div class="bottom-sheet__handle"></div>
+            </div>
+
+            <div class="bottom-sheet__contents-wrapper">
+
+                <div class="bottom-sheet__options">
+                    <div class="bottom-sheet-btn__distance">100m</div>
+                    <div class="bottom-sheet-toggle__wrapper">
+                        <span class="bottom-sheet-txt">중개사</span>
+                        <span class="bottom-sheet-txt is-selected">정보</span>
+                    </div>
+                </div>
+
+                <div class="bottom-sheet__line"></div>
+
+                <div class="info-sheet__region-tabs" id="info-sheet-tabs"></div>
+
+                <div id="info-sheet-content"></div>
+            </div>
+        </div>
+
         <!-- 선택된 중개사 바텀시트 -->
         <div id="broker-sheet" class="bottom-sheet">
 
@@ -280,6 +305,7 @@
             regionLabelOverlays.forEach(o => o.setMap(null));
             regionLabelOverlays = [];
             selectedBoundaryFeature = null;
+            closeInfoSheet();
         }
 
         async function loadRegionLabels(level) {
@@ -491,6 +517,62 @@
             }
         }
 
+        function closeInfoSheet() {
+            const sheet = document.getElementById('info-sheet');
+            sheet.classList.remove('is-half', 'is-full');
+        }
+
+        function renderInfoSheet(data) {
+            const tabs = [data.sidoName, data.sigunguName, data.emdName].filter(Boolean);
+            const regionName = tabs[tabs.length - 1] ?? '';
+
+            document.getElementById('info-sheet-tabs').innerHTML = tabs
+                .map((name, i) => `<span class="info-sheet__tab${i === tabs.length - 1 ? ' is-active' : ''}">${name}</span>`)
+                .join('');
+
+            const statsHtml = data.propertyStats.map(stat => {
+                const barClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-bar--');
+                return `
+                    <div class="info-sheet__stat-item">
+                        <div class="listing__tag ${stat.cssClass}">
+                            <span class="tag-label">${stat.label}</span>
+                            <span class="tag-count">${stat.count}</span>
+                        </div>
+                        <div class="info-sheet__stat-bar-wrap">
+                            <div class="info-sheet__stat-bar ${barClass}" style="width:${stat.percentage}%"></div>
+                        </div>
+                        <span class="info-sheet__stat-pct">${stat.percentage} %</span>
+                    </div>`;
+            }).join('');
+
+            document.getElementById('info-sheet-content').innerHTML = `
+                <p class="bottom-sheet__caption">
+                    <span class="bottom-sheet__bold">${regionName}</span> 기준으로
+                    <span class="bottom-sheet__bold">100m</span> 이내에
+                    <span class="bottom-sheet__bold">${data.brokerCount}개</span>의 중개사가 있습니다.
+                </p>
+                <div class="info-sheet__stat-list">${statsHtml}</div>`;
+        }
+
+        async function openInfoSheet(feature) {
+            closeBrokerSheet();
+
+            const admCd = feature.getProperty('admCd');
+            if (!admCd) return;
+
+            const url = `/map/api/region-info?admCd=${admCd}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return;
+                const data = await res.json();
+                renderInfoSheet(data);
+                document.getElementById('info-sheet').classList.add('is-half');
+            } catch (e) {
+                console.error('[MAP] region info load error:', e);
+            }
+        }
+
         const BOUNDARY_HOVER_STYLE = {
             fillColor: '#98adff',
             fillOpacity: 0.2,
@@ -528,30 +610,7 @@
 
             map.data.addListener('click', function (e) {
                 selectBoundaryFeature(e.feature);
-
-                const level = e.feature.getProperty('level');
-                const geometry = e.feature.getGeometry();
-
-                if (geometry) {
-                    const bounds = geometry.getBounds?.();
-                    if (bounds) {
-                        map.fitBounds(bounds, {
-                            top: 40,
-                            right: 40,
-                            bottom: 40,
-                            left: 40
-                        });
-                    }
-                }
-
-                if (level === 'SIDO') {
-                    map.setZoom(ZOOM_SIGUNGU_MAX, true);
-                    return;
-                }
-
-                if (level === 'SIGUNGU') {
-                    map.setZoom(ZOOM_EMD_MAX, true);
-                }
+                openInfoSheet(e.feature);
             });
         }
 

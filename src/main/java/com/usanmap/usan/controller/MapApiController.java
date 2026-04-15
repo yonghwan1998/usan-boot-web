@@ -99,6 +99,11 @@ public class MapApiController {
         return administrativeBoundaryService.getRegionCodes(lat, lng);
     }
 
+    @GetMapping("/region-info")
+    public RegionInfoDto getRegionInfo(@RequestParam String admCd) {
+        return administrativeBoundaryService.getRegionInfo(admCd);
+    }
+
     @GetMapping("/region-labels")
     public List<RegionLabelDto> getRegionLabels(
             @RequestParam String level,

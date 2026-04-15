@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface AdministrativeBoundaryRepository extends JpaRepository<AdministrativeBoundary, Long> {
 
+    Optional<AdministrativeBoundary> findByAdmCd(String admCd);
+
     @Query(value = """
         SELECT *
         FROM administrative_boundary ab
