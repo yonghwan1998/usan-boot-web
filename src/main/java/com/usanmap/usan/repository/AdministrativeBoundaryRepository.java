@@ -1,6 +1,7 @@
 package com.usanmap.usan.repository;
 
 import com.usanmap.usan.entity.AdministrativeBoundary;
+import com.usanmap.usan.entity.enums.AdministrativeLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +12,8 @@ import java.util.Optional;
 public interface AdministrativeBoundaryRepository extends JpaRepository<AdministrativeBoundary, Long> {
 
     Optional<AdministrativeBoundary> findByAdmCd(String admCd);
+
+    Optional<AdministrativeBoundary> findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel admLevel, String prefix);
 
     @Query(value = """
         SELECT *

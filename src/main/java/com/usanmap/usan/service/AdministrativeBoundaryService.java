@@ -89,26 +89,21 @@ public class AdministrativeBoundaryService {
                 }
                 case SIGUNGU -> {
                     sigunguName = boundary.getName();
-                    if (boundary.getParentAdmCd() != null) {
-                        sidoName = administrativeBoundaryRepository.findByAdmCd(boundary.getParentAdmCd())
-                                .map(AdministrativeBoundary::getName).orElse(null);
-                    }
+                    sidoName = administrativeBoundaryRepository
+                            .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIDO, admCd.substring(0, 2))
+                            .map(AdministrativeBoundary::getName).orElse(null);
                     String sigunguCode = admCd.substring(0, 5);
                     stats = crawledListingRepository.countByListingTypeAndSigunguCode(sigunguCode);
                     brokerCount = crawledListingRepository.countDistinctBrokerBySigunguCode(sigunguCode);
                 }
                 case EMD -> {
                     emdName = boundary.getName();
-                    AdministrativeBoundary sigungu = boundary.getParentAdmCd() != null
-                            ? administrativeBoundaryRepository.findByAdmCd(boundary.getParentAdmCd()).orElse(null)
-                            : null;
-                    if (sigungu != null) {
-                        sigunguName = sigungu.getName();
-                        if (sigungu.getParentAdmCd() != null) {
-                            sidoName = administrativeBoundaryRepository.findByAdmCd(sigungu.getParentAdmCd())
-                                    .map(AdministrativeBoundary::getName).orElse(null);
-                        }
-                    }
+                    sigunguName = administrativeBoundaryRepository
+                            .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIGUNGU, admCd.substring(0, 5))
+                            .map(AdministrativeBoundary::getName).orElse(null);
+                    sidoName = administrativeBoundaryRepository
+                            .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIDO, admCd.substring(0, 2))
+                            .map(AdministrativeBoundary::getName).orElse(null);
                     String emdCode = admCd.substring(0, Math.min(10, admCd.length()));
                     stats = crawledListingRepository.countByListingTypeAndEmdCode(emdCode);
                     brokerCount = crawledListingRepository.countDistinctBrokerByEmdCode(emdCode);
