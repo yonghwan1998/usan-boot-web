@@ -1116,7 +1116,7 @@ body {
 }
 
 .bottom-sheet.is-half #info-sheet-content {
-    max-height: calc(0.6 * (var(--app-h) - var(--nav-total-h)) - 90px);
+    max-height: calc(0.6 * (var(--app-h) - var(--nav-total-h)) - 160px);
 }
 
 .info-sheet__region-tabs {
@@ -1150,7 +1150,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding-bottom: 12px;
+    padding-bottom: 24px;
 }
 
 .info-sheet__stat-item {
