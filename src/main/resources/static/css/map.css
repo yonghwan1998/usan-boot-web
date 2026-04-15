@@ -1093,3 +1093,8 @@ body {
     pointer-events: none;
     box-shadow: 0 0 4px 0 #0000001A;
 }
+
+.region-pill--selected {
+    background: #475569;
+    color: #ffffff;
+}

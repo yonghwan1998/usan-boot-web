@@ -148,6 +148,7 @@
         let regionCodeCache = new Map();
 
         let regionLabelOverlays = [];
+        let selectedBoundaryFeature = null;
 
         let lastFetchId = 0;
 
@@ -278,6 +279,7 @@
         function clearRegionLabels() {
             regionLabelOverlays.forEach(o => o.setMap(null));
             regionLabelOverlays = [];
+            selectedBoundaryFeature = null;
         }
 
         async function loadRegionLabels(level) {
@@ -489,22 +491,44 @@
             }
         }
 
+        const BOUNDARY_HOVER_STYLE = {
+            fillColor: '#98adff',
+            fillOpacity: 0.2,
+            strokeColor: '#475569',
+            strokeWeight: 3,
+            strokeOpacity: 1
+        };
+
+        function selectBoundaryFeature(feature) {
+            // 이전 선택 해제
+            if (selectedBoundaryFeature) {
+                map.data.revertStyle(selectedBoundaryFeature);
+                const prevOverlay = regionLabelOverlays.find(o => o._name === selectedBoundaryFeature.getProperty('name'));
+                if (prevOverlay?._div) prevOverlay._div.classList.remove('region-pill--selected');
+            }
+
+            // 새 선택 적용
+            selectedBoundaryFeature = feature;
+            map.data.overrideStyle(feature, BOUNDARY_HOVER_STYLE);
+
+            const overlay = regionLabelOverlays.find(o => o._name === feature.getProperty('name'));
+            if (overlay?._div) overlay._div.classList.add('region-pill--selected');
+        }
+
         function bindBoundaryEvents() {
             map.data.addListener('mouseover', function (e) {
-                map.data.overrideStyle(e.feature, {
-                    fillColor: '#98adff',
-                    fillOpacity: 0.2,
-                    strokeColor: '#475569',
-                    strokeWeight: 3,
-                    strokeOpacity: 1
-                });
+                if (e.feature === selectedBoundaryFeature) return;
+                map.data.overrideStyle(e.feature, BOUNDARY_HOVER_STYLE);
             });
 
             map.data.addListener('mouseout', function (e) {
+                if (e.feature === selectedBoundaryFeature) return;
                 map.data.revertStyle(e.feature);
             });
 
             map.data.addListener('click', function (e) {
+                selectBoundaryFeature(e.feature);
+
                 const level = e.feature.getProperty('level');
                 const geometry = e.feature.getGeometry();
 
