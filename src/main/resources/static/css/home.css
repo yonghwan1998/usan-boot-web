@@ -375,12 +375,26 @@
     border-top: 1px dashed #d9d9d9;
 }
 
+.nearby-agent__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+}
+
+.nearby-agent__empty-text {
+    font-size: 14px;
+    color: #8c8c8c;
+    text-align: center;
+}
+
 .nearby-agent__more-wrapper {
     display: flex;
     gap: 4px;
     justify-content: center;
     align-items: center;
     height: 60px;
+    cursor: pointer;
 }
 
 .nearby-agent__more-btn {

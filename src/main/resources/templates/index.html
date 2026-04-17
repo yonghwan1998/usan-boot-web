@@ -173,114 +173,138 @@
 
             <div th:if="${login.authenticated}"
                  class="nearby-agent--login"
-                 th:text="${login.nearbyAddr} + '의 주변 중개사'">
-                    선택한 주소의 주변 중개사
+                 th:text="${login.nearbyAddr != null ? login.nearbyAddr + '의 주변 중개사' : '주변 중개사'}">
+                선택한 주소의 주변 중개사
             </div>
 
             <div class="home-block__nearby">
                 <div class="nearby-wrapper">
-                    <div class="nearby-agent">
+                    <div class="nearby-agent" id="nearby-agent-list">
 
-                        <div class="nearby-agent__item">
-                            <div class="nearby-agent__left">
-                                <h3 class="nearby-agent__name">우리동네 부동산</h3>
-
-                                <div class="nearby-agent__tags">
-                                    <span class="listing__tag listing__tag--apt">
-                                        <span class="tag-label">아파트</span>
-                                        <span class="tag-count">20</span>
-                                    </span>
-                                    <span class="listing__tag listing__tag--officetel">
-                                        <span class="tag-label">오피스텔</span>
-                                        <span class="tag-count">16</span>
-                                    </span>
-                                    <span class="listing__tag listing__tag--store">
-                                        <span class="tag-label">상가</span>
-                                        <span class="tag-count">7</span>
-                                    </span>
+                        <!-- 로그인 + 중개사 데이터 있을 때: 동적 렌더링 -->
+                        <th:block th:if="${login.authenticated and nearbyBrokers != null and not #lists.isEmpty(nearbyBrokers)}">
+                            <th:block th:each="broker, iterStat : ${nearbyBrokers}">
+                                <div class="nearby-agent__hr"
+                                     th:unless="${iterStat.first}"
+                                     th:style="${iterStat.index >= 3} ? 'display:none' : ''"></div>
+                                <div class="nearby-agent__item"
+                                     th:style="${iterStat.index >= 3} ? 'display:none' : ''">
+                                    <div class="nearby-agent__left">
+                                        <h3 class="nearby-agent__name" th:text="${broker.officeName}">우리동네 부동산</h3>
+                                        <div class="nearby-agent__tags">
+                                            <th:block th:each="tag : ${broker.tags}">
+                                                <span class="listing__tag" th:classappend="${tag.cssClass}">
+                                                    <span class="tag-label" th:text="${tag.label}">아파트</span>
+                                                    <span class="tag-count" th:text="${tag.count}">0</span>
+                                                </span>
+                                            </th:block>
+                                        </div>
+                                        <div class="nearby-agent__address-wrapper">
+                                            <span class="nearby-agent__address" th:text="${broker.address}">주소</span>
+                                            <span class="nearby-agent__expand-btn"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+<!--                                        <img th:src="|/img/78x78-nearby-thumb-${(iterStat.index % 3) + 1}.svg|" alt="프로필">-->
+                                    </div>
                                 </div>
+                            </th:block>
+                        </th:block>
 
-                                <div class="nearby-agent__address-wrapper">
-                                    <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
-                                    <span class="nearby-agent__expand-btn"></span>
+                        <!-- 로그인 + 지역 있음 + 중개사 없을 때: 안내 문구 -->
+                        <th:block th:if="${login.authenticated and login.nearbyAddr != null and (nearbyBrokers == null or #lists.isEmpty(nearbyBrokers))}">
+                            <div class="nearby-agent__empty">
+                                <p class="nearby-agent__empty-text">해당 지역 주변의 중개사 데이터가 없습니다.</p>
+                            </div>
+                        </th:block>
+
+                        <!-- 미로그인 / 지역 미설정일 때: 정적 placeholder -->
+                        <th:block th:if="${not login.authenticated or login.nearbyAddr == null}">
+                            <div class="nearby-agent__item">
+                                <div class="nearby-agent__left">
+                                    <h3 class="nearby-agent__name">우리동네 부동산</h3>
+                                    <div class="nearby-agent__tags">
+                                        <span class="listing__tag listing__tag--apt">
+                                            <span class="tag-label">아파트</span>
+                                            <span class="tag-count">20</span>
+                                        </span>
+                                        <span class="listing__tag listing__tag--officetel">
+                                            <span class="tag-label">오피스텔</span>
+                                            <span class="tag-count">16</span>
+                                        </span>
+                                        <span class="listing__tag listing__tag--store">
+                                            <span class="tag-label">상가</span>
+                                            <span class="tag-count">7</span>
+                                        </span>
+                                    </div>
+                                    <div class="nearby-agent__address-wrapper">
+                                        <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
+                                        <span class="nearby-agent__expand-btn"></span>
+                                    </div>
                                 </div>
-
-                            </div>
-
-                            <div>
-                                <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필">
-                            </div>
-                        </div>
-
-                        <div class="nearby-agent__hr"></div>
-
-                        <div class="nearby-agent__item">
-                            <div class="nearby-agent__left">
-                                <h3 class="nearby-agent__name">우리동네 부동산</h3>
-
-                                <div class="nearby-agent__tags">
-                                    <span class="listing__tag listing__tag--villa">
-                                        <span class="tag-label">빌라/연립</span>
-                                        <span class="tag-count">15</span>
-                                    </span>
-                                    <span class="listing__tag listing__tag--oneroom">
-                                        <span class="tag-label">원룸</span>
-                                        <span class="tag-count">12</span>
-                                    </span>
-                                    <span class="listing__tag listing__tag--tworoom">
-                                        <span class="tag-label">투룸</span>
-                                        <span class="tag-count">5</span>
-                                    </span>
+                                <div>
+                                    <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필">
                                 </div>
-
-                                <div class="nearby-agent__address-wrapper">
-                                    <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
-                                    <span class="nearby-agent__expand-btn"></span>
+                            </div>
+                            <div class="nearby-agent__hr"></div>
+                            <div class="nearby-agent__item">
+                                <div class="nearby-agent__left">
+                                    <h3 class="nearby-agent__name">우리동네 부동산</h3>
+                                    <div class="nearby-agent__tags">
+                                        <span class="listing__tag listing__tag--villa">
+                                            <span class="tag-label">빌라/연립</span>
+                                            <span class="tag-count">15</span>
+                                        </span>
+                                        <span class="listing__tag listing__tag--oneroom">
+                                            <span class="tag-label">원룸</span>
+                                            <span class="tag-count">12</span>
+                                        </span>
+                                        <span class="listing__tag listing__tag--tworoom">
+                                            <span class="tag-label">투룸</span>
+                                            <span class="tag-count">5</span>
+                                        </span>
+                                    </div>
+                                    <div class="nearby-agent__address-wrapper">
+                                        <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
+                                        <span class="nearby-agent__expand-btn"></span>
+                                    </div>
                                 </div>
-
-                            </div>
-
-                            <div>
-                                <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필">
-                            </div>
-                        </div>
-
-                        <div class="nearby-agent__hr"></div>
-
-                        <div class="nearby-agent__item">
-                            <div class="nearby-agent__left">
-                                <h3 class="nearby-agent__name">우리동네 부동산</h3>
-
-                                <div class="nearby-agent__tags">
-                                    <span class="listing__tag listing__tag--detached">
-                                        <span class="tag-label">단독/다가구</span>
-                                        <span class="tag-count">10</span>
-                                    </span>
-                                    <span class="listing__tag listing__tag--rural">
-                                        <span class="tag-label">전원주택</span>
-                                        <span class="tag-count">4</span>
-                                    </span>
-                                    <span class="listing__tag listing__tag--apt">
-                                        <span class="tag-label">아파트</span>
-                                        <span class="tag-count">2</span>
-                                    </span>
+                                <div>
+                                    <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필">
                                 </div>
-
-                                <div class="nearby-agent__address-wrapper">
-                                    <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
-                                    <span class="nearby-agent__expand-btn"></span>
+                            </div>
+                            <div class="nearby-agent__hr"></div>
+                            <div class="nearby-agent__item">
+                                <div class="nearby-agent__left">
+                                    <h3 class="nearby-agent__name">우리동네 부동산</h3>
+                                    <div class="nearby-agent__tags">
+                                        <span class="listing__tag listing__tag--detached">
+                                            <span class="tag-label">단독/다가구</span>
+                                            <span class="tag-count">10</span>
+                                        </span>
+                                        <span class="listing__tag listing__tag--rural">
+                                            <span class="tag-label">전원주택</span>
+                                            <span class="tag-count">4</span>
+                                        </span>
+                                        <span class="listing__tag listing__tag--apt">
+                                            <span class="tag-label">아파트</span>
+                                            <span class="tag-count">2</span>
+                                        </span>
+                                    </div>
+                                    <div class="nearby-agent__address-wrapper">
+                                        <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
+                                        <span class="nearby-agent__expand-btn"></span>
+                                    </div>
                                 </div>
-
+                                <div>
+                                    <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필">
+                                </div>
                             </div>
-
-                            <div>
-                                <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필">
-                            </div>
-                        </div>
+                        </th:block>
 
                     </div>
 
-                    <div class="nearby-agent__more-wrapper">
+                    <div class="nearby-agent__more-wrapper" id="nearby-more-btn">
                         <span class="nearby-agent__more-btn"></span>
                         <span class="nearby-agent__more-text">더보기</span>
                     </div>
@@ -288,7 +312,7 @@
                 </div>
 
                 <!--      위 레이어: 안내 버블 오버레이      -->
-                <div class="nearby-overlay" th:unless="${login.authenticated}">
+                <div class="nearby-overlay" th:if="${not login.authenticated or login.nearbyAddr == null}">
                     <div class="tip-bubble">
                         <p class="tip-bubble__text">
                             관심이 있는 지역을 선택하고<br>
@@ -302,6 +326,38 @@
                     </div>
                 </div>
             </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var BATCH = 3;
+                    var shown = BATCH;
+                    var container = document.getElementById('nearby-agent-list');
+                    var moreBtn = document.getElementById('nearby-more-btn');
+
+                    if (!container || !moreBtn) return;
+
+                    var items = Array.from(container.querySelectorAll('.nearby-agent__item'));
+                    var hrs = Array.from(container.querySelectorAll('.nearby-agent__hr'));
+
+                    if (items.length <= BATCH) {
+                        moreBtn.style.display = 'none';
+                        return;
+                    }
+
+                    moreBtn.addEventListener('click', function () {
+                        var next = Math.min(shown + BATCH, items.length);
+                        for (var i = shown; i < next; i++) {
+                            items[i].style.display = '';
+                            if (hrs[i - 1]) hrs[i - 1].style.display = '';
+                        }
+                        shown = next;
+                        if (shown >= items.length) {
+                            moreBtn.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
+
         </section>
 
         <th:block th:replace="~{fragments/footer :: footerFragment}"></th:block>
@@ -350,7 +406,7 @@
 
         let index = 0;
         let autoTimer = null;
-        const AUTO_DELAY = 100000;        // 자동 롤링: 100초
+        const AUTO_DELAY = 15000;        // 자동 롤링: 15초
         const SWIPE_THRESHOLD = 40;     // 스와이프 최소 거리(px)
 
         let touchStartX = 0;
