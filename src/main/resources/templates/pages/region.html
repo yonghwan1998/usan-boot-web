@@ -51,58 +51,24 @@
 
     <div class="region-text" id="regionText">찾으시는 중개사의 시·도를 선택해 주세요.</div>
 
-    <form th:action="@{/region}" method="post" id="regionForm">
+    <form th:action="@{/region/selector}" method="post" id="regionForm">
+
+        <input type="hidden" name="admCd"       id="hidAdmCd">
+        <input type="hidden" name="sidoName"    id="hidSidoName">
+        <input type="hidden" name="sigunguName" id="hidSigunguName">
+        <input type="hidden" name="emdName"     id="hidEmdName">
+        <input type="hidden" name="emdLat"      id="hidEmdLat">
+        <input type="hidden" name="emdLng"      id="hidEmdLng">
 
         <div class="region-selected-wrapper">
         </div>
         <div class="region-tag-wrapper region-wrapper--sido">
-            <span class="region-tag region-tag--sido">서울특별시</span>
-            <span class="region-tag region-tag--sido">인천광역시</span>
-            <span class="region-tag region-tag--sido">부산광역시</span>
-            <span class="region-tag region-tag--sido">대구광역시</span>
-            <span class="region-tag region-tag--sido">대전광역시</span>
-            <span class="region-tag region-tag--sido">광주광역시</span>
-            <span class="region-tag region-tag--sido">울산광역시</span>
-            <span class="region-tag region-tag--sido">경기도</span>
-            <span class="region-tag region-tag--sido">전라남도</span>
-            <span class="region-tag region-tag--sido">전라북도</span>
-            <span class="region-tag region-tag--sido">충청남도</span>
-            <span class="region-tag region-tag--sido">충청북도</span>
-            <span class="region-tag region-tag--sido">경상남도</span>
-            <span class="region-tag region-tag--sido">경상북도</span>
-            <span class="region-tag region-tag--sido">세종특별자치도</span>
-            <span class="region-tag region-tag--sido">제주특별자치도</span>
         </div>
 
         <div class="region-tag-wrapper region-wrapper--sigungu" hidden>
-            <span class="region-tag region-tag--sigungu">강남구</span>
-            <span class="region-tag region-tag--sigungu">송파구</span>
-            <span class="region-tag region-tag--sigungu">강동구</span>
-            <span class="region-tag region-tag--sigungu">마포구</span>
-            <span class="region-tag region-tag--sigungu">광진구</span>
-            <span class="region-tag region-tag--sigungu">성동구</span>
-            <span class="region-tag region-tag--sigungu">동작구</span>
-            <span class="region-tag region-tag--sigungu">용산구</span>
-            <span class="region-tag region-tag--sigungu">은평구</span>
-            <span class="region-tag region-tag--sigungu">강서구</span>
-            <span class="region-tag region-tag--sigungu">종로구</span>
-            <span class="region-tag region-tag--sigungu">중구</span>
-            <span class="region-tag region-tag--sigungu">용산구</span>
-            <span class="region-tag region-tag--sigungu">성동구</span>
-            <span class="region-tag region-tag--sigungu">광진구</span>
         </div>
 
         <div class="region-tag-wrapper region-wrapper--emd" hidden>
-            <span class="region-tag region-tag--emd">신사동</span>
-            <span class="region-tag region-tag--emd">논현동</span>
-            <span class="region-tag region-tag--emd">삼성동</span>
-            <span class="region-tag region-tag--emd">일원동</span>
-            <span class="region-tag region-tag--emd">대치동</span>
-            <span class="region-tag region-tag--emd">세곡동</span>
-            <span class="region-tag region-tag--emd">역삼동</span>
-            <span class="region-tag region-tag--emd">도곡동</span>
-            <span class="region-tag region-tag--emd">수서동</span>
-            <span class="region-tag region-tag--emd">압구정동</span>
         </div>
 
     </form>
@@ -158,11 +124,9 @@
             const showEl = qs(steps[step - 1].show);
             if (showEl) showEl.hidden = false;
 
-            // 버튼 영역: emd(step3)에서만 "선택 후" 보여줄 예정 → 기본 숨김
             const btnWrap = qs('.region-button');
             if (btnWrap) btnWrap.classList.remove('is-visible');
 
-            // 버튼 텍스트
             const btnNext = qs('#btnNext');
             if (btnNext) btnNext.textContent = (step === steps.length) ? '추가하기' : '다음';
 
@@ -171,10 +135,55 @@
         }
 
         /* ================================
-           선택칩(상단) - wrapper가 "비어있는 상태"에서 시작하므로
-           create/update/remove 방식으로 처리
+           AJAX 데이터 로딩
         ================================= */
+        async function loadSido() {
+            const res = await fetch('/api/region/sido');
+            const items = await res.json();
+            const wrapper = qs('.region-wrapper--sido');
+            wrapper.innerHTML = '';
+            items.forEach(item => {
+                const span = document.createElement('span');
+                span.className = 'region-tag region-tag--sido';
+                span.dataset.admCd = item.admCd;
+                span.textContent = item.name;
+                wrapper.appendChild(span);
+            });
+        }
 
+        async function loadSigungu(sidoCd) {
+            const res = await fetch('/api/region/sigungu?sidoCd=' + encodeURIComponent(sidoCd));
+            const items = await res.json();
+            const wrapper = qs('.region-wrapper--sigungu');
+            wrapper.innerHTML = '';
+            items.forEach(item => {
+                const span = document.createElement('span');
+                span.className = 'region-tag region-tag--sigungu';
+                span.dataset.admCd = item.admCd;
+                span.textContent = item.name;
+                wrapper.appendChild(span);
+            });
+        }
+
+        async function loadEmd(sigunguCd) {
+            const res = await fetch('/api/region/emd?sigunguCd=' + encodeURIComponent(sigunguCd));
+            const items = await res.json();
+            const wrapper = qs('.region-wrapper--emd');
+            wrapper.innerHTML = '';
+            items.forEach(item => {
+                const span = document.createElement('span');
+                span.className = 'region-tag region-tag--emd';
+                span.dataset.admCd = item.admCd;
+                span.dataset.lat = item.lat;
+                span.dataset.lng = item.lng;
+                span.textContent = item.name;
+                wrapper.appendChild(span);
+            });
+        }
+
+        /* ================================
+           선택칩(상단)
+        ================================= */
         function getSelectedWrapper() {
             return qs('.region-selected-wrapper');
         }
@@ -220,7 +229,6 @@
         }
 
         function removeChipsFrom(level) {
-            // level 포함 이후(하위) 칩을 싹 지우기
             if (level === 'sido') {
                 removeChip('sido');
                 removeChip('sigungu');
@@ -249,22 +257,23 @@
                 .forEach(el => el.classList.remove('is-selected'));
 
             tagEl.classList.add('is-selected');
-
             upsertChip('emd', tagEl.textContent.trim());
+
+            qs('#hidAdmCd').value       = tagEl.dataset.admCd  || '';
+            qs('#hidEmdName').value     = tagEl.textContent.trim();
+            qs('#hidEmdLat').value      = tagEl.dataset.lat     || '';
+            qs('#hidEmdLng').value      = tagEl.dataset.lng     || '';
 
             const btnWrap = qs('.region-button');
             if (btnWrap) btnWrap.classList.add('is-visible');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 초기 step
             const initial = Number(qs('.region-step')?.getAttribute('data-step')) || 1;
             setStep(initial);
 
-            // ✅ 최초 진입 시 선택칩 wrapper는 비어있음 (요구사항)
-            // (혹시 SSR로 값이 들어오면 여기서 복원 로직 넣으면 됨)
+            loadSido();
 
-            // ✅ 선택칩 삭제 클릭 처리 (이벤트 위임)
             getSelectedWrapper()?.addEventListener('click', (e) => {
                 const del = e.target.closest('.region-selected__delete');
                 if (!del) return;
@@ -275,7 +284,6 @@
                 const level = item.dataset.level;
 
                 if (level === 'sido') {
-                    // 시/도 삭제 → 전부 초기화 + step1
                     removeChipsFrom('sido');
                     clearEmdSelectionUI();
                     setStep(1);
@@ -283,7 +291,6 @@
                 }
 
                 if (level === 'sigungu') {
-                    // 시군구 삭제 → sigungu/emd 초기화 + step2
                     removeChipsFrom('sigungu');
                     clearEmdSelectionUI();
                     setStep(2);
@@ -291,58 +298,53 @@
                 }
 
                 if (level === 'emd') {
-                    // emd 삭제 → emd만 제거 + step3 유지
                     removeChipsFrom('emd');
                     clearEmdSelectionUI();
                     setStep(3);
                 }
             });
 
-            // ✅ 태그 클릭으로 단계 이동
             qs('#regionForm')?.addEventListener('click', (e) => {
-                const sido = e.target.closest('.region-tag--sido');
+                const sido    = e.target.closest('.region-tag--sido');
                 const sigungu = e.target.closest('.region-tag--sigungu');
-                const emd = e.target.closest('.region-tag--emd');
+                const emd     = e.target.closest('.region-tag--emd');
 
                 const step = window.__REGION_STEP__ || 1;
 
-                // STEP1: 시/도 선택 → chip 생성/업데이트 → 하위 초기화 → step2
                 if (sido && step === 1) {
                     const name = sido.textContent.trim();
                     upsertChip('sido', name);
 
-                    // 하위 초기화
-                    removeChipsFrom('sigungu'); // sigungu/emd 제거
+                    qs('#hidSidoName').value = name;
+
+                    removeChipsFrom('sigungu');
                     clearEmdSelectionUI();
 
-                    setStep(2);
+                    loadSigungu(sido.dataset.admCd).then(() => setStep(2));
                     return;
                 }
 
-                // STEP2: 시군구 선택 → chip 생성/업데이트 → emd 초기화 → step3
                 if (sigungu && step === 2) {
                     const name = sigungu.textContent.trim();
                     upsertChip('sigungu', name);
 
-                    // emd 초기화
+                    qs('#hidSigunguName').value = name;
+
                     removeChipsFrom('emd');
                     clearEmdSelectionUI();
 
-                    setStep(3);
+                    loadEmd(sigungu.dataset.admCd).then(() => setStep(3));
                     return;
                 }
 
-                // STEP3: 읍면동 선택 → is-selected + chip 생성/업데이트 + 버튼 표시 (step 이동 X)
                 if (emd && step === 3) {
                     selectEmdTag(emd);
                 }
             });
 
-            // ✅ 버튼: step3에서만 submit
             qs('#btnNext')?.addEventListener('click', () => {
                 const step = window.__REGION_STEP__ || 1;
 
-                // next로 넘어가는 건 태그 클릭이 담당
                 if (step < 3) return;
 
                 const selectedEmd = qs('.region-wrapper--emd .region-tag--emd.is-selected');

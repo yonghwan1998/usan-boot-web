@@ -1,13 +1,12 @@
 package com.usanmap.usan.service;
 
-import com.usanmap.usan.dto.BoundaryCodeResponse;
-import com.usanmap.usan.dto.PropertyStatDto;
-import com.usanmap.usan.dto.RegionInfoDto;
-import com.usanmap.usan.dto.RegionLabelDto;
+import com.usanmap.usan.dto.*;
 import com.usanmap.usan.entity.AdministrativeBoundary;
 import com.usanmap.usan.entity.enums.AdministrativeLevel;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository;
+import com.usanmap.usan.repository.AdministrativeBoundaryRepository.EmdItemProjection;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository.RegionLabelProjection;
+import com.usanmap.usan.repository.AdministrativeBoundaryRepository.RegionSelectProjection;
 import com.usanmap.usan.repository.CrawledListingRepository;
 import com.usanmap.usan.repository.CrawledListingRepository.ListingTypeStat;
 import lombok.RequiredArgsConstructor;
@@ -157,6 +156,32 @@ public class AdministrativeBoundaryService {
                 ))
                 .toList();
 
+    }
+
+    public List<RegionSelectItemDto> getSidoList() {
+        return administrativeBoundaryRepository
+                .findNamesByLevel(AdministrativeLevel.SIDO.name())
+                .stream()
+                .map(p -> new RegionSelectItemDto(p.getAdmCd(), p.getName()))
+                .toList();
+    }
+
+    public List<RegionSelectItemDto> getSigunguList(String sidoCd) {
+        String parentCd = sidoCd.substring(0, Math.min(2, sidoCd.length()));
+        return administrativeBoundaryRepository
+                .findNamesByLevelAndParent(AdministrativeLevel.SIGUNGU.name(), parentCd)
+                .stream()
+                .map(p -> new RegionSelectItemDto(p.getAdmCd(), p.getName()))
+                .toList();
+    }
+
+    public List<RegionEmdItemDto> getEmdList(String sigunguCd) {
+        String parentCd = sigunguCd.substring(0, Math.min(5, sigunguCd.length()));
+        return administrativeBoundaryRepository
+                .findEmdListByParentAdmCd(parentCd)
+                .stream()
+                .map(p -> new RegionEmdItemDto(p.getAdmCd(), p.getName(), p.getLat(), p.getLng()))
+                .toList();
     }
 
     public List<RegionLabelDto> getRegionLabels(String level, double south, double north, double west, double east) {

@@ -16,6 +16,49 @@ public interface AdministrativeBoundaryRepository extends JpaRepository<Administ
     Optional<AdministrativeBoundary> findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel admLevel, String prefix);
 
     @Query(value = """
+        SELECT ab.adm_cd AS admCd, ab.name AS name
+        FROM administrative_boundary ab
+        WHERE ab.adm_level = :admLevel
+        ORDER BY ab.name
+        """, nativeQuery = true)
+    List<RegionSelectProjection> findNamesByLevel(@Param("admLevel") String admLevel);
+
+    @Query(value = """
+        SELECT ab.adm_cd AS admCd, ab.name AS name
+        FROM administrative_boundary ab
+        WHERE ab.adm_level = :admLevel
+          AND ab.parent_adm_cd = :parentAdmCd
+        ORDER BY ab.name
+        """, nativeQuery = true)
+    List<RegionSelectProjection> findNamesByLevelAndParent(
+            @Param("admLevel") String admLevel,
+            @Param("parentAdmCd") String parentAdmCd);
+
+    interface RegionSelectProjection {
+        String getAdmCd();
+        String getName();
+    }
+
+    @Query(value = """
+        SELECT ab.adm_cd                                                         AS admCd,
+               ab.name                                                           AS name,
+               ST_X(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lat,
+               ST_Y(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lng
+        FROM administrative_boundary ab
+        WHERE ab.adm_level = 'EMD'
+          AND ab.parent_adm_cd = :sigunguCd
+        ORDER BY ab.name
+        """, nativeQuery = true)
+    List<EmdItemProjection> findEmdListByParentAdmCd(@Param("sigunguCd") String sigunguCd);
+
+    interface EmdItemProjection {
+        String getAdmCd();
+        String getName();
+        double getLat();
+        double getLng();
+    }
+
+    @Query(value = """
         SELECT *
         FROM administrative_boundary ab
         WHERE ab.adm_level = :admLevel

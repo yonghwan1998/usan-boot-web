@@ -5,5 +5,7 @@ public record MyListingDto(
         String publicId,
         String addressName,
         String type,
-        String tradeType
+        String tradeType,
+        java.math.BigDecimal lat,
+        java.math.BigDecimal lng
 ) {}

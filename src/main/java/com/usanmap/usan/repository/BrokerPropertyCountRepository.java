@@ -14,4 +14,6 @@ public interface BrokerPropertyCountRepository extends JpaRepository<BrokerPrope
             BigDecimal south, BigDecimal north,
             BigDecimal west, BigDecimal east);
     List<BrokerPropertyCount> findByBrokerCodeIn(Collection<UUID> brokerCodes);
+
+    List<BrokerPropertyCount> findBySidoAndSigunguAndEmd(String sido, String sigungu, String emd);
 }

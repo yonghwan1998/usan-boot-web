@@ -1,6 +1,10 @@
 package com.usanmap.usan.advice;
 
+import com.usanmap.usan.entity.UserRegion;
+import com.usanmap.usan.repository.UserRegionRepository;
+import com.usanmap.usan.security.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,13 +14,19 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.usanmap.usan.security.CustomUserDetails;
 import com.usanmap.usan.dto.LoginViewModel;
 
+import java.util.List;
+
 /**
  * @date    2025-12-18
  * @author  yongss
  * @desc    전체 페이지에서 사용 되는 Spring Advice
  */
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalControllerAdvice {
+
+    private final UserRegionRepository userRegionRepository;
+    private final SecurityUtils securityUtils;
 
     /**
      * @date    2025-12-17
@@ -130,24 +140,29 @@ public class GlobalControllerAdvice {
 
         Object principal = auth.getPrincipal();
 
+        Long userId = securityUtils.currentUserId();
+        if (userId == null) {
+            return LoginViewModel.anonymous();
+        }
+
+        String email = null;
+        String nickname = null;
+
         if (principal instanceof OAuth2User oAuth2User) {
-            return LoginViewModel.authenticated(
-                    oAuth2User.getAttribute("app_user_id"),
-                    oAuth2User.getAttribute("app_user_email"),
-                    oAuth2User.getAttribute("app_user_nickname"),
-                    "오산시 원동"
-            );
+            email = oAuth2User.getAttribute("app_user_email");
+            nickname = oAuth2User.getAttribute("app_user_nickname");
+        } else if (principal instanceof CustomUserDetails userDetails) {
+            email = userDetails.getEmail();
+            nickname = userDetails.getNickname();
         }
 
-        if (principal instanceof CustomUserDetails userDetails) {
-            return LoginViewModel.authenticated(
-                    userDetails.getUserId(),
-                    userDetails.getEmail(),
-                    userDetails.getNickname(),
-                    "오산시 원동"
-            );
+        List<UserRegion> regions = userRegionRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        String nearbyAddr = null;
+        if (!regions.isEmpty()) {
+            UserRegion r = regions.get(0);
+            nearbyAddr = r.getSigunguName() + " " + r.getEmdName();
         }
 
-        return LoginViewModel.anonymous();
+        return LoginViewModel.authenticated(userId, email, nickname, nearbyAddr);
     }
 }
