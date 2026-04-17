@@ -3,6 +3,7 @@ package com.usanmap.usan.controller;
 import com.usanmap.usan.entity.UserRegion;
 import com.usanmap.usan.repository.UserRegionRepository;
 import com.usanmap.usan.security.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,7 @@ public class RegionController {
         return "pages/region";
     }
 
+    @Transactional
     @PostMapping("/selector")
     public String saveRegion(
             @RequestParam String admCd,
@@ -37,15 +39,18 @@ public class RegionController {
     ) {
         Long userId = securityUtils.currentUserIdOrThrow();
 
-        userRegionRepository.save(UserRegion.builder()
-                .userId(userId)
-                .admCd(admCd)
-                .sidoName(sidoName)
-                .sigunguName(sigunguName)
-                .emdName(emdName)
-                .emdLat(emdLat)
-                .emdLng(emdLng)
-                .build());
+        userRegionRepository.findByUserId(userId).ifPresentOrElse(
+                existing -> existing.update(admCd, sidoName, sigunguName, emdName, emdLat, emdLng),
+                () -> userRegionRepository.save(UserRegion.builder()
+                        .userId(userId)
+                        .admCd(admCd)
+                        .sidoName(sidoName)
+                        .sigunguName(sigunguName)
+                        .emdName(emdName)
+                        .emdLat(emdLat)
+                        .emdLng(emdLng)
+                        .build())
+        );
 
         return "redirect:/map";
     }
