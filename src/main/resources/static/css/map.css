@@ -1079,3 +1079,108 @@ body {
     border-top: 1px solid #f2f2f2;
     background: #ffffff;
 }
+
+.region-pill {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.88);
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #262626;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 0 4px 0 #0000001A;
+}
+
+.region-pill--selected {
+    background: #475569;
+    color: #ffffff;
+}
+
+#info-sheet-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#info-sheet-content::-webkit-scrollbar {
+    display: none;
+}
+
+.bottom-sheet.is-half #info-sheet-content {
+    max-height: calc(0.6 * (var(--app-h) - var(--nav-total-h)) - 160px);
+}
+
+.info-sheet__region-tabs {
+    display: flex;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.info-sheet__tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #8f8f8f;
+    border-right: 1px solid #e5e7eb;
+}
+
+.info-sheet__tab:last-child {
+    border-right: none;
+}
+
+.info-sheet__tab.is-active {
+    color: #262626;
+    font-weight: 700;
+}
+
+.info-sheet__stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 24px;
+}
+
+.info-sheet__stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-sheet__stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.info-sheet__stat-bar-wrap {
+    display: flex;
+    justify-content: flex-end;
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.info-sheet__stat-bar {
+    height: 100%;
+    border-radius: 2px;
+}
+
+.info-sheet__stat-pct {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: right;
+}

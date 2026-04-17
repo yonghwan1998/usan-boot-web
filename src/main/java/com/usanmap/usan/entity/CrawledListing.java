@@ -29,6 +29,15 @@ public class CrawledListing {
     @Column(precision = 10, scale = 7, nullable = false)
     private BigDecimal lng;
 
+    @Column(name = "sido_code", length = 2)
+    private String sidoCode;
+
+    @Column(name = "sigungu_code", length = 5)
+    private String sigunguCode;
+
+    @Column(name = "emd_code", length = 10)
+    private String emdCode;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
