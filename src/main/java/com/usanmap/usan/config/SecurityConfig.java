@@ -24,7 +24,6 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/join/**",
                                 "/search",
-                                "/region/selector",
                                 "/map",
                                 "/map/api/**",
                                 "/broker/**",
