@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.usanmap.usan.dto.*;
 import com.usanmap.usan.entity.Listing;
+import com.usanmap.usan.entity.UserRegion;
 import com.usanmap.usan.repository.ListingRepository;
+import com.usanmap.usan.repository.UserRegionRepository;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.MapService;
 import com.usanmap.usan.service.SmsService;
@@ -24,6 +26,7 @@ public class MapApiController {
     private final MapService        mapService;
     private final SecurityUtils     securityUtils;
     private final ListingRepository listingRepository;
+    private final UserRegionRepository userRegionRepository;
     private final SmsService        smsService;
     private final AdministrativeBoundaryService administrativeBoundaryService;
     private final AdministrativeBoundarySeedService administrativeBoundarySeedService;
@@ -47,6 +50,20 @@ public class MapApiController {
         return mapService.getBrokerDetails(request.getBrokerCodes());
     }
 
+    @GetMapping("/user-region")
+    public ResponseEntity<?> getUserRegion() {
+        Long userId = securityUtils.currentUserId();
+        if (userId == null) {
+            return ResponseEntity.ok(null);
+        }
+        List<UserRegion> regions = userRegionRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        if (regions.isEmpty()) {
+            return ResponseEntity.ok(null);
+        }
+        UserRegion region = regions.get(0);
+        return ResponseEntity.ok(Map.of("lat", region.getEmdLat(), "lng", region.getEmdLng()));
+    }
+
     /**
      * 로그인 사용자의 매물 목록 조회
      */
@@ -62,7 +79,9 @@ public class MapApiController {
                         l.getPublicId(),
                         l.getAddressName(),
                         l.getType(),
-                        l.getTradeType()))
+                        l.getTradeType(),
+                        l.getLat(),
+                        l.getLng()))
                 .toList();
         return ResponseEntity.ok(result);
     }

@@ -46,4 +46,13 @@ public class UserRegion {
     protected void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public void update(String admCd, String sidoName, String sigunguName, String emdName, BigDecimal emdLat, BigDecimal emdLng) {
+        this.admCd = admCd;
+        this.sidoName = sidoName;
+        this.sigunguName = sigunguName;
+        this.emdName = emdName;
+        this.emdLat = emdLat;
+        this.emdLng = emdLng;
+    }
 }
