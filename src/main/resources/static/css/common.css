@@ -657,82 +657,118 @@ body.is-modal-open {
 .listing__tag--apt {
     background-color: #fff5f5;
 }
+.info-sheet__stat-bar--apt {
+    background-color: #a65959;
+}
 .listing__tag--apt .tag-label {
     color: #a65959;
 }
-.listing__tag--apt .tag-count {
+.listing__tag--apt .tag-count,
+.info-sheet__stat-pct--apt {
     color: #633636;
 }
 .listing__tag--officetel {
     background-color: #fff4e5;
 }
+.info-sheet__stat-bar--officetel {
+    background-color: #b2884d;
+}
 .listing__tag--officetel .tag-label {
     color: #b2884d;
 }
-.listing__tag--officetel .tag-count {
+.listing__tag--officetel .tag-count,
+.info-sheet__stat-pct--officetel {
     color: #6b522e;
 }
 .listing__tag--villa {
     background-color: #fffde5;
 }
+.info-sheet__stat-bar--villa {
+    background-color: #b2aa4d;
+}
 .listing__tag--villa .tag-label {
     color: #b2aa4d;
 }
-.listing__tag--villa .tag-count {
+.listing__tag--villa .tag-count,
+.info-sheet__stat-pct--villa {
     color: #6b662e;
 }
 .listing__tag--oneroom {
     background-color: #f4ffe5;
 }
+.info-sheet__stat-bar--oneroom {
+    background-color: #648537;
+}
 .listing__tag--oneroom .tag-label {
     color: #648537;
 }
-.listing__tag--oneroom .tag-count {
+.listing__tag--oneroom .tag-count,
+.info-sheet__stat-pct--oneroom {
     color: #526b2e;
 }
 .listing__tag--tworoom {
     background-color: #ecf9ec;
 }
+.info-sheet__stat-bar--tworoom {
+    background-color: #4db24d;
+}
 .listing__tag--tworoom .tag-label {
     color: #4db24d;
 }
-.listing__tag--tworoom .tag-count {
+.listing__tag--tworoom .tag-count,
+.info-sheet__stat-pct--tworoom {
     color: #2e6b4c;
 }
 .listing__tag--detached {
     background-color: #e5fff2;
 }
+.info-sheet__stat-bar--detached {
+    background-color: #4db27e;
+}
 .listing__tag--detached .tag-label {
     color: #4db27e;
 }
-.listing__tag--detached .tag-count {
+.listing__tag--detached .tag-count,
+.info-sheet__stat-pct--detached {
     color: #2e6b4c;
 }
 .listing__tag--rural {
     background-color: #e5fbff;
 }
+.info-sheet__stat-bar--rural {
+    background-color: #4da1b2;
+}
 .listing__tag--rural .tag-label {
     color: #4da1b2;
 }
-.listing__tag--rural .tag-count {
+.listing__tag--rural .tag-count,
+.info-sheet__stat-pct--rural {
     color: #2e606b;
 }
 .listing__tag--mixedhouse {
     background-color: #e5eeff;
 }
+.info-sheet__stat-bar--mixedhouse {
+    background-color: #4d6fb2;
+}
 .listing__tag--mixedhouse .tag-label {
     color: #4d6fb2;
 }
-.listing__tag--mixedhouse .tag-count {
+.listing__tag--mixedhouse .tag-count,
+.info-sheet__stat-pct--mixedhouse {
     color: #2e426b;
 }
 .listing__tag--hanok {
     background-color: #eae5ff;
 }
+.info-sheet__stat-bar--hanok {
+    background-color: #7e70c2;
+}
 .listing__tag--hanok .tag-label {
     color: #7e70c2;
 }
-.listing__tag--hanok .tag-count {
+.listing__tag--hanok .tag-count,
+.info-sheet__stat-pct--hanok {
     color: #382e6b;
 }
 
@@ -740,28 +776,40 @@ body.is-modal-open {
 .listing__tag--store {
     background-color: #fcf5ff;
 }
+.info-sheet__stat-bar--store {
+    background-color: #914cb2;
+}
 .listing__tag--store .tag-label {
     color: #914cb2;
 }
-.listing__tag--store .tag-count {
+.listing__tag--store .tag-count,
+.info-sheet__stat-pct--store {
     color: #572e6b;
 }
 .listing__tag--office {
     background-color: #fff5fc;
 }
+.info-sheet__stat-bar--office {
+    background-color: #854770;
+}
 .listing__tag--office .tag-label {
     color: #854770;
 }
-.listing__tag--office .tag-count {
+.listing__tag--office .tag-count,
+.info-sheet__stat-pct--office {
     color: #422438;
 }
 .listing__tag--building {
     background-color: #fff2e5;
 }
+.info-sheet__stat-bar--building {
+    background-color: #b27f4d;
+}
 .listing__tag--building .tag-label {
     color: #b27f4d;
 }
-.listing__tag--building .tag-count {
+.listing__tag--building .tag-count,
+.info-sheet__stat-pct--building {
     color: #6b4c2e;
 }
 
@@ -769,19 +817,27 @@ body.is-modal-open {
 .listing__tag--factory {
     background-color: #ffffe5;
 }
+.info-sheet__stat-bar--factory {
+    background-color: #a1a145;
+}
 .listing__tag--factory .tag-label {
     color: #a1a145;
 }
-.listing__tag--factory .tag-count {
+.listing__tag--factory .tag-count,
+.info-sheet__stat-pct--factory {
     color: #6b6b2e;
 }
 .listing__tag--knowledge {
     background-color: #f2ffe5;
 }
+.info-sheet__stat-bar--knowledge {
+    background-color: #72a145;
+}
 .listing__tag--knowledge .tag-label {
     color: #72a145;
 }
-.listing__tag--knowledge .tag-count {
+.listing__tag--knowledge .tag-count,
+.info-sheet__stat-pct--knowledge {
     color: #4c6b2e;
 }
 
@@ -789,10 +845,14 @@ body.is-modal-open {
 .listing__tag--land {
     background-color: #e5ffe5;
 }
+.info-sheet__stat-bar--land {
+    background-color: #45a145;
+}
 .listing__tag--land .tag-label {
     color: #45a145;
 }
-.listing__tag--land .tag-count {
+.listing__tag--land .tag-count,
+.info-sheet__stat-pct--land {
     color: #2e6b2e;
 }
 
@@ -800,45 +860,65 @@ body.is-modal-open {
 .listing__tag--apt-sale {
     background-color: #e5fff2;
 }
+.info-sheet__stat-bar--apt-sale {
+    background-color: #4db27f;
+}
 .listing__tag--apt-sale .tag-label {
     color: #4db27f;
 }
-.listing__tag--apt-sale .tag-count {
+.listing__tag--apt-sale .tag-count,
+.info-sheet__stat-pct--apt-sale {
     color: #2e6b4f;
 }
 .listing__tag--officetel-sale {
     background-color: #f5ffff;
 }
+.info-sheet__stat-bar--officetel-sale {
+    background-color: #4db2b2;
+}
 .listing__tag--officetel-sale .tag-label {
     color: #4db2b2;
 }
-.listing__tag--officetel-sale .tag-count {
+.listing__tag--officetel-sale .tag-count,
+.info-sheet__stat-pct--officetel-sale {
     color: #2e6b6b;
 }
 .listing__tag--redevelopment {
     background-color: #f5faff;
 }
+.info-sheet__stat-bar--redevelopment {
+    background-color: #4d7fb2;
+}
 .listing__tag--redevelopment .tag-label {
     color: #4d7fb2;
 }
-.listing__tag--redevelopment .tag-count {
+.listing__tag--redevelopment .tag-count,
+.info-sheet__stat-pct--redevelopment {
     color: #2e4f6b;
 }
 .listing__tag--reconstruction {
     background-color: #f5f5ff;
 }
+.info-sheet__stat-bar--reconstruction {
+    background-color: #4d4db2;
+}
 .listing__tag--reconstruction .tag-label {
     color: #4d4db2;
 }
-.listing__tag--reconstruction .tag-count {
+.listing__tag--reconstruction .tag-count,
+.info-sheet__stat-pct--reconstruction {
     color: #2e2e6b;
 }
 .listing__tag--presale {
     background-color: #f5ebff;
 }
+.info-sheet__stat-bar--presale {
+    background-color: #7f4db2;
+}
 .listing__tag--presale .tag-label {
     color: #7f4db2;
 }
-.listing__tag--presale .tag-count {
+.listing__tag--presale .tag-count,
+.info-sheet__stat-pct--presale {
     color: #4b2e6b;
 }
