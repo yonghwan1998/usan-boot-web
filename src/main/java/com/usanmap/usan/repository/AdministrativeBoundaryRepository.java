@@ -42,8 +42,8 @@ public interface AdministrativeBoundaryRepository extends JpaRepository<Administ
     @Query(value = """
         SELECT ab.adm_cd                                                         AS admCd,
                ab.name                                                           AS name,
-               ST_Y(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lat,
-               ST_X(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lng
+               ST_X(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lat,
+               ST_Y(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lng
         FROM administrative_boundary ab
         WHERE ab.adm_level = 'EMD'
           AND ab.parent_adm_cd = :sigunguCd
