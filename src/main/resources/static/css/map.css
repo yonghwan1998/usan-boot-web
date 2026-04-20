@@ -1184,3 +1184,136 @@ body {
     font-weight: 700;
     text-align: right;
 }
+
+/* ===============================
+   거리 필터 모달
+   =============================== */
+.filter-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-modal-overlay.is-open {
+    display: flex;
+}
+
+.filter-modal {
+    width: calc(100% - 48px);
+    max-width: 350px;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 28px 12px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.filter-modal__title {
+    font-weight: 700;
+    font-size: 20px;
+    color: #0d0d0d;
+    padding: 0 16px;
+}
+
+.filter-modal__hr {
+    height: 0;
+    border: 1px solid #f2f2f2;
+    margin: 0 13px;
+}
+
+.filter-modal__section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 16px;
+}
+
+.filter-modal__section--distance,
+.filter-modal__section--type {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.filter-modal__section-title {
+    font-weight: 500;
+    font-size: 20px;
+    color: #0d0d0d;
+}
+
+.filter-modal__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-chip__distance {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #f2f2f2;
+    background: #ffffff;
+    font-weight: 500;
+    font-size: 16px;
+    color: #1fad66;
+    cursor: pointer;
+}
+
+.filter-chip__distance.is-active {
+    border: none;
+    background: #1fad66;
+    color: #ffffff;
+}
+
+.filter-chip__type {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #bfbfbf;
+    background: #ffffff;
+    font-weight: 500;
+    font-size: 16px;
+    color: #a6a6a6;
+    cursor: pointer;
+}
+
+.filter-chip__type.is-active {
+    border: none;
+    background: #a8f0cc;
+    color: #17824c;
+}
+
+.filter-modal__footer {
+    display: flex;
+    gap: 12px;
+}
+
+.filter-modal__btn {
+    flex: 1;
+    height: 50px;
+    border-radius: 12px;
+    font-weight: 400;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.filter-modal__btn--cancel {
+    background: #ffffff;
+    border: 1px solid #262626;
+    color: #262626;
+}
+
+.filter-modal__btn--apply {
+    background: #0d0d0d;
+    color: #ffffff;
+}

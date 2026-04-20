@@ -123,6 +123,60 @@
             </div>
         </div>
 
+        <!-- 거리 필터 모달 -->
+        <div id="filter-modal-overlay" class="filter-modal-overlay">
+            <div class="filter-modal">
+                <div class="filter-modal__title">필터</div>
+
+                <hr class="filter-modal__hr">
+
+                <div class="filter-modal__section">
+
+                    <div class="filter-modal__section--distance">
+                        <div class="filter-modal__section-title">거리</div>
+                        <div class="filter-modal__chips">
+                            <button type="button" class="filter-chip__distance" data-distance="100">100m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="300">300m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="500">500m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="1000">1km</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-modal__section--type">
+                        <div class="filter-modal__section-title">매물 타입</div>
+                        <div class="filter-modal__chips">
+                            <button type="button" class="filter-chip__type" data-distance="아파트">아파트</button>
+                            <button type="button" class="filter-chip__type" data-distance="오피스텔">오피스텔</button>
+                            <button type="button" class="filter-chip__type" data-distance="빌라/연립">빌라/연립</button>
+                            <button type="button" class="filter-chip__type" data-distance="원룸">원룸</button>
+                            <button type="button" class="filter-chip__type" data-distance="투룸">투룸</button>
+                            <button type="button" class="filter-chip__type" data-distance="단독/다가구">단독/다가구</button>
+                            <button type="button" class="filter-chip__type" data-distance="전원주택">전원주택</button>
+                            <button type="button" class="filter-chip__type" data-distance="상가주택">상가주택</button>
+                            <button type="button" class="filter-chip__type" data-distance="한옥주택">한옥주택</button>
+                            <button type="button" class="filter-chip__type" data-distance="상가">상가</button>
+                            <button type="button" class="filter-chip__type" data-distance="사무실">사무실</button>
+                            <button type="button" class="filter-chip__type" data-distance="건물">건물</button>
+                            <button type="button" class="filter-chip__type" data-distance="공장/창고">공장/창고</button>
+                            <button type="button" class="filter-chip__type" data-distance="지식산업센터">지식산업센터</button>
+                            <button type="button" class="filter-chip__type" data-distance="토지">토지</button>
+                            <button type="button" class="filter-chip__type" data-distance="아파트분양권">아파트분양권</button>
+                            <button type="button" class="filter-chip__type" data-distance="오피스텔분양권">오피스텔분양권</button>
+                            <button type="button" class="filter-chip__type" data-distance="재개발">재개발</button>
+                            <button type="button" class="filter-chip__type" data-distance="재건축">재건축</button>
+                            <button type="button" class="filter-chip__type" data-distance="분양중/예정">분양중/예정</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="filter-modal__footer">
+                    <button type="button" class="filter-modal__btn filter-modal__btn--cancel" id="filterModalCancel">취소</button>
+                    <button type="button" class="filter-modal__btn filter-modal__btn--apply" id="filterModalApply">적용</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 중개사 자세히 보기 시트 -->
         <div id="broker-detail-sheet" class="broker-detail-sheet">
 
@@ -1674,6 +1728,52 @@
                 return null;
             }
         }
+
+        // 거리 필터 모달
+        (function () {
+            const overlay = document.getElementById('filter-modal-overlay');
+            const btnCancel = document.getElementById('filterModalCancel');
+            const btnApply = document.getElementById('filterModalApply');
+
+            function openFilterModal() {
+                overlay.classList.add('is-open');
+            }
+
+            function closeFilterModal() {
+                overlay.classList.remove('is-open');
+            }
+
+            // .bottom-sheet-btn__distance 클릭 시 모달 열기
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.bottom-sheet-btn__distance')) {
+                    openFilterModal();
+                }
+            });
+
+            // 거리 칩 선택
+            overlay.addEventListener('click', (e) => {
+                const chip = e.target.closest('.filter-chip');
+                if (!chip) return;
+                overlay.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('is-active'));
+                chip.classList.add('is-active');
+            });
+
+            // 오버레이 바깥 클릭 닫기
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeFilterModal();
+            });
+
+            btnCancel.addEventListener('click', closeFilterModal);
+
+            btnApply.addEventListener('click', () => {
+                const active = overlay.querySelector('.filter-chip.is-active');
+                const distance = active?.textContent ?? '100m';
+                document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                    el.textContent = distance;
+                });
+                closeFilterModal();
+            });
+        })();
 
         window.onload = initMap;
 
