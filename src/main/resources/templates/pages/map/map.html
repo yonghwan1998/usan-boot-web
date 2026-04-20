@@ -83,7 +83,7 @@
             <div class="bottom-sheet__contents-wrapper">
 
                 <div class="bottom-sheet__options">
-                    <div class="bottom-sheet-btn__distance">100m</div>
+                    <div class="bottom-sheet-btn__distance">필터</div>
                     <div class="bottom-sheet-toggle__wrapper">
                         <span class="bottom-sheet-txt">중개사</span>
                         <span class="bottom-sheet-txt is-selected">정보</span>
@@ -108,7 +108,7 @@
             <div class="bottom-sheet__contents-wrapper">
 
                 <div class="bottom-sheet__options">
-                    <div class="bottom-sheet-btn__distance">100m</div>
+                    <div class="bottom-sheet-btn__distance">필터</div>
                     <div class="bottom-sheet-toggle__wrapper">
                         <span class="bottom-sheet-txt is-selected">중개사</span>
                         <span class="bottom-sheet-txt">정보</span>
@@ -116,8 +116,6 @@
                 </div>
 
                 <div class="bottom-sheet__line"></div>
-
-
 
                 <div id="broker-sheet-content"></div>
             </div>
@@ -133,38 +131,12 @@
                 <div class="filter-modal__section">
 
                     <div class="filter-modal__section--distance">
-                        <div class="filter-modal__section-title">거리</div>
+                        <div class="filter-modal__section-title">거리 선택</div>
                         <div class="filter-modal__chips">
                             <button type="button" class="filter-chip__distance" data-distance="100">100m</button>
                             <button type="button" class="filter-chip__distance" data-distance="300">300m</button>
                             <button type="button" class="filter-chip__distance" data-distance="500">500m</button>
                             <button type="button" class="filter-chip__distance" data-distance="1000">1km</button>
-                        </div>
-                    </div>
-
-                    <div class="filter-modal__section--type">
-                        <div class="filter-modal__section-title">매물 타입</div>
-                        <div class="filter-modal__chips">
-                            <button type="button" class="filter-chip__type" data-distance="아파트">아파트</button>
-                            <button type="button" class="filter-chip__type" data-distance="오피스텔">오피스텔</button>
-                            <button type="button" class="filter-chip__type" data-distance="빌라/연립">빌라/연립</button>
-                            <button type="button" class="filter-chip__type" data-distance="원룸">원룸</button>
-                            <button type="button" class="filter-chip__type" data-distance="투룸">투룸</button>
-                            <button type="button" class="filter-chip__type" data-distance="단독/다가구">단독/다가구</button>
-                            <button type="button" class="filter-chip__type" data-distance="전원주택">전원주택</button>
-                            <button type="button" class="filter-chip__type" data-distance="상가주택">상가주택</button>
-                            <button type="button" class="filter-chip__type" data-distance="한옥주택">한옥주택</button>
-                            <button type="button" class="filter-chip__type" data-distance="상가">상가</button>
-                            <button type="button" class="filter-chip__type" data-distance="사무실">사무실</button>
-                            <button type="button" class="filter-chip__type" data-distance="건물">건물</button>
-                            <button type="button" class="filter-chip__type" data-distance="공장/창고">공장/창고</button>
-                            <button type="button" class="filter-chip__type" data-distance="지식산업센터">지식산업센터</button>
-                            <button type="button" class="filter-chip__type" data-distance="토지">토지</button>
-                            <button type="button" class="filter-chip__type" data-distance="아파트분양권">아파트분양권</button>
-                            <button type="button" class="filter-chip__type" data-distance="오피스텔분양권">오피스텔분양권</button>
-                            <button type="button" class="filter-chip__type" data-distance="재개발">재개발</button>
-                            <button type="button" class="filter-chip__type" data-distance="재건축">재건축</button>
-                            <button type="button" class="filter-chip__type" data-distance="분양중/예정">분양중/예정</button>
                         </div>
                     </div>
 
@@ -230,6 +202,7 @@
         let selectedBoundaryFeature = null;
 
         let lastFetchId = 0;
+        let selectedDistance = null;
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
         //- 20 level: 10m
@@ -605,8 +578,8 @@
             document.getElementById('info-sheet-content').innerHTML = `
                 <p class="bottom-sheet__caption">
                     <span class="bottom-sheet__bold">${regionName}</span> 기준으로
-                    <span class="bottom-sheet__bold">100m</span> 이내에
-                    <span class="bottom-sheet__bold">${data.brokerCount}개</span>의 중개사가 있습니다.
+                    ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}
+                    <span class="bottom-sheet__bold">${data.brokerCount}명</span>의 중개사가 있습니다.
                 </p>
                 <div class="info-sheet__stat-list">${statsHtml}</div>`;
         }
@@ -1002,7 +975,7 @@
 
             const html = `
                 <div class="bottom-sheet__caption">
-                    <span class="bottom-sheet__bold">신사동</span> 기준으로 <span class="bottom-sheet__bold">100m</span> 이내에 <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
+                    <span class="bottom-sheet__bold">신사동</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
                 </div>
                 <div class="bottom-sheet__cluster-list">
                     ${itemsHtml}
@@ -1752,9 +1725,9 @@
 
             // 거리 칩 선택
             overlay.addEventListener('click', (e) => {
-                const chip = e.target.closest('.filter-chip');
+                const chip = e.target.closest('.filter-chip__distance');
                 if (!chip) return;
-                overlay.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('is-active'));
+                overlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
                 chip.classList.add('is-active');
             });
 
@@ -1766,10 +1739,10 @@
             btnCancel.addEventListener('click', closeFilterModal);
 
             btnApply.addEventListener('click', () => {
-                const active = overlay.querySelector('.filter-chip.is-active');
-                const distance = active?.textContent ?? '100m';
+                const active = overlay.querySelector('.filter-chip__distance.is-active');
+                selectedDistance = active?.textContent ?? null;
                 document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
-                    el.textContent = distance;
+                    el.textContent = selectedDistance ?? '필터';
                 });
                 closeFilterModal();
             });
