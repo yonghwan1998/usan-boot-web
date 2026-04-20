@@ -630,16 +630,16 @@
                 if (confirm('등록된 매물이 없습니다.\n매물을 등록하러 이동하시겠습니까?')) location.href = '/listings/new';
             }, true);
 
-            // 매물 드롭다운 토글 (.common-select 전체 클릭 시 열림)
-            document.getElementById('listing-select')?.addEventListener('click', e => {
-                e.stopPropagation();
-                document.getElementById('listing-select')?.classList.toggle('is-open');
-            });
-
-            // 드롭다운 외부 클릭 시 닫기
-            document.addEventListener('click', () => {
-                document.getElementById('listing-select')?.classList.remove('is-open');
-            });
+            // layout.html의 common-select 핸들러가 is-open을 토글하므로 MutationObserver로 감지
+            const listingSelect = document.getElementById('listing-select');
+            if (listingSelect) {
+                new MutationObserver(() => {
+                    const sheet = document.getElementById('broker-sheet');
+                    if (listingSelect.classList.contains('is-open') && sheet && !sheet.classList.contains('is-open')) {
+                        if (window.openSendSheet) window.openSendSheet();
+                    }
+                }).observe(listingSelect, { attributes: true, attributeFilter: ['class'] });
+            }
 
             // 시트 열기 버튼
             document.getElementById('open-sheet-btn')?.addEventListener('click', () => {
