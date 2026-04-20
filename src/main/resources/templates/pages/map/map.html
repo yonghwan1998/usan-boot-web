@@ -176,11 +176,15 @@
 
     </div>
 
+    <!-- Thymeleaf 인라인 변수 -->
+    <script th:inline="javascript">
+        const IS_LOGGED_IN = /*[[${login.authenticated}]]*/ false;
+    </script>
+
     <!-- map control -->
     <script>
 
         const MAP_CENTER_KEY = 'usan.map.center';
-        const IS_LOGGED_IN = /*[[${login.authenticated}]]*/ false;
 
         // brokerCode → broker 데이터 캐시 (자세히 보기 시트에서 사용)
         const brokerDataMap = {};
@@ -1717,9 +1721,14 @@
 
             // .bottom-sheet-btn__distance 클릭 시 모달 열기
             document.addEventListener('click', (e) => {
-                if (e.target.closest('.bottom-sheet-btn__distance')) {
-                    openFilterModal();
+                if (!e.target.closest('.bottom-sheet-btn__distance')) return;
+                if (!IS_LOGGED_IN) {
+                    if (confirm('로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?')) {
+                        location.href = '/login';
+                    }
+                    return;
                 }
+                openFilterModal();
             });
 
             // 거리 칩 선택
