@@ -180,6 +180,7 @@
     <script>
 
         const MAP_CENTER_KEY = 'usan.map.center';
+        const IS_LOGGED_IN = /*[[${login.authenticated}]]*/ false;
 
         // brokerCode → broker 데이터 캐시 (자세히 보기 시트에서 사용)
         const brokerDataMap = {};
@@ -577,8 +578,7 @@
 
             document.getElementById('info-sheet-content').innerHTML = `
                 <p class="bottom-sheet__caption">
-                    <span class="bottom-sheet__bold">${regionName}</span> 기준으로
-                    ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}
+                    ${IS_LOGGED_IN ? `<span class="bottom-sheet__bold">${regionName}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''}
                     <span class="bottom-sheet__bold">${data.brokerCount}명</span>의 중개사가 있습니다.
                 </p>
                 <div class="info-sheet__stat-list">${statsHtml}</div>`;
@@ -975,7 +975,7 @@
 
             const html = `
                 <div class="bottom-sheet__caption">
-                    <span class="bottom-sheet__bold">신사동</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
+                    ${IS_LOGGED_IN ? `<span class="bottom-sheet__bold">신사동</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
                 </div>
                 <div class="bottom-sheet__cluster-list">
                     ${itemsHtml}
