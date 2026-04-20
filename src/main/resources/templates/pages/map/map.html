@@ -715,7 +715,7 @@
                 icons: [{
                     content: `
                         <div class="usan-cluster">
-                            <img src="/img/marker-agency-white.png" class="usan-cluster__img" />
+                            <img src="/img/marker-agency-white.svg" class="usan-cluster__img" />
                             <span class="usan-cluster__count"></span>
                         </div>
                     `,
@@ -748,16 +748,16 @@
                         : [];
 
                     if (!members || members.length === 0) {
-                        img.src = '/img/marker-agency-white.png';
+                        img.src = '/img/marker-agency-white.svg';
                         return;
                     }
 
                     const key = makeClusterKey(members);
 
                     if (selectedClusterMarker && key === selectedClusterKey) {
-                        img.src = '/img/marker-agency-orange.png';
+                        img.src = '/img/marker-agency-orange.svg';
                     } else {
-                        img.src = '/img/marker-agency-white.png';
+                        img.src = '/img/marker-agency-white.svg';
                     }
                 }
             });
@@ -885,7 +885,7 @@
                     const img = el.querySelector('.usan-cluster__img');
 
                     if (img) {
-                        img.src = '/img/marker-agency-orange.png';
+                        img.src = '/img/marker-agency-orange.svg';
                         selectedClusterMarker = clusterMarker;
                     }
                 }
@@ -1533,7 +1533,7 @@
         function resetClusterIcons() {
             const imgs = document.querySelectorAll('.usan-cluster__img');
             imgs.forEach(img => {
-                img.src = '/img/marker-agency-white.png';
+                img.src = '/img/marker-agency-white.svg';
             });
         }
 

@@ -437,7 +437,7 @@
                 maxZoom:        20,
                 icons: [{
                     content: `<div class="usan-cluster">
-                                  <img src="/img/marker-agency-white.png" class="usan-cluster__img"/>
+                                  <img src="/img/marker-agency-white.svg" class="usan-cluster__img"/>
                                   <span class="usan-cluster__count"></span>
                               </div>`,
                     size:   new naver.maps.Size(56, 56),
@@ -458,8 +458,8 @@
                         ? clusterMarker.getClusterMember() : [];
                     const key = members.length ? makeClusterKey(members) : null;
                     img.src = (selectedClusterMarker && key === selectedClusterKey)
-                        ? '/img/marker-agency-orange.png'
-                        : '/img/marker-agency-white.png';
+                        ? '/img/marker-agency-orange.svg'
+                        : '/img/marker-agency-white.svg';
                 }
             });
 
@@ -558,7 +558,7 @@
 
             const el  = cluster._clusterMarker?.getElement?.();
             const img = el?.querySelector('.usan-cluster__img');
-            if (img) { img.src = '/img/marker-agency-orange.png'; selectedClusterMarker = cluster._clusterMarker; }
+            if (img) { img.src = '/img/marker-agency-orange.svg'; selectedClusterMarker = cluster._clusterMarker; }
 
             fetchAndShowBrokers(brokerCodes.map(String));
         }
@@ -571,7 +571,7 @@
 
         function resetClusterIcons() {
             document.querySelectorAll('.usan-cluster__img').forEach(img => {
-                img.src = '/img/marker-agency-white.png';
+                img.src = '/img/marker-agency-white.svg';
             });
             selectedClusterMarker = null;
         }
