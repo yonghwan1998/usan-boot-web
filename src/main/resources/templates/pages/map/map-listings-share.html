@@ -581,6 +581,19 @@
             initMap();
             await loadMyListings();
 
+            // 매물 없을 때 대상 요소에 클래스 부여
+            if (!myListings.length) {
+                document.getElementById('listing-select')?.classList.add('is-no-listings');
+                document.querySelector('.send-sheet__filter')?.classList.add('is-no-listings');
+            }
+
+            // is-no-listings 클릭 시 매물 등록 유도 (캡처 단계에서 가로채 하위 핸들러 차단)
+            document.addEventListener('click', e => {
+                if (!e.target.closest('.is-no-listings')) return;
+                e.stopPropagation();
+                if (confirm('등록된 매물이 없습니다.\n매물을 등록하러 이동하시겠습니까?')) location.href = '/listings/new';
+            }, true);
+
             // 매물 드롭다운 토글 (.common-select 전체 클릭 시 열림)
             document.getElementById('listing-select')?.addEventListener('click', e => {
                 e.stopPropagation();
