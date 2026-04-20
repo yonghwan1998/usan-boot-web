@@ -211,6 +211,9 @@
             }
             updateCtaInfo();
             if (typeof renderListingMarkers === 'function') renderListingMarkers();
+            if (listing?.lat && listing?.lng && typeof map !== 'undefined') {
+                map.panTo(new naver.maps.LatLng(listing.lat, listing.lng));
+            }
         }
 
         function updateCtaInfo() {
