@@ -1265,8 +1265,13 @@
             if (!perm.ok) return;
 
             clearChipOn();
-            const btn = document.getElementById('btn-my-location'); // 버튼 자체
+            const btn = document.getElementById('btn-my-location');
             if (btn) btn.classList.add('is-on');
+
+            selectedDistance = null;
+            document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                el.textContent = '필터';
+            });
 
             navigator.geolocation.getCurrentPosition(
                 function (pos) {
@@ -1317,6 +1322,9 @@
                     maximumAge: 0
                 }
             );
+
+            document.querySelector('.bottom-sheet-btn__distance').textContent = '필터';
+            selectedDistance = null;
         }
 
         function openBrokerSheet(html) {
