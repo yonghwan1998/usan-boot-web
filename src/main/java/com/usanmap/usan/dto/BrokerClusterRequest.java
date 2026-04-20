@@ -11,8 +11,7 @@ import java.util.UUID;
 public class BrokerClusterRequest {
 
     private List<UUID> brokerCodes;
-
-    public BrokerClusterRequest(List<UUID> brokerCodes) {
-        this.brokerCodes = brokerCodes;
-    }
+    private Double lat;
+    private Double lng;
+    private Double distanceM;
 }

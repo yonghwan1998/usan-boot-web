@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.usanmap.usan.common.broker.BrokerPropertyTagFactory;
+import com.usanmap.usan.util.GeoDistance;
 import com.usanmap.usan.dto.BrokerMarkerDetailDto;
 import com.usanmap.usan.dto.BrokerMarkerDto;
 import com.usanmap.usan.dto.BrokerPropertyTagDto;
@@ -66,7 +67,7 @@ public class MapService {
     }
 
     @Transactional(readOnly = true)
-    public List<BrokerMarkerDetailDto> getBrokerDetails(List<UUID> brokerCodes) {
+    public List<BrokerMarkerDetailDto> getBrokerDetails(List<UUID> brokerCodes, Double filterLat, Double filterLng, Double filterDistanceM) {
 
         if (brokerCodes == null || brokerCodes.isEmpty()) {
             return List.of();
@@ -93,6 +94,12 @@ public class MapService {
                             .lng(b.getLng())
                             .top5(top5)
                             .build();
+                })
+                .filter(dto -> {
+                    if (filterLat == null || filterLng == null || filterDistanceM == null) return true;
+                    if (dto.getLat() == null || dto.getLng() == null) return false;
+                    double d = GeoDistance.meters(filterLat, filterLng, dto.getLat().doubleValue(), dto.getLng().doubleValue());
+                    return d <= filterDistanceM;
                 })
                 .toList();
     }

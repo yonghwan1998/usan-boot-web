@@ -897,9 +897,18 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        brokerCodes: brokerCodes
-                    })
+                    body: JSON.stringify((() => {
+                        const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
+                        const distanceM = selectedDistance
+                            ? (selectedDistance.endsWith('km') ? parseFloat(selectedDistance) * 1000 : parseFloat(selectedDistance))
+                            : null;
+                        return {
+                            brokerCodes,
+                            lat: (chip && distanceM) ? parseFloat(chip.dataset.lat) : null,
+                            lng: (chip && distanceM) ? parseFloat(chip.dataset.lng) : null,
+                            distanceM: (chip && distanceM) ? distanceM : null
+                        };
+                    })())
                 });
 
                 if (!res.ok) {
