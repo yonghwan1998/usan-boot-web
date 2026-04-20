@@ -170,9 +170,10 @@
     <script th:inline="javascript">
 
         /* ---- 상태 ---- */
-        let myListings        = [];
-        let selectedListing   = null;
-        let selectedDistanceM = null;
+        let myListings            = [];
+        let selectedListing       = null;
+        let selectedDistanceM     = null;
+        let lastFetchedBrokerCodes = [];
         const selectedBrokers = new Map(); // brokerCode → {brokerCode, officeName}
 
         /* ---- 내 매물 로드 ---- */
@@ -284,7 +285,10 @@
                 const listingLabel = selectedListing
                     ? `매물 ${myListings.indexOf(selectedListing) + 1} 기준으로 `
                     : '';
-                hint.textContent   = `${listingLabel}${brokers.length}명의 중개사가 있습니다.`;
+                const distanceLabel = selectedDistanceM
+                    ? `${selectedDistanceM >= 1000 ? (selectedDistanceM / 1000) + 'km' : selectedDistanceM + 'm'} 거리에 `
+                    : '';
+                hint.textContent   = `${listingLabel}${distanceLabel}${brokers.length}명의 중개사가 있습니다.`;
                 hint.style.display = 'block';
             }
 
@@ -533,6 +537,7 @@
         }
 
         async function fetchAndShowBrokers(brokerCodes) {
+            lastFetchedBrokerCodes = brokerCodes;
             try {
                 const hasDistance = selectedDistanceM && selectedListing?.lat && selectedListing?.lng;
                 const res = await fetch('/map/api/brokers/cluster', {
@@ -675,6 +680,7 @@
                 const filterText = document.querySelector('.send-sheet__filter-text');
                 if (filterText) filterText.textContent = active ? active.textContent : '필터';
                 filterOverlay?.classList.remove('is-open');
+                if (lastFetchedBrokerCodes.length) fetchAndShowBrokers(lastFetchedBrokerCodes);
             });
         };
 
