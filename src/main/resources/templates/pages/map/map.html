@@ -1624,18 +1624,17 @@
 
             const frag = document.createDocumentFragment();
 
+            let chipIndex = 1;
             list.forEach((item) => {
                 const lat = item?.lat;
                 const lng = item?.lng;
 
                 if (lat == null || lng == null) return;
 
-                const label = item?.addressName;
-
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'map-chip';
-                btn.textContent = String(label);
+                btn.textContent = `매물 ${chipIndex++}`;
 
                 btn.dataset.lat = String(lat);
                 btn.dataset.lng = String(lng);

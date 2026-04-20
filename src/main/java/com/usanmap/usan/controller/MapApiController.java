@@ -73,7 +73,7 @@ public class MapApiController {
         if (userId == null) {
             return ResponseEntity.status(401).body(Map.of("message", "로그인이 필요합니다."));
         }
-        List<MyListingDto> result = listingRepository.findAllByUserId(userId).stream()
+        List<MyListingDto> result = listingRepository.findAllByUserIdOrderByUpdatedAtDesc(userId).stream()
                 .map(l -> new MyListingDto(
                         l.getId(),
                         l.getPublicId(),
