@@ -306,6 +306,42 @@ body {
     pointer-events: none;
 }
 
+.listing-marker {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    -webkit-user-drag: none;
+    user-drag: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.listing-marker__label {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 500;
+    color: #404040;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.listing-marker.is-selected .listing-marker__label {
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.listing-marker__icon {
+    width: 60px;
+    height: 60px;
+    display: block;
+}
+
 .bottom-sheet {
     display: flex;
     flex-direction: column;

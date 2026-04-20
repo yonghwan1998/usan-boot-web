@@ -210,6 +210,7 @@
                 title.textContent = listing.addressName;
             }
             updateCtaInfo();
+            if (typeof renderListingMarkers === 'function') renderListingMarkers();
         }
 
         function updateCtaInfo() {
@@ -384,6 +385,7 @@
 
         let map;
         let markers               = [];
+        let listingMarkers        = [];
         let markerClustering      = null;
         let selectedClusterMarker = null;
         let selectedClusterKey    = null;
@@ -561,6 +563,32 @@
             if (img) { img.src = '/img/marker-agency-orange.svg'; selectedClusterMarker = cluster._clusterMarker; }
 
             fetchAndShowBrokers(brokerCodes.map(String));
+        }
+
+        function renderListingMarkers() {
+            listingMarkers.forEach(m => m?.setMap(null));
+            listingMarkers = [];
+            if (!map || !myListings.length) return;
+
+            listingMarkers = myListings
+                .filter(l => l.lat && l.lng)
+                .map((l, i) => {
+                    const isSelected = selectedListing?.listingId === l.listingId;
+                    const iconSrc    = isSelected ? '/img/marker-listing-blue.svg' : '/img/marker-listing-red.svg';
+                    return new naver.maps.Marker({
+                        map,
+                        position: new naver.maps.LatLng(l.lat, l.lng),
+                        icon: {
+                            content: `<div class="listing-marker${isSelected ? ' is-selected' : ''}">
+                                          <span class="listing-marker__label">매물 ${i + 1}</span>
+                                          <img src="${iconSrc}" class="listing-marker__icon"/>
+                                      </div>`,
+                            size:   new naver.maps.Size(60, 60),
+                            anchor: new naver.maps.Point(30, 60)
+                        },
+                        zIndex: isSelected ? 200 : 100
+                    });
+                });
         }
 
         function clearMarkersAndClusters() {
