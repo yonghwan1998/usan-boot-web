@@ -210,6 +210,7 @@
         let selectedDistance = null;
         let lastInfoData = null;
         let lastClusterBrokers = null;
+        let lastClusterBrokerCodes = [];
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
         //- 20 level: 10m
@@ -701,8 +702,8 @@
             const center = new naver.maps.LatLng(lat, lng);
 
             map = new naver.maps.Map('map', {
-                center: center,
-                zoom: ZOOM_INITIAL,
+                center:  center,
+                zoom:    saved?.zoom ?? ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
                 zoomControl: false,
             });
@@ -891,33 +892,31 @@
                 }
             }
 
+            lastClusterBrokerCodes = brokerCodes;
+            await fetchClusterBrokers(brokerCodes);
+        }
+
+        async function fetchClusterBrokers(brokerCodes) {
             try {
+                const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
+                const distanceM = selectedDistance
+                    ? (selectedDistance.endsWith('km') ? parseFloat(selectedDistance) * 1000 : parseFloat(selectedDistance))
+                    : null;
+
                 const res = await fetch('/map/api/brokers/cluster', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify((() => {
-                        const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
-                        const distanceM = selectedDistance
-                            ? (selectedDistance.endsWith('km') ? parseFloat(selectedDistance) * 1000 : parseFloat(selectedDistance))
-                            : null;
-                        return {
-                            brokerCodes,
-                            lat: (chip && distanceM) ? parseFloat(chip.dataset.lat) : null,
-                            lng: (chip && distanceM) ? parseFloat(chip.dataset.lng) : null,
-                            distanceM: (chip && distanceM) ? distanceM : null
-                        };
-                    })())
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        brokerCodes,
+                        lat:       (chip && distanceM) ? parseFloat(chip.dataset.lat) : null,
+                        lng:       (chip && distanceM) ? parseFloat(chip.dataset.lng) : null,
+                        distanceM: (chip && distanceM) ? distanceM : null
+                    })
                 });
 
-                if (!res.ok) {
-                    throw new Error('클러스터 중개사 조회 실패');
-                }
+                if (!res.ok) throw new Error('클러스터 중개사 조회 실패');
 
-                const list = await res.json();
-
-                renderClusterSheet(list);
+                renderClusterSheet(await res.json());
             } catch (e) {
                 console.error(e);
             }
@@ -1431,6 +1430,9 @@
                 if (!isOpen()) return;
                 if (dragging) return;
                 if (sheet.contains(e.target)) return;
+                // 필터 모달이 열려 있으면 시트를 닫지 않음
+                const filterModal = document.getElementById('filter-modal-overlay');
+                if (filterModal && filterModal.classList.contains('is-open')) return;
                 // 자세히 보기 시트가 열려 있으면 broker-sheet는 닫지 않음
                 const detailSheet = document.getElementById('broker-detail-sheet');
                 if (detailSheet && detailSheet.classList.contains('is-open')) return;
@@ -1564,7 +1566,7 @@
             const lng = chip.dataset.lng;
             if (!lat || !lng) return;
 
-            saveMapCenter(lat, lng);
+            saveMapCenter(lat, lng, 15);
             location.href = '/map';
         });
 
@@ -1701,11 +1703,12 @@
          * @author  yongss
          * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장
          */
-        function saveMapCenter(lat, lng) {
+        function saveMapCenter(lat, lng, zoom) {
             localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
-                lat: Number(lat),
-                lng: Number(lng),
-                at: Date.now()
+                lat:  Number(lat),
+                lng:  Number(lng),
+                zoom: zoom ?? null,
+                at:   Date.now()
             }));
         }
 
@@ -1804,7 +1807,7 @@
                 if (infoSheet.classList.contains('is-half') || infoSheet.classList.contains('is-full')) {
                     if (lastInfoData) renderInfoSheet(lastInfoData);
                 } else if (brokerSheet.classList.contains('is-half') || brokerSheet.classList.contains('is-full')) {
-                    if (lastClusterBrokers) renderClusterSheet(lastClusterBrokers);
+                    if (lastClusterBrokerCodes.length) fetchClusterBrokers(lastClusterBrokerCodes);
                 }
             });
         })();
