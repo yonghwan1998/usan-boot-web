@@ -10,5 +10,5 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     Optional<Listing> findByPublicId(String publicId);
 
-    List<Listing> findAllByUserId(Long userId);
+    List<Listing> findAllByUserIdOrderByUpdatedAtDesc(Long userId);
 }

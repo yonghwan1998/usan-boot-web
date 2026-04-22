@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.usanmap.usan.common.broker.BrokerPropertyTagFactory;
+import com.usanmap.usan.util.GeoDistance;
 import com.usanmap.usan.dto.BrokerMarkerDetailDto;
 import com.usanmap.usan.dto.BrokerMarkerDto;
 import com.usanmap.usan.dto.BrokerPropertyTagDto;
@@ -12,6 +13,7 @@ import com.usanmap.usan.repository.BrokerPropertyCountRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -66,15 +68,23 @@ public class MapService {
     }
 
     @Transactional(readOnly = true)
-    public List<BrokerMarkerDetailDto> getBrokerDetails(List<UUID> brokerCodes) {
+    public List<BrokerMarkerDetailDto> getBrokerDetails(List<UUID> brokerCodes, Double filterLat, Double filterLng, Double filterDistanceM, List<String> filterListingTypes) {
 
         if (brokerCodes == null || brokerCodes.isEmpty()) {
             return List.of();
         }
 
+        Set<String> typeSet = (filterListingTypes != null && !filterListingTypes.isEmpty())
+                ? Set.copyOf(filterListingTypes) : null;
+
         List<BrokerPropertyCount> list = brokerPropertyCountRepository.findByBrokerCodeIn(brokerCodes);
 
         return list.stream()
+                .filter(b -> {
+                    if (typeSet == null) return true;
+                    return BrokerPropertyTagFactory.allSorted(b).stream()
+                            .anyMatch(tag -> typeSet.contains(tag.getLabel()));
+                })
                 .map(b -> {
                     List<BrokerPropertyTagDto> top5 = BrokerPropertyTagFactory.topN(b, 5);
                     return BrokerMarkerDetailDto.builder()
@@ -93,6 +103,12 @@ public class MapService {
                             .lng(b.getLng())
                             .top5(top5)
                             .build();
+                })
+                .filter(dto -> {
+                    if (filterLat == null || filterLng == null || filterDistanceM == null) return true;
+                    if (dto.getLat() == null || dto.getLng() == null) return false;
+                    double d = GeoDistance.meters(filterLat, filterLng, dto.getLat().doubleValue(), dto.getLng().doubleValue());
+                    return d <= filterDistanceM;
                 })
                 .toList();
     }

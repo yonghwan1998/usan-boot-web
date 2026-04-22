@@ -83,7 +83,7 @@
             <div class="bottom-sheet__contents-wrapper">
 
                 <div class="bottom-sheet__options">
-                    <div class="bottom-sheet-btn__distance">100m</div>
+                    <div class="bottom-sheet-btn__distance">필터</div>
                     <div class="bottom-sheet-toggle__wrapper">
                         <span class="bottom-sheet-txt">중개사</span>
                         <span class="bottom-sheet-txt is-selected">정보</span>
@@ -108,7 +108,7 @@
             <div class="bottom-sheet__contents-wrapper">
 
                 <div class="bottom-sheet__options">
-                    <div class="bottom-sheet-btn__distance">100m</div>
+                    <div class="bottom-sheet-btn__distance">필터</div>
                     <div class="bottom-sheet-toggle__wrapper">
                         <span class="bottom-sheet-txt is-selected">중개사</span>
                         <span class="bottom-sheet-txt">정보</span>
@@ -117,9 +117,35 @@
 
                 <div class="bottom-sheet__line"></div>
 
-
-
                 <div id="broker-sheet-content"></div>
+            </div>
+        </div>
+
+        <!-- 거리 필터 모달 -->
+        <div id="filter-modal-overlay" class="filter-modal-overlay">
+            <div class="filter-modal">
+                <div class="filter-modal__title">필터</div>
+
+                <hr class="filter-modal__hr">
+
+                <div class="filter-modal__section">
+
+                    <div class="filter-modal__section--distance">
+                        <div class="filter-modal__section-title">거리 선택</div>
+                        <div class="filter-modal__chips">
+                            <button type="button" class="filter-chip__distance" data-distance="100">100m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="300">300m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="500">500m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="1000">1km</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="filter-modal__footer">
+                    <button type="button" class="filter-modal__btn filter-modal__btn--cancel" id="filterModalCancel">취소</button>
+                    <button type="button" class="filter-modal__btn filter-modal__btn--apply" id="filterModalApply">적용</button>
+                </div>
             </div>
         </div>
 
@@ -150,6 +176,11 @@
 
     </div>
 
+    <!-- Thymeleaf 인라인 변수 -->
+    <script th:inline="javascript">
+        const IS_LOGGED_IN = /*[[${login.authenticated}]]*/ false;
+    </script>
+
     <!-- map control -->
     <script>
 
@@ -176,6 +207,10 @@
         let selectedBoundaryFeature = null;
 
         let lastFetchId = 0;
+        let selectedDistance = null;
+        let lastInfoData = null;
+        let lastClusterBrokers = null;
+        let lastClusterBrokerCodes = [];
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
         //- 20 level: 10m
@@ -523,6 +558,7 @@
         }
 
         function renderInfoSheet(data) {
+            lastInfoData = data;
             const tabs = [data.sidoName, data.sigunguName, data.emdName].filter(Boolean);
             const regionName = tabs[tabs.length - 1] ?? '';
 
@@ -548,11 +584,12 @@
                     </div>`;
             }).join('');
 
+            const selectedListingName = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)')?.textContent ?? null;
+
             document.getElementById('info-sheet-content').innerHTML = `
                 <p class="bottom-sheet__caption">
-                    <span class="bottom-sheet__bold">${regionName}</span> 기준으로
-                    <span class="bottom-sheet__bold">100m</span> 이내에
-                    <span class="bottom-sheet__bold">${data.brokerCount}개</span>의 중개사가 있습니다.
+                    ${IS_LOGGED_IN && selectedListingName ? `<span class="bottom-sheet__bold">${selectedListingName}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''}
+                    <span class="bottom-sheet__bold">${data.brokerCount}명</span>의 중개사가 있습니다.
                 </p>
                 <div class="info-sheet__stat-list">${statsHtml}</div>`;
         }
@@ -665,8 +702,8 @@
             const center = new naver.maps.LatLng(lat, lng);
 
             map = new naver.maps.Map('map', {
-                center: center,
-                zoom: ZOOM_INITIAL,
+                center:  center,
+                zoom:    saved?.zoom ?? ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
                 zoomControl: false,
             });
@@ -679,7 +716,7 @@
                 icons: [{
                     content: `
                         <div class="usan-cluster">
-                            <img src="/img/marker-agency-white.png" class="usan-cluster__img" />
+                            <img src="/img/marker-agency-white.svg" class="usan-cluster__img" />
                             <span class="usan-cluster__count"></span>
                         </div>
                     `,
@@ -712,16 +749,16 @@
                         : [];
 
                     if (!members || members.length === 0) {
-                        img.src = '/img/marker-agency-white.png';
+                        img.src = '/img/marker-agency-white.svg';
                         return;
                     }
 
                     const key = makeClusterKey(members);
 
                     if (selectedClusterMarker && key === selectedClusterKey) {
-                        img.src = '/img/marker-agency-orange.png';
+                        img.src = '/img/marker-agency-orange.svg';
                     } else {
-                        img.src = '/img/marker-agency-white.png';
+                        img.src = '/img/marker-agency-white.svg';
                     }
                 }
             });
@@ -849,36 +886,44 @@
                     const img = el.querySelector('.usan-cluster__img');
 
                     if (img) {
-                        img.src = '/img/marker-agency-orange.png';
+                        img.src = '/img/marker-agency-orange.svg';
                         selectedClusterMarker = clusterMarker;
                     }
                 }
             }
 
+            lastClusterBrokerCodes = brokerCodes;
+            await fetchClusterBrokers(brokerCodes);
+        }
+
+        async function fetchClusterBrokers(brokerCodes) {
             try {
+                const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
+                const distanceM = selectedDistance
+                    ? (selectedDistance.endsWith('km') ? parseFloat(selectedDistance) * 1000 : parseFloat(selectedDistance))
+                    : null;
+
                 const res = await fetch('/map/api/brokers/cluster', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        brokerCodes: brokerCodes
+                        brokerCodes,
+                        lat:       (chip && distanceM) ? parseFloat(chip.dataset.lat) : null,
+                        lng:       (chip && distanceM) ? parseFloat(chip.dataset.lng) : null,
+                        distanceM: (chip && distanceM) ? distanceM : null
                     })
                 });
 
-                if (!res.ok) {
-                    throw new Error('클러스터 중개사 조회 실패');
-                }
+                if (!res.ok) throw new Error('클러스터 중개사 조회 실패');
 
-                const list = await res.json();
-
-                renderClusterSheet(list);
+                renderClusterSheet(await res.json());
             } catch (e) {
                 console.error(e);
             }
         }
 
         function renderClusterSheet(brokers) {
+            lastClusterBrokers = brokers;
 
             const sheet = document.getElementById('broker-sheet');
             const content = document.getElementById('broker-sheet-content');
@@ -948,7 +993,7 @@
 
             const html = `
                 <div class="bottom-sheet__caption">
-                    <span class="bottom-sheet__bold">신사동</span> 기준으로 <span class="bottom-sheet__bold">100m</span> 이내에 <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
+                    ${(() => { const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)'); return IS_LOGGED_IN && chip ? `<span class="bottom-sheet__bold">${chip.textContent}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''; })()} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
                 </div>
                 <div class="bottom-sheet__cluster-list">
                     ${itemsHtml}
@@ -1228,8 +1273,13 @@
             if (!perm.ok) return;
 
             clearChipOn();
-            const btn = document.getElementById('btn-my-location'); // 버튼 자체
+            const btn = document.getElementById('btn-my-location');
             if (btn) btn.classList.add('is-on');
+
+            selectedDistance = null;
+            document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                el.textContent = '필터';
+            });
 
             navigator.geolocation.getCurrentPosition(
                 function (pos) {
@@ -1280,6 +1330,9 @@
                     maximumAge: 0
                 }
             );
+
+            document.querySelector('.bottom-sheet-btn__distance').textContent = '필터';
+            selectedDistance = null;
         }
 
         function openBrokerSheet(html) {
@@ -1377,6 +1430,9 @@
                 if (!isOpen()) return;
                 if (dragging) return;
                 if (sheet.contains(e.target)) return;
+                // 필터 모달이 열려 있으면 시트를 닫지 않음
+                const filterModal = document.getElementById('filter-modal-overlay');
+                if (filterModal && filterModal.classList.contains('is-open')) return;
                 // 자세히 보기 시트가 열려 있으면 broker-sheet는 닫지 않음
                 const detailSheet = document.getElementById('broker-detail-sheet');
                 if (detailSheet && detailSheet.classList.contains('is-open')) return;
@@ -1479,7 +1535,7 @@
         function resetClusterIcons() {
             const imgs = document.querySelectorAll('.usan-cluster__img');
             imgs.forEach(img => {
-                img.src = '/img/marker-agency-white.png';
+                img.src = '/img/marker-agency-white.svg';
             });
         }
 
@@ -1510,7 +1566,7 @@
             const lng = chip.dataset.lng;
             if (!lat || !lng) return;
 
-            saveMapCenter(lat, lng);
+            saveMapCenter(lat, lng, 15);
             location.href = '/map';
         });
 
@@ -1597,18 +1653,17 @@
 
             const frag = document.createDocumentFragment();
 
+            let chipIndex = 1;
             list.forEach((item) => {
                 const lat = item?.lat;
                 const lng = item?.lng;
 
                 if (lat == null || lng == null) return;
 
-                const label = item?.addressName;
-
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'map-chip';
-                btn.textContent = String(label);
+                btn.textContent = `매물 ${chipIndex++}`;
 
                 btn.dataset.lat = String(lat);
                 btn.dataset.lng = String(lng);
@@ -1648,11 +1703,12 @@
          * @author  yongss
          * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장
          */
-        function saveMapCenter(lat, lng) {
+        function saveMapCenter(lat, lng, zoom) {
             localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
-                lat: Number(lat),
-                lng: Number(lng),
-                at: Date.now()
+                lat:  Number(lat),
+                lng:  Number(lng),
+                zoom: zoom ?? null,
+                at:   Date.now()
             }));
         }
 
@@ -1674,6 +1730,87 @@
                 return null;
             }
         }
+
+        // 거리 필터 모달
+        (function () {
+            const overlay = document.getElementById('filter-modal-overlay');
+            const btnCancel = document.getElementById('filterModalCancel');
+            const btnApply = document.getElementById('filterModalApply');
+
+            function openFilterModal() {
+                overlay.classList.add('is-open');
+            }
+
+            function closeFilterModal() {
+                overlay.classList.remove('is-open');
+            }
+
+            // .bottom-sheet-btn__distance 클릭 시 모달 열기
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.bottom-sheet-btn__distance')) return;
+
+                if (!IS_LOGGED_IN) {
+                    if (confirm('로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?')) {
+                        location.href = '/login';
+                    }
+                    return;
+                }
+
+                const listingChips = Array.from(
+                    document.querySelectorAll('.map-ui__chips .map-chip:not(#btn-my-location)')
+                );
+
+                // 1. 매물 없음
+                if (listingChips.length === 0) {
+                    if (confirm('등록된 매물이 없습니다.\n매물을 등록하시겠습니까?')) {
+                        location.href = '/listings/new';
+                    }
+                    return;
+                }
+
+                // 2. 매물은 있지만 선택된 칩 없음
+                const hasSelected = listingChips.some(c => c.classList.contains('is-on'));
+                if (!hasSelected) {
+                    alert('매물을 먼저 선택해 주세요.');
+                    return;
+                }
+
+                openFilterModal();
+            });
+
+            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
+            overlay.addEventListener('click', (e) => {
+                const chip = e.target.closest('.filter-chip__distance');
+                if (!chip) return;
+                const wasActive = chip.classList.contains('is-active');
+                overlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
+                if (!wasActive) chip.classList.add('is-active');
+            });
+
+            // 오버레이 바깥 클릭 닫기
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeFilterModal();
+            });
+
+            btnCancel.addEventListener('click', closeFilterModal);
+
+            btnApply.addEventListener('click', () => {
+                const active = overlay.querySelector('.filter-chip__distance.is-active');
+                selectedDistance = active?.textContent ?? null;
+                document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                    el.textContent = selectedDistance ?? '필터';
+                });
+                closeFilterModal();
+
+                const infoSheet = document.getElementById('info-sheet');
+                const brokerSheet = document.getElementById('broker-sheet');
+                if (infoSheet.classList.contains('is-half') || infoSheet.classList.contains('is-full')) {
+                    if (lastInfoData) renderInfoSheet(lastInfoData);
+                } else if (brokerSheet.classList.contains('is-half') || brokerSheet.classList.contains('is-full')) {
+                    if (lastClusterBrokerCodes.length) fetchClusterBrokers(lastClusterBrokerCodes);
+                }
+            });
+        })();
 
         window.onload = initMap;
 

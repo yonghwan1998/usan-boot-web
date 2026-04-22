@@ -108,6 +108,60 @@
             </div>
         </div>
 
+        <!-- 거리 필터 모달 -->
+        <div id="filter-modal-overlay" class="filter-modal-overlay">
+            <div class="filter-modal">
+                <div class="filter-modal__title">필터</div>
+
+                <hr class="filter-modal__hr">
+
+                <div class="filter-modal__section">
+
+                    <div class="filter-modal__section--distance">
+                        <div class="filter-modal__section-title">거리 선택</div>
+                        <div class="filter-modal__chips">
+                            <button type="button" class="filter-chip__distance" data-distance="100">100m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="300">300m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="500">500m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="1000">1km</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-modal__section--type">
+                        <div class="filter-modal__section-title">매물 타입</div>
+                        <div class="filter-modal__chips">
+                            <button type="button" class="filter-chip__type" data-type="아파트">아파트</button>
+                            <button type="button" class="filter-chip__type" data-type="오피스텔">오피스텔</button>
+                            <button type="button" class="filter-chip__type" data-type="빌라/연립">빌라/연립</button>
+                            <button type="button" class="filter-chip__type" data-type="원룸">원룸</button>
+                            <button type="button" class="filter-chip__type" data-type="투룸">투룸</button>
+                            <button type="button" class="filter-chip__type" data-type="단독/다가구">단독/다가구</button>
+                            <button type="button" class="filter-chip__type" data-type="전원주택">전원주택</button>
+                            <button type="button" class="filter-chip__type" data-type="상가주택">상가주택</button>
+                            <button type="button" class="filter-chip__type" data-type="한옥주택">한옥주택</button>
+                            <button type="button" class="filter-chip__type" data-type="상가">상가</button>
+                            <button type="button" class="filter-chip__type" data-type="사무실">사무실</button>
+                            <button type="button" class="filter-chip__type" data-type="건물">건물</button>
+                            <button type="button" class="filter-chip__type" data-type="공장/창고">공장/창고</button>
+                            <button type="button" class="filter-chip__type" data-type="지식산업센터">지식산업센터</button>
+                            <button type="button" class="filter-chip__type" data-type="토지">토지</button>
+                            <button type="button" class="filter-chip__type" data-type="아파트분양권">아파트분양권</button>
+                            <button type="button" class="filter-chip__type" data-type="오피스텔분양권">오피스텔분양권</button>
+                            <button type="button" class="filter-chip__type" data-type="재개발">재개발</button>
+                            <button type="button" class="filter-chip__type" data-type="재건축">재건축</button>
+                            <button type="button" class="filter-chip__type" data-type="분양중/예정">분양중/예정</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="filter-modal__footer">
+                    <button type="button" class="filter-modal__btn filter-modal__btn--cancel" id="filterModalCancel">취소</button>
+                    <button type="button" class="filter-modal__btn filter-modal__btn--apply" id="filterModalApply">적용</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- =============================================
@@ -116,8 +170,11 @@
     <script th:inline="javascript">
 
         /* ---- 상태 ---- */
-        let myListings      = [];
-        let selectedListing = null;
+        let myListings             = [];
+        let selectedListing        = null;
+        let selectedDistanceM      = null;
+        let selectedListingTypes   = new Set();
+        let lastFetchedBrokerCodes = [];
         const selectedBrokers = new Map(); // brokerCode → {brokerCode, officeName}
 
         /* ---- 내 매물 로드 ---- */
@@ -155,6 +212,10 @@
                 title.textContent = listing.addressName;
             }
             updateCtaInfo();
+            if (typeof renderListingMarkers === 'function') renderListingMarkers();
+            if (listing?.lat && listing?.lng && typeof map !== 'undefined') {
+                map.panTo(new naver.maps.LatLng(listing.lat, listing.lng));
+            }
         }
 
         function updateCtaInfo() {
@@ -225,7 +286,10 @@
                 const listingLabel = selectedListing
                     ? `매물 ${myListings.indexOf(selectedListing) + 1} 기준으로 `
                     : '';
-                hint.textContent   = `${listingLabel}${brokers.length}명의 중개사가 있습니다.`;
+                const distanceLabel = selectedDistanceM
+                    ? `${selectedDistanceM >= 1000 ? (selectedDistanceM / 1000) + 'km' : selectedDistanceM + 'm'} 거리에 `
+                    : '';
+                hint.textContent   = `${listingLabel}${distanceLabel}${brokers.length}명의 중개사가 있습니다.`;
                 hint.style.display = 'block';
             }
 
@@ -329,6 +393,7 @@
 
         let map;
         let markers               = [];
+        let listingMarkers        = [];
         let markerClustering      = null;
         let selectedClusterMarker = null;
         let selectedClusterKey    = null;
@@ -382,7 +447,7 @@
                 maxZoom:        20,
                 icons: [{
                     content: `<div class="usan-cluster">
-                                  <img src="/img/marker-agency-white.png" class="usan-cluster__img"/>
+                                  <img src="/img/marker-agency-white.svg" class="usan-cluster__img"/>
                                   <span class="usan-cluster__count"></span>
                               </div>`,
                     size:   new naver.maps.Size(56, 56),
@@ -403,8 +468,8 @@
                         ? clusterMarker.getClusterMember() : [];
                     const key = members.length ? makeClusterKey(members) : null;
                     img.src = (selectedClusterMarker && key === selectedClusterKey)
-                        ? '/img/marker-agency-orange.png'
-                        : '/img/marker-agency-white.png';
+                        ? '/img/marker-agency-orange.svg'
+                        : '/img/marker-agency-white.svg';
                 }
             });
 
@@ -473,11 +538,19 @@
         }
 
         async function fetchAndShowBrokers(brokerCodes) {
+            lastFetchedBrokerCodes = brokerCodes;
             try {
+                const hasDistance = selectedDistanceM && selectedListing?.lat && selectedListing?.lng;
                 const res = await fetch('/map/api/brokers/cluster', {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ brokerCodes })
+                    body:    JSON.stringify({
+                        brokerCodes,
+                        lat:          hasDistance ? selectedListing.lat : null,
+                        lng:          hasDistance ? selectedListing.lng : null,
+                        distanceM:    hasDistance ? selectedDistanceM   : null,
+                        listingTypes: selectedListingTypes.size > 0 ? Array.from(selectedListingTypes) : null
+                    })
                 });
                 if (!res.ok) throw new Error('중개사 조회 실패');
                 renderBrokerSheet(await res.json());
@@ -497,9 +570,35 @@
 
             const el  = cluster._clusterMarker?.getElement?.();
             const img = el?.querySelector('.usan-cluster__img');
-            if (img) { img.src = '/img/marker-agency-orange.png'; selectedClusterMarker = cluster._clusterMarker; }
+            if (img) { img.src = '/img/marker-agency-orange.svg'; selectedClusterMarker = cluster._clusterMarker; }
 
             fetchAndShowBrokers(brokerCodes.map(String));
+        }
+
+        function renderListingMarkers() {
+            listingMarkers.forEach(m => m?.setMap(null));
+            listingMarkers = [];
+            if (!map || !myListings.length) return;
+
+            listingMarkers = myListings
+                .filter(l => l.lat && l.lng)
+                .map((l, i) => {
+                    const isSelected = selectedListing?.listingId === l.listingId;
+                    const iconSrc    = isSelected ? '/img/marker-listing-blue.svg' : '/img/marker-listing-red.svg';
+                    return new naver.maps.Marker({
+                        map,
+                        position: new naver.maps.LatLng(l.lat, l.lng),
+                        icon: {
+                            content: `<div class="listing-marker${isSelected ? ' is-selected' : ''}">
+                                          <span class="listing-marker__label">매물 ${i + 1}</span>
+                                          <img src="${iconSrc}" class="listing-marker__icon"/>
+                                      </div>`,
+                            size:   new naver.maps.Size(60, 60),
+                            anchor: new naver.maps.Point(30, 60)
+                        },
+                        zIndex: isSelected ? 200 : 100
+                    });
+                });
         }
 
         function clearMarkersAndClusters() {
@@ -510,7 +609,7 @@
 
         function resetClusterIcons() {
             document.querySelectorAll('.usan-cluster__img').forEach(img => {
-                img.src = '/img/marker-agency-white.png';
+                img.src = '/img/marker-agency-white.svg';
             });
             selectedClusterMarker = null;
         }
@@ -520,16 +619,29 @@
             initMap();
             await loadMyListings();
 
-            // 매물 드롭다운 토글 (.common-select 전체 클릭 시 열림)
-            document.getElementById('listing-select')?.addEventListener('click', e => {
-                e.stopPropagation();
-                document.getElementById('listing-select')?.classList.toggle('is-open');
-            });
+            // 매물 없을 때 대상 요소에 클래스 부여
+            if (!myListings.length) {
+                document.getElementById('listing-select')?.classList.add('is-no-listings');
+                document.querySelector('.send-sheet__filter')?.classList.add('is-no-listings');
+            }
 
-            // 드롭다운 외부 클릭 시 닫기
-            document.addEventListener('click', () => {
-                document.getElementById('listing-select')?.classList.remove('is-open');
-            });
+            // is-no-listings 클릭 시 매물 등록 유도 (캡처 단계에서 가로채 하위 핸들러 차단)
+            document.addEventListener('click', e => {
+                if (!e.target.closest('.is-no-listings')) return;
+                e.stopPropagation();
+                if (confirm('등록된 매물이 없습니다.\n매물을 등록하러 이동하시겠습니까?')) location.href = '/listings/new';
+            }, true);
+
+            // layout.html의 common-select 핸들러가 is-open을 토글하므로 MutationObserver로 감지
+            const listingSelect = document.getElementById('listing-select');
+            if (listingSelect) {
+                new MutationObserver(() => {
+                    const sheet = document.getElementById('broker-sheet');
+                    if (listingSelect.classList.contains('is-open') && sheet && !sheet.classList.contains('is-open')) {
+                        if (window.openSendSheet) window.openSendSheet();
+                    }
+                }).observe(listingSelect, { attributes: true, attributeFilter: ['class'] });
+            }
 
             // 시트 열기 버튼
             document.getElementById('open-sheet-btn')?.addEventListener('click', () => {
@@ -538,6 +650,63 @@
 
             document.getElementById('send-btn')?.addEventListener('click', sendListing);
             bindSelectAll();
+
+            // 필터 모달 열기/닫기
+            const filterOverlay = document.getElementById('filter-modal-overlay');
+            document.querySelector('.send-sheet__filter')?.addEventListener('click', () => {
+                // 현재 선택 상태 동기화
+                filterOverlay?.querySelectorAll('.filter-chip__distance').forEach(c => {
+                    c.classList.toggle('is-active', Number(c.dataset.distance) === selectedDistanceM);
+                });
+                filterOverlay?.querySelectorAll('.filter-chip__type').forEach(c => {
+                    c.classList.toggle('is-active', selectedListingTypes.has(c.dataset.type));
+                });
+                filterOverlay?.classList.add('is-open');
+            });
+            document.getElementById('filterModalCancel')?.addEventListener('click', () => {
+                filterOverlay?.classList.remove('is-open');
+            });
+            filterOverlay?.addEventListener('click', e => {
+                if (e.target === filterOverlay) filterOverlay.classList.remove('is-open');
+            });
+
+            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
+            filterOverlay?.addEventListener('click', e => {
+                const chip = e.target.closest('.filter-chip__distance');
+                if (!chip) return;
+                const wasActive = chip.classList.contains('is-active');
+                filterOverlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
+                if (!wasActive) chip.classList.add('is-active');
+            });
+
+            // 매물 타입 칩 다중 선택 토글
+            filterOverlay?.addEventListener('click', e => {
+                const chip = e.target.closest('.filter-chip__type');
+                if (!chip) return;
+                chip.classList.toggle('is-active');
+            });
+
+            // 적용
+            document.getElementById('filterModalApply')?.addEventListener('click', () => {
+                const activeDistance = filterOverlay?.querySelector('.filter-chip__distance.is-active');
+                selectedDistanceM = activeDistance ? Number(activeDistance.dataset.distance) : null;
+
+                selectedListingTypes.clear();
+                filterOverlay?.querySelectorAll('.filter-chip__type.is-active').forEach(c => {
+                    selectedListingTypes.add(c.dataset.type);
+                });
+
+                const filterText = document.querySelector('.send-sheet__filter-text');
+                if (filterText) {
+                    const parts = [];
+                    if (activeDistance) parts.push(activeDistance.textContent);
+                    if (selectedListingTypes.size > 0) parts.push(`${selectedListingTypes.size}개 타입`);
+                    filterText.textContent = parts.length > 0 ? parts.join(' · ') : '필터';
+                }
+
+                filterOverlay?.classList.remove('is-open');
+                if (lastFetchedBrokerCodes.length) fetchAndShowBrokers(lastFetchedBrokerCodes);
+            });
         };
 
     </script>
