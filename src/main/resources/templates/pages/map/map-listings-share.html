@@ -670,12 +670,13 @@
                 if (e.target === filterOverlay) filterOverlay.classList.remove('is-open');
             });
 
-            // 거리 칩 단일 선택
+            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
             filterOverlay?.addEventListener('click', e => {
                 const chip = e.target.closest('.filter-chip__distance');
                 if (!chip) return;
+                const wasActive = chip.classList.contains('is-active');
                 filterOverlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
-                chip.classList.add('is-active');
+                if (!wasActive) chip.classList.add('is-active');
             });
 
             // 매물 타입 칩 다중 선택 토글

@@ -1775,12 +1775,13 @@
                 openFilterModal();
             });
 
-            // 거리 칩 선택
+            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
             overlay.addEventListener('click', (e) => {
                 const chip = e.target.closest('.filter-chip__distance');
                 if (!chip) return;
+                const wasActive = chip.classList.contains('is-active');
                 overlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
-                chip.classList.add('is-active');
+                if (!wasActive) chip.classList.add('is-active');
             });
 
             // 오버레이 바깥 클릭 닫기
