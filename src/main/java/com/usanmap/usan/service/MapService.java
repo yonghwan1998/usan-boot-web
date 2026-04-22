@@ -13,6 +13,7 @@ import com.usanmap.usan.repository.BrokerPropertyCountRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -67,15 +68,23 @@ public class MapService {
     }
 
     @Transactional(readOnly = true)
-    public List<BrokerMarkerDetailDto> getBrokerDetails(List<UUID> brokerCodes, Double filterLat, Double filterLng, Double filterDistanceM) {
+    public List<BrokerMarkerDetailDto> getBrokerDetails(List<UUID> brokerCodes, Double filterLat, Double filterLng, Double filterDistanceM, List<String> filterListingTypes) {
 
         if (brokerCodes == null || brokerCodes.isEmpty()) {
             return List.of();
         }
 
+        Set<String> typeSet = (filterListingTypes != null && !filterListingTypes.isEmpty())
+                ? Set.copyOf(filterListingTypes) : null;
+
         List<BrokerPropertyCount> list = brokerPropertyCountRepository.findByBrokerCodeIn(brokerCodes);
 
         return list.stream()
+                .filter(b -> {
+                    if (typeSet == null) return true;
+                    return BrokerPropertyTagFactory.allSorted(b).stream()
+                            .anyMatch(tag -> typeSet.contains(tag.getLabel()));
+                })
                 .map(b -> {
                     List<BrokerPropertyTagDto> top5 = BrokerPropertyTagFactory.topN(b, 5);
                     return BrokerMarkerDetailDto.builder()

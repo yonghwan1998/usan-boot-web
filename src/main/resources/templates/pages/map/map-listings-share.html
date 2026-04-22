@@ -130,26 +130,26 @@
                     <div class="filter-modal__section--type">
                         <div class="filter-modal__section-title">매물 타입</div>
                         <div class="filter-modal__chips">
-                            <button type="button" class="filter-chip__type" data-distance="아파트">아파트</button>
-                            <button type="button" class="filter-chip__type" data-distance="오피스텔">오피스텔</button>
-                            <button type="button" class="filter-chip__type" data-distance="빌라/연립">빌라/연립</button>
-                            <button type="button" class="filter-chip__type" data-distance="원룸">원룸</button>
-                            <button type="button" class="filter-chip__type" data-distance="투룸">투룸</button>
-                            <button type="button" class="filter-chip__type" data-distance="단독/다가구">단독/다가구</button>
-                            <button type="button" class="filter-chip__type" data-distance="전원주택">전원주택</button>
-                            <button type="button" class="filter-chip__type" data-distance="상가주택">상가주택</button>
-                            <button type="button" class="filter-chip__type" data-distance="한옥주택">한옥주택</button>
-                            <button type="button" class="filter-chip__type" data-distance="상가">상가</button>
-                            <button type="button" class="filter-chip__type" data-distance="사무실">사무실</button>
-                            <button type="button" class="filter-chip__type" data-distance="건물">건물</button>
-                            <button type="button" class="filter-chip__type" data-distance="공장/창고">공장/창고</button>
-                            <button type="button" class="filter-chip__type" data-distance="지식산업센터">지식산업센터</button>
-                            <button type="button" class="filter-chip__type" data-distance="토지">토지</button>
-                            <button type="button" class="filter-chip__type" data-distance="아파트분양권">아파트분양권</button>
-                            <button type="button" class="filter-chip__type" data-distance="오피스텔분양권">오피스텔분양권</button>
-                            <button type="button" class="filter-chip__type" data-distance="재개발">재개발</button>
-                            <button type="button" class="filter-chip__type" data-distance="재건축">재건축</button>
-                            <button type="button" class="filter-chip__type" data-distance="분양중/예정">분양중/예정</button>
+                            <button type="button" class="filter-chip__type" data-type="아파트">아파트</button>
+                            <button type="button" class="filter-chip__type" data-type="오피스텔">오피스텔</button>
+                            <button type="button" class="filter-chip__type" data-type="빌라/연립">빌라/연립</button>
+                            <button type="button" class="filter-chip__type" data-type="원룸">원룸</button>
+                            <button type="button" class="filter-chip__type" data-type="투룸">투룸</button>
+                            <button type="button" class="filter-chip__type" data-type="단독/다가구">단독/다가구</button>
+                            <button type="button" class="filter-chip__type" data-type="전원주택">전원주택</button>
+                            <button type="button" class="filter-chip__type" data-type="상가주택">상가주택</button>
+                            <button type="button" class="filter-chip__type" data-type="한옥주택">한옥주택</button>
+                            <button type="button" class="filter-chip__type" data-type="상가">상가</button>
+                            <button type="button" class="filter-chip__type" data-type="사무실">사무실</button>
+                            <button type="button" class="filter-chip__type" data-type="건물">건물</button>
+                            <button type="button" class="filter-chip__type" data-type="공장/창고">공장/창고</button>
+                            <button type="button" class="filter-chip__type" data-type="지식산업센터">지식산업센터</button>
+                            <button type="button" class="filter-chip__type" data-type="토지">토지</button>
+                            <button type="button" class="filter-chip__type" data-type="아파트분양권">아파트분양권</button>
+                            <button type="button" class="filter-chip__type" data-type="오피스텔분양권">오피스텔분양권</button>
+                            <button type="button" class="filter-chip__type" data-type="재개발">재개발</button>
+                            <button type="button" class="filter-chip__type" data-type="재건축">재건축</button>
+                            <button type="button" class="filter-chip__type" data-type="분양중/예정">분양중/예정</button>
                         </div>
                     </div>
 
@@ -170,9 +170,10 @@
     <script th:inline="javascript">
 
         /* ---- 상태 ---- */
-        let myListings            = [];
-        let selectedListing       = null;
-        let selectedDistanceM     = null;
+        let myListings             = [];
+        let selectedListing        = null;
+        let selectedDistanceM      = null;
+        let selectedListingTypes   = new Set();
         let lastFetchedBrokerCodes = [];
         const selectedBrokers = new Map(); // brokerCode → {brokerCode, officeName}
 
@@ -545,9 +546,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body:    JSON.stringify({
                         brokerCodes,
-                        lat:       hasDistance ? selectedListing.lat : null,
-                        lng:       hasDistance ? selectedListing.lng : null,
-                        distanceM: hasDistance ? selectedDistanceM   : null
+                        lat:          hasDistance ? selectedListing.lat : null,
+                        lng:          hasDistance ? selectedListing.lng : null,
+                        distanceM:    hasDistance ? selectedDistanceM   : null,
+                        listingTypes: selectedListingTypes.size > 0 ? Array.from(selectedListingTypes) : null
                     })
                 });
                 if (!res.ok) throw new Error('중개사 조회 실패');
@@ -652,9 +654,12 @@
             // 필터 모달 열기/닫기
             const filterOverlay = document.getElementById('filter-modal-overlay');
             document.querySelector('.send-sheet__filter')?.addEventListener('click', () => {
-                // 현재 선택된 거리로 칩 상태 동기화
+                // 현재 선택 상태 동기화
                 filterOverlay?.querySelectorAll('.filter-chip__distance').forEach(c => {
                     c.classList.toggle('is-active', Number(c.dataset.distance) === selectedDistanceM);
+                });
+                filterOverlay?.querySelectorAll('.filter-chip__type').forEach(c => {
+                    c.classList.toggle('is-active', selectedListingTypes.has(c.dataset.type));
                 });
                 filterOverlay?.classList.add('is-open');
             });
@@ -673,12 +678,31 @@
                 chip.classList.add('is-active');
             });
 
+            // 매물 타입 칩 다중 선택 토글
+            filterOverlay?.addEventListener('click', e => {
+                const chip = e.target.closest('.filter-chip__type');
+                if (!chip) return;
+                chip.classList.toggle('is-active');
+            });
+
             // 적용
             document.getElementById('filterModalApply')?.addEventListener('click', () => {
-                const active = filterOverlay?.querySelector('.filter-chip__distance.is-active');
-                selectedDistanceM = active ? Number(active.dataset.distance) : null;
+                const activeDistance = filterOverlay?.querySelector('.filter-chip__distance.is-active');
+                selectedDistanceM = activeDistance ? Number(activeDistance.dataset.distance) : null;
+
+                selectedListingTypes.clear();
+                filterOverlay?.querySelectorAll('.filter-chip__type.is-active').forEach(c => {
+                    selectedListingTypes.add(c.dataset.type);
+                });
+
                 const filterText = document.querySelector('.send-sheet__filter-text');
-                if (filterText) filterText.textContent = active ? active.textContent : '필터';
+                if (filterText) {
+                    const parts = [];
+                    if (activeDistance) parts.push(activeDistance.textContent);
+                    if (selectedListingTypes.size > 0) parts.push(`${selectedListingTypes.size}개 타입`);
+                    filterText.textContent = parts.length > 0 ? parts.join(' · ') : '필터';
+                }
+
                 filterOverlay?.classList.remove('is-open');
                 if (lastFetchedBrokerCodes.length) fetchAndShowBrokers(lastFetchedBrokerCodes);
             });

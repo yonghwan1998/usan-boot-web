@@ -47,7 +47,7 @@ public class MapApiController {
 
     @PostMapping("/brokers/cluster")
     public List<BrokerMarkerDetailDto> getBrokerDetailInCluster(@RequestBody BrokerClusterRequest request) {
-        return mapService.getBrokerDetails(request.getBrokerCodes(), request.getLat(), request.getLng(), request.getDistanceM());
+        return mapService.getBrokerDetails(request.getBrokerCodes(), request.getLat(), request.getLng(), request.getDistanceM(), request.getListingTypes());
     }
 
     @GetMapping("/user-region")

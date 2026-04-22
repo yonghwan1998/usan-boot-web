@@ -14,4 +14,5 @@ public class BrokerClusterRequest {
     private Double lat;
     private Double lng;
     private Double distanceM;
+    private List<String> listingTypes;
 }
