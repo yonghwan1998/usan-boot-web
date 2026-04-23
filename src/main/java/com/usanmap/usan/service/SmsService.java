@@ -109,7 +109,7 @@ public class SmsService {
             sb.append("통신사: ").append(listing.getCarrier()).append("\n\n");
 
             sb.append("상세보기(매물 이미지, 상세 설명)\n");
-            sb.append(baseUrl).append("/share/").append(listing.getId());
+            sb.append(baseUrl).append("/l/").append(listing.getPublicId());
         } else {
             sb.append("[우산] 임대합니다.\n");
 
@@ -128,7 +128,7 @@ public class SmsService {
             sb.append("통신사: ").append(listing.getCarrier()).append("\n\n");
 
             sb.append("상세보기(매물 이미지, 상세 설명)\n");
-            sb.append(baseUrl).append("/share/").append(listing.getId());
+            sb.append(baseUrl).append("/l/").append(listing.getPublicId());
         }
 
         return sb.toString().trim();
