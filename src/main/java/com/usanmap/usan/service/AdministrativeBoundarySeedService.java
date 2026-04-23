@@ -48,19 +48,9 @@ public class AdministrativeBoundarySeedService {
     }
 
     private int deleteAll() {
-        int deleted = jdbcTemplate.update("DELETE FROM administrative_boundary");
-        log.info("[BOUNDARY-SEED] 기존 전체 데이터 삭제 완료 - deleted={}", deleted);
-        return deleted;
-    }
-
-    private int deleteByAdmCdPrefix(String prefix) {
-        int deleted = jdbcTemplate.update("""
-            DELETE FROM administrative_boundary
-            WHERE adm_cd LIKE CONCAT(?, '%')
-            """, prefix);
-
-        log.info("[BOUNDARY-SEED] 기존 prefix 데이터 삭제 완료 - prefix={}, deleted={}", prefix, deleted);
-        return deleted;
+        jdbcTemplate.execute("TRUNCATE TABLE administrative_boundary");
+        log.info("[BOUNDARY-SEED] 기존 전체 데이터 TRUNCATE 완료");
+        return 0;
     }
 
     private int importSido() {
@@ -80,36 +70,6 @@ public class AdministrativeBoundarySeedService {
             }
 
             log.info("[BOUNDARY-SEED] 시도 적재 완료 - count={}", count);
-            return count;
-        } catch (Exception e) {
-            throw new RuntimeException("시도 데이터 적재 실패", e);
-        }
-    }
-
-    private int importSidoByShortAdmCd(String shortAdmCdTarget) {
-        try {
-            Resource resource = resourceResolver.getResource("classpath:/static/geo/sido.geo.json");
-
-            int count = 0;
-
-            try (InputStream is = resource.getInputStream()) {
-                JsonNode root = objectMapper.readTree(is);
-                JsonNode features = root.path("features");
-
-                for (JsonNode feature : features) {
-                    JsonNode properties = feature.path("properties");
-                    String shortAdmCd = getText(properties, "shortAdmCd");
-
-                    if (!shortAdmCdTarget.equals(shortAdmCd)) {
-                        continue;
-                    }
-
-                    upsertFeature(feature);
-                    count++;
-                }
-            }
-
-            log.info("[BOUNDARY-SEED] 시도 적재 완료 - shortAdmCd={}, count={}", shortAdmCdTarget, count);
             return count;
         } catch (Exception e) {
             throw new RuntimeException("시도 데이터 적재 실패", e);
