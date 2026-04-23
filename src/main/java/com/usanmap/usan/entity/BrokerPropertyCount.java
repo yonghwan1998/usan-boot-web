@@ -17,6 +17,9 @@ public class BrokerPropertyCount {
     @Convert(converter = UuidToBytesConverter.class)
     private UUID brokerCode;
 
+    @Column(name = "public_id", length = 6, nullable = false, unique = true)
+    private String publicId;
+
     @Column()
     private String brokerName;
 

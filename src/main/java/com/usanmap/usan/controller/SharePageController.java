@@ -1,5 +1,7 @@
 package com.usanmap.usan.controller;
 
+import com.usanmap.usan.entity.BrokerPropertyCount;
+import com.usanmap.usan.repository.BrokerPropertyCountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,17 +12,26 @@ import com.usanmap.usan.entity.Listing;
 import com.usanmap.usan.repository.ListingRepository;
 
 @Controller
-@RequestMapping("/share")
+@RequestMapping
 @RequiredArgsConstructor
 public class SharePageController {
 
     private final ListingRepository listingRepository;
+    private final BrokerPropertyCountRepository brokerPropertyCountRepository;
 
-    @GetMapping("/{id}")
-    public String sharePage(@PathVariable Long id, Model model) {
-        Listing listing = listingRepository.findById(id)
+    @GetMapping("/l/{publicId}")
+    public String shareListingPage(@PathVariable String publicId, Model model) {
+        Listing listing = listingRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new IllegalArgumentException("매물을 찾을 수 없습니다."));
         model.addAttribute("listing", listing);
         return "pages/share/listing";
+    }
+
+    @GetMapping("/b/{publicId}")
+    public String shareBrokerPage(@PathVariable String publicId, Model model) {
+        BrokerPropertyCount broker = brokerPropertyCountRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("중개사를 찾을 수 없습니다."));
+        model.addAttribute("broker", broker);
+        return "pages/share/broker";
     }
 }

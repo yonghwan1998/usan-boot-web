@@ -6,6 +6,7 @@ import com.usanmap.usan.entity.BrokerPropertyCount;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BrokerPropertyCountRepository extends JpaRepository<BrokerPropertyCount, UUID> {
@@ -16,4 +17,6 @@ public interface BrokerPropertyCountRepository extends JpaRepository<BrokerPrope
     List<BrokerPropertyCount> findByBrokerCodeIn(Collection<UUID> brokerCodes);
 
     List<BrokerPropertyCount> findBySidoAndSigunguAndEmd(String sido, String sigungu, String emd);
+
+    Optional<BrokerPropertyCount> findByPublicId(String publicId);
 }

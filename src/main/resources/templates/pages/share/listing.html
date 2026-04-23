@@ -11,7 +11,9 @@
     <title th:fragment="title">매물 상세보기</title>
 </head>
 
-<th:block th:fragment="pcSideContent"></th:block>
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
 
 <th:block th:fragment="extraCss">
 </th:block>
