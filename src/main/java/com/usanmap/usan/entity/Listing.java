@@ -5,8 +5,8 @@ import lombok.*;
 import com.usanmap.usan.dto.ListingRequest;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static com.usanmap.usan.util.NumberUtils.toBigDecimal;
 
@@ -20,7 +20,10 @@ public class Listing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "public_id", length = 36, nullable = false, unique = true)
+    private static final String PUBLIC_ID_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    @Column(name = "public_id", length = 6, nullable = false, unique = true)
     private String publicId;
 
     @Column(name = "user_id", nullable = false)
@@ -130,9 +133,17 @@ public class Listing {
         this.status = (status == null ? "DRAFT" : status);
     }
 
-    public static Listing createDraft(ListingRequest req, Long userId) {
+    public static String generatePublicId() {
+        StringBuilder sb = new StringBuilder(6);
+        for (int i = 0; i < 6; i++) {
+            sb.append(PUBLIC_ID_CHARS.charAt(RANDOM.nextInt(PUBLIC_ID_CHARS.length())));
+        }
+        return sb.toString();
+    }
+
+    public static Listing createDraft(String publicId, ListingRequest req, Long userId) {
         return Listing.builder()
-                .publicId(UUID.randomUUID().toString())
+                .publicId(publicId)
                 .userId(userId)
                 .role(req.role() == null ? null : req.role().name())
                 .type(req.type() == null ? null : req.type().name())
