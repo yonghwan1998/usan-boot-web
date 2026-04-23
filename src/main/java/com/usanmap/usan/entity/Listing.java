@@ -5,10 +5,10 @@ import lombok.*;
 import com.usanmap.usan.dto.ListingRequest;
 
 import java.math.BigDecimal;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 import static com.usanmap.usan.util.NumberUtils.toBigDecimal;
+import static com.usanmap.usan.util.PublicIdUtils.generate;
 
 @Entity
 @Table(name = "listing")
@@ -19,9 +19,6 @@ public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private static final String PUBLIC_ID_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     @Column(name = "public_id", length = 6, nullable = false, unique = true)
     private String publicId;
@@ -131,14 +128,6 @@ public class Listing {
         this.description = description;
 
         this.status = (status == null ? "DRAFT" : status);
-    }
-
-    public static String generatePublicId() {
-        StringBuilder sb = new StringBuilder(6);
-        for (int i = 0; i < 6; i++) {
-            sb.append(PUBLIC_ID_CHARS.charAt(RANDOM.nextInt(PUBLIC_ID_CHARS.length())));
-        }
-        return sb.toString();
     }
 
     public static Listing createDraft(String publicId, ListingRequest req, Long userId) {

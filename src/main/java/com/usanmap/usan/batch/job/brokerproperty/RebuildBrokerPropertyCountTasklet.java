@@ -10,7 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import com.usanmap.usan.entity.Listing;
+import com.usanmap.usan.util.PublicIdUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -110,7 +110,7 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
             try {
                 jdbcTemplate.update(INSERT_SQL,
                         row.get("broker_code"),
-                        Listing.generatePublicId(),
+                        PublicIdUtils.generate(),
                         row.get("broker_name"),
                         row.get("office_name"),
                         row.get("registration_number"),

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.usanmap.usan.dto.ListingRequest;
 import com.usanmap.usan.entity.Listing;
 import com.usanmap.usan.repository.ListingRepository;
+import com.usanmap.usan.util.PublicIdUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class ListingService {
     public Listing createDraft(ListingRequest req, Long userId) {
         for (int attempt = 0; attempt < 5; attempt++) {
             try {
-                String publicId = Listing.generatePublicId();
+                String publicId = PublicIdUtils.generate();
                 return listingRepository.save(Listing.createDraft(publicId, req, userId));
             } catch (DataIntegrityViolationException e) {
                 if (attempt == 4) throw e;
