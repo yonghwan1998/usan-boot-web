@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.usanmap.usan.entity.BrokerPropertyCount;
 import com.usanmap.usan.entity.Listing;
+import com.usanmap.usan.entity.ListingSendHistory;
 import com.usanmap.usan.repository.BrokerPropertyCountRepository;
+import com.usanmap.usan.repository.ListingSendHistoryRepository;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -20,6 +22,8 @@ public class SmsService {
 
     private final WebClient sensWebClient;
     private final BrokerPropertyCountRepository brokerRepository;
+    private final ListingSendHistoryRepository listingSendHistoryRepository;
+    private final CreditService creditService;
 
     @Value("${ncp.access-key}")
     private String accessKey;
@@ -36,32 +40,35 @@ public class SmsService {
     @Value("${usan.base-url}")
     private String baseUrl;
 
-    public SmsService(WebClient sensWebClient, BrokerPropertyCountRepository brokerRepository) {
+    public SmsService(WebClient sensWebClient, BrokerPropertyCountRepository brokerRepository,
+                      ListingSendHistoryRepository listingSendHistoryRepository, CreditService creditService) {
         this.sensWebClient = sensWebClient;
         this.brokerRepository = brokerRepository;
+        this.listingSendHistoryRepository = listingSendHistoryRepository;
+        this.creditService = creditService;
     }
 
-    public void sendListingShare(List<UUID> brokerCodes, Listing listing) {
+    public void sendListingShare(List<UUID> brokerCodes, Listing listing, Long userId) {
         List<BrokerPropertyCount> brokers = brokerRepository.findByBrokerCodeIn(brokerCodes);
 
-        // TODO: 테스트용 - 모든 수신자를 01033933402로 고정 (롤백 시 아래 주석 해제 후 이 블록 제거)
-        List<Map<String, String>> recipients = brokers.stream()
-                .map(BrokerPropertyCount::getPhone)
-                .filter(p -> p != null && !p.isBlank())
-                .map(p -> Map.of("to", "01033933402"))
+        List<BrokerPropertyCount> targets = brokers.stream()
+                .filter(b -> b.getPhone() != null && !b.getPhone().isBlank())
                 .toList();
 
-        // [원본 코드]
-        // List<Map<String, String>> recipients = brokers.stream()
-        //         .map(BrokerPropertyCount::getPhone)
-        //         .filter(p -> p != null && !p.isBlank())
-        //         .map(p -> Map.of("to", p.replaceAll("[^0-9]", "")))
-        //         .toList();
-
-        if (recipients.isEmpty()) {
+        if (targets.isEmpty()) {
             log.warn("SMS 발송 대상 없음 - brokerCodes: {}", brokerCodes);
             return;
         }
+
+        // TODO: 테스트용 - 모든 수신자를 01033933402로 고정 (롤백 시 아래 주석 해제 후 이 블록 제거)
+        List<Map<String, String>> recipients = targets.stream()
+                .map(b -> Map.of("to", "01033933402"))
+                .toList();
+
+        // [원본 코드]
+        // List<Map<String, String>> recipients = targets.stream()
+        //         .map(b -> Map.of("to", b.getPhone().replaceAll("[^0-9]", "")))
+        //         .toList();
 
         String content = buildMessage(listing);
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -86,7 +93,19 @@ public class SmsService {
                     .bodyToMono(String.class)
                     .block();
 
-            log.info("SMS 발송 완료 - listingId: {}, 수신자: {}명", listing.getId(), recipients.size());
+            log.info("SMS 발송 완료 - listingId: {}, 수신자: {}명", listing.getId(), targets.size());
+
+            List<ListingSendHistory> histories = targets.stream()
+                    .map(b -> ListingSendHistory.builder()
+                            .listingId(listing.getId())
+                            .userId(userId)
+                            .brokerPhone(b.getPhone())
+                            .build())
+                    .toList();
+            listingSendHistoryRepository.saveAll(histories);
+
+            creditService.deductForShare(userId, targets.size(), listing.getId());
+
         } catch (Exception e) {
             log.error("SMS 발송 실패 - listingId: {}", listing.getId(), e);
         }
