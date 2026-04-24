@@ -421,11 +421,147 @@
     color: #000000;
 }
 
+.more-content__credit {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 28px 0;
+    background: #ffffff;
+}
 
+.credit__btn-wrapper {
+    display: flex;
+    gap: 12px;
+    padding: 0 16px;
+}
 
+.credit__btn {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #a6a6a6;
+    cursor: pointer;
 
+    background: #ffffff;
+    font-weight: 500;
+    font-size: 16px;
+    color: #595959;
+}
 
+.credit__btn.is-selected {
+    background: #262626;
+    font-weight: 700;
+    color: #ffffff;
+}
 
+.credit__content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.credit__top-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.credit__total-text {
+    font-weight: 500;
+    font-size: 18px;
+    color: #595959;
+}
+
+.credit__filter-wrapper {
+    display: flex;
+    text-align: center;
+}
+
+.credit__filter-text {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 20px;
+    color: #595959;
+}
+
+.credit__filter-icon {
+    width: 24px;
+    height: 18px;
+    mask: url("../img/24x24-expand.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-expand.svg") center/contain no-repeat;;
+    background-color: #0d0d0d;
+    cursor: pointer;
+}
+
+.credit__middle {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-weight: 500;
+    font-size: 18px;
+    color: #000000;
+}
+
+.credit__bottom-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 16px;
+}
+
+.credit__item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.credit__item-top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.credit__item-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.credit__item-date {
+    width: 56px;
+    font-weight: 400;
+    font-size: 18px;
+    color: #8c8c8c;
+}
+
+.credit__item-title {
+    font-weight: 400;
+    font-size: 20px;
+    color: #0d0d0d;
+}
+
+.credit__item-right {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.credit__item-right.plus {
+    color: #3551e3;
+}
+
+.credit__item-right.minus {
+    color: #f4472c;
+}
+
+.credit__item-bottom {
+    padding-left: 60px;
+    font-weight: 500;
+    font-size: 16px;
+    color: #8c8c8c;
+}
 
 .more-content__links {
     display: flex;
