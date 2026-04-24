@@ -301,12 +301,36 @@
     color: #0d0d0d;
 }
 
-.credits-charge__question {
-    text-align: center;
-    margin: 43px 0;
-    font-weight: 400;
-    font-size: 16px;
-    color: #404040;
+.credits-charge__refund {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 16px 68px 16px;
+}
+
+.credits-charge__desc {
+    font-weight: 500;
+    font-size: 14px;
+    color: #8c8c8c;
+}
+
+.credits-charge__refund-link {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.refund-link__text {
+    font-weight: 500;
+    font-size: 14px;
+    color: #0d0d0d;
+}
+
+.refund-link__icon {
+    width: 14px;
+    height: 14px;
+    mask: url("../img/24x24-link.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-link.svg") center/contain no-repeat;
+    background-color: #0d0d0d;
 }
 
 .credits-charge__method-wrapper {
