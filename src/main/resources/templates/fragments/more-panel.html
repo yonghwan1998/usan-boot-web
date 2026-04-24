@@ -6,35 +6,119 @@
     </div>
 
     <div class="more-content">
-        <div class="more-content__recommend-outer" style="display: none">
-            <div class="more-content__recommend">
-                <div class="recommend__text">매물을 등록하고 보내보세요!</div>
-                <div class="recommend__icon"></div>
-            </div>
-        </div>
+
         <div class="more-content__card">
             <div class="card__profile">
                 <div class="profile__no-image"></div>
                 <div class="profile__nickname"
-                     th:text="${login.authenticated} ? ${login.nickname} : '로그인을 해주세요'">로그인을 해주세요</div>
+                     th:text="${login.authenticated} ? ${login.email} : '로그인을 해주세요'">로그인을 해주세요</div>
             </div>
-            <div class="card__stats">
-                <div class="stats-wrapper">
-                    <div class="stats-item">
-                        <div class="stat-count">-</div>
-                        <div class="stat-text">크레딧</div>
+
+            <div th:if="${login.authenticated}" class="card__bottom-wrapper">
+                <div class="card__credit-wrapper">
+                    <span class="card__credit-text">크레딧</span>
+                    <span class="card__credit-credit">25,000C</span>
+                </div>
+                <button type="button" class="btn btn--primary home-block__cta" onclick="location.href='/sending'">
+                    매물 보내기
+                </button>
+            </div>
+        </div>
+
+        <div class="more-content__credit">
+            <div class="credit__btn-wrapper">
+                <span class="credit__btn is-selected">전체</span>
+                <span class="credit__btn">충전</span>
+                <span class="credit__btn">차감</span>
+                <span class="credit__btn">환불</span>
+            </div>
+
+            <div class="credit__content-wrapper">
+                <div class="credit__top-wrapper">
+                    <span class="credit__total-text">총 <span class="point_b bold">5</span>건</span>
+                    <span class="credit__filter-wrapper">
+                        <span class="credit__filter-text">전체기간</span>
+                        <span class="credit__filter-icon"></span>
+                    </span>
+                </div>
+
+                <div class="credit__middle">2025년</div>
+
+                <div class="credit__bottom-wrapper">
+                    <div class="credit__item">
+                        <div class="credit__item-top">
+                            <div class="credit__item-left">
+                                <span class="credit__item-date">07.30</span>
+                                <span class="credit__item-title">크레딧 충전</span>
+                            </div>
+                            <span class="credit__item-right plus">+100C</span>
+                        </div>
+
+                        <div class="credit__item-bottom">
+                            05:54 | 5,000원
+                        </div>
                     </div>
-                    <div class="stats-item">
-                        <div class="stat-count">-</div>
-                        <div class="stat-text">등록한 매물 수</div>
+
+                    <div class="credit__item">
+                        <div class="credit__item-top">
+                            <div class="credit__item-left">
+                                <span class="credit__item-date">08.02</span>
+                                <span class="credit__item-title">크레딧 차감</span>
+                            </div>
+                            <span class="credit__item-right minus">-100C</span>
+                        </div>
+
+                        <div class="credit__item-bottom">
+                            06:22 | 100건 발송
+                        </div>
                     </div>
-                    <div class="stats-item">
-                        <div class="stat-count">-</div>
-                        <div class="stat-text">받은 제안</div>
+
+                    <div class="credit__item">
+                        <div class="credit__item-top">
+                            <div class="credit__item-left">
+                                <span class="credit__item-date">08.04</span>
+                                <span class="credit__item-title">크레딧 차감</span>
+                            </div>
+                            <span class="credit__item-right minus">-50C</span>
+                        </div>
+
+                        <div class="credit__item-bottom">
+                            06:22 | 50건 발송
+                        </div>
                     </div>
+
+                    <div class="credit__item">
+                        <div class="credit__item-top">
+                            <div class="credit__item-left">
+                                <span class="credit__item-date">08.05</span>
+                                <span class="credit__item-title">크레딧 차감</span>
+                            </div>
+                            <span class="credit__item-right minus">-300C</span>
+                        </div>
+
+                        <div class="credit__item-bottom">
+                            09:30 | 300건 발송
+                        </div>
+                    </div>
+
+                    <div class="credit__item">
+                        <div class="credit__item-top">
+                            <div class="credit__item-left">
+                                <span class="credit__item-date">08.06</span>
+                                <span class="credit__item-title">크레딧 차감</span>
+                            </div>
+                            <span class="credit__item-right minus">-200C</span>
+                        </div>
+
+                        <div class="credit__item-bottom">
+                            07:15 | 200건 발송
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
+
         <div class="more-content__links">
             <a class="more-content__link"
                th:href="@{/login}"
@@ -45,11 +129,6 @@
                 </div>
                 <div class="link__icon"></div>
             </a>
-            <div class="more-content__link"
-                 th:if="${login.authenticated}">
-                <div class="link__text">닉네임</div>
-                <div class="link__icon"></div>
-            </div>
             <div class="more-content__link"
                  th:if="${login.authenticated}">
                 <div class="link__text">알림</div>
@@ -69,6 +148,11 @@
             </a>
             <div class="more-content__link">
                 <div class="link__text">고객센터</div>
+                <div class="link__icon"></div>
+            </div>
+            <div class="more-content__link"
+                 th:if="${login.authenticated}">
+                <div class="link__text">발송내역</div>
                 <div class="link__icon"></div>
             </div>
             <div class="more-content__link"
