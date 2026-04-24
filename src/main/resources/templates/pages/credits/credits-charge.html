@@ -22,7 +22,7 @@
 <section class="credits-page">
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">icon-U 포인트 충전하기</div>
+        <div class="common-header__title">크레딧 충전하기</div>
         <div class="common-header__right"></div>
     </div>
 
@@ -69,7 +69,13 @@
             </div>
         </div>
 
-        <div class="credits-charge__question">원하시는 금액이 없으신가요?</div>
+        <div class="credits-charge__refund">
+            <span class="credits-charge__desc">*위 상품의 최대 이용기간은 1년입니다.</span>
+            <span class="credits-charge__refund-link">
+                <a th:href="@{/policy/refund}" class="refund-link__text">환불 규정 안내</a>
+                <span class="refund-link__icon"></span>
+            </span>
+        </div>
 
         <div class="credits-charge__method-wrapper">
             <div class="credits-charge__method-title">결제 수단</div>
