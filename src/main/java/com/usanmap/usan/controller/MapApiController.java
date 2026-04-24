@@ -88,7 +88,6 @@ public class MapApiController {
 
     /**
      * 선택한 매물을 선택한 중개사들에게 전송
-     * MVP: 소유권 검증까지, 실제 저장은 2차 구현
      */
     @PostMapping("/listings/share")
     public ResponseEntity<Map<String, String>> shareListing(@RequestBody ListingShareRequest request) {
