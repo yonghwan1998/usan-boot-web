@@ -23,6 +23,7 @@ public class SmsService {
     private final WebClient sensWebClient;
     private final BrokerPropertyCountRepository brokerRepository;
     private final ListingSendHistoryRepository listingSendHistoryRepository;
+    private final CreditService creditService;
 
     @Value("${ncp.access-key}")
     private String accessKey;
@@ -40,10 +41,11 @@ public class SmsService {
     private String baseUrl;
 
     public SmsService(WebClient sensWebClient, BrokerPropertyCountRepository brokerRepository,
-                      ListingSendHistoryRepository listingSendHistoryRepository) {
+                      ListingSendHistoryRepository listingSendHistoryRepository, CreditService creditService) {
         this.sensWebClient = sensWebClient;
         this.brokerRepository = brokerRepository;
         this.listingSendHistoryRepository = listingSendHistoryRepository;
+        this.creditService = creditService;
     }
 
     public void sendListingShare(List<UUID> brokerCodes, Listing listing, Long userId) {
@@ -101,6 +103,8 @@ public class SmsService {
                             .build())
                     .toList();
             listingSendHistoryRepository.saveAll(histories);
+
+            creditService.deductForShare(userId, targets.size(), listing.getId());
 
         } catch (Exception e) {
             log.error("SMS 발송 실패 - listingId: {}", listing.getId(), e);

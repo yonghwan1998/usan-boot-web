@@ -105,6 +105,26 @@ public class CreditService {
     }
 
     @Transactional
+    public void deductForShare(Long userId, int count, Long listingId) {
+        User user = userRepository.getReferenceById(userId);
+        MemberCreditBalance balance = memberCreditBalanceRepository.findByMemberWithLock(user)
+                .orElseThrow(() -> new IllegalStateException("크레딧 잔액 정보가 없습니다."));
+
+        balance.deductBalance(count);
+
+        CreditLedger ledger = CreditLedger.builder()
+                .member(user)
+                .ledgerType(LedgerType.USE)
+                .changeAmount(-count)
+                .balanceAfter(balance.getBalance())
+                .relatedType("LISTING")
+                .relatedId(listingId)
+                .description("매물 발송 (" + count + "명)")
+                .build();
+        creditLedgerRepository.save(ledger);
+    }
+
+    @Transactional
     public void confirmCharge(String orderNo, Long userId) {
         CreditOrder order = creditOrderRepository.findByOrderNo(orderNo)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
