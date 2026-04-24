@@ -33,7 +33,7 @@ public class BrokerPropertyCountScheduler {
     private final Job brokerPropertyCountJob;
     private final JobLauncher jobLauncher;
 
-    @Scheduled(cron = "0 30 6 * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "0 30 6 * * *", zone = "Asia/Seoul")
     public void run() throws Exception {
 
         if (!jobExplorer.findRunningJobExecutions(BrokerPropertyCountJobConfig.JOB_NAME).isEmpty()) {
