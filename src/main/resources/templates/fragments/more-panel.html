@@ -37,11 +37,6 @@
             </a>
             <div class="more-content__link"
                  th:if="${login.authenticated}">
-                <div class="link__text">닉네임</div>
-                <div class="link__icon"></div>
-            </div>
-            <div class="more-content__link"
-                 th:if="${login.authenticated}">
                 <div class="link__text">알림</div>
                 <div class="link__icon"></div>
             </div>
@@ -59,6 +54,11 @@
             </a>
             <div class="more-content__link">
                 <div class="link__text">고객센터</div>
+                <div class="link__icon"></div>
+            </div>
+            <div class="more-content__link"
+                 th:if="${login.authenticated}">
+                <div class="link__text">발송내역</div>
                 <div class="link__icon"></div>
             </div>
             <div class="more-content__link"
