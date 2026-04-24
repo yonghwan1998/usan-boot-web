@@ -6,35 +6,25 @@
     </div>
 
     <div class="more-content">
-        <div class="more-content__recommend-outer" style="display: none">
-            <div class="more-content__recommend">
-                <div class="recommend__text">매물을 등록하고 보내보세요!</div>
-                <div class="recommend__icon"></div>
-            </div>
-        </div>
+
         <div class="more-content__card">
             <div class="card__profile">
                 <div class="profile__no-image"></div>
                 <div class="profile__nickname"
-                     th:text="${login.authenticated} ? ${login.nickname} : '로그인을 해주세요'">로그인을 해주세요</div>
+                     th:text="${login.authenticated} ? ${login.email} : '로그인을 해주세요'">로그인을 해주세요</div>
             </div>
-            <div class="card__stats">
-                <div class="stats-wrapper">
-                    <div class="stats-item">
-                        <div class="stat-count">-</div>
-                        <div class="stat-text">크레딧</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stat-count">-</div>
-                        <div class="stat-text">등록한 매물 수</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stat-count">-</div>
-                        <div class="stat-text">받은 제안</div>
-                    </div>
+
+            <div th:if="${login.authenticated}" class="card__bottom-wrapper">
+                <div class="card__credit-wrapper">
+                    <span class="card__credit-text">크레딧</span>
+                    <span class="card__credit-credit">25,000C</span>
                 </div>
+                <button type="button" class="btn btn--primary home-block__cta" onclick="location.href='/sending'">
+                    매물 보내기
+                </button>
             </div>
         </div>
+
         <div class="more-content__links">
             <a class="more-content__link"
                th:href="@{/login}"
