@@ -423,6 +423,10 @@
 
 
 
+
+
+
+
 .more-content__links {
     display: flex;
     flex-direction: column;
@@ -433,7 +437,6 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    height: 80px;
     padding: 16px;
     border-bottom: 1px solid #f2f2f2;
     background: #ffffff;
@@ -443,6 +446,7 @@
 .link__double-line {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
 .link__text {
