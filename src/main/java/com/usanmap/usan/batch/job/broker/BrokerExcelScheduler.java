@@ -32,7 +32,7 @@ public class BrokerExcelScheduler {
     @Qualifier(BrokerExcelIngestJobConfig.JOB_NAME)
     private final Job brokerExcelIngestJob;//실행해야하는 배치 단위
 
-    @Scheduled(cron = "0 30 1 * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "0 30 1 * * *", zone = "Asia/Seoul")
     public void run() throws Exception {
         JobParameters params = new JobParametersBuilder()
                 .addLong("ts", System.currentTimeMillis())
