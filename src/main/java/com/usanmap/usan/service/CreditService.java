@@ -11,7 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -49,8 +52,57 @@ public class CreditService {
     @Transactional(readOnly = true)
     public List<CreditLedger> getLedgers(Long userId, LedgerType type) {
         User user = userRepository.getReferenceById(userId);
-        return creditLedgerRepository.findByMemberAndLedgerTypeOrderByCreatedAtDesc(user, type, PageRequest.of(0, 50))
-                .getContent();
+        Pageable pageable = PageRequest.of(0, 50);
+        if (type == null) {
+            return creditLedgerRepository.findByMemberOrderByCreatedAtDesc(user, pageable).getContent();
+        }
+        return creditLedgerRepository.findByMemberAndLedgerTypeOrderByCreatedAtDesc(user, type, pageable).getContent();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getSummary(Long userId, String type) {
+        int balance = getBalance(userId);
+
+        LedgerType ledgerType = "ALL".equals(type) ? null : LedgerType.valueOf(type);
+        List<CreditLedger> ledgers = getLedgers(userId, ledgerType);
+
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("MM.dd");
+        DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+
+        List<Map<String, Object>> items = ledgers.stream().map(l -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("date", l.getCreatedAt().format(dateFmt));
+            item.put("title", resolveLedgerTitle(l.getLedgerType()));
+            int amount = l.getChangeAmount();
+            item.put("amountText", (amount > 0 ? "+" : "") + amount + "C");
+            item.put("amountClass", amount > 0 ? "plus" : "minus");
+            item.put("bottomText", resolveBottomText(l, timeFmt));
+            return item;
+        }).toList();
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("balance", balance);
+        result.put("total", items.size());
+        result.put("items", items);
+        return result;
+    }
+
+    private String resolveLedgerTitle(LedgerType type) {
+        return switch (type) {
+            case CHARGE -> "크레딧 충전";
+            case USE -> "크레딧 차감";
+            case CANCEL -> "크레딧 환불";
+            case EXPIRE -> "크레딧 만료";
+            case ADJUST -> "크레딧 조정";
+        };
+    }
+
+    private String resolveBottomText(CreditLedger l, DateTimeFormatter timeFmt) {
+        String time = l.getCreatedAt().format(timeFmt);
+        if (l.getLedgerType() == LedgerType.CHARGE && l.getPayment() != null) {
+            return time + " | " + String.format("%,d", l.getPayment().getRequestedAmount()) + "원";
+        }
+        return time + (l.getDescription() != null ? " | " + l.getDescription() : "");
     }
 
     @Transactional(readOnly = true)

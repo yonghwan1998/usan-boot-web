@@ -194,6 +194,45 @@
         // ✅ 뒤로가기(Back)로 닫히게 히스토리 상태 추가
         // state에 마커를 넣어두면 popstate에서 구분 가능
         history.pushState({ modal: 'more' }, '');
+
+        if (document.querySelector('.card__credit-credit')) {
+            loadCreditSummary('ALL');
+        }
+    }
+
+    function loadCreditSummary(type) {
+        fetch('/api/credits/summary?type=' + type)
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(data) {
+                if (!data) return;
+                const balanceEl = document.querySelector('.card__credit-credit');
+                if (balanceEl) balanceEl.textContent = Number(data.balance).toLocaleString('ko-KR') + 'C';
+                const totalSpan = document.querySelector('.credit__total-text .point_b');
+                if (totalSpan) totalSpan.textContent = data.total;
+                renderCreditItems(data.items);
+            })
+            .catch(function() {});
+    }
+
+    function renderCreditItems(items) {
+        const wrapper = document.querySelector('.credit__bottom-wrapper');
+        if (!wrapper) return;
+        if (!items || items.length === 0) {
+            wrapper.innerHTML = '<div class="credit__empty">내역이 없습니다.</div>';
+            return;
+        }
+        wrapper.innerHTML = items.map(function(item) {
+            return '<div class="credit__item">'
+                + '<div class="credit__item-top">'
+                + '<div class="credit__item-left">'
+                + '<span class="credit__item-date">' + item.date + '</span>'
+                + '<span class="credit__item-title">' + item.title + '</span>'
+                + '</div>'
+                + '<span class="credit__item-right ' + item.amountClass + '">' + item.amountText + '</span>'
+                + '</div>'
+                + '<div class="credit__item-bottom">' + item.bottomText + '</div>'
+                + '</div>';
+        }).join('');
     }
 
     function closeMorePanel() {
@@ -247,6 +286,14 @@
             if (e.target.closest('.btn--modal-close')) {
                 closeMorePanel();
             }
+        });
+
+        panel.addEventListener('click', function (e) {
+            const btn = e.target.closest('.credit__btn');
+            if (!btn) return;
+            panel.querySelectorAll('.credit__btn').forEach(function(b) { b.classList.remove('is-selected'); });
+            btn.classList.add('is-selected');
+            loadCreditSummary(btn.dataset.type);
         });
     });
 </script>
