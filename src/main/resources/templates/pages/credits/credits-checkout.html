@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">결제 진행중</title>
+    <title th:fragment="title">결제하기</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -22,80 +22,80 @@
 <section class="credits-page">
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">결제 진행중</div>
+        <div class="common-header__title">결제하기</div>
         <div class="common-header__right"></div>
     </div>
 
-    <div class="credits-charge-wrapper">
-        <div class="loading-box">
-            <div class="loading-text">
-                결제가 진행중입니다. (<span id="countdown">3</span>초)
-            </div>
-        </div>
+    <div class="credits-charge-wrapper credits-checkout-wrapper">
+        <div id="payment-method"></div>
+        <div id="agreement"></div>
+    </div>
+
+    <div class="btn__wrapper">
+        <button type="button" class="btn btn--next" id="btnPay" disabled>결제하기</button>
     </div>
 
     <style>
-        .credits-charge-wrapper {
-            height: calc(100vh - 60px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loading-box {
-            text-align: center;
-        }
-
-        .loading-text {
-            font-size: 18px;
-            font-weight: 600;
-            color: #000;
-        }
-
-        #countdown {
-            color: #007aff;
-            font-weight: 700;
+        .credits-checkout-wrapper {
+            padding: 0 0 100px;
+            overflow-y: auto;
         }
     </style>
 
+    <script src="https://js.tosspayments.com/v2/standard"></script>
     <script th:inline="javascript">
-        const productId = /*[[${productId}]]*/ null;
+        const productId    = /*[[${productId}]]*/ null;
+        const productName  = /*[[${productName}]]*/ '';
+        const amount       = /*[[${amount}]]*/ 0;
+        const customerKey  = /*[[${customerKey}]]*/ '';
+        const customerEmail = /*[[${customerEmail}]]*/ '';
+        const customerName  = /*[[${customerName}]]*/ '';
+        const clientKey    = /*[[${tossClientKey}]]*/ '';
 
-        async function run() {
+        const tossPayments = TossPayments(clientKey);
+        const widgets = tossPayments.widgets({ customerKey });
+
+        async function init() {
             // 1. 주문 생성
             const orderRes = await fetch('/api/credits/orders?productId=' + productId, { method: 'POST' });
             if (!orderRes.ok) {
-                alert('주문 생성에 실패했습니다.');
+                alert('주문 생성에 실패했습니다. 다시 시도해주세요.');
                 history.back();
                 return;
             }
             const { orderNo } = await orderRes.json();
 
-            // 2. 3초 카운트다운
-            const countdownEl = document.getElementById('countdown');
-            await new Promise(resolve => {
-                let time = 3;
-                const timer = setInterval(() => {
-                    time--;
-                    countdownEl.textContent = time;
-                    if (time <= 0) {
-                        clearInterval(timer);
-                        resolve();
+            // 2. 결제 금액 설정
+            await widgets.setAmount({ currency: 'KRW', value: amount });
+
+            // 3. 결제 UI 렌더링
+            await Promise.all([
+                widgets.renderPaymentMethods({ selector: '#payment-method', variantKey: 'DEFAULT' }),
+                widgets.renderAgreement({ selector: '#agreement', variantKey: 'AGREEMENT' })
+            ]);
+
+            document.getElementById('btnPay').disabled = false;
+
+            // 4. 결제 요청
+            document.getElementById('btnPay').addEventListener('click', async () => {
+                try {
+                    await widgets.requestPayment({
+                        orderId: orderNo,
+                        orderName: productName,
+                        successUrl: window.location.origin + '/credits/toss/success',
+                        failUrl: window.location.origin + '/credits/toss/fail',
+                        customerEmail: customerEmail || undefined,
+                        customerName: customerName || undefined
+                    });
+                } catch (e) {
+                    if (e.code !== 'USER_CANCEL') {
+                        alert('결제 중 오류가 발생했습니다: ' + e.message);
                     }
-                }, 1000);
+                }
             });
-
-            // 3. 결제 승인 (토스 연동 전: Mock / 연동 후: 실제 승인)
-            const confirmRes = await fetch('/api/credits/orders/' + orderNo + '/confirm', { method: 'POST' });
-            if (!confirmRes.ok) {
-                alert('결제 처리에 실패했습니다.');
-                history.back();
-                return;
-            }
-
-            window.location.href = '/credits/complete?orderNo=' + orderNo;
         }
 
-        run();
+        init();
     </script>
 </section>
+</html>

@@ -79,6 +79,10 @@ naver:
     client-secret: ${NAVER_MAP_CLIENT_SECRET}
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
+toss:
+  payments:
+    client-key: ${TOSS_CLIENT_KEY}
+    secret-key: ${TOSS_SECRET_KEY}
 file:
   upload-dir: uploads
   public-prefix: /uploads
