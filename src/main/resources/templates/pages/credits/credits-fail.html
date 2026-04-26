@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">결제 실패</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <link rel="stylesheet" th:href="@{/css/credits.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="credits-page credits-fail-page">
+
+    <style>
+        .credits-fail-page {
+            justify-content: center;
+        }
+
+        .credits-fail {
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .credits-fail__icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 36px;
+        }
+
+        .credits-fail__circle {
+            width: 120px;
+            height: 120px;
+            border: 7px solid #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .credits-fail__x {
+            font-size: 64px;
+            line-height: 1;
+            color: #e74c3c;
+            font-weight: 700;
+            transform: translateY(-2px);
+        }
+
+        .credits-fail__title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #222222;
+            margin-bottom: 12px;
+        }
+
+        .credits-fail__desc {
+            font-size: 15px;
+            font-weight: 500;
+            color: #8b8b8b;
+            margin-bottom: 96px;
+            line-height: 1.6;
+        }
+
+        .credits-fail__button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 64px;
+            border-radius: 18px;
+            background: #222222;
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <div class="credits-fail">
+        <div class="credits-fail__icon">
+            <div class="credits-fail__circle">
+                <span class="credits-fail__x">✕</span>
+            </div>
+        </div>
+
+        <div class="credits-fail__title">결제에 실패했어요</div>
+        <div class="credits-fail__desc" th:text="${errorMessage}">결제 처리 중 오류가 발생했습니다.</div>
+
+        <a th:href="@{/credits/charge}" class="credits-fail__button">다시 시도하기</a>
+    </div>
+
+</section>
+</html>
