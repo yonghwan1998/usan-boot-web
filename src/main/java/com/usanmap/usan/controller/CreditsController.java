@@ -51,7 +51,7 @@ public class CreditsController {
         model.addAttribute("productId", productId);
         model.addAttribute("productName", info.productName());
         model.addAttribute("amount", info.amount());
-        model.addAttribute("customerKey", String.valueOf(userId));
+        model.addAttribute("customerKey", "u_" + userId);
         model.addAttribute("customerEmail", info.customerEmail());
         model.addAttribute("customerName", info.customerName());
         model.addAttribute("tossClientKey", tossProperties.getClientKey());
