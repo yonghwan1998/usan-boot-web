@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/credits")
@@ -15,6 +16,17 @@ public class CreditApiController {
 
     private final CreditService creditService;
     private final SecurityUtils securityUtils;
+
+    private static final Set<String> ALLOWED_TYPES = Set.of("ALL", "CHARGE", "USE", "CANCEL");
+
+    @GetMapping("/summary")
+    public ResponseEntity<Map<String, Object>> getSummary(@RequestParam(defaultValue = "ALL") String type) {
+        if (!ALLOWED_TYPES.contains(type)) {
+            return ResponseEntity.badRequest().build();
+        }
+        Long userId = securityUtils.currentUserIdOrThrow();
+        return ResponseEntity.ok(creditService.getSummary(userId, type));
+    }
 
     @PostMapping("/orders")
     public ResponseEntity<Map<String, String>> createOrder(@RequestParam Long productId) {
