@@ -34,6 +34,16 @@ public class ListingService {
     }
 
     @Transactional
+    public void delete(String publicId, Long userId) {
+        Listing listing = listingRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매물입니다."));
+        if (!listing.getUserId().equals(userId)) {
+            throw new IllegalStateException("삭제 권한이 없습니다.");
+        }
+        listing.markDeleted();
+    }
+
+    @Transactional
     public Listing create(ListingRequest req, Long userId) {
         for (int attempt = 0; attempt < 5; attempt++) {
             try {

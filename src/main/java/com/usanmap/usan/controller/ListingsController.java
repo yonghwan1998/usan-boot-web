@@ -2,6 +2,7 @@ package com.usanmap.usan.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -105,6 +106,14 @@ public class ListingsController {
      *  - 수정 폼 바인딩용 ListingRequest 세팅
      *  - 수정 페이지 렌더링
      */
+    @DeleteMapping("/{publicId}")
+    @ResponseBody
+    public ResponseEntity<Void> delete(@PathVariable String publicId) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        listingService.delete(publicId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{publicId}/edit")
     public String editPage(@PathVariable String publicId, Model model) {
 

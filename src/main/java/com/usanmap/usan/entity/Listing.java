@@ -159,6 +159,10 @@ public class Listing {
                 .build();
     }
 
+    public void markDeleted() {
+        this.status = ListingStatus.DELETED;
+    }
+
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
