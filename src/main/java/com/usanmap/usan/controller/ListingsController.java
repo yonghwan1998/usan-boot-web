@@ -38,8 +38,9 @@ public class ListingsController {
      *  - 매물 관리하기 페이지 이동
      */
     @GetMapping("")
-    public String list() {
-
+    public String list(Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        model.addAttribute("listings", listingService.getMyListings(userId));
         return "pages/listings/listings-list";
     }
 
