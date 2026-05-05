@@ -3,6 +3,7 @@ package com.usanmap.usan.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import com.usanmap.usan.dto.ListingRequest;
+import com.usanmap.usan.entity.enums.ListingStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -83,8 +84,9 @@ public class Listing {
     @Lob
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private String status = "DRAFT";
+    private ListingStatus status = ListingStatus.DRAFT;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -99,7 +101,7 @@ public class Listing {
                     String ownerName, String carrier, String ownerPhone,
                     String tradeType, Integer depositManwon, Integer rentManwon, Integer priceManwon,
                     String dongho, String floorInfo, BigDecimal areaM2, String description,
-                    String status) {
+                    ListingStatus status) {
 
         this.publicId = publicId;
         this.userId = userId;
@@ -127,10 +129,10 @@ public class Listing {
         this.areaM2 = areaM2;
         this.description = description;
 
-        this.status = (status == null ? "DRAFT" : status);
+        this.status = (status == null ? ListingStatus.DRAFT : status);
     }
 
-    public static Listing createDraft(String publicId, ListingRequest req, Long userId) {
+    public static Listing create(String publicId, ListingRequest req, Long userId) {
         return Listing.builder()
                 .publicId(publicId)
                 .userId(userId)
@@ -153,7 +155,7 @@ public class Listing {
                 .floorInfo(req.floorInfo())
                 .areaM2(toBigDecimal(req.areaM2()))
                 .description(req.description())
-                .status("DRAFT")
+                .status(ListingStatus.ACTIVE)
                 .build();
     }
 
@@ -162,7 +164,7 @@ public class Listing {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
-        if (this.status == null) this.status = "DRAFT";
+        if (this.status == null) this.status = ListingStatus.DRAFT;
     }
 
     @PreUpdate

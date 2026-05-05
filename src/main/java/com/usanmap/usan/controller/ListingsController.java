@@ -83,7 +83,7 @@ public class ListingsController {
 
         Long userId = securityUtils.currentUserIdOrThrow();
 
-        var listing = listingService.createDraft(listingRequest, userId);
+        var listing = listingService.create(listingRequest, userId);
         String publicId = listing.getPublicId();
 
         List<StoredFile> storedFiles = fileStorageService.storeListingPhotos(publicId, photoFiles);

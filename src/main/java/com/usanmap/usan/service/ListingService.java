@@ -34,11 +34,11 @@ public class ListingService {
     }
 
     @Transactional
-    public Listing createDraft(ListingRequest req, Long userId) {
+    public Listing create(ListingRequest req, Long userId) {
         for (int attempt = 0; attempt < 5; attempt++) {
             try {
                 String publicId = PublicIdUtils.generate();
-                return listingRepository.save(Listing.createDraft(publicId, req, userId));
+                return listingRepository.save(Listing.create(publicId, req, userId));
             } catch (DataIntegrityViolationException e) {
                 if (attempt == 4) throw e;
             }
