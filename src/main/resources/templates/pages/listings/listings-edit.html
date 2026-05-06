@@ -26,209 +26,158 @@
         <div class="common-header__right"></div>
     </div>
 
-    <form th:action="@{/listings/{publicId}/edit}" method="post" id="listingForm" class="listing-edit-form" enctype="multipart/form-data">
+    <form th:action="@{/listings/{publicId}/edit(publicId=${publicId})}" method="post"
+          th:object="${listingRequest}" id="listingForm" class="listing-edit-form" enctype="multipart/form-data">
+
+        <!-- 주소 hidden fields (서버 값으로 초기화, JS에서 갱신) -->
+        <input type="hidden" name="addressName"  id="hiddenAddressName"  th:value="${listingRequest.addressName}" />
+        <input type="hidden" name="roadAddress"  id="hiddenRoadAddress"  th:value="${listingRequest.roadAddress}" />
+        <input type="hidden" name="jibunAddress" id="hiddenJibunAddress" th:value="${listingRequest.jibunAddress}" />
+        <input type="hidden" name="lat"          id="hiddenLat"          th:value="${listingRequest.lat}" />
+        <input type="hidden" name="lng"          id="hiddenLng"          th:value="${listingRequest.lng}" />
+
+        <!-- 역할/타입 hidden fields (radio 버튼과 동기화) -->
+        <input type="hidden" name="role" id="roleHidden" th:value="${listingRequest.role}" />
+        <input type="hidden" name="type" id="typeHidden" th:value="${listingRequest.type}" />
 
         <div class="listing-edit-wrapper">
 
             <div class="listing-edit__basic-wrapper">
 
+                <!-- 주소 표시 영역 -->
                 <div class="listing-edit__basic">
-                    <span class="listing-edit__address">경기도 오산시 원동 821-15</span>
-                    <button class="listing-edit__edit-button">수정</button>
+                    <span class="listing-edit__address" id="addressDisplay"
+                          th:text="${listingRequest.addressName}">주소</span>
+                    <button type="button" class="listing-edit__edit-button" id="btnEditAddress">수정</button>
                 </div>
 
-                <div class="listing-edit__hidden-address">
+                <!-- 주소 검색 영역 (수정 버튼 클릭 시 표시) -->
+                <div class="listing-edit__hidden-address" id="addressSearchSection" hidden>
                     <div class="listing-edit__section">
                         <div class="listing-wrapper--address">
                             <div class="common-input-wrapper">
                                 <input type="text"
                                        placeholder="주소를 입력해 주세요"
-                                       class="common-input" />
+                                       class="common-input listing-address__input" />
                                 <button type="button"
                                         class="common-input-btn common-input__magnifier-btn"></button>
                             </div>
-
-                            <div class="address-edit-wrapper">
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                                <div class="matched-address">
-                                    <div class="matched-address__top">
-                                        <span class="matched-address__icon"></span>
-                                        <span class="matched-address__title">우산 인더 부산 엄브렐라 오피스텔우산 인더 부산 엄브렐라 오피스텔</span>
-                                    </div>
-                                    <div class="matched-address__bottom">
-                                        <span class="matched-address__jibun">지번</span>
-                                        <span class="matched-address__address">부산 해운대구 우산마리나 111-3</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="common-input-wrapper">
-                            <input type="text"
-                                   placeholder="상세주소 입력"
-                                   class="common-input"/>
+                            <div class="address-list-wrapper"></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- 상세주소 (항상 표시) -->
+                <div class="common-input-wrapper">
+                    <input type="text"
+                           placeholder="상세주소 입력"
+                           class="common-input"
+                           th:field="*{addressDetail}" />
+                </div>
+
+                <!-- 소유 관계 -->
                 <div class="role-toggle flex_start" role="radiogroup" aria-label="역할 선택">
-                    <input type="radio" name="1" id="role-owner" value="OWNER">
+                    <input type="radio" name="role_ui" id="role-owner" value="OWNER">
                     <label for="role-owner" class="listing-pill role-pill">집주인</label>
-                    <input type="radio" name="1" id="role-tenant" value="TENANT">
+                    <input type="radio" name="role_ui" id="role-tenant" value="TENANT">
                     <label for="role-tenant" class="listing-pill role-pill">세입자</label>
-                    <input type="radio" name="1" id="role-manager" value="MANAGER">
+                    <input type="radio" name="role_ui" id="role-manager" value="MANAGER">
                     <label for="role-manager" class="listing-pill role-pill">관리인</label>
                 </div>
 
             </div>
 
+            <!-- 매물 타입 -->
             <div class="listing-edit__type-wrapper">
                 <div class="listing-edit__section-title">매물 타입</div>
                 <div class="type-toggle" role="radiogroup" aria-label="매물 타입 선택">
-                    <input type="radio" id="type-apt" value="APT">
+                    <input type="radio" name="type_ui" id="type-apt" value="APT">
                     <label for="type-apt" class="listing-pill type-pill">아파트</label>
-                    <input type="radio" id="type-officetel" value="OFFICETEL">
+                    <input type="radio" name="type_ui" id="type-officetel" value="OFFICETEL">
                     <label for="type-officetel" class="listing-pill type-pill">오피스텔</label>
-                    <input type="radio" id="type-villa" value="VILLA">
+                    <input type="radio" name="type_ui" id="type-villa" value="VILLA">
                     <label for="type-villa" class="listing-pill type-pill">빌라/연립</label>
-                    <input type="radio" id="type-oneroom" value="ONEROOM">
+                    <input type="radio" name="type_ui" id="type-oneroom" value="ONEROOM">
                     <label for="type-oneroom" class="listing-pill type-pill">원룸</label>
-                    <input type="radio" id="type-tworoom" value="TWOROOM">
+                    <input type="radio" name="type_ui" id="type-tworoom" value="TWOROOM">
                     <label for="type-tworoom" class="listing-pill type-pill">투룸</label>
-                    <input type="radio" id="type-detached" value="DETACHED">
+                    <input type="radio" name="type_ui" id="type-detached" value="DETACHED">
                     <label for="type-detached" class="listing-pill type-pill">단독/다가구</label>
-                    <input type="radio" id="type-rural" value="RURAL">
+                    <input type="radio" name="type_ui" id="type-rural" value="RURAL">
                     <label for="type-rural" class="listing-pill type-pill">전원주택</label>
-                    <input type="radio" id="type-mixedhouse" value="MIXEDHOUSE">
+                    <input type="radio" name="type_ui" id="type-mixedhouse" value="MIXEDHOUSE">
                     <label for="type-mixedhouse" class="listing-pill type-pill">상가주택</label>
-                    <input type="radio" id="type-hanok" value="HANOK">
+                    <input type="radio" name="type_ui" id="type-hanok" value="HANOK">
                     <label for="type-hanok" class="listing-pill type-pill">한옥주택</label>
-                    <input type="radio" id="type-store" value="STORE">
+                    <input type="radio" name="type_ui" id="type-store" value="STORE">
                     <label for="type-store" class="listing-pill type-pill">상가</label>
-                    <input type="radio" id="type-office" value="OFFICE">
+                    <input type="radio" name="type_ui" id="type-office" value="OFFICE">
                     <label for="type-office" class="listing-pill type-pill">사무실</label>
-                    <input type="radio" id="type-building" value="BUILDING">
+                    <input type="radio" name="type_ui" id="type-building" value="BUILDING">
                     <label for="type-building" class="listing-pill type-pill">건물</label>
-                    <input type="radio" id="type-factory" value="FACTORY">
+                    <input type="radio" name="type_ui" id="type-factory" value="FACTORY">
                     <label for="type-factory" class="listing-pill type-pill">공장/창고</label>
-                    <input type="radio" id="type-knowledge" value="KNOWLEDGE">
+                    <input type="radio" name="type_ui" id="type-knowledge" value="KNOWLEDGE">
                     <label for="type-knowledge" class="listing-pill type-pill">지식산업센터</label>
-                    <input type="radio" id="type-land" value="LAND">
+                    <input type="radio" name="type_ui" id="type-land" value="LAND">
                     <label for="type-land" class="listing-pill type-pill">토지</label>
-                    <input type="radio" id="type-apt_sale" value="APT_SALE">
+                    <input type="radio" name="type_ui" id="type-apt_sale" value="APT_SALE">
                     <label for="type-apt_sale" class="listing-pill type-pill">아파트분양권</label>
-                    <input type="radio" id="type-officetel_sale" value="OFFICETEL_SALE">
+                    <input type="radio" name="type_ui" id="type-officetel_sale" value="OFFICETEL_SALE">
                     <label for="type-officetel_sale" class="listing-pill type-pill">오피스텔분양권</label>
-                    <input type="radio" id="type-redevelopment" value="REDEVELOPMENT">
+                    <input type="radio" name="type_ui" id="type-redevelopment" value="REDEVELOPMENT">
                     <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
-                    <input type="radio" id="type-reconstruction" value="RECONSTRUCTION">
+                    <input type="radio" name="type_ui" id="type-reconstruction" value="RECONSTRUCTION">
                     <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
-                    <input type="radio" id="type-presale" value="PRESALE">
+                    <input type="radio" name="type_ui" id="type-presale" value="PRESALE">
                     <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
                 </div>
             </div>
 
             <div class="listing-edit__section-wrapper">
+
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">소유주 이름</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="이름 입력"
+                               class="common-input"
+                               th:field="*{ownerName}" />
+                    </div>
+                </div>
+
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">통신사</div>
+                    <div class="common-select" data-name="carrier">
+                        <div class="common-input-wrapper">
+                            <input type="text"
+                                   placeholder="해당하는 것을 선택해 주세요."
+                                   class="common-input common-select__input"
+                                   readonly />
+                            <button type="button"
+                                    class="common-input-btn common-input__expand-btn"></button>
+                        </div>
+                        <ul class="common-select__options">
+                            <li data-value="SKT">SKT</li>
+                            <li data-value="KT">KT</li>
+                            <li data-value="LGU">LGU+</li>
+                            <li data-value="MVNO_SKT">알뜰폰 SKT</li>
+                            <li data-value="MVNO_KT">알뜰폰 KT</li>
+                            <li data-value="MVNO_LGU">알뜰폰 LGU+</li>
+                        </ul>
+                        <input type="hidden" name="carrier" th:value="${listingRequest.carrier}" />
+                    </div>
+                </div>
+
+                <div class="listing-edit__section">
+                    <div class="listing-edit__section-title">소유주 휴대폰 번호</div>
+                    <div class="common-input-wrapper">
+                        <input type="text"
+                               placeholder="소유주 휴대폰 번호 입력"
+                               class="common-input"
+                               th:field="*{ownerPhone}" />
+                    </div>
+                </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">거래 유형</div>
@@ -241,7 +190,6 @@
                             <button type="button"
                                     class="common-input-btn common-input__expand-btn"></button>
                         </div>
-
                         <ul class="common-select__options">
                             <li data-value="SALE">매매</li>
                             <li data-value="JEONSE">전세</li>
@@ -250,35 +198,40 @@
                             <li data-value="SHORT">단기임대</li>
                             <li data-value="COMMERCIAL">임대(상가/사무실 등)</li>
                         </ul>
-
-                        <input type="hidden" name="tradeType">
+                        <input type="hidden" name="tradeType" th:value="${listingRequest.tradeType}" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">보증금</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="보증금 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               min="0" step="1"
+                               placeholder="보증금(만원) 입력"
+                               class="common-input"
+                               th:field="*{depositManwon}" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">월세</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="월세 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               min="0" step="1"
+                               placeholder="월세(만원) 입력"
+                               class="common-input"
+                               th:field="*{rentManwon}" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">매매가</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="매매가 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               min="0" step="1"
+                               placeholder="매매가(만원) 입력"
+                               class="common-input"
+                               th:field="*{priceManwon}" />
                     </div>
                 </div>
 
@@ -287,7 +240,8 @@
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="동·호수 입력"
-                               class="common-input"/>
+                               class="common-input"
+                               th:field="*{dongho}" />
                     </div>
                 </div>
 
@@ -296,49 +250,43 @@
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="층수 입력"
-                               class="common-input"/>
+                               class="common-input"
+                               th:field="*{floorInfo}" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">면적</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="면적 입력"
-                               class="common-input"/>
+                        <input type="number"
+                               step="0.01" min="0"
+                               placeholder="면적(㎡) 입력"
+                               class="common-input"
+                               th:field="*{areaM2}" />
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">사진첨부</div>
-
                     <label class="common-upload" for="photoFiles">
                         <input id="photoFiles"
                                name="photoFiles"
                                type="file"
                                class="common-upload__input"
-                               accept="png,.jpg,.jpeg,.pdf"
-                               multiple
-                        />
-
+                               accept=".png,.jpg,.jpeg,.pdf"
+                               multiple />
                         <span class="common-upload__icon" aria-hidden="true"></span>
-
-                        <span class="common-upload__text">
-                            여기를 눌러 사진을 첨부해 주세요.
-                        </span>
-
-                        <span class="common-upload__hint">
-                            첨부 가능한 확장자 - PNG, JPG, PDF
-                        </span>
+                        <span class="common-upload__text">여기를 눌러 사진을 첨부해 주세요.</span>
+                        <span class="common-upload__hint">첨부 가능한 확장자 - PNG, JPG, PDF</span>
                     </label>
                 </div>
 
                 <div class="listing-edit__section">
                     <div class="listing-edit__section-title">상세정보</div>
                     <div class="common-input-wrapper">
-                        <input type="text"
-                               placeholder="상세정보 입력"
-                               class="common-input"/>
+                        <textarea placeholder="상세정보 입력"
+                                  class="common-input"
+                                  th:field="*{description}"></textarea>
                     </div>
                 </div>
 
@@ -348,26 +296,152 @@
     </form>
 
     <div class="btn__wrapper pt_36 pr_16 pb_36 pl_16">
-        <div class="btn btn--prev" id="btnPrev">이전</div>
-        <div class="btn btn--next" id="btnNext">다음</div>
+        <div class="btn btn--prev" id="btnCancel">취소</div>
+        <div class="btn btn--next" id="btnSave">저장</div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const list = document.querySelector('.address-edit-wrapper');
-            if (!list) return;
 
-            list.addEventListener('click', (e) => {
-                const item = e.target.closest('.matched-address');
-                if (!item) return;
+            /* =============================================
+               1. radio 버튼 초기화 (서버 값 → 체크 상태)
+            ============================================= */
+            const roleHidden = document.getElementById('roleHidden');
+            const typeHidden = document.getElementById('typeHidden');
 
-                // 1) 기존 선택 해제
-                list.querySelectorAll('.matched-address.is-selected')
-                    .forEach(el => el.classList.remove('is-selected'));
+            if (roleHidden?.value) {
+                const r = document.querySelector(`input[name="role_ui"][value="${roleHidden.value}"]`);
+                if (r) r.checked = true;
+            }
 
-                // 2) 현재 선택
-                item.classList.add('is-selected');
+            if (typeHidden?.value) {
+                const r = document.querySelector(`input[name="type_ui"][value="${typeHidden.value}"]`);
+                if (r) r.checked = true;
+            }
+
+            // radio 변경 → hidden 동기화
+            document.querySelectorAll('input[name="role_ui"]').forEach(r => {
+                r.addEventListener('change', () => { if (r.checked) roleHidden.value = r.value; });
             });
+            document.querySelectorAll('input[name="type_ui"]').forEach(r => {
+                r.addEventListener('change', () => { if (r.checked) typeHidden.value = r.value; });
+            });
+
+            /* =============================================
+               2. common-select 초기화 (hidden 값 → 표시 텍스트)
+            ============================================= */
+            document.querySelectorAll('.common-select').forEach(container => {
+                const hidden  = container.querySelector('input[type="hidden"]');
+                const visible = container.querySelector('.common-select__input');
+                if (!hidden?.value || !visible) return;
+
+                const option = container.querySelector(`.common-select__options li[data-value="${hidden.value}"]`);
+                if (option) visible.value = option.textContent.trim();
+            });
+
+            /* =============================================
+               3. 주소 수정 토글
+            ============================================= */
+            const btnEditAddress     = document.getElementById('btnEditAddress');
+            const addressSearchSection = document.getElementById('addressSearchSection');
+
+            btnEditAddress?.addEventListener('click', () => {
+                addressSearchSection.hidden = !addressSearchSection.hidden;
+            });
+
+            /* =============================================
+               4. 주소 검색
+            ============================================= */
+            const $input = document.querySelector('.listing-address__input');
+            const $list  = document.querySelector('.address-list-wrapper');
+
+            if ($input && $list) {
+                let t = null;
+                const debounce = (fn, delay = 250) => (...args) => {
+                    if (t) clearTimeout(t);
+                    t = setTimeout(() => fn(...args), delay);
+                };
+
+                async function fetchAddress(keyword) {
+                    const params = new URLSearchParams({ q: keyword });
+                    const res = await fetch(`/listings/api/address/search?${params}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (!res.ok) throw new Error('search failed');
+                    return res.json();
+                }
+
+                function renderAddressList(items, keyword) {
+                    if (!items?.length) {
+                        $list.innerHTML = '<div class="address-list__empty">검색 결과가 없습니다.</div>';
+                        return;
+                    }
+                    $list.innerHTML = items.map(item => {
+                        const building = (item.buildingName || '').trim();
+                        const road     = (item.roadAddress  || '').trim();
+                        const jibun    = (item.jibunAddress || '').trim();
+                        const title    = building || road || jibun || keyword;
+                        const showJibun = !road && !!jibun;
+                        const addr     = road || jibun || keyword;
+                        return `
+                            <div class="matched-address"
+                                 data-name="${__escapeHtml(title)}"
+                                 data-road="${__escapeHtml(road)}"
+                                 data-jibun="${__escapeHtml(jibun)}"
+                                 data-lat="${item.lat}"
+                                 data-lng="${item.lng}">
+                                <div class="matched-address__top">
+                                    <span class="matched-address__icon"></span>
+                                    <div class="matched-address__title">${__escapeHtml(title)}</div>
+                                </div>
+                                <div class="matched-address__bottom">
+                                    <span class="matched-address__jibun"
+                                          style="display:${showJibun ? 'inline-flex' : 'none'}">지번</span>
+                                    <span class="matched-address__address">${__escapeHtml(addr)}</span>
+                                </div>
+                            </div>`;
+                    }).join('');
+                }
+
+                $input.addEventListener('input', debounce(async () => {
+                    const keyword = $input.value.trim();
+                    if (keyword.length < 2) { $list.innerHTML = ''; return; }
+                    try {
+                        $list.innerHTML = '<div class="address-list__loading">검색 중...</div>';
+                        const data = await fetchAddress(keyword);
+                        renderAddressList(data.items || [], keyword);
+                    } catch {
+                        $list.innerHTML = '<div class="address-list__error">검색 중 오류가 발생했습니다.</div>';
+                    }
+                }));
+
+                $list.addEventListener('click', (e) => {
+                    const item = e.target.closest('.matched-address');
+                    if (!item) return;
+
+                    $list.querySelectorAll('.is-selected').forEach(el => el.classList.remove('is-selected'));
+                    item.classList.add('is-selected');
+
+                    const name = item.dataset.name;
+                    document.getElementById('hiddenAddressName').value  = name;
+                    document.getElementById('hiddenRoadAddress').value   = item.dataset.road;
+                    document.getElementById('hiddenJibunAddress').value  = item.dataset.jibun;
+                    document.getElementById('hiddenLat').value           = item.dataset.lat;
+                    document.getElementById('hiddenLng').value           = item.dataset.lng;
+
+                    document.getElementById('addressDisplay').textContent = name;
+                    addressSearchSection.hidden = true;
+                });
+            }
+
+            /* =============================================
+               5. 저장 / 취소 버튼
+            ============================================= */
+            document.getElementById('btnSave')?.addEventListener('click', () => {
+                document.getElementById('listingForm')?.submit();
+            });
+
+            document.getElementById('btnCancel')?.addEventListener('click', () => history.back());
         });
     </script>
 

@@ -159,6 +159,28 @@ public class Listing {
                 .build();
     }
 
+    public void update(ListingRequest req) {
+        this.role = req.role() == null ? null : req.role().name();
+        this.type = req.type() == null ? null : req.type().name();
+        this.addressName = req.addressName();
+        this.roadAddress = req.roadAddress();
+        this.jibunAddress = req.jibunAddress();
+        this.addressDetail = req.addressDetail();
+        this.lat = toBigDecimal(req.lat());
+        this.lng = toBigDecimal(req.lng());
+        this.ownerName = req.ownerName();
+        this.carrier = req.carrier();
+        this.ownerPhone = req.ownerPhone();
+        this.tradeType = req.tradeType() == null ? null : req.tradeType().name();
+        this.depositManwon = req.depositManwon();
+        this.rentManwon = req.rentManwon();
+        this.priceManwon = req.priceManwon();
+        this.dongho = req.dongho();
+        this.floorInfo = req.floorInfo();
+        this.areaM2 = toBigDecimal(req.areaM2());
+        this.description = req.description();
+    }
+
     public void markDeleted() {
         this.status = ListingStatus.DELETED;
     }
