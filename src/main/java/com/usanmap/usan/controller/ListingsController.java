@@ -2,6 +2,7 @@ package com.usanmap.usan.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,8 +39,9 @@ public class ListingsController {
      *  - 매물 관리하기 페이지 이동
      */
     @GetMapping("")
-    public String list() {
-
+    public String list(Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        model.addAttribute("listings", listingService.getMyListings(userId));
         return "pages/listings/listings-list";
     }
 
@@ -82,7 +84,7 @@ public class ListingsController {
 
         Long userId = securityUtils.currentUserIdOrThrow();
 
-        var listing = listingService.createDraft(listingRequest, userId);
+        var listing = listingService.create(listingRequest, userId);
         String publicId = listing.getPublicId();
 
         List<StoredFile> storedFiles = fileStorageService.storeListingPhotos(publicId, photoFiles);
@@ -104,14 +106,36 @@ public class ListingsController {
      *  - 수정 폼 바인딩용 ListingRequest 세팅
      *  - 수정 페이지 렌더링
      */
+    @DeleteMapping("/{publicId}")
+    @ResponseBody
+    public ResponseEntity<Void> delete(@PathVariable String publicId) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        listingService.delete(publicId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{publicId}/edit")
     public String editPage(@PathVariable String publicId, Model model) {
-
-        // TODO(yongss): publicId로 Listing 조회
-        // TODO(yongss): 조회 결과를 ListingRequest로 매핑
-        // TODO(yongss): 조회 실패 시 404 처리
-
+        Long userId = securityUtils.currentUserIdOrThrow();
+        ListingRequest listingRequest = listingService.getByPublicId(publicId, userId);
+        model.addAttribute("listingRequest", listingRequest);
+        model.addAttribute("publicId", publicId);
         return "pages/listings/listings-edit";
+    }
+
+    @PostMapping("/{publicId}/edit")
+    public String update(@PathVariable String publicId,
+                         @Valid @ModelAttribute("listingRequest") ListingRequest listingRequest,
+                         BindingResult bindingResult,
+                         Model model,
+                         @RequestParam(value = "photoFiles", required = false) List<MultipartFile> photoFiles) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("publicId", publicId);
+            return "pages/listings/listings-edit";
+        }
+        Long userId = securityUtils.currentUserIdOrThrow();
+        listingService.update(publicId, listingRequest, userId);
+        return "redirect:/listings";
     }
 
     @GetMapping("/api/address/search")

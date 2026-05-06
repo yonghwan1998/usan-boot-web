@@ -50,7 +50,9 @@
 
 
     <div class="btn__wrapper flex_center">
-        <div class="payments__bottom-credits">현재 크레딧 : 7,450 C</div>
+        <div class="payments__bottom-credits">현재 크레딧 :
+            <span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">0</span> C
+        </div>
     </div>
 
     <th:block th:replace="~{fragments/footer :: footerFragment}"></th:block>

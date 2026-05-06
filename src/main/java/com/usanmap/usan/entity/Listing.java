@@ -3,6 +3,7 @@ package com.usanmap.usan.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import com.usanmap.usan.dto.ListingRequest;
+import com.usanmap.usan.entity.enums.ListingStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -83,8 +84,9 @@ public class Listing {
     @Lob
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private String status = "DRAFT";
+    private ListingStatus status = ListingStatus.DRAFT;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -99,7 +101,7 @@ public class Listing {
                     String ownerName, String carrier, String ownerPhone,
                     String tradeType, Integer depositManwon, Integer rentManwon, Integer priceManwon,
                     String dongho, String floorInfo, BigDecimal areaM2, String description,
-                    String status) {
+                    ListingStatus status) {
 
         this.publicId = publicId;
         this.userId = userId;
@@ -127,10 +129,10 @@ public class Listing {
         this.areaM2 = areaM2;
         this.description = description;
 
-        this.status = (status == null ? "DRAFT" : status);
+        this.status = (status == null ? ListingStatus.DRAFT : status);
     }
 
-    public static Listing createDraft(String publicId, ListingRequest req, Long userId) {
+    public static Listing create(String publicId, ListingRequest req, Long userId) {
         return Listing.builder()
                 .publicId(publicId)
                 .userId(userId)
@@ -153,8 +155,34 @@ public class Listing {
                 .floorInfo(req.floorInfo())
                 .areaM2(toBigDecimal(req.areaM2()))
                 .description(req.description())
-                .status("DRAFT")
+                .status(ListingStatus.ACTIVE)
                 .build();
+    }
+
+    public void update(ListingRequest req) {
+        this.role = req.role() == null ? null : req.role().name();
+        this.type = req.type() == null ? null : req.type().name();
+        this.addressName = req.addressName();
+        this.roadAddress = req.roadAddress();
+        this.jibunAddress = req.jibunAddress();
+        this.addressDetail = req.addressDetail();
+        this.lat = toBigDecimal(req.lat());
+        this.lng = toBigDecimal(req.lng());
+        this.ownerName = req.ownerName();
+        this.carrier = req.carrier();
+        this.ownerPhone = req.ownerPhone();
+        this.tradeType = req.tradeType() == null ? null : req.tradeType().name();
+        this.depositManwon = req.depositManwon();
+        this.rentManwon = req.rentManwon();
+        this.priceManwon = req.priceManwon();
+        this.dongho = req.dongho();
+        this.floorInfo = req.floorInfo();
+        this.areaM2 = toBigDecimal(req.areaM2());
+        this.description = req.description();
+    }
+
+    public void markDeleted() {
+        this.status = ListingStatus.DELETED;
     }
 
     @PrePersist
@@ -162,7 +190,7 @@ public class Listing {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
-        if (this.status == null) this.status = "DRAFT";
+        if (this.status == null) this.status = ListingStatus.DRAFT;
     }
 
     @PreUpdate
