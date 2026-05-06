@@ -116,12 +116,26 @@ public class ListingsController {
 
     @GetMapping("/{publicId}/edit")
     public String editPage(@PathVariable String publicId, Model model) {
-
-        // TODO(yongss): publicId로 Listing 조회
-        // TODO(yongss): 조회 결과를 ListingRequest로 매핑
-        // TODO(yongss): 조회 실패 시 404 처리
-
+        Long userId = securityUtils.currentUserIdOrThrow();
+        ListingRequest listingRequest = listingService.getByPublicId(publicId, userId);
+        model.addAttribute("listingRequest", listingRequest);
+        model.addAttribute("publicId", publicId);
         return "pages/listings/listings-edit";
+    }
+
+    @PostMapping("/{publicId}/edit")
+    public String update(@PathVariable String publicId,
+                         @Valid @ModelAttribute("listingRequest") ListingRequest listingRequest,
+                         BindingResult bindingResult,
+                         Model model,
+                         @RequestParam(value = "photoFiles", required = false) List<MultipartFile> photoFiles) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("publicId", publicId);
+            return "pages/listings/listings-edit";
+        }
+        Long userId = securityUtils.currentUserIdOrThrow();
+        listingService.update(publicId, listingRequest, userId);
+        return "redirect:/listings";
     }
 
     @GetMapping("/api/address/search")
