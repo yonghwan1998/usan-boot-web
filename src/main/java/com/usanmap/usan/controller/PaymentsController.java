@@ -19,7 +19,10 @@ public class PaymentsController {
     private final SecurityUtils securityUtils;
 
     @GetMapping("/manage")
-    public String paymentsPage() {
+    public String paymentsPage(Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        model.addAttribute("balance", creditService.getBalance(userId));
+
         return "pages/payments/payments-manage";
     }
 
