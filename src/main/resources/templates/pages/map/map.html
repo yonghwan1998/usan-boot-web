@@ -1701,14 +1701,20 @@
         /**
          * @date    2026-01-31
          * @author  yongss
-         * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장
+         * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장, 30시간 동안 저장
          */
         function saveMapCenter(lat, lng, zoom) {
+            const MAP_CENTER_EXPIRE_HOURS = 30;
+            const MAP_CENTER_EXPIRE_MS = MAP_CENTER_EXPIRE_HOURS * 60 * 60 * 1000;
+
+            const now = Date.now()
+
             localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
                 lat:  Number(lat),
                 lng:  Number(lng),
                 zoom: zoom ?? null,
-                at:   Date.now()
+                at:   now,
+                expiresAt: now + MAP_CENTER_EXPIRE_MS
             }));
         }
 
@@ -1723,10 +1729,17 @@
                 if (!raw) return;
 
                 const v = JSON.parse(raw);
+
+                if (v?.expiresAt && Date.now() > v.expiresAt) {
+                    localStorage.removeItem(MAP_CENTER_KEY);
+                    return null;
+                }
+
                 if (typeof v?.lat !== 'number' || typeof v?.lng !== 'number') return null;
 
                 return v;
             } catch (_) {
+                localStorage.removeItem(MAP_CENTER_KEY);
                 return null;
             }
         }
