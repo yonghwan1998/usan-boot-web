@@ -104,7 +104,11 @@ public class MapApiController {
             return ResponseEntity.status(403).body(Map.of("message", "유효하지 않은 매물입니다."));
         }
 
-        smsService.sendListingShare(request.brokerCodes(), listing, userId);
+        try {
+            smsService.sendListingShare(request.brokerCodes(), listing, userId);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
         return ResponseEntity.ok(Map.of("message", "전송 요청이 완료되었습니다."));
     }
 
