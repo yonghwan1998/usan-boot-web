@@ -70,6 +70,9 @@ public class SmsService {
         //         .map(b -> Map.of("to", b.getPhone().replaceAll("[^0-9]", "")))
         //         .toList();
 
+        // 크레딧 먼저 차감 - 부족 시 IllegalStateException 발생, 위로 전파
+        creditService.deductForShare(userId, targets.size(), listing.getId());
+
         String content = buildMessage(listing);
         String timestamp = String.valueOf(System.currentTimeMillis());
         String url = "/sms/v2/services/" + serviceId + "/messages";
@@ -103,8 +106,6 @@ public class SmsService {
                             .build())
                     .toList();
             listingSendHistoryRepository.saveAll(histories);
-
-            creditService.deductForShare(userId, targets.size(), listing.getId());
 
         } catch (Exception e) {
             log.error("SMS 발송 실패 - listingId: {}", listing.getId(), e);
