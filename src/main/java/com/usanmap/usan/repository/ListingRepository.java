@@ -1,5 +1,6 @@
 package com.usanmap.usan.repository;
 
+import com.usanmap.usan.entity.enums.ListingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.usanmap.usan.entity.Listing;
 
@@ -11,4 +12,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     Optional<Listing> findByPublicId(String publicId);
 
     List<Listing> findAllByUserIdOrderByUpdatedAtDesc(Long userId);
+
+    List<Listing> findAllByUserIdAndStatusOrderByUpdatedAtDesc(Long userId, ListingStatus status);
 }
