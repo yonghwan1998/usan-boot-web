@@ -136,6 +136,7 @@ body {
     align-items: center;
     flex-wrap: wrap;
     padding: 4px 16px;
+    width: fit-content;
 }
 
 .map-chip {
