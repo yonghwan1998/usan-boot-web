@@ -1,5 +1,6 @@
 package com.usanmap.usan.controller;
 
+import com.usanmap.usan.entity.enums.ListingStatus;
 import com.usanmap.usan.service.AdministrativeBoundarySeedService;
 import com.usanmap.usan.service.AdministrativeBoundaryService;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +74,7 @@ public class MapApiController {
         if (userId == null) {
             return ResponseEntity.status(401).body(Map.of("message", "로그인이 필요합니다."));
         }
-        List<MyListingDto> result = listingRepository.findAllByUserIdOrderByUpdatedAtDesc(userId).stream()
+        List<MyListingDto> result = listingRepository.findAllByUserIdAndStatusOrderByUpdatedAtDesc(userId, ListingStatus.ACTIVE).stream()
                 .map(l -> new MyListingDto(
                         l.getId(),
                         l.getPublicId(),

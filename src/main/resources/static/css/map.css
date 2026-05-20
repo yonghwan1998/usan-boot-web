@@ -136,6 +136,7 @@ body {
     align-items: center;
     flex-wrap: wrap;
     padding: 4px 16px;
+    width: fit-content;
 }
 
 .map-chip {
@@ -571,13 +572,13 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0;
 }
 
 .cluster-broker.is-open .cluster-broker-item__buttons {
     max-height: 200px;
     opacity: 1;
     transform: translateY(0);
+    padding: 8px 0;
 }
 
 .cluster-btn {
