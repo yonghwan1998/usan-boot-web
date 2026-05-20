@@ -1,5 +1,6 @@
 package com.usanmap.usan.controller;
 
+import com.usanmap.usan.entity.enums.ListingStatus;
 import com.usanmap.usan.service.AdministrativeBoundarySeedService;
 import com.usanmap.usan.service.AdministrativeBoundaryService;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +74,7 @@ public class MapApiController {
         if (userId == null) {
             return ResponseEntity.status(401).body(Map.of("message", "로그인이 필요합니다."));
         }
-        List<MyListingDto> result = listingRepository.findAllByUserIdOrderByUpdatedAtDesc(userId).stream()
+        List<MyListingDto> result = listingRepository.findAllByUserIdAndStatusOrderByUpdatedAtDesc(userId, ListingStatus.ACTIVE).stream()
                 .map(l -> new MyListingDto(
                         l.getId(),
                         l.getPublicId(),
@@ -104,7 +105,11 @@ public class MapApiController {
             return ResponseEntity.status(403).body(Map.of("message", "유효하지 않은 매물입니다."));
         }
 
-        smsService.sendListingShare(request.brokerCodes(), listing, userId);
+        try {
+            smsService.sendListingShare(request.brokerCodes(), listing, userId);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
         return ResponseEntity.ok(Map.of("message", "전송 요청이 완료되었습니다."));
     }
 
