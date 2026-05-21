@@ -115,12 +115,28 @@
                 $btn.disabled = !ok;
             }
 
+            // 로그인 실패 시 이메일 복원
+            const hasError = new URLSearchParams(location.search).has('error');
+            if (hasError) {
+                const saved = sessionStorage.getItem('loginId');
+                if (saved) {
+                    $loginId.value = saved;
+                    __toggleClearBtn($loginId);
+                }
+                sessionStorage.removeItem('loginId');
+            }
+
             //초기 1회
             syncLoginButton();
 
             //입력할 때마다 갱신
             $loginId.addEventListener('input', syncLoginButton);
             $pw.addEventListener('input', syncLoginButton);
+
+            // submit 전 이메일 저장
+            document.querySelector('.login-form').addEventListener('submit', () => {
+                sessionStorage.setItem('loginId', $loginId.value);
+            });
         });
     </script>
 
