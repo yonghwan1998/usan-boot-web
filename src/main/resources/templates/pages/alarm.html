@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">알림 센터</title>
+    <title th:fragment="title">알림 센터 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,20 +16,21 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" th:href="@{/css/alarm.css(t=${#dates.createNow().time})}">
 </th:block>
 
 <section class="alarm-page">
     <div class="common-header alarm-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">알림 센터</div>
+        <h1 class="common-header__title">알림 센터</h1>
         <div class="common-header__right btn--setting"></div>
     </div>
 
     <div class="alarm-wrapper non-existing" hidden>
 
         <div class="alarm__non-existing-wrapper">
-            <img src="/img/170x81-alarm-face.png" class="icon__alarm-face">
+            <img src="/img/170x81-alarm-face.png" class="icon__alarm-face" alt="알림 없음" loading="lazy">
             <div class="non-existing__text-wrapper">
                 <div class="non-existing__title">알림이 아직 없어요!</div>
                 <div class="non-existing__text">새 매물이나 중요한 소식이 오면<br>여기에서 알려드려요!</div>

@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">중개사 상세 페이지</title>
+    <title th:fragment="title">중개사 상세 페이지 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,6 +16,7 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" th:href="@{/css/broker.css(t=${#dates.createNow().time})}">
 </th:block>
 
@@ -23,7 +24,7 @@
 
     <div class="common-header broker-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">자세히 보기</div>
+        <h1 class="common-header__title">자세히 보기</h1>
         <div class="common-header__right btn--heart"></div>
     </div>
 
@@ -31,11 +32,11 @@
 
         <div class="img-slider" data-slider>
             <div class="img-slider__track" data-track>
-                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
-                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
-                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
-                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
-                <div class="img-slider__slide"><img src="/img/sample.png" alt=""></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt="중개사 사무실 이미지" loading="lazy"></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt="중개사 사무실 이미지" loading="lazy"></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt="중개사 사무실 이미지" loading="lazy"></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt="중개사 사무실 이미지" loading="lazy"></div>
+                <div class="img-slider__slide"><img src="/img/sample.png" alt="중개사 사무실 이미지" loading="lazy"></div>
             </div>
 
             <button type="button" class="img-slider__btn img-slider__btn--prev" data-prev aria-label="이전"></button>

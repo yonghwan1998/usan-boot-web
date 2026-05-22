@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">환불정책</title>
+    <title th:fragment="title">환불정책 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,6 +16,8 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <link rel="canonical" href="https://usanmap.com/policy/refund">
+    <meta name="description" content="우산 컴퍼니 환불정책입니다. 크레딧 환불 조건 및 절차를 확인하세요.">
     <link rel="stylesheet" th:href="@{/css/policy.css(t=${#dates.createNow().time})}">
 </th:block>
 
@@ -23,7 +25,7 @@
 
     <div class="common-header policy-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">환불정책</div>
+        <h1 class="common-header__title">환불정책</h1>
         <div class="common-header__right"></div>
     </div>
 
@@ -40,7 +42,7 @@
 
             <br>
 
-            <div>제1조 (기본 원칙)</div>
+            <h2>제1조 (기본 원칙)</h2>
             <ul>
                 <li>
                     회사는 웹 기반 부동산 중개 연결 서비스 내에서 사용 가능한 크레딧(포인트)을 판매합니다.
@@ -60,7 +62,7 @@
                 </li>
             </ul>
 
-            <div>제2조 (환불 가능 기준)</div>
+            <h2>제2조 (환불 가능 기준)</h2>
             <ul>
                 <li>결제 후 7일 이내이며 충전 크레딧을 사용하지 않은 경우 전액 환불 가능합니다.</li>
                 <li>결제일로부터 1년 이내인 경우, 사용하지 않은 유상 잔여 크레딧에 한하여 환불 신청이 가능합니다.</li>
@@ -68,14 +70,14 @@
                 <li>시스템 장애 등으로 정상 이용이 어려운 경우 환불 가능합니다.</li>
             </ul>
 
-            <div>제3조 (부분 환불 기준)</div>
+            <h2>제3조 (부분 환불 기준)</h2>
             <ul>
                 <li>충전 크레딧 일부 사용 시, 사용 완료된 금액은 환불 대상에서 제외됩니다.</li>
                 <li>잔여 유상 크레딧은 결제일로부터 1년 이내에 한하여 환불 신청 가능합니다.</li>
                 <li>이벤트, 무상 지급, 보너스 크레딧은 환불 대상이 아닙니다.</li>
             </ul>
 
-            <div>제4조 (환불 제한 또는 불가 사유)</div>
+            <h2>제4조 (환불 제한 또는 불가 사유)</h2>
             <ul>
                 <li>
                     다음의 경우 환불이 제한되거나 불가할 수 있습니다.
@@ -89,7 +91,7 @@
                 </li>
             </ul>
 
-            <div>제5조 (환불 절차 및 방법)</div>
+            <h2>제5조 (환불 절차 및 방법)</h2>
             <ul>
                 <li>환불 신청은 고객센터(contact@usanmap.com)를 통해 접수할 수 있습니다.</li>
                 <li>
@@ -115,14 +117,14 @@
                 </li>
             </ul>
 
-            <div>제6조 (충전 한도 및 결제 유의사항)</div>
+            <h2>제6조 (충전 한도 및 결제 유의사항)</h2>
             <ul>
                 <li>회사는 결제 및 운영 정책에 따라 1회 충전 가능 금액을 제한할 수 있습니다.</li>
                 <li>회사는 현재 1회 충전 한도를 100,000원 이내로 운영합니다.</li>
                 <li>충전형 상품은 결제수단별 정책 또는 카드사 심사 기준에 따라 일부 결제가 제한될 수 있습니다.</li>
             </ul>
 
-            <div>제7조 (책임 및 유의사항)</div>
+            <h2>제7조 (책임 및 유의사항)</h2>
             <ul>
                 <li>
                     회사는 고의 또는 중대한 과실이 없는 한 천재지변, 시스템 장애, 통신망 장애 등 불가항력으로 인한 손해에 대하여 책임을 제한할 수 있습니다.
@@ -132,13 +134,13 @@
                 </li>
             </ul>
 
-            <div>제8조 (정책 변경)</div>
+            <h2>제8조 (정책 변경)</h2>
             <ul>
                 <li>회사는 관련 법령, 서비스 운영정책 또는 결제정책 변경에 따라 본 환불정책을 수정할 수 있습니다.</li>
                 <li>정책이 변경되는 경우 회사는 웹사이트를 통해 사전 공지합니다.</li>
             </ul>
 
-            <div>부칙</div>
+            <h2>부칙</h2>
             <ul>
                 <li>본 정책은 2026년 4월 23일부터 시행됩니다.</li>
             </ul>

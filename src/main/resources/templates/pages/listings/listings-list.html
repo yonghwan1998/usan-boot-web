@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">매물 관리하기</title>
+    <title th:fragment="title">매물 관리하기 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,13 +16,14 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" th:href="@{/css/listing.css(t=${#dates.createNow().time})}">
 </th:block>
 
 <section class="listing-page">
     <div class="common-header listing-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">매물 관리하기</div>
+        <h1 class="common-header__title">매물 관리하기</h1>
         <div class="common-header__right"></div>
     </div>
 
