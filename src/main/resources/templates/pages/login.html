@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">로그인</title>
+    <title th:fragment="title">로그인 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,6 +16,8 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <!-- 로그인 페이지는 검색 인덱싱 불필요 -->
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" th:href="@{/css/login.css(t=${#dates.createNow().time})}">
 </th:block>
 
@@ -26,7 +28,7 @@
 
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">로그인</div>
+        <h1 class="common-header__title">로그인</h1>
         <div class="common-header__right"></div>
     </div>
 
@@ -70,9 +72,9 @@
         </div>
 
         <div class="login-wrapper--sns-icons">
-            <a th:href="@{/oauth2/authorization/kakao}" class="sns__icon icon__kakao"></a>
-            <a th:href="@{/oauth2/authorization/google}" class="sns__icon icon__google"></a>
-            <a th:href="@{/oauth2/authorization/naver}" class="sns__icon icon__naver"></a>
+            <a th:href="@{/oauth2/authorization/kakao}" class="sns__icon icon__kakao" aria-label="카카오 로그인"></a>
+            <a th:href="@{/oauth2/authorization/google}" class="sns__icon icon__google" aria-label="구글 로그인"></a>
+            <a th:href="@{/oauth2/authorization/naver}" class="sns__icon icon__naver" aria-label="네이버 로그인"></a>
         </div>
 
         <div class="login-bottom-wrapper">

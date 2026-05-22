@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">검색</title>
+    <title th:fragment="title">검색 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -20,6 +20,7 @@
 </th:block>
 
 <section class="search-page">
+    <h1 class="sr-only">검색</h1>
 
     <form th:action="@{/search}" method="post" id="searchForm">
         <div class="newest-search-wrapper">

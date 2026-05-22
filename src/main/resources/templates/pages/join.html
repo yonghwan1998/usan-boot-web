@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">회원가입</title>
+    <title th:fragment="title">회원가입 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,13 +16,14 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" th:href="@{/css/join.css(t=${#dates.createNow().time})}">
 </th:block>
 
 <section class="join-page">
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">회원가입</div>
+        <h1 class="common-header__title">회원가입</h1>
         <div class="common-header__right btn--X"></div>
     </div>
 

@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">결제 실패</title>
+    <title th:fragment="title">결제 실패 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <div class="credits-fail__title">결제에 실패했어요</div>
+        <h1 class="credits-fail__title">결제에 실패했어요</h1>
         <div class="credits-fail__desc" th:text="${errorMessage}">결제 처리 중 오류가 발생했습니다.</div>
 
         <a th:href="@{/credits/charge}" class="credits-fail__button">다시 시도하기</a>
