@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">중개사 상세보기</title>
+    <title th:fragment="title">중개사 상세보기 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,11 +16,38 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <link rel="canonical" th:href="${broker != null} ? 'https://usanmap.com/b/' + ${broker.publicId} : 'https://usanmap.com'">
+    <meta name="description" th:content="${broker != null} ? ${broker.officeName} + ' 중개사 정보입니다. 우산에서 확인하세요.' : '중개사 정보 - 우산'">
+    <meta property="og:title" th:content="${broker != null} ? ${broker.officeName} + ' 중개사 안내' : '중개사 안내 | 우산'">
+    <meta property="og:description" th:content="${broker != null} ? ${broker.officeName} + ' 중개사 정보입니다. 우산에서 바로 연락해보세요.' : '중개사 정보를 우산에서 확인하세요.'">
+    <meta property="og:type" content="article">
+    <meta name="twitter:title" th:content="${broker != null} ? ${broker.officeName} : '중개사 안내'">
+    <meta name="twitter:description" th:content="${broker != null} ? ${broker.officeName} + ' 중개사 정보입니다.' : '중개사 정보를 확인하세요.'">
+    <script type="application/ld+json" th:inline="javascript">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": /*[[${broker != null ? broker.officeName : '중개사 정보'}]]*/ "중개사 정보",
+      "url": /*[[${broker != null ? 'https://usanmap.com/b/' + broker.publicId : 'https://usanmap.com'}]]*/ "https://usanmap.com",
+      "telephone": /*[[${broker != null ? (broker.tel ?: (broker.phone ?: '')) : ''}]]*/ "",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": /*[[${broker != null ? (broker.sigungu ?: '') : ''}]]*/ "",
+        "addressRegion": /*[[${broker != null ? (broker.sido ?: '') : ''}]]*/ "",
+        "addressCountry": "KR"
+      },
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "우산 컴퍼니",
+        "url": "https://usanmap.com"
+      }
+    }
+    </script>
 </th:block>
 
 <section class="share-page">
     <div class="common-header">
-        <div class="common-header__title">중개사 안내</div>
+        <h1 class="common-header__title">중개사 안내</h1>
         <div class="common-header__right"></div>
     </div>
 

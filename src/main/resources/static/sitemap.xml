@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    <!--
+        홈 페이지
+        현재 /index2 임시 운영 중 (TODO: / 복구 후 index2 항목 제거하고 아래 주석 해제)
+    -->
+    <url>
+        <loc>https://usanmap.com/index2</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <lastmod>2026-05-22</lastmod>
+    </url>
+    <!--
+    <url>
+        <loc>https://usanmap.com/</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <lastmod>2026-05-22</lastmod>
+    </url>
+    -->
+
+    <!-- 정책 페이지 -->
+    <url>
+        <loc>https://usanmap.com/policy/terms</loc>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+        <lastmod>2026-04-01</lastmod>
+    </url>
+    <url>
+        <loc>https://usanmap.com/policy/privacy</loc>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+        <lastmod>2026-04-01</lastmod>
+    </url>
+    <url>
+        <loc>https://usanmap.com/policy/refund</loc>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+        <lastmod>2026-04-01</lastmod>
+    </url>
+
+    <!-- 다운로드 페이지 -->
+    <url>
+        <loc>https://usanmap.com/download/apk</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+        <lastmod>2026-05-22</lastmod>
+    </url>
+
+    <!--
+        동적 페이지 (공유 링크: /l/{publicId}, /b/{publicId})
+        URL이 동적으로 생성되므로 이 정적 sitemap에 포함 불가.
+        TODO: SitemapController 를 만들어 DB에서 활성 매물/중개사 URL을 동적으로 제공 권장.
+        예) /sitemap-listings.xml, /sitemap-brokers.xml 추가 후 sitemap index 구성
+    -->
+
+</urlset>

@@ -12,7 +12,50 @@
 </head>
 
 <th:block th:fragment="extraCss">
+    <link rel="canonical" href="https://usanmap.com/index2">
+    <meta name="description" content="우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요. 건물주·임대사업자를 위한 부동산 매물 발송 서비스, 우산.">
+    <meta property="og:title" content="우산 - 우리동네 부동산 | 지도로 중개사 찾기">
+    <meta property="og:description" content="우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요.">
+    <meta property="og:url" content="https://usanmap.com/">
+    <meta name="twitter:title" content="우산 - 지도로 중개사 찾기">
+    <meta name="twitter:description" content="우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요.">
     <link rel="stylesheet" th:href="@{/css/home.css(t=${#dates.createNow().time})}">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "우산 - 우리동네 부동산",
+          "url": "https://usanmap.com",
+          "description": "우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요. 건물주·임대사업자를 위한 부동산 매물 발송 서비스.",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web, Android",
+          "inLanguage": "ko-KR",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "KRW"
+          }
+        },
+        {
+          "@type": "Organization",
+          "name": "우산 컴퍼니",
+          "url": "https://usanmap.com",
+          "logo": "https://usanmap.com/img/temp-logo.png",
+          "telephone": "+82-10-3393-3402",
+          "email": "contact@usanmap.com",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "삼미로 34",
+            "addressLocality": "오산시",
+            "addressRegion": "경기도",
+            "addressCountry": "KR"
+          }
+        }
+      ]
+    }
+    </script>
 </th:block>
 
 <th:block th:fragment="pcSideContent">
@@ -21,6 +64,7 @@
 
 
 <section class="home-page">
+    <h1 class="sr-only">우산 - 우리동네 부동산 중개사 찾기 및 매물 발송 서비스</h1>
     <div class="home-page__inner">
 
         <!--    지도로 중개사 찾기    -->
@@ -56,7 +100,7 @@
                         <span class="point_g bold">중개사를 자동으로 추천</span> 받아보세요!
                     </div>
 
-                    <img src="/img/compare-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="compare-card__image" />
+                    <img src="/img/compare-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="compare-card__image" loading="lazy" />
                 </div>
 
                 <div class="moment-card__contents" style="display: none">
@@ -74,7 +118,7 @@
                         </div>
                     </div>
 
-                    <img src="/img/moment-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="moment-card__image moment-card__right" />
+                    <img src="/img/moment-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="moment-card__image moment-card__right" loading="lazy" />
                 </div>
 
                 <div class="dot-indicator">
@@ -108,6 +152,7 @@
                     <div class="send-icon--speaker">
                         <img src="/img/100x100-speaker.svg"
                              alt="내 매물 전송"
+                             loading="lazy"
                              onerror="this.style.display='none'">
                     </div>
                 </div>
@@ -243,7 +288,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필">
+                                    <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필" loading="lazy">
                                 </div>
                             </div>
                             <div class="nearby-agent__hr"></div>
@@ -270,7 +315,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필">
+                                    <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필" loading="lazy">
                                 </div>
                             </div>
                             <div class="nearby-agent__hr"></div>
@@ -297,7 +342,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필">
+                                    <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필" loading="lazy">
                                 </div>
                             </div>
                         </th:block>

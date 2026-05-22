@@ -8,12 +8,13 @@
       )}">
 
 <head>
-    <title th:fragment="title">매물 보내기</title>
+    <title th:fragment="title">매물 보내기 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent"></th:block>
 
 <th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" th:href="@{/css/map.css(t=${#dates.createNow().time})}">
 </th:block>
 
@@ -29,7 +30,7 @@
         <div class="map-ui">
             <div class="common-header map-header">
                 <button class="common-header__back" onclick="history.back()"></button>
-                <div class="common-header__title">매물 보내기</div>
+                <h1 class="common-header__title">매물 보내기</h1>
                 <div class="common-header__right"></div>
             </div>
 

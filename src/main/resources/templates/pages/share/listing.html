@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">매물 상세보기</title>
+    <title th:fragment="title">매물 상세보기 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,11 +16,37 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <link rel="canonical" th:href="${listing != null} ? 'https://usanmap.com/l/' + ${listing.publicId} : 'https://usanmap.com'">
+    <meta name="description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.type} ?: '') + ' ' + (${listing.tradeType} ?: '') + ' 매물 정보 - 우산에서 확인하세요.' : '매물 정보 - 우산'">
+    <meta property="og:title" th:content="${listing != null} ? ${listing.addressName} + ' 매물 안내' : '매물 안내 | 우산'">
+    <meta property="og:description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.type} ?: '') + ' 매물입니다. 우산에서 확인하세요.' : '매물 정보를 우산에서 확인하세요.'">
+    <meta property="og:type" content="article">
+    <meta name="twitter:title" th:content="${listing != null} ? ${listing.addressName} + ' 매물 안내' : '매물 안내'">
+    <meta name="twitter:description" th:content="${listing != null} ? ${listing.addressName} + ' 매물 정보입니다.' : '매물 정보를 확인하세요.'">
+    <script type="application/ld+json" th:inline="javascript">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": /*[[${listing != null ? listing.addressName + ' 매물' : '매물 정보'}]]*/ "매물 정보",
+      "description": /*[[${listing != null ? listing.addressName + ' ' + (listing.type ?: '') + ' ' + (listing.tradeType ?: '') + ' 매물입니다.' : '매물 정보를 확인하세요.'}]]*/ "",
+      "url": /*[[${listing != null ? 'https://usanmap.com/l/' + listing.publicId : 'https://usanmap.com'}]]*/ "https://usanmap.com",
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "KRW",
+        "availability": "https://schema.org/InStock",
+        "seller": {
+          "@type": "Organization",
+          "name": "우산 컴퍼니",
+          "url": "https://usanmap.com"
+        }
+      }
+    }
+    </script>
 </th:block>
 
 <section class="share-page">
     <div class="common-header">
-        <div class="common-header__title">매물 안내</div>
+        <h1 class="common-header__title">매물 안내</h1>
         <div class="common-header__right"></div>
     </div>
 

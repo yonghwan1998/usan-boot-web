@@ -1,0 +1,34 @@
+User-agent: *
+
+# 공개 페이지: 허용
+Allow: /
+Allow: /index2
+Allow: /policy/
+Allow: /download/
+Allow: /search
+Allow: /l/
+Allow: /b/
+
+# 로그인 필요 페이지: 차단
+Disallow: /login
+Disallow: /join
+Disallow: /alarm
+Disallow: /listings/
+Disallow: /credits/
+Disallow: /payments/
+Disallow: /region/
+Disallow: /map/listings/
+Disallow: /broker/
+
+# 지도 페이지: JS 렌더링 콘텐츠 크롤 불필요
+Disallow: /map
+
+# API 엔드포인트: 차단
+Disallow: /api/
+Disallow: /map/api/
+
+# 관리 기능: 차단
+Disallow: /admin/
+Disallow: /ingest/
+
+Sitemap: https://usanmap.com/sitemap.xml

@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">개인정보처리방침</title>
+    <title th:fragment="title">개인정보처리방침 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -16,6 +16,8 @@
 </th:block>
 
 <th:block th:fragment="extraCss">
+    <link rel="canonical" href="https://usanmap.com/policy/privacy">
+    <meta name="description" content="우산 컴퍼니 개인정보처리방침입니다. 수집하는 개인정보 항목, 이용 목적, 보관 기간 등을 확인하세요.">
     <link rel="stylesheet" th:href="@{/css/policy.css(t=${#dates.createNow().time})}">
 </th:block>
 
@@ -23,7 +25,7 @@
 
     <div class="common-header policy-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <div class="common-header__title">개인정보처리방침</div>
+        <h1 class="common-header__title">개인정보처리방침</h1>
         <div class="common-header__right"></div>
     </div>
 
@@ -41,7 +43,7 @@
 
             <br>
 
-            <div>제1조 (개인정보의 수집 항목 및 수집 방법)</div>
+            <h2>제1조 (개인정보의 수집 항목 및 수집 방법)</h2>
             <ul>
                 <li>회사는 서비스 제공을 위하여 다음과 같은 개인정보를 수집할 수 있습니다.</li>
 
@@ -79,7 +81,7 @@
                 </li>
             </ul>
 
-            <div>제2조 (개인정보의 수집 및 이용 목적)</div>
+            <h2>제2조 (개인정보의 수집 및 이용 목적)</h2>
             <ul>
                 <li>회원 가입 의사 확인 및 회원 관리</li>
                 <li>매물 등록·관리·발송 등 서비스 제공 및 계약 이행</li>
@@ -90,7 +92,7 @@
                 <li>마케팅 및 광고 활용 (이용자가 별도로 동의한 경우에 한함)</li>
             </ul>
 
-            <div>제3조 (개인정보의 보유 및 이용 기간)</div>
+            <h2>제3조 (개인정보의 보유 및 이용 기간)</h2>
             <ul>
                 <li>회사는 개인정보의 수집 및 이용 목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다.</li>
                 <li>
@@ -104,7 +106,7 @@
                 </li>
             </ul>
 
-            <div>제4조 (개인정보의 제3자 제공)</div>
+            <h2>제4조 (개인정보의 제3자 제공)</h2>
             <ul>
                 <li>회사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다.</li>
                 <li>
@@ -121,21 +123,21 @@
                 </li>
             </ul>
 
-            <div>제5조 (개인정보 처리의 위탁)</div>
+            <h2>제5조 (개인정보 처리의 위탁)</h2>
             <ul>
                 <li>회사는 서비스 제공을 위해 개인정보 처리를 위탁할 수 있습니다.</li>
                 <li>클라우드 인프라 운영: Amazon Web Services, Inc.</li>
                 <li>추가 위탁 발생 시 본 방침을 통해 고지합니다.</li>
             </ul>
 
-            <div>제6조 (이용자의 권리 및 행사 방법)</div>
+            <h2>제6조 (이용자의 권리 및 행사 방법)</h2>
             <ul>
                 <li>이용자는 언제든지 개인정보 열람, 정정, 삭제, 처리정지 등을 요구할 수 있습니다.</li>
                 <li>요청은 이메일(contact@usanmap.com) 또는 서비스 내 기능을 통해 가능합니다.</li>
                 <li>회사는 요청 시 본인 확인 절차를 거칠 수 있습니다.</li>
             </ul>
 
-            <div>제7조 (개인정보의 파기 절차 및 방법)</div>
+            <h2>제7조 (개인정보의 파기 절차 및 방법)</h2>
             <ul>
                 <li>보유 기간 경과 또는 목적 달성 시 즉시 파기합니다.</li>
                 <li>
@@ -147,21 +149,21 @@
                 </li>
             </ul>
 
-            <div>제8조 (쿠키의 설치·운영 및 거부)</div>
+            <h2>제8조 (쿠키의 설치·운영 및 거부)</h2>
             <ul>
                 <li>회사는 쿠키를 사용하여 사용자 편의를 제공합니다.</li>
                 <li>브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다.</li>
                 <li>단, 일부 서비스 이용에 제한이 있을 수 있습니다.</li>
             </ul>
 
-            <div>제9조 (개인정보 보호책임자)</div>
+            <h2>제9조 (개인정보 보호책임자)</h2>
             <ul>
                 <li>성명: 방용환</li>
                 <li>직책: 대표자</li>
                 <li>연락처: contact@usanmap.com</li>
             </ul>
 
-            <div>제10조 (개인정보처리방침의 변경)</div>
+            <h2>제10조 (개인정보처리방침의 변경)</h2>
             <ul>
                 <li>시행일자: 2026년 4월 1일</li>
                 <li>변경 시 사전 공지합니다.</li>

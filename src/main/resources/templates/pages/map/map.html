@@ -8,17 +8,19 @@
       )}">
 
 <head>
-    <title th:fragment="title">우리 동네 부동산 지도</title>
+    <title th:fragment="title">우리 동네 부동산 지도 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent"></th:block>
 
 <th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, follow">
     <link rel="stylesheet" th:href="@{/css/broker.css(t=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/map.css(t=${#dates.createNow().time})}">
 </th:block>
 
 <section>
+    <h1 class="sr-only">동네 부동산 지도</h1>
     <!-- 네이버 지도 API -->
     <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
     <script type="text/javascript" src="/js/MarkerClustering.js"></script>
