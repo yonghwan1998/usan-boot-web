@@ -54,4 +54,19 @@ public class SecurityUtils {
 
         return null;
     }
+
+    public String currentUserEmail() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            return null;
+        }
+        Object principal = auth.getPrincipal();
+        if (principal instanceof CustomUserDetails cud) {
+            return cud.getEmail();
+        }
+        if (principal instanceof CustomOAuth2User ou) {
+            return ou.getEmail();
+        }
+        return null;
+    }
 }

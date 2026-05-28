@@ -54,7 +54,7 @@ public class CreditsController {
         model.addAttribute("customerKey", "u_" + userId);
         model.addAttribute("customerEmail", info.customerEmail());
         model.addAttribute("customerName", info.customerName());
-        model.addAttribute("tossClientKey", tossProperties.getClientKey());
+        model.addAttribute("tossClientKey", tossProperties.resolveClientKey(securityUtils.currentUserEmail()));
         return "pages/credits/credits-checkout";
     }
 
