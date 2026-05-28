@@ -10,6 +10,18 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "toss.payments")
 public class TossProperties {
-    private String clientKey;
-    private String secretKey;
+    private String testClientKey;
+    private String testSecretKey;
+    private String liveClientKey;
+    private String liveSecretKey;
+
+    private static final String TEST_ACCOUNT = "test@naver.com";
+
+    public String resolveClientKey(String email) {
+        return TEST_ACCOUNT.equals(email) ? testClientKey : liveClientKey;
+    }
+
+    public String resolveSecretKey(String email) {
+        return TEST_ACCOUNT.equals(email) ? testSecretKey : liveSecretKey;
+    }
 }

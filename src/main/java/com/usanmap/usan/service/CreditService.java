@@ -240,47 +240,4 @@ public class CreditService {
         creditLedgerRepository.save(ledger);
     }
 
-    @Transactional
-    public void confirmCharge(String orderNo, Long userId) {
-        CreditOrder order = creditOrderRepository.findByOrderNo(orderNo)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
-
-        if (!order.getMember().getId().equals(userId)) {
-            throw new IllegalStateException("접근 권한이 없습니다.");
-        }
-        if (order.getOrderStatus() != OrderStatus.READY) {
-            throw new IllegalStateException("이미 처리된 주문입니다.");
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-
-        Payment payment = paymentRepository.findByCreditOrder(order)
-                .orElseThrow(() -> new IllegalStateException("결제 정보를 찾을 수 없습니다."));
-        payment.setPaymentKey("MOCK-" + orderNo);
-        payment.setMethod("MOCK");
-        payment.setPaymentStatus(PaymentStatus.SUCCESS);
-        payment.setApprovedAmount(order.getPriceAmountSnapshot());
-        payment.setApprovedAt(now);
-
-        order.setOrderStatus(OrderStatus.PAID);
-        order.setPaidAt(now);
-
-        User user = order.getMember();
-        MemberCreditBalance balance = memberCreditBalanceRepository.findByMemberWithLock(user)
-                .orElseGet(() -> memberCreditBalanceRepository.save(
-                        MemberCreditBalance.builder().member(user).balance(0).build()
-                ));
-        balance.addBalance(order.getTotalCreditSnapshot());
-
-        CreditLedger ledger = CreditLedger.builder()
-                .member(user)
-                .creditOrder(order)
-                .payment(payment)
-                .ledgerType(LedgerType.CHARGE)
-                .changeAmount(order.getTotalCreditSnapshot())
-                .balanceAfter(balance.getBalance())
-                .description(order.getProductNameSnapshot() + " 충전")
-                .build();
-        creditLedgerRepository.save(ledger);
-    }
 }

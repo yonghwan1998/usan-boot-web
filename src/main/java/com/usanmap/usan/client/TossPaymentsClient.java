@@ -1,6 +1,7 @@
 package com.usanmap.usan.client;
 
 import com.usanmap.usan.config.TossProperties;
+import com.usanmap.usan.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
@@ -15,12 +16,14 @@ import java.util.Map;
 public class TossPaymentsClient {
 
     private final TossProperties tossProperties;
+    private final SecurityUtils securityUtils;
 
     private static final String TOSS_API = "https://api.tosspayments.com";
 
     public Map<String, Object> confirmPayment(String paymentKey, String orderId, int amount) {
+        String secretKey = tossProperties.resolveSecretKey(securityUtils.currentUserEmail());
         String authHeader = "Basic " + Base64.getEncoder()
-                .encodeToString((tossProperties.getSecretKey() + ":").getBytes());
+                .encodeToString((secretKey + ":").getBytes());
 
         return WebClient.builder()
                 .baseUrl(TOSS_API)
