@@ -81,8 +81,10 @@ kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
 toss:
   payments:
-    client-key: ${TOSS_CLIENT_KEY}
-    secret-key: ${TOSS_SECRET_KEY}
+    test-client-key: ${TOSS_TEST_CLIENT_KEY}
+    test-secret-key: ${TOSS_TEST_SECRET_KEY}
+    live-client-key: ${TOSS_LIVE_CLIENT_KEY}
+    live-secret-key: ${TOSS_LIVE_SECRET_KEY}
 file:
   upload-dir: uploads
   public-prefix: /uploads
