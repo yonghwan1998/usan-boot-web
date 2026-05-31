@@ -127,7 +127,7 @@
         <button type="button" class="btn btn--next" id="btnNext" disabled>충전하기</button>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         const items = document.querySelectorAll('.credits-charge__item');
         const selectedCredits = document.getElementById('selectedCredits');
         const selectedPrice = document.getElementById('selectedPrice');
