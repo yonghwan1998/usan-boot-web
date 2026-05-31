@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/img/**"
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

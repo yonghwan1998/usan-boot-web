@@ -54,6 +54,10 @@ server:
   port: ${SERVER_PORT:8080}
 usan:
   base-url: ${USAN_BASE_URL}
+  bank:
+    name: ${USAN_BANK_NAME}
+    number: ${USAN_BANK_NUMBER}
+    holder: ${USAN_BANK_HOLDER}
   batch:
     excel:
       sheet-name:

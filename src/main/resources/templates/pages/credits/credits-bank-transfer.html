@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">무통장 입금 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/credits.css(t=${#dates.createNow().time})}">
+    <style>
+        .bank-transfer-wrapper {
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .bank-transfer__section {
+            background: #f7f7f7;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .bank-transfer__section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8b8b8b;
+            margin-bottom: 14px;
+        }
+
+        .bank-transfer__row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .bank-transfer__row:last-child {
+            margin-bottom: 0;
+        }
+
+        .bank-transfer__label {
+            font-size: 15px;
+            color: #555;
+        }
+
+        .bank-transfer__value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222;
+        }
+
+        .bank-transfer__account-box {
+            background: #fff;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+
+        .bank-transfer__account-bank {
+            font-size: 13px;
+            color: #8b8b8b;
+            margin-bottom: 6px;
+        }
+
+        .bank-transfer__account-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: #222;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .bank-transfer__account-holder {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .bank-transfer__input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bank-transfer__input-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222;
+        }
+
+        .bank-transfer__input {
+            width: 100%;
+            height: 52px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 16px;
+            color: #222;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .bank-transfer__input:focus {
+            border-color: #222;
+        }
+
+        .bank-transfer__input-caption {
+            font-size: 12px;
+            color: #8b8b8b;
+        }
+
+        .bank-transfer__notice {
+            font-size: 13px;
+            color: #8b8b8b;
+            line-height: 1.6;
+        }
+    </style>
+</th:block>
+
+<section class="credits-page">
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <h1 class="common-header__title">무통장 입금</h1>
+        <div class="common-header__right"></div>
+    </div>
+
+    <form th:action="@{/credits/bank-transfer/request}" method="post" id="bankForm">
+        <input type="hidden" name="productId" th:value="${productId}">
+
+        <div class="bank-transfer-wrapper">
+
+            <div class="bank-transfer__section">
+                <div class="bank-transfer__section-title">결제 정보</div>
+                <div class="bank-transfer__row">
+                    <span class="bank-transfer__label">상품</span>
+                    <span class="bank-transfer__value" th:text="${productName}"></span>
+                </div>
+                <div class="bank-transfer__row">
+                    <span class="bank-transfer__label">금액</span>
+                    <span class="bank-transfer__value" th:text="${#numbers.formatInteger(amount, 1, 'COMMA')} + '원'"></span>
+                </div>
+            </div>
+
+            <div>
+                <div class="bank-transfer__section-title" style="margin-bottom: 10px;">입금 계좌</div>
+                <div class="bank-transfer__account-box">
+                    <div class="bank-transfer__account-bank" th:text="${bankName}"></div>
+                    <div class="bank-transfer__account-number" th:text="${bankNumber}"></div>
+                    <div class="bank-transfer__account-holder" th:text="'예금주: ' + ${bankHolder}"></div>
+                </div>
+            </div>
+
+            <div class="bank-transfer__input-section">
+                <label class="bank-transfer__input-label" for="depositorName">입금자명</label>
+                <input class="bank-transfer__input"
+                       type="text"
+                       id="depositorName"
+                       name="depositorName"
+                       placeholder="입금자명을 입력해 주세요"
+                       maxlength="50"
+                       required>
+                <span class="bank-transfer__input-caption">* 통장에 표시되는 입금자명을 정확히 입력해 주세요.</span>
+            </div>
+
+            <div class="bank-transfer__notice">
+                * 입금 확인 후 크레딧이 지급됩니다.<br>
+                * 입금자명이 다를 경우 확인이 지연될 수 있습니다.<br>
+                * 입금 신청 시 알림 문자가 발송됩니다.
+            </div>
+
+        </div>
+
+        <div class="btn__wrapper">
+            <button type="submit" class="btn btn--next" id="btnSubmit" disabled>입금 신청하기</button>
+        </div>
+    </form>
+
+    <script>
+        const input = document.getElementById('depositorName');
+        const btn = document.getElementById('btnSubmit');
+
+        input.addEventListener('input', () => {
+            btn.disabled = input.value.trim().length === 0;
+        });
+
+        document.getElementById('bankForm').addEventListener('submit', (e) => {
+            if (input.value.trim().length === 0) {
+                e.preventDefault();
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = '신청 중...';
+        });
+    </script>
+
+</section>
+</html>

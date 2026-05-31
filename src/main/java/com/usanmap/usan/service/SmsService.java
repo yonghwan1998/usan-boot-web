@@ -48,6 +48,73 @@ public class SmsService {
         this.creditService = creditService;
     }
 
+    private static final String ADMIN_PHONE = "01033933402";
+
+    public void sendBankTransferRequest(String userPhone, String depositorName, String productName, int amount, String bankInfo) {
+        String userContent = "[우산] 입금 신청 완료\n"
+                + "상품: " + productName + "\n"
+                + "금액: " + String.format("%,d", amount) + "원\n"
+                + "입금자명: " + depositorName + "\n"
+                + "계좌: " + bankInfo + "\n"
+                + "입금 확인 후 크레딧이 지급됩니다.";
+
+        String adminContent = "[우산] 무통장 입금 신청\n"
+                + "상품: " + productName + "\n"
+                + "금액: " + String.format("%,d", amount) + "원\n"
+                + "입금자명: " + depositorName + "\n"
+                + "신청자: " + (userPhone != null ? userPhone : "번호없음");
+
+        if (userPhone != null && !userPhone.isBlank()) {
+            sendSms(List.of(userPhone.replaceAll("[^0-9]", ""), ADMIN_PHONE), userContent, adminContent);
+        } else {
+            sendSms(List.of(ADMIN_PHONE), adminContent, null);
+        }
+    }
+
+    public void sendBankTransferApproved(String userPhone, int creditAmount) {
+        if (userPhone == null || userPhone.isBlank()) {
+            log.warn("승인 SMS 발송 실패 - 유저 전화번호 없음");
+            return;
+        }
+        String content = "[우산] 크레딧 충전 완료!\n"
+                + String.format("%,d", creditAmount) + "C이 충전되었습니다.\n"
+                + "우리 동네 부동산에서 충전 여부를 확인해 주세요!";
+        sendSms(List.of(userPhone.replaceAll("[^0-9]", "")), content, null);
+    }
+
+    private void sendSms(List<String> toNumbers, String defaultContent, String lastContent) {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String url = "/sms/v2/services/" + serviceId + "/messages";
+        String signature = makeSignature(timestamp, url);
+
+        for (int i = 0; i < toNumbers.size(); i++) {
+            String number = toNumbers.get(i);
+            String content = (lastContent != null && i == toNumbers.size() - 1) ? lastContent : defaultContent;
+
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("type", "LMS");
+            body.put("from", fromNumber);
+            body.put("content", content);
+            body.put("messages", List.of(Map.of("to", number)));
+
+            try {
+                sensWebClient.post()
+                        .uri(url)
+                        .header("x-ncp-apigw-timestamp", timestamp)
+                        .header("x-ncp-iam-access-key", accessKey)
+                        .header("x-ncp-apigw-signature-v2", signature)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(body)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+                log.info("SMS 발송 완료 - to: {}", number);
+            } catch (Exception e) {
+                log.error("SMS 발송 실패 - to: {}", number, e);
+            }
+        }
+    }
+
     public void sendListingShare(List<UUID> brokerCodes, Listing listing, Long userId) {
         List<BrokerPropertyCount> brokers = brokerRepository.findByBrokerCodeIn(brokerCodes);
 
