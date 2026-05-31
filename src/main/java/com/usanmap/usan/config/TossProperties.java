@@ -17,6 +17,10 @@ public class TossProperties {
 
     private static final String TEST_ACCOUNT = "test@naver.com";
 
+    public boolean isTestAccount(String email) {
+        return TEST_ACCOUNT.equals(email);
+    }
+
     public String resolveClientKey(String email) {
         return TEST_ACCOUNT.equals(email) ? testClientKey : liveClientKey;
     }

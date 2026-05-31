@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">입금 승인 관리 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        .admin-page {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 20px;
+            padding-top: 20px;
+        }
+
+        .admin-count {
+            font-size: 14px;
+            color: #8b8b8b;
+            margin-bottom: 16px;
+        }
+
+        .admin-card {
+            background: #f7f7f7;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+        }
+
+        .admin-card__row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .admin-card__row:last-child {
+            margin-bottom: 0;
+        }
+
+        .admin-card__label {
+            font-size: 13px;
+            color: #8b8b8b;
+            min-width: 80px;
+        }
+
+        .admin-card__value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+            text-align: right;
+        }
+
+        .admin-card__depositor {
+            font-size: 16px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .admin-approve-btn {
+            display: block;
+            width: 100%;
+            margin-top: 14px;
+            padding: 13px;
+            background: #222;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .admin-approve-btn:active {
+            opacity: 0.8;
+        }
+
+        .admin-empty {
+            text-align: center;
+            padding: 60px 0;
+            color: #8b8b8b;
+            font-size: 15px;
+        }
+    </style>
+</th:block>
+
+<section>
+    <div class="admin-page">
+        <div class="admin-header">무통장 입금 대기 목록</div>
+
+        <div class="admin-count" th:text="'총 ' + ${orders.size()} + '건 대기 중'"></div>
+
+        <th:block th:if="${orders.isEmpty()}">
+            <div class="admin-empty">대기 중인 입금 신청이 없습니다.</div>
+        </th:block>
+
+        <th:block th:each="order : ${orders}">
+            <div class="admin-card">
+                <div class="admin-card__row">
+                    <span class="admin-card__label">신청일시</span>
+                    <span class="admin-card__value"
+                          th:text="${#temporals.format(order.orderedAt, 'MM.dd HH:mm')}"></span>
+                </div>
+                <div class="admin-card__row">
+                    <span class="admin-card__label">주문번호</span>
+                    <span class="admin-card__value" th:text="${order.orderNo}"></span>
+                </div>
+                <div class="admin-card__row">
+                    <span class="admin-card__label">신청자</span>
+                    <span class="admin-card__value"
+                          th:text="${order.member.phone != null ? order.member.phone : order.member.email}"></span>
+                </div>
+                <div class="admin-card__row">
+                    <span class="admin-card__label">상품</span>
+                    <span class="admin-card__value" th:text="${order.productNameSnapshot}"></span>
+                </div>
+                <div class="admin-card__row">
+                    <span class="admin-card__label">금액</span>
+                    <span class="admin-card__value"
+                          th:text="${#numbers.formatInteger(order.priceAmountSnapshot, 1, 'COMMA')} + '원'"></span>
+                </div>
+                <div class="admin-card__row">
+                    <span class="admin-card__label">크레딧</span>
+                    <span class="admin-card__value"
+                          th:text="${#numbers.formatInteger(order.totalCreditSnapshot, 1, 'COMMA')} + 'C'"></span>
+                </div>
+                <div class="admin-card__row">
+                    <span class="admin-card__label">입금자명</span>
+                    <span class="admin-card__depositor" th:text="${order.depositorName}"></span>
+                </div>
+
+                <form th:action="@{/admin/bank-transfer/{id}/approve(id=${order.id})}" method="post"
+                      onsubmit="return confirm('승인하시겠습니까? 크레딧이 즉시 지급됩니다.')">
+                    <button type="submit" class="admin-approve-btn">승인하기</button>
+                </form>
+            </div>
+        </th:block>
+    </div>
+</section>
+</html>
