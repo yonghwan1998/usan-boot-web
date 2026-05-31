@@ -7,10 +7,13 @@ import com.usanmap.usan.config.TossProperties;
 import com.usanmap.usan.entity.enums.LedgerType;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.CreditService;
+import com.usanmap.usan.service.SmsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,6 +29,16 @@ public class CreditsController {
     private final TossProperties tossProperties;
     private final TossPaymentsClient tossPaymentsClient;
     private final ObjectMapper objectMapper;
+    private final SmsService smsService;
+
+    @Value("${usan.bank.name}")
+    private String bankName;
+
+    @Value("${usan.bank.number}")
+    private String bankNumber;
+
+    @Value("${usan.bank.holder}")
+    private String bankHolder;
 
     @GetMapping("/history")
     public String creditsHistory(@RequestParam(defaultValue = "USE") LedgerType type, Model model) {
@@ -41,7 +54,39 @@ public class CreditsController {
         Long userId = securityUtils.currentUserIdOrThrow();
         model.addAttribute("products", creditService.getActiveProducts());
         model.addAttribute("balance", creditService.getBalance(userId));
+        model.addAttribute("isTestAccount", tossProperties.isTestAccount(securityUtils.currentUserEmail()));
         return "pages/credits/credits-charge";
+    }
+
+    @GetMapping("/bank-transfer")
+    public String bankTransferPage(@RequestParam Long productId, Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        CreditService.CheckoutInfo info = creditService.getCheckoutInfo(userId, productId);
+        model.addAttribute("productId", productId);
+        model.addAttribute("productName", info.productName());
+        model.addAttribute("amount", info.amount());
+        model.addAttribute("bankName", bankName);
+        model.addAttribute("bankNumber", bankNumber);
+        model.addAttribute("bankHolder", bankHolder);
+        return "pages/credits/credits-bank-transfer";
+    }
+
+    @PostMapping("/bank-transfer/request")
+    public String bankTransferRequest(
+            @RequestParam Long productId,
+            @RequestParam String depositorName,
+            Model model
+    ) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        CreditService.BankTransferResult result = creditService.createBankTransferOrder(userId, productId, depositorName.trim());
+        String bankInfo = bankName + " " + bankNumber + " (" + bankHolder + ")";
+        smsService.sendBankTransferRequest(result.userPhone(), depositorName.trim(), result.productName(), result.amount(), bankInfo);
+        return "redirect:/credits/bank-transfer/pending";
+    }
+
+    @GetMapping("/bank-transfer/pending")
+    public String bankTransferPending() {
+        return "pages/credits/credits-bank-pending";
     }
 
     @GetMapping("/checkout")

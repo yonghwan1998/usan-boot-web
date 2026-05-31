@@ -49,6 +49,9 @@ public class CreditOrder {
     @Column(nullable = false)
     private Integer totalCreditSnapshot;
 
+    @Column(length = 100)
+    private String depositorName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private OrderStatus orderStatus;

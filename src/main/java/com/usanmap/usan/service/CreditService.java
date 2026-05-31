@@ -178,6 +178,9 @@ public class CreditService {
 
     public record CheckoutInfo(String productName, int amount, String customerEmail, String customerName) {}
 
+    public record BankTransferResult(String orderNo, String userPhone, String productName, int amount, int totalCredit) {}
+
+
     @Transactional(readOnly = true)
     public CheckoutInfo getCheckoutInfo(Long userId, Long productId) {
         User user = userRepository.findById(userId)
@@ -190,6 +193,91 @@ public class CreditService {
                 user.getEmail() != null ? user.getEmail() : "",
                 user.getNickname() != null ? user.getNickname() : ""
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<CreditOrder> getPendingBankOrders() {
+        return creditOrderRepository.findAllByOrderStatusWithMember(OrderStatus.PENDING_BANK);
+    }
+
+    @Transactional
+    public BankTransferResult createBankTransferOrder(Long userId, Long productId, String depositorName) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        CreditProduct product = creditProductRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+
+        if (!product.getIsActive()) {
+            throw new IllegalStateException("비활성 상품입니다.");
+        }
+
+        String orderNo = "BNK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 20).toUpperCase();
+
+        CreditOrder order = CreditOrder.builder()
+                .orderNo(orderNo)
+                .member(user)
+                .creditProduct(product)
+                .productCodeSnapshot(product.getProductCode())
+                .productNameSnapshot(product.getProductName())
+                .priceAmountSnapshot(product.getPriceAmount())
+                .baseCreditSnapshot(product.getBaseCreditAmount())
+                .bonusCreditSnapshot(product.getBonusCreditAmount())
+                .totalCreditSnapshot(product.getTotalCreditAmount())
+                .depositorName(depositorName)
+                .orderStatus(OrderStatus.PENDING_BANK)
+                .build();
+        creditOrderRepository.save(order);
+
+        Payment payment = Payment.builder()
+                .creditOrder(order)
+                .pgProvider(PgProvider.BANK_TRANSFER)
+                .paymentStatus(PaymentStatus.READY)
+                .requestedAmount(product.getPriceAmount())
+                .build();
+        paymentRepository.save(payment);
+
+        return new BankTransferResult(orderNo, user.getPhone(), product.getProductName(), product.getPriceAmount(), product.getTotalCreditAmount());
+    }
+
+    @Transactional
+    public BankTransferResult approveBankTransfer(Long orderId) {
+        CreditOrder order = creditOrderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+
+        if (order.getOrderStatus() != OrderStatus.PENDING_BANK) {
+            throw new IllegalStateException("무통장 입금 대기 상태가 아닙니다.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Payment payment = paymentRepository.findByCreditOrder(order)
+                .orElseThrow(() -> new IllegalStateException("결제 정보를 찾을 수 없습니다."));
+        payment.setPaymentStatus(PaymentStatus.SUCCESS);
+        payment.setApprovedAmount(order.getPriceAmountSnapshot());
+        payment.setApprovedAt(now);
+
+        order.setOrderStatus(OrderStatus.PAID);
+        order.setPaidAt(now);
+
+        User user = order.getMember();
+        MemberCreditBalance balance = memberCreditBalanceRepository.findByMemberWithLock(user)
+                .orElseGet(() -> memberCreditBalanceRepository.save(
+                        MemberCreditBalance.builder().member(user).balance(0).build()
+                ));
+        balance.addBalance(order.getTotalCreditSnapshot());
+
+        CreditLedger ledger = CreditLedger.builder()
+                .member(user)
+                .creditOrder(order)
+                .payment(payment)
+                .ledgerType(LedgerType.CHARGE)
+                .changeAmount(order.getTotalCreditSnapshot())
+                .balanceAfter(balance.getBalance())
+                .description(order.getProductNameSnapshot() + " 충전 (무통장)")
+                .build();
+        creditLedgerRepository.save(ledger);
+
+        return new BankTransferResult(order.getOrderNo(), user.getPhone(), order.getProductNameSnapshot(), order.getPriceAmountSnapshot(), order.getTotalCreditSnapshot());
     }
 
     @Transactional
