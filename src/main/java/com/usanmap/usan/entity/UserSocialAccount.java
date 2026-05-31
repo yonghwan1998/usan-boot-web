@@ -2,7 +2,9 @@ package com.usanmap.usan.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.sql.Types;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,12 +39,12 @@ public class UserSocialAccount {
     @Column(name = "nickname")
     private String nickname;
 
-    @Lob
-    @Column(name = "access_token")
+    @JdbcTypeCode(Types.LONGVARCHAR)
+    @Column(name = "access_token", columnDefinition = "TEXT")
     private String accessToken;
 
-    @Lob
-    @Column(name = "refresh_token")
+    @JdbcTypeCode(Types.LONGVARCHAR)
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
     @Column(name = "token_expires_at")
