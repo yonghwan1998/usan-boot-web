@@ -65,6 +65,7 @@ public class CreditsController {
         model.addAttribute("productId", productId);
         model.addAttribute("productName", info.productName());
         model.addAttribute("amount", info.amount());
+        model.addAttribute("userPhone", info.userPhone());
         model.addAttribute("bankName", bankName);
         model.addAttribute("bankNumber", bankNumber);
         model.addAttribute("bankHolder", bankHolder);
@@ -75,10 +76,11 @@ public class CreditsController {
     public String bankTransferRequest(
             @RequestParam Long productId,
             @RequestParam String depositorName,
+            @RequestParam(required = false) String phone,
             Model model
     ) {
         Long userId = securityUtils.currentUserIdOrThrow();
-        CreditService.BankTransferResult result = creditService.createBankTransferOrder(userId, productId, depositorName.trim());
+        CreditService.BankTransferResult result = creditService.createBankTransferOrder(userId, productId, depositorName.trim(), phone);
         String bankInfo = bankName + " " + bankNumber + " (" + bankHolder + ")";
         smsService.sendBankTransferRequest(result.userPhone(), depositorName.trim(), result.productName(), result.amount(), bankInfo);
         return "redirect:/credits/bank-transfer/pending";

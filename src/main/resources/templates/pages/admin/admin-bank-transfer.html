@@ -100,6 +100,13 @@
             font-size: 15px;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.js-phone').forEach(el => {
+                el.textContent = __formatPhone(el.textContent);
+            });
+        });
+    </script>
 </th:block>
 
 <section>
@@ -117,7 +124,7 @@
                 <div class="admin-card__row">
                     <span class="admin-card__label">신청일시</span>
                     <span class="admin-card__value"
-                          th:text="${#temporals.format(order.orderedAt, 'MM.dd HH:mm')}"></span>
+                          th:text="${#temporals.format(order.orderedAt, 'yyyy.MM.dd HH:mm')}"></span>
                 </div>
                 <div class="admin-card__row">
                     <span class="admin-card__label">주문번호</span>
@@ -141,6 +148,10 @@
                     <span class="admin-card__label">크레딧</span>
                     <span class="admin-card__value"
                           th:text="${#numbers.formatInteger(order.totalCreditSnapshot, 1, 'COMMA')} + 'C'"></span>
+                </div>
+                <div class="admin-card__row">
+                    <span class="admin-card__label">입금자 번호</span>
+                    <span class="admin-card__depositor js-phone" th:text="${order.contactPhone}"></span>
                 </div>
                 <div class="admin-card__row">
                     <span class="admin-card__label">입금자명</span>
