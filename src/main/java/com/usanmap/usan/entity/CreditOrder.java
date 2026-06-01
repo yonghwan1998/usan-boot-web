@@ -52,6 +52,9 @@ public class CreditOrder {
     @Column(length = 100)
     private String depositorName;
 
+    @Column(length = 20)
+    private String contactPhone;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private OrderStatus orderStatus;

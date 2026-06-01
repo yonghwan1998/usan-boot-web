@@ -176,7 +176,7 @@ public class CreditService {
         creditLedgerRepository.save(ledger);
     }
 
-    public record CheckoutInfo(String productName, int amount, String customerEmail, String customerName) {}
+    public record CheckoutInfo(String productName, int amount, String customerEmail, String customerName, String userPhone) {}
 
     public record BankTransferResult(String orderNo, String userPhone, String productName, int amount, int totalCredit) {}
 
@@ -191,7 +191,8 @@ public class CreditService {
                 product.getProductName(),
                 product.getPriceAmount(),
                 user.getEmail() != null ? user.getEmail() : "",
-                user.getNickname() != null ? user.getNickname() : ""
+                user.getNickname() != null ? user.getNickname() : "",
+                user.getPhone()
         );
     }
 
@@ -201,7 +202,7 @@ public class CreditService {
     }
 
     @Transactional
-    public BankTransferResult createBankTransferOrder(Long userId, Long productId, String depositorName) {
+    public BankTransferResult createBankTransferOrder(Long userId, Long productId, String depositorName, String phone) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         CreditProduct product = creditProductRepository.findById(productId)
@@ -212,6 +213,8 @@ public class CreditService {
         }
 
         String orderNo = "BNK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 20).toUpperCase();
+
+        String resolvedPhone = (phone != null && !phone.isBlank()) ? phone.trim() : user.getPhone();
 
         CreditOrder order = CreditOrder.builder()
                 .orderNo(orderNo)
@@ -224,6 +227,7 @@ public class CreditService {
                 .bonusCreditSnapshot(product.getBonusCreditAmount())
                 .totalCreditSnapshot(product.getTotalCreditAmount())
                 .depositorName(depositorName)
+                .contactPhone(resolvedPhone)
                 .orderStatus(OrderStatus.PENDING_BANK)
                 .build();
         creditOrderRepository.save(order);
@@ -236,7 +240,7 @@ public class CreditService {
                 .build();
         paymentRepository.save(payment);
 
-        return new BankTransferResult(orderNo, user.getPhone(), product.getProductName(), product.getPriceAmount(), product.getTotalCreditAmount());
+        return new BankTransferResult(orderNo, resolvedPhone, product.getProductName(), product.getPriceAmount(), product.getTotalCreditAmount());
     }
 
     @Transactional
@@ -277,7 +281,7 @@ public class CreditService {
                 .build();
         creditLedgerRepository.save(ledger);
 
-        return new BankTransferResult(order.getOrderNo(), user.getPhone(), order.getProductNameSnapshot(), order.getPriceAmountSnapshot(), order.getTotalCreditSnapshot());
+        return new BankTransferResult(order.getOrderNo(), order.getContactPhone(), order.getProductNameSnapshot(), order.getPriceAmountSnapshot(), order.getTotalCreditSnapshot());
     }
 
     @Transactional
