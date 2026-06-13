@@ -43,7 +43,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/login?message=needLogin");
+                            response.sendRedirect("/login");
                         }))
                 .formLogin(form -> form
                         .loginPage("/login")
