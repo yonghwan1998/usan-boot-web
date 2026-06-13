@@ -55,8 +55,7 @@ public class GlobalControllerAdvice {
     @ModelAttribute("showHeader")
     public boolean showHeader(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return uri.equals("/index2");// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
-//        return uri.equals("/");
+        return uri.equals("/");
     }
 
     /**
@@ -76,11 +75,8 @@ public class GlobalControllerAdvice {
     public boolean showBottomNav(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return uri.equals("/")
-                || uri.equals("/index2")
                 || uri.startsWith("/l/")
-                || uri.equals("/map");// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
-//        return uri.equals("/")
-//                || uri.equals("/map");
+                || uri.equals("/map");
     }
 
     /**

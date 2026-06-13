@@ -19,7 +19,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/index2", // TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
                                 "/",
                                 "/login/**",
                                 "/join/**",

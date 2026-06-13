@@ -16,22 +16,11 @@ public class MainController {
 
     @RequestMapping("/")
     public String index(Model model) {
-//        Long userId = securityUtils.currentUserId();
-//        if (userId != null) {
-//            model.addAttribute("nearbyBrokers", mainService.getNearbyBrokers(userId));
-//        }
-        // TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
-        return "redirect:/map";
-//        return "index";
-    }
-
-    @RequestMapping("/index2")
-    public String index2(Model model) {
-        // TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
         Long userId = securityUtils.currentUserId();
         if (userId != null) {
             model.addAttribute("nearbyBrokers", mainService.getNearbyBrokers(userId));
         }
+
         return "index";
     }
 

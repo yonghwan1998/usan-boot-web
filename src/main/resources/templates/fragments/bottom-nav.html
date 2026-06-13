@@ -1,8 +1,6 @@
 <nav th:fragment="bottomNav" class="bottom-nav">
-<!--    <a th:href="@{/}" class="bottom-nav__item" // TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)-->
-<!--       th:classappend="${currentUri == '/' ? 'on' : ''}">// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)-->
-    <a th:href="@{/index2}" class="bottom-nav__item"
-       th:classappend="${currentUri == '/index2' ? 'on' : ''}">
+    <a th:href="@{/}" class="bottom-nav__item"
+       th:classappend="${currentUri == '/' ? 'on' : ''}">
         <span class="bottom-nav__icon bottom-nav__icon--home"></span>
         <span class="bottom-nav__label">홈</span>
     </a>
