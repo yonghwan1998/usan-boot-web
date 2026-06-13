@@ -9,31 +9,24 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- user-scalable=no 제거: 구글 모바일 SEO 페널티 + 접근성 WCAG 위반 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>-->
 
-    <!-- 페이지별 제목 -->
     <title th:replace="${title}">우산 - 우리동네 부동산</title>
 
-    <!-- 검색엔진 기본값: index/follow -->
     <meta name="robots" content="index, follow">
 
     <!-- favicon -->
     <link rel="icon" type="image/png" href="/img/24x24-icon-U.png">
     <link rel="apple-touch-icon" href="/img/24x24-icon-U.png">
 
-    <!-- Open Graph 기본값 (페이지별 extraCss에서 override 가능) -->
     <meta property="og:site_name" content="우산 - 우리동네 부동산">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:image" content="https://usanmap.com/img/temp-logo.png">
 
-    <!-- Twitter Card 기본값 -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@usanmap">
 
-    <!-- 네이버 SEO -->
     <meta name="naver-site-verification" content="">
 
     <!-- 공통 CSS -->
@@ -41,103 +34,59 @@
     <link rel="stylesheet" th:href="@{/css/common.css(t=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/layout.css(t=${#dates.createNow().time})}">
 
-    <!-- 페이지 추가 head (CSS + meta 포함) -->
     <th:block th:if="${extraCss != null}"
               th:replace="${extraCss}"></th:block>
 </head>
 
 <body class="usan-body">
 
-<div th:if="${showResponsiveWeb}" class="usan-responsive-layout">
-
-    <!-- 모바일 고정 헤더 -->
-    <th:block th:if="${showHeader}">
-        <th:block th:replace="~{fragments/header :: header}"></th:block>
-    </th:block>
-    <th:block th:if="${showSearchHeader}">
-        <th:block th:replace="~{fragments/search-header :: search-header}"></th:block>
-    </th:block>
-
-    <!-- 페이지별 본문 -->
-    <main class="main-frame">
-        <section th:replace="${content}"></section>
-    </main>
-
-    <!-- 더보기 모달 -->
-    <th:block th:replace="~{fragments/more-panel :: morePanel}"></th:block>
-
-    <!-- 공통 모달 -->
-    <div class="common-modal" aria-hidden="true">
-        <div class="common-modal__backdrop" data-modal-close></div>
-
-        <div class="common-modal__card" role="dialog" aria-modal="true" aria-labelledby="common-modal-title">
-            <div class="common-modal__content">
-                <div class="common-modal__title" id="common-modal-title">제목</div>
-                <div class="common-modal__body"></div>
-            </div>
-
-            <div class="common-modal__actions">
-            </div>
-        </div>
-    </div>
-
-    <!-- 모바일 고정 하단 네비 -->
-    <th:block th:if="${showBottomNav}">
-        <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
-    </th:block>
-
-</div>
-
-<div class="usan-layout" th:unless="${showResponsiveWeb}">
+<div class="usan-layout">
 
     <!-- PC 왼쪽 영역 -->
     <aside class="pc-side-section"
-           th:if="${pcSideContent != null}"
+           th:if="${showPcSideContent}"
            th:insert="${pcSideContent}">
     </aside>
 
-    <!-- 모바일 메인 프레임 -->
-    <div class="mobile-frame-outer">
-        <div class="mobile-scale">
+    <!-- 메인 프레임 -->
+    <div class="mobile-shell" th:classappend="${currentUri eq '/'} ? 'bg_f2f2f2' : ''">
 
-            <div class="mobile-shell">
-                <!-- 모바일 고정 헤더 -->
-                <th:block th:if="${showHeader}">
-                    <th:block th:replace="~{fragments/header :: header}"></th:block>
-                </th:block>
-                <th:block th:if="${showSearchHeader}">
-                    <th:block th:replace="~{fragments/search-header :: search-header}"></th:block>
-                </th:block>
+        <!-- 고정 헤더 -->
+        <th:block th:if="${showHeader}">
+            <th:block th:replace="~{fragments/header :: header}"></th:block>
+        </th:block>
+        <th:block th:if="${showSearchHeader}">
+            <th:block th:replace="~{fragments/search-header :: search-header}"></th:block>
+        </th:block>
 
-                <!-- 페이지별 본문 -->
-                <main class="mobile-frame">
-                    <section id="contents" th:replace="${content}"></section>
-                </main>
+        <!-- 페이지별 본문 -->
+        <main class="mobile-frame">
+            <section id="contents" th:replace="${content}"></section>
+        </main>
 
-                <!-- 더보기 모달 -->
-                <th:block th:replace="~{fragments/more-panel :: morePanel}"></th:block>
+        <!-- 더보기 모달 -->
+        <th:block th:replace="~{fragments/more-panel :: morePanel}"></th:block>
 
-                <!-- 공통 모달 -->
-                <div class="common-modal" aria-hidden="true">
-                    <div class="common-modal__backdrop" data-modal-close></div>
+        <!-- 공통 모달 -->
+        <div class="common-modal" aria-hidden="true">
+            <div class="common-modal__backdrop" data-modal-close></div>
 
-                    <div class="common-modal__card" role="dialog" aria-modal="true" aria-labelledby="common-modal-title">
-                        <div class="common-modal__content">
-                            <div class="common-modal__title" id="common-modal-title">제목</div>
-                            <div class="common-modal__body"></div>
-                        </div>
-
-                        <div class="common-modal__actions">
-                        </div>
-                    </div>
+            <div class="common-modal__card" role="dialog" aria-modal="true" aria-labelledby="common-modal-title">
+                <div class="common-modal__content">
+                    <div class="common-modal__title" id="common-modal-title">제목</div>
+                    <div class="common-modal__body"></div>
                 </div>
 
-                <!-- 모바일 고정 하단 네비 -->
-                <th:block th:if="${showBottomNav}">
-                    <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
-                </th:block>
+                <div class="common-modal__actions">
+                </div>
             </div>
         </div>
+
+        <!-- 고정 하단 네비 -->
+        <th:block th:if="${showBottomNav}">
+            <th:block th:replace="~{fragments/bottom-nav :: bottomNav}"></th:block>
+        </th:block>
+
     </div>
 
 </div>
@@ -146,54 +95,19 @@
 <script th:src="@{/js/common.js(t=${#dates.createNow().time})}"></script>
 
 <script>
-    function updateScale() {
-        const BASE = 430;
-        const scaleLayer = document.querySelector('.mobile-scale');
-        if (!scaleLayer) return;
-
-        // ✅ PC(768+)에서는 스케일 해제
-        if (window.innerWidth >= 768) {
-            scaleLayer.style.transform = 'none';
-            return;
-        }
-
-        // ✅ 모바일(0~767)에서만 쥐어짜듯 축소
-        const vw = window.innerWidth;
-        const scale = Math.min(1, vw / BASE);
-        scaleLayer.style.transform = `scale(${scale})`;
-    }
-
-    // PC 왼쪽 영역에서 스크롤하면 오른쪽 mobile-frame이 스크롤되도록
     function bindPcSideScrollProxy() {
         const side = document.querySelector('.pc-side-section');
         const inner = document.querySelector('.mobile-frame');
 
-        // 요소가 없으면(모바일 등) 바로 종료
         if (!side || !inner) return;
 
-        // 마우스 휠 / 트랙패드 스크롤
         side.addEventListener('wheel', function (e) {
-            // 기본 동작(페이지/자기 자신 스크롤) 막고
             e.preventDefault();
-            // 모바일 프레임만 스크롤
             inner.scrollTop += e.deltaY;
         }, { passive: false });
     }
 
-    function updateAppVh() {
-        // 모바일 주소창/툴바 반영된 실제 높이(px)
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--app-vh', `${vh}px`);
-    }
-
-    window.addEventListener('resize', () => {
-        updateAppVh();
-        updateScale();
-    });
-
     window.addEventListener('DOMContentLoaded', () => {
-        updateAppVh();
-        updateScale();
         bindPcSideScrollProxy();
     });
 </script>
@@ -208,13 +122,10 @@
         const panel = document.getElementById('more-panel');
         if (!panel) return;
 
-        // 이미 열려있으면 중복 처리 X
         if (panel.classList.contains('is-open')) return;
 
         panel.classList.add('is-open');
 
-        // ✅ 뒤로가기(Back)로 닫히게 히스토리 상태 추가
-        // state에 마커를 넣어두면 popstate에서 구분 가능
         history.pushState({ modal: 'more' }, '');
 
         if (document.querySelector('.card__credit-credit')) {
@@ -265,11 +176,7 @@
 
         panel.classList.remove('is-open');
 
-        // ✅ 지금 상태가 "more 모달용 pushState"라면 history를 한 칸 되돌려서
-        // 주소/히스토리 스택을 원복
-        // (popstate에서 닫는 경우엔 여기로 안 들어오게 플래그 처리)
         if (history.state && history.state.modal === 'more') {
-            // popstate를 다시 타지 않게 잠깐 플래그
             window.__closingMoreByCode = true;
             history.back();
         }
@@ -281,22 +188,15 @@
         else openMorePanel();
     }
 
-    // ✅ 안드로이드 뒤로가기(=popstate) 처리
     window.addEventListener('popstate', function (e) {
-        // closeMorePanel()에서 history.back() 호출한 경우, 여기로 다시 들어오는데
-        // 그땐 아무것도 하지 않게
         if (window.__closingMoreByCode) {
             window.__closingMoreByCode = false;
             return;
         }
 
-        // 뒤로가기가 눌렸을 때 모달이 열려있으면 "페이지 이동" 대신 모달만 닫기
         if (isMoreOpen()) {
             const panel = document.getElementById('more-panel');
             panel.classList.remove('is-open');
-
-            // 기본 뒤로가기 흐름을 막을 순 없지만,
-            // 위에서 pushState를 했기 때문에 결과적으로 "모달만 닫힘"으로 동작함.
         }
     });
 
@@ -330,18 +230,13 @@
             const hidden  = select.querySelector('input[type="hidden"]');
             const options = select.querySelector('.common-select__options');
 
-            /* =========================
-               열기 / 닫기 (토글)
-            ========================= */
             const toggleSelect = (e) => {
                 e.stopPropagation();
 
                 const isOpen = select.classList.contains('is-open');
 
-                // 다른 셀렉트는 전부 닫기
                 closeAllSelects();
 
-                // 자기 자신 토글
                 if (!isOpen) {
                     select.classList.add('is-open');
                 }
@@ -351,9 +246,6 @@
             select.querySelector('.common-input__expand-btn')
                 ?.addEventListener('click', toggleSelect);
 
-            /* =========================
-               옵션 선택
-            ========================= */
             options.querySelectorAll('li').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -366,9 +258,6 @@
             });
         });
 
-        /* =========================
-           바깥 클릭 → 전체 닫기
-        ========================= */
         document.addEventListener('click', () => {
             closeAllSelects();
         });

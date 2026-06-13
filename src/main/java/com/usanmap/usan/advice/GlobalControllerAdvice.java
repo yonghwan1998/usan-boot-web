@@ -55,8 +55,7 @@ public class GlobalControllerAdvice {
     @ModelAttribute("showHeader")
     public boolean showHeader(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return uri.equals("/index2");// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
-//        return uri.equals("/");
+        return uri.equals("/");
     }
 
     /**
@@ -76,11 +75,8 @@ public class GlobalControllerAdvice {
     public boolean showBottomNav(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return uri.equals("/")
-                || uri.equals("/index2")
                 || uri.startsWith("/l/")
-                || uri.equals("/map");// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)
-//        return uri.equals("/")
-//                || uri.equals("/map");
+                || uri.equals("/map");
     }
 
     /**
@@ -101,20 +97,23 @@ public class GlobalControllerAdvice {
     }
 
     /**
-     * @date    2026-01-20
+     * @date    2026-06-13
      * @author  yongss
      * @param   {HttpServletRequest request}
-     * @return  {boolean} 현재 페이지가 반응형 페이지를 보여줘야하는지 boolean 타입으로 반환
+     * @return  {boolean} 현재 페이지가 pcSideContent를 보여주는 페이지인지 boolean 타입으로 반환
      *
      * 처리 과정:
-     *  - 현재 uri가 반응형 페이지를 보여줘야하는 페이지인지 검증
-     *  - 검증된 boolean 값에 따라 반응형 페이지 노출/미노출 결정
+     *  - 현재 uri가 pcSideContent를 보여주는 페이지인지 검증
+     *  - 검증된 boolean 값에 따라 pcSideContent 노출/미노출 결정
+     *
+     * 예외/주의:
+     *  - 새로운 허용 페이지 생성 시 메서드에 추가
      */
-    @ModelAttribute("showResponsiveWeb")
-    public boolean showResponsiveWeb(HttpServletRequest request) {
+    @ModelAttribute("showPcSideContent")
+    public boolean showPcSideContent(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return uri.equals("/map")
-                || uri.equals("/map/listings/share");
+        return !uri.equals("/map")
+                && !uri.equals("/map/listings/share");
     }
 
     /**
