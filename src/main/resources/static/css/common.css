@@ -585,10 +585,10 @@ body.is-modal-open {
    📌 background_!
    ================================ */
 .bg_d9d9d9 {
-    background: #d9d9d9;
+    background: #d9d9d9 !important;
 }
 .bg_f2f2f2 {
-    background: #f2f2f2;
+    background: #f2f2f2 !important;
 }
 
 /* ================================
