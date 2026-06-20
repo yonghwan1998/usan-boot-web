@@ -2,8 +2,11 @@ package com.usanmap.usan.service;
 
 import com.usanmap.usan.common.broker.BrokerPropertyTagFactory;
 import com.usanmap.usan.dto.NearbyBrokerDto;
+import com.usanmap.usan.entity.Listing;
 import com.usanmap.usan.entity.UserRegion;
+import com.usanmap.usan.entity.enums.ListingStatus;
 import com.usanmap.usan.repository.BrokerPropertyCountRepository;
+import com.usanmap.usan.repository.ListingRepository;
 import com.usanmap.usan.repository.UserRegionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ public class MainService {
 
     private final UserRegionRepository userRegionRepository;
     private final BrokerPropertyCountRepository brokerPropertyCountRepository;
+    private final ListingRepository listingRepository;
 
     public List<NearbyBrokerDto> getNearbyBrokers(Long userId) {
         List<UserRegion> regions = userRegionRepository.findByUserIdOrderByCreatedAtDesc(userId);
@@ -41,6 +45,14 @@ public class MainService {
                         b.getSido() + " " + b.getSigungu() + " " + b.getEmd(),
                         BrokerPropertyTagFactory.topN(b, 3)
                 ))
+                .toList();
+    }
+
+    public List<Listing> getUserListings(Long userId) {
+        return listingRepository
+                .findAllByUserIdAndStatusOrderByUpdatedAtDesc(userId, ListingStatus.ACTIVE)
+                .stream()
+                .limit(2)
                 .toList();
     }
 }

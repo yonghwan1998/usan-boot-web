@@ -19,6 +19,7 @@ public class MainController {
         Long userId = securityUtils.currentUserId();
         if (userId != null) {
             model.addAttribute("nearbyBrokers", mainService.getNearbyBrokers(userId));
+            model.addAttribute("myListings", mainService.getUserListings(userId));
         }
 
         return "index";
