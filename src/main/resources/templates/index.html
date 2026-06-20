@@ -65,144 +65,20 @@
 
 <section class="home-page">
     <h1 class="sr-only">우산 - 우리동네 부동산 중개사 찾기 및 매물 발송 서비스</h1>
+
     <div class="home-page__inner">
 
-        <!--    지도로 중개사 찾기    -->
-        <section class="home-block" id="find-section">
+        <section class="home-block">
 
-            <article class="feature-card find-card">
+            <article class="feature-card">
 
                 <h2 class="feature-card__title">지도로 중개사 찾기</h2>
 
-                <div class="find-card__contents">
-                    <div class="find-card__text">
-                        <p class="find-card__headline">
-                            <span class="point_t">내가 선택한 위치기준으로</span><br>
-                            <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
-                        </p>
-
-                        <div class="find-card__icons">
-                            <span class="find-icon find-icon--house"></span>
-                            <span class="find-icon find-icon--building"></span>
-                        </div>
-                    </div>
-
-                    <div class="find-icon--grid">
-                        <img src="/img/home-map-card.svg"
-                             alt="지도에서 중개사 찾기"
-                             onerror="this.style.display='none'">
-                    </div>
-                </div>
-
-                <div class="compare-card__contents" style="display: none">
-                    <div class="compare-card__text">
-                        내 매물에 딱 맞는<br>
-                        <span class="point_g bold">중개사를 자동으로 추천</span> 받아보세요!
-                    </div>
-
-                    <img src="/img/compare-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="compare-card__image" loading="lazy" />
-                </div>
-
-                <div class="moment-card__contents" style="display: none">
-                    <div class="moment-card__left">
-                        <div class="moment-card__text">
-                            선택한 중개사에게<br>
-                            매물을 <span class="point_n bold">즉시</span> 전송하세요!
-                        </div>
-                        <div class="moment-card__icons">
-                            <span class="moment-card__icon moment-icon--mail"></span>
-                            <span class="moment-card__icon moment-icon--more-horiz"></span>
-                            <span class="moment-card__icon moment-icon--building"></span>
-                            <span class="moment-card__icon moment-icon--more-horiz"></span>
-                            <span class="moment-card__icon moment-icon--user"></span>
-                        </div>
-                    </div>
-
-                    <img src="/img/moment-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="moment-card__image moment-card__right" loading="lazy" />
-                </div>
-
                 <div class="dot-indicator">
                     <span class="dot is-active"></span>
                     <span class="dot"></span>
                     <span class="dot"></span>
                 </div>
-
-                <button type="button"
-                        class="btn btn--primary home-block__cta"
-                        th:onclick="|location.href='@{/region/selector}'|">
-                    중개사 찾기
-                </button>
-
-            </article>
-        </section>
-
-        <!--   내 매물 전송     -->
-        <section class="home-block" id="send-section">
-            <article class="feature-card send-card">
-
-                <h2 class="feature-card__title">내 매물 전송</h2>
-
-                <div class="send-card__contents">
-                    <div class="send-card__text">
-                        <p class="send-card__headline">
-                            <span class="bold">주변 중개사</span>에게<br>
-                            내 매물을 빠르게 홍보해보세요!
-                        </p>
-                    </div>
-                    <div class="send-icon--speaker">
-                        <img src="/img/100x100-speaker.svg"
-                             alt="내 매물 전송"
-                             loading="lazy"
-                             onerror="this.style.display='none'">
-                    </div>
-                </div>
-
-                <div class="step-card__contents" style="display: none">
-                    <div class="step-card__step">
-                        <div class="step__step-text">STEP.1</div>
-                        <span class="step-icon--scroll"></span>
-                        <div class="step__step-desc">매물등록</div>
-                    </div>
-                    <span class="step-icon--next"></span>
-                    <div class="step-card__step">
-                        <div class="step__step-text">STEP.2</div>
-                        <span class="step-icon--broker"></span>
-                        <div class="step__step-desc">중개사 추천</div>
-                    </div>
-                    <span class="step-icon--next"></span>
-                    <div class="step-card__step">
-                        <div class="step__step-text">STEP.3</div>
-                        <span class="step-icon--send"></span>
-                        <div class="step__step-desc">매물발송</div>
-                    </div>
-                </div>
-
-                <div class="promotion-card__contents" style="display: none">
-                    <div class="promotion-card__step">
-                        <div class="promotion__step-text">빠르고 신속한<br>매물중개!</div>
-                        <span class="promotion-icon--house"></span>
-                    </div>
-                    <span class="promotion-icon--next"></span>
-                    <div class="promotion-card__step">
-                        <div class="promotion__step-text">전국 3천만의<br>중개사!</div>
-                        <span class="promotion-icon--man"></span>
-                    </div>
-                    <span class="promotion-icon--next"></span>
-                    <div class="promotion-card__step">
-                        <div class="promotion__step-text">쉬운<br>매물관리!</div>
-                        <span class="promotion-icon--airplane"></span>
-                    </div>
-                </div>
-
-                <div class="dot-indicator">
-                    <span class="dot is-active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                </div>
-
-                <button type="button" class="btn btn--primary home-block__cta" th:onclick="|location.href='@{/listings/new}'|">
-                    <span class="btn-icon--plus"></span>내 매물 등록
-                </button>
 
             </article>
 
