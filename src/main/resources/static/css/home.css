@@ -19,19 +19,52 @@
     margin: 0 16px;
 }
 
-.feature-card {
+.home-card {
     display: flex;
-    align-items: flex-start;
-    border-radius: var(--radius-card);
+    flex-direction: column;
+    border-radius: 24px;
+    padding: 8px 0 0 0;
     background: #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
-.feature-card__title {
-    font-weight: 600;
-    font-size: 24px;
+.home-card__top {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 27px 32px;
+}
+
+.home-card__title {
     height: 40px;
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 24px;
     color: #262626;
+}
+
+.home-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.home-card__text {
+    font-weight: 400;
+    font-size: 20px;
+}
+
+.home-card__img {
+    width: 100px;
+    height: auto;
+    align-self: center;
+}
+
+.home-card__bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
 }
 
 #agent-section {

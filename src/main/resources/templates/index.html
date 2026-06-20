@@ -12,7 +12,7 @@
 </head>
 
 <th:block th:fragment="extraCss">
-    <link rel="canonical" href="https://usanmap.com/index2">
+    <link rel="canonical" href="https://usanmap.com/">
     <meta name="description" content="우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요. 건물주·임대사업자를 위한 부동산 매물 발송 서비스, 우산.">
     <meta property="og:title" content="우산 - 우리동네 부동산 | 지도로 중개사 찾기">
     <meta property="og:description" content="우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요.">
@@ -70,14 +70,30 @@
 
         <section class="home-block">
 
-            <article class="feature-card">
+            <article class="home-card">
 
-                <h2 class="feature-card__title">지도로 중개사 찾기</h2>
+                <div class="home-card__top">
+                    <h2 class="home-card__title">내 매물 위치 찾기</h2>
 
-                <div class="dot-indicator">
-                    <span class="dot is-active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
+                    <div class="home-card__content">
+                        <div class="home-card__text">
+                            <span class="semi-bold">홍보할 매물</span>의 위치를 선택하세요.
+                        </div>
+
+                        <img src="/img/100x100-blue-home.png" class="home-card__img" alt="매물 위치 선택">
+                    </div>
+                </div>
+
+                <div class="home-card__bottom">
+
+                    <div class="dot-indicator" aria-hidden="true">
+                        <span class="dot is-active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+
+                    <a th:href="@{/region/selector}" class="btn btn--primary">위치 선택하기</a>
+
                 </div>
 
             </article>
