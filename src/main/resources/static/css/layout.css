@@ -523,6 +523,8 @@
     display: flex;
     align-items: stretch;
     border-top: 1px solid #d9d9d9;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
     background: #ffffff;
 }
 
