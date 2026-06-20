@@ -1,6 +1,7 @@
 package com.usanmap.usan.service;
 
 import com.usanmap.usan.common.broker.BrokerPropertyTagFactory;
+import com.usanmap.usan.dto.ListingCardDto;
 import com.usanmap.usan.dto.NearbyBrokerDto;
 import com.usanmap.usan.entity.Listing;
 import com.usanmap.usan.entity.UserRegion;
@@ -48,11 +49,31 @@ public class MainService {
                 .toList();
     }
 
-    public List<Listing> getUserListings(Long userId) {
+    public List<ListingCardDto> getListingCards(Long userId) {
         return listingRepository
                 .findAllByUserIdAndStatusOrderByUpdatedAtDesc(userId, ListingStatus.ACTIVE)
                 .stream()
                 .limit(2)
+                .map(this::toListingCard)
                 .toList();
+    }
+
+    private ListingCardDto toListingCard(Listing listing) {
+        int nearbyCount = 0;
+        if (listing.getLat() != null && listing.getLng() != null) {
+            double lat = listing.getLat().doubleValue();
+            double lng = listing.getLng().doubleValue();
+            nearbyCount = (int) brokerPropertyCountRepository.countWithin1km(
+                    lat, lng,
+                    lat - 0.009, lat + 0.009,
+                    lng - 0.012, lng + 0.012
+            );
+        }
+        return new ListingCardDto(
+                listing.getAddressName(),
+                listing.getRoadAddress(),
+                listing.getJibunAddress(),
+                nearbyCount
+        );
     }
 }

@@ -72,26 +72,27 @@
 
             <article class="home-card">
 
-                <th:block th:if="${myListings != null and not #lists.isEmpty(myListings)}">
-                    <div class="home-card__top" th:each="listing, stat : ${myListings}">
+                <th:block th:if="${listingCards != null and not #lists.isEmpty(listingCards)}">
+                    <div class="home-card__top" th:each="card, stat : ${listingCards}">
                         <h2 class="home-card__title">나의 매물</h2>
                         <div class="home-card__content flex_center">
                             <div class="home-card__listing-wrapper">
                                 <div class="home-card__listing-item">
                                     <span class="home-card__listing-number" th:text="'매물 ' + ${stat.count}">매물 1</span>
-                                    <span class="home-card__listing-name" th:text="${listing.addressName}">주소명</span>
+                                    <span class="home-card__listing-name" th:text="${card.addressName}">주소명</span>
                                 </div>
                                 <div class="home-card__addr-wrapper">
                                     <span class="home-card__addr-icon"></span>
                                     <span class="home-card__addr"
-                                          th:text="${listing.roadAddress ?: listing.jibunAddress}">
+                                          th:text="${card.roadAddress ?: card.jibunAddress}">
                                         주소
                                     </span>
                                 </div>
                             </div>
-
-                            <div class="home-card__nearby">1km 이내에 18개의 중개사가 있습니다</div>
-
+                            <div class="home-card__nearby"
+                                 th:text="|1km 이내에 ${card.nearbyCount}명의 중개사가 있습니다|">
+                                1km 이내에 0개의 중개사가 있습니다
+                            </div>
                         </div>
                     </div>
                 </th:block>
@@ -109,8 +110,8 @@
                 <div class="home-card__bottom">
 
                     <div class="dot-indicator" aria-hidden="true"
-                         th:if="${myListings != null and not #lists.isEmpty(myListings)}">
-                        <th:block th:each="i : ${#numbers.sequence(1, #lists.size(myListings) + 1)}">
+                         th:if="${listingCards != null and not #lists.isEmpty(listingCards)}">
+                        <th:block th:each="i : ${#numbers.sequence(1, #lists.size(listingCards) + 1)}">
                             <span class="dot" th:classappend="${i == 1} ? 'is-active' : ''"></span>
                         </th:block>
                     </div>
