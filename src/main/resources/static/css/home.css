@@ -49,9 +49,67 @@
     gap: 16px;
 }
 
+.home-card__listing-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px 20px;
+    border-radius: 20px;
+    border: 1px solid #E7EAFE;
+    background: #F6F7FF;
+}
+
+.home-card__listing-item {
+    display: flex;
+    gap: 8px;
+}
+
+.home-card__listing-number {
+    font-weight: 600;
+    font-size: 18px;
+    color: #262626;
+}
+
+.home-card__listing-name {
+    font-weight: 600;
+    font-size: 18px;
+    color: #262626;
+    padding-left: 8px;
+    border-left: 1px solid #E7EAFE;
+}
+
+.home-card__addr-wrapper {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.home-card__addr-icon {
+    width: 24px;
+    height: 24px;
+    mask: url("../img/24x24-home-filled.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/24x24-home-filled.svg") center/contain no-repeat;
+    background-color: #0d0d0d;
+}
+
+.home-card__addr {
+    font-weight: 400;
+    font-size: 18px;
+    color: #262626;
+}
+
+.home-card__nearby {
+    height: 40px;
+    font-weight: 500;
+    font-size: 20px;
+    color: #262626;
+}
+
 .home-card__text {
     font-weight: 400;
     font-size: 20px;
+    color: #737373;
 }
 
 .home-card__img {
