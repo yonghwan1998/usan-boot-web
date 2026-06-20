@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "broker_property_count")
+@Table(name = "broker_property_count", indexes = {
+        @Index(name = "idx_bpc_lat_lng", columnList = "lat, lng")
+})
 @Getter
 public class BrokerPropertyCount {
 

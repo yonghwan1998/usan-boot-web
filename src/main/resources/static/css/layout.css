@@ -17,11 +17,9 @@
 .pc-side-ad {
     width: 100%;
     min-height: 100%;
-    padding: 48px 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
 }
 
 .pc-side-ad__inner {
@@ -106,46 +104,6 @@
     font-weight: 700;
     color: #374151;
     box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-}
-
-.pc-side-ad__cta {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.pc-side-ad__btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 168px;
-    height: 52px;
-    padding: 0 22px;
-    border-radius: 16px;
-    font-size: 15px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.pc-side-ad__btn--primary {
-    background: #3b43f2;
-    color: #ffffff;
-    box-shadow: 0 12px 24px rgba(59, 67, 242, 0.16);
-}
-
-.pc-side-ad__btn--primary:hover {
-    background: #2f37e6;
-}
-
-.pc-side-ad__btn--ghost {
-    background: #ffffff;
-    color: #3b43f2;
-    border: 1px solid #d6d9ef;
-}
-
-.pc-side-ad__btn--ghost:hover {
-    background: #f8faff;
 }
 
 .pc-side-ad__info {
@@ -565,6 +523,8 @@
     display: flex;
     align-items: stretch;
     border-top: 1px solid #d9d9d9;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
     background: #ffffff;
 }
 

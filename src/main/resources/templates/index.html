@@ -12,7 +12,7 @@
 </head>
 
 <th:block th:fragment="extraCss">
-    <link rel="canonical" href="https://usanmap.com/index2">
+    <link rel="canonical" href="https://usanmap.com/">
     <meta name="description" content="우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요. 건물주·임대사업자를 위한 부동산 매물 발송 서비스, 우산.">
     <meta property="og:title" content="우산 - 우리동네 부동산 | 지도로 중개사 찾기">
     <meta property="og:description" content="우리 동네 중개사를 지도에서 찾고 내 매물을 빠르게 보내세요.">
@@ -65,146 +65,174 @@
 
 <section class="home-page">
     <h1 class="sr-only">우산 - 우리동네 부동산 중개사 찾기 및 매물 발송 서비스</h1>
+
     <div class="home-page__inner">
 
-        <!--    지도로 중개사 찾기    -->
-        <section class="home-block" id="find-section">
+        <section class="home-block">
 
-            <article class="feature-card find-card">
+            <article class="home-card">
 
-                <h2 class="feature-card__title">지도로 중개사 찾기</h2>
-
-                <div class="find-card__contents">
-                    <div class="find-card__text">
-                        <p class="find-card__headline">
-                            <span class="point_t">내가 선택한 위치기준으로</span><br>
-                            <span class="bold">중개사</span><span class="point_t">를 찾아보세요</span>
-                        </p>
-
-                        <div class="find-card__icons">
-                            <span class="find-icon find-icon--house"></span>
-                            <span class="find-icon find-icon--building"></span>
+                <th:block th:if="${listingCards != null and not #lists.isEmpty(listingCards)}">
+                    <div class="home-card__top" th:each="card, stat : ${listingCards}">
+                        <h2 class="home-card__title">나의 매물</h2>
+                        <div class="home-card__content flex_center">
+                            <div class="home-card__listing-wrapper">
+                                <div class="home-card__listing-item">
+                                    <span class="home-card__listing-number" th:text="'매물 ' + ${stat.count}">매물 1</span>
+                                    <span class="home-card__listing-name" th:text="${card.addressName}">주소명</span>
+                                </div>
+                                <div class="home-card__addr-wrapper">
+                                    <span class="home-card__addr-icon"></span>
+                                    <span class="home-card__addr"
+                                          th:text="${card.roadAddress ?: card.jibunAddress}">
+                                        주소
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="home-card__nearby"
+                                 th:text="|1km 이내에 ${card.nearbyCount}명의 중개사가 있습니다|">
+                                1km 이내에 0개의 중개사가 있습니다
+                            </div>
                         </div>
                     </div>
+                </th:block>
 
-                    <div class="find-icon--grid">
-                        <img src="/img/home-map-card.svg"
-                             alt="지도에서 중개사 찾기"
-                             onerror="this.style.display='none'">
-                    </div>
-                </div>
-
-                <div class="compare-card__contents" style="display: none">
-                    <div class="compare-card__text">
-                        내 매물에 딱 맞는<br>
-                        <span class="point_g bold">중개사를 자동으로 추천</span> 받아보세요!
-                    </div>
-
-                    <img src="/img/compare-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="compare-card__image" loading="lazy" />
-                </div>
-
-                <div class="moment-card__contents" style="display: none">
-                    <div class="moment-card__left">
-                        <div class="moment-card__text">
-                            선택한 중개사에게<br>
-                            매물을 <span class="point_n bold">즉시</span> 전송하세요!
+                <div class="home-card__top">
+                    <h2 class="home-card__title">내 매물 위치 찾기</h2>
+                    <div class="home-card__content">
+                        <div class="home-card__text">
+                            <span class="semi-bold">홍보할 매물</span>의 위치를 선택하세요.
                         </div>
-                        <div class="moment-card__icons">
-                            <span class="moment-card__icon moment-icon--mail"></span>
-                            <span class="moment-card__icon moment-icon--more-horiz"></span>
-                            <span class="moment-card__icon moment-icon--building"></span>
-                            <span class="moment-card__icon moment-icon--more-horiz"></span>
-                            <span class="moment-card__icon moment-icon--user"></span>
-                        </div>
+                        <img src="/img/100x100-blue-home.png" class="home-card__img" alt="매물 위치 선택">
+                    </div>
+                </div>
+
+                <div class="home-card__bottom">
+
+                    <div class="dot-indicator" aria-hidden="true"
+                         th:if="${listingCards != null and not #lists.isEmpty(listingCards)}">
+                        <th:block th:each="i : ${#numbers.sequence(1, #lists.size(listingCards) + 1)}">
+                            <span class="dot" th:classappend="${i == 1} ? 'is-active' : ''"></span>
+                        </th:block>
                     </div>
 
-                    <img src="/img/moment-card-img.png" alt="내 매물에 딱 맞는 중개사를 자동으로 추천 받아보세요!" class="moment-card__image moment-card__right" loading="lazy" />
-                </div>
+                    <a th:href="@{/region/selector}" class="btn btn--primary">위치 선택하기</a>
 
-                <div class="dot-indicator">
-                    <span class="dot is-active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
                 </div>
-
-                <button type="button"
-                        class="btn btn--primary home-block__cta"
-                        th:onclick="|location.href='@{/region/selector}'|">
-                    중개사 찾기
-                </button>
 
             </article>
-        </section>
 
-        <!--   내 매물 전송     -->
-        <section class="home-block" id="send-section">
-            <article class="feature-card send-card">
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var card = document.querySelector('.home-card');
+                    if (!card) return;
 
-                <h2 class="feature-card__title">내 매물 전송</h2>
+                    var slides = Array.from(card.querySelectorAll('.home-card__top'));
+                    var dots = Array.from(card.querySelectorAll('.dot'));
 
-                <div class="send-card__contents">
-                    <div class="send-card__text">
-                        <p class="send-card__headline">
-                            <span class="bold">주변 중개사</span>에게<br>
-                            내 매물을 빠르게 홍보해보세요!
-                        </p>
-                    </div>
-                    <div class="send-icon--speaker">
-                        <img src="/img/100x100-speaker.svg"
-                             alt="내 매물 전송"
-                             loading="lazy"
-                             onerror="this.style.display='none'">
-                    </div>
-                </div>
+                    if (slides.length <= 1) return;
 
-                <div class="step-card__contents" style="display: none">
-                    <div class="step-card__step">
-                        <div class="step__step-text">STEP.1</div>
-                        <span class="step-icon--scroll"></span>
-                        <div class="step__step-desc">매물등록</div>
-                    </div>
-                    <span class="step-icon--next"></span>
-                    <div class="step-card__step">
-                        <div class="step__step-text">STEP.2</div>
-                        <span class="step-icon--broker"></span>
-                        <div class="step__step-desc">중개사 추천</div>
-                    </div>
-                    <span class="step-icon--next"></span>
-                    <div class="step-card__step">
-                        <div class="step__step-text">STEP.3</div>
-                        <span class="step-icon--send"></span>
-                        <div class="step__step-desc">매물발송</div>
-                    </div>
-                </div>
+                    var current = 0;
+                    var autoTimer = null;
+                    var AUTO_DELAY = 15000;
+                    var DRAG_THRESHOLD = 40;
 
-                <div class="promotion-card__contents" style="display: none">
-                    <div class="promotion-card__step">
-                        <div class="promotion__step-text">빠르고 신속한<br>매물중개!</div>
-                        <span class="promotion-icon--house"></span>
-                    </div>
-                    <span class="promotion-icon--next"></span>
-                    <div class="promotion-card__step">
-                        <div class="promotion__step-text">전국 3천만의<br>중개사!</div>
-                        <span class="promotion-icon--man"></span>
-                    </div>
-                    <span class="promotion-icon--next"></span>
-                    <div class="promotion-card__step">
-                        <div class="promotion__step-text">쉬운<br>매물관리!</div>
-                        <span class="promotion-icon--airplane"></span>
-                    </div>
-                </div>
+                    slides.forEach(function (s, i) {
+                        s.style.display = i === 0 ? 'flex' : 'none';
+                    });
 
-                <div class="dot-indicator">
-                    <span class="dot is-active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                </div>
+                    function updateDots(idx) {
+                        dots.forEach(function (d, i) {
+                            d.classList.toggle('is-active', i === idx);
+                        });
+                    }
 
-                <button type="button" class="btn btn--primary home-block__cta" th:onclick="|location.href='@{/listings/new}'|">
-                    <span class="btn-icon--plus"></span>내 매물 등록
-                </button>
+                    function show(targetIdx, direction) {
+                        if (targetIdx === current) return;
+                        var from = slides[current];
+                        var to = slides[targetIdx];
+                        current = targetIdx;
 
-            </article>
+                        from.style.transition = 'none';
+                        from.style.display = 'none';
+                        from.style.transform = '';
+                        from.style.opacity = '';
+
+                        var fromX = direction === 'next' ? '40px' : '-40px';
+                        to.style.transition = 'none';
+                        to.style.transform = 'translateX(' + fromX + ')';
+                        to.style.opacity = '0';
+                        to.style.display = 'flex';
+
+                        requestAnimationFrame(function () {
+                            void to.offsetWidth;
+                            to.style.transition = 'transform 350ms ease-out, opacity 350ms ease-out';
+                            to.style.transform = 'translateX(0)';
+                            to.style.opacity = '1';
+                        });
+
+                        updateDots(targetIdx);
+                    }
+
+                    function startAutoPlay() {
+                        stopAutoPlay();
+                        autoTimer = setInterval(function () {
+                            show((current + 1) % slides.length, 'next');
+                        }, AUTO_DELAY);
+                    }
+
+                    function stopAutoPlay() {
+                        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+                    }
+
+                    function pauseAndRestart() {
+                        stopAutoPlay();
+                        setTimeout(startAutoPlay, AUTO_DELAY);
+                    }
+
+                    dots.forEach(function (dot, i) {
+                        dot.addEventListener('click', function () {
+                            if (i === current) return;
+                            show(i, i > current ? 'next' : 'prev');
+                            pauseAndRestart();
+                        });
+                    });
+
+                    var startX = 0, moved = false, dragging = false;
+
+                    function onDragStart(x) { startX = x; moved = false; dragging = true; }
+                    function onDragMove(x) { if (dragging && Math.abs(x - startX) > 5) moved = true; }
+                    function onDragEnd(x) {
+                        if (!dragging || !moved) { dragging = false; return; }
+                        dragging = false;
+                        var dx = x - startX;
+                        if (Math.abs(dx) < DRAG_THRESHOLD) return;
+                        show(
+                            dx < 0 ? (current + 1) % slides.length : (current - 1 + slides.length) % slides.length,
+                            dx < 0 ? 'next' : 'prev'
+                        );
+                        pauseAndRestart();
+                    }
+
+                    card.addEventListener('touchstart', function (e) {
+                        if (e.touches.length) onDragStart(e.touches[0].clientX);
+                    }, { passive: true });
+                    card.addEventListener('touchmove', function (e) {
+                        if (e.touches.length) onDragMove(e.touches[0].clientX);
+                    }, { passive: true });
+                    card.addEventListener('touchend', function (e) {
+                        onDragEnd(e.changedTouches.length ? e.changedTouches[0].clientX : startX);
+                    });
+
+                    card.addEventListener('mousedown', function (e) { onDragStart(e.clientX); });
+                    card.addEventListener('mousemove', function (e) { onDragMove(e.clientX); });
+                    card.addEventListener('mouseup', function (e) { onDragEnd(e.clientX); });
+                    card.addEventListener('mouseleave', function () { dragging = false; });
+
+                    updateDots(0);
+                    startAutoPlay();
+                });
+            </script>
 
         </section>
 
@@ -411,192 +439,3 @@
 </section>
 
 </html>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // #find-section : 지도 섹션
-        initCardSlider("#find-section", [
-            ".find-card__contents",
-            ".compare-card__contents",
-            ".moment-card__contents"
-        ]);
-
-        // #send-section : 내 매물 전송 섹션
-        initCardSlider("#send-section", [
-            ".send-card__contents",
-            ".step-card__contents",
-            ".promotion-card__contents"
-        ]);
-    });
-
-    /**
-     * sectionSelector: "#find-section" 같은 섹션 선택자
-     * contentSelectors: 섹션 안에서 롤링할 컨텐츠 블록들의 선택자 배열
-     */
-    function initCardSlider(sectionSelector, contentSelectors) {
-        const section = document.querySelector(sectionSelector);
-        if (!section) return;
-
-        // 섹션 안에서 지정된 컨텐츠들을 순서대로 찾아서 배열로 구성
-        const cards = contentSelectors
-            .map(sel => section.querySelector(sel))
-            .filter(Boolean);
-
-        const dots = section.querySelectorAll(".dot");
-
-        if (cards.length <= 1 || dots.length !== cards.length) {
-            // 롤링할 카드가 1개 이하이거나 dot 개수가 맞지 않으면 동작 X
-            return;
-        }
-
-        let index = 0;
-        let autoTimer = null;
-        const AUTO_DELAY = 15000;        // 자동 롤링: 15초
-        const SWIPE_THRESHOLD = 40;     // 스와이프 최소 거리(px)
-
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchEndX = 0;
-        let touchEndY = 0;
-        let isSwiping = false;
-
-        function updateDots(activeIndex) {
-            dots.forEach((d, idx) => {
-                d.classList.toggle("is-active", idx === activeIndex);
-            });
-        }
-
-        function show(targetIndex, direction) {
-            index = targetIndex;
-
-            // 현재 index 이외 카드 모두 숨기기
-            cards.forEach((card, idx) => {
-                if (idx !== index) {
-                    card.style.display = "none";
-                    card.style.opacity = "";
-                    card.style.transform = "";
-                    card.style.transition = "";
-                }
-            });
-
-            const card = cards[index];
-            // 컨텐츠 블록은 대부분 flex 레이아웃이므로 flex로 노출
-            card.style.display = "flex";
-
-            if (direction === "next" || direction === "prev") {
-                const fromX = direction === "next" ? "30px" : "-30px";
-
-                card.style.transform = `translateX(${fromX})`;
-                card.style.opacity = "0";
-                card.style.transition = "none";
-
-                requestAnimationFrame(() => {
-                    // 강제 리플로우
-                    void card.offsetWidth;
-
-                    card.style.transition = "transform 400ms ease-out, opacity 400ms ease-out";
-                    card.style.transform = "translateX(0)";
-                    card.style.opacity = "1";
-                });
-            } else {
-                // 초기 진입 등 방향이 없을 때
-                card.style.transform = "translateX(0)";
-                card.style.opacity = "1";
-                card.style.transition = "none";
-            }
-
-            updateDots(index);
-        }
-
-        function startAutoPlay() {
-            stopAutoPlay();
-            autoTimer = setInterval(() => {
-                const next = (index + 1) % cards.length;
-                show(next, "next");
-            }, AUTO_DELAY);
-        }
-
-        function stopAutoPlay() {
-            if (autoTimer) {
-                clearInterval(autoTimer);
-                autoTimer = null;
-            }
-        }
-
-        function pauseAndRestartAutoPlay() {
-            stopAutoPlay();
-            // dot 클릭·스와이프 후 한 텀 쉬고 다시 시작
-            setTimeout(startAutoPlay, AUTO_DELAY);
-        }
-
-        // dot 클릭
-        dots.forEach((dot, i) => {
-            dot.addEventListener("click", () => {
-                if (i === index) return;
-
-                const direction = i > index ? "next" : "prev";
-                show(i, direction);
-                pauseAndRestartAutoPlay();
-            });
-        });
-
-        // 터치 스와이프 – 섹션 전체 기준
-        section.addEventListener(
-            "touchstart",
-            (e) => {
-                if (!e.touches || e.touches.length === 0) return;
-
-                const touch = e.touches[0];
-                touchStartX = touch.clientX;
-                touchStartY = touch.clientY;
-                touchEndX = touchStartX;
-                touchEndY = touchStartY;
-                isSwiping = false;
-            },
-            { passive: true }
-        );
-
-        section.addEventListener(
-            "touchmove",
-            (e) => {
-                if (!e.touches || e.touches.length === 0) return;
-
-                const touch = e.touches[0];
-                touchEndX = touch.clientX;
-                touchEndY = touch.clientY;
-
-                const dx = touchEndX - touchStartX;
-                const dy = touchEndY - touchStartY;
-
-                // 가로 이동이 세로보다 클 때만 스와이프 인식
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    isSwiping = true;
-                }
-            },
-            { passive: true }
-        );
-
-        section.addEventListener("touchend", () => {
-            if (!isSwiping) return;
-
-            const dx = touchEndX - touchStartX;
-            if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-
-            if (dx < 0) {
-                // 왼쪽으로 swipe → 다음
-                const next = (index + 1) % cards.length;
-                show(next, "next");
-            } else {
-                // 오른쪽으로 swipe → 이전
-                const prev = (index - 1 + cards.length) % cards.length;
-                show(prev, "prev");
-            }
-
-            pauseAndRestartAutoPlay();
-        });
-
-        // 초기 상태
-        show(0);
-        startAutoPlay();
-    }
-</script>
