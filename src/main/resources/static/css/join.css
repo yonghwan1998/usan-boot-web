@@ -1,5 +1,5 @@
 .join-page {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     padding: 0 16px;
     display: flex;
     flex-direction: column;
