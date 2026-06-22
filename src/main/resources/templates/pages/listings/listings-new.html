@@ -771,8 +771,14 @@
                 if (!window.__SELECTED_ADDRESS__) return;
                 const base = (window.__SELECTED_ADDRESS__.name || '').trim();
                 const detail = detailEl.value.trim();
+                const displayTitle = detail ? `${base} ${detail}` : base;
+
                 const addressNameEl = document.querySelector('[name="addressName"]');
-                if (addressNameEl) addressNameEl.value = detail ? `${base} ${detail}` : base;
+                if (addressNameEl) addressNameEl.value = displayTitle;
+
+                document.querySelectorAll('.selected-address__title').forEach(el => {
+                    el.textContent = displayTitle;
+                });
             });
         });
     </script>
