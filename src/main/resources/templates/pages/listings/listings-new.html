@@ -195,7 +195,8 @@
                                step="1"
                                class="common-input"
                                th:field="*{depositManwon}"
-                               placeholder="보증금(만원) 입력" />
+                               placeholder="보증금(만원) 입력"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
@@ -207,7 +208,8 @@
                                step="1"
                                class="common-input"
                                th:field="*{rentManwon}"
-                               placeholder="월세(만원) 입력" />
+                               placeholder="월세(만원) 입력"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
@@ -219,7 +221,8 @@
                                step="1"
                                class="common-input"
                                th:field="*{priceManwon}"
-                               placeholder="매매가(만원) 입력" />
+                               placeholder="매매가(만원) 입력"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 

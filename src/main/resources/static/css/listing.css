@@ -403,3 +403,11 @@
     color: #0d0d0d;
     white-space: nowrap;
 }
+
+.manwon-hint {
+    font-size: 14px;
+    color: #737373;
+    margin-top: 6px;
+    padding-left: 2px;
+    min-height: 20px;
+}
