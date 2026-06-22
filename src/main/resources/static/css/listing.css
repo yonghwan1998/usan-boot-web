@@ -1,5 +1,5 @@
 .listing-page {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
 }
@@ -8,16 +8,13 @@
     padding: 8px 16px;
 }
 
-.listing-step {
-    padding: 0 64px;
-}
-
 .listing-text {
     text-align: center;
     font-weight: 500;
     font-size: 20px;
     color: #0d0d0d;
-    margin-bottom: 24px;
+    margin-bottom: 27px;
+    display: none;
 }
 
 .role-toggle {
@@ -27,6 +24,8 @@
 
 .role-toggle input[type="radio"] {
     position: absolute;
+    width: 0;
+    height: 0;
     opacity: 0;
     pointer-events: none;
 }
@@ -70,6 +69,8 @@
 
 .type-toggle input[type="radio"] {
     position: absolute;
+    width: 0;
+    height: 0;
     opacity: 0;
     pointer-events: none;
 }
@@ -96,7 +97,7 @@
     display: flex;
     flex-direction: column;
 
-    height: calc(var(--app-vh, 1vh) * 50);
+    height: 50dvh;;
 }
 
 .address-list-wrapper {
@@ -227,7 +228,7 @@
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
-    height: calc(var(--app-vh, 1vh) * 50);
+    height: 50dvh;;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;

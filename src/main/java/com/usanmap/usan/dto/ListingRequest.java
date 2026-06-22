@@ -19,6 +19,9 @@ public record ListingRequest(
         String roadAddress,
         String jibunAddress,
         String addressDetail,
+        String sido,
+        String sigungu,
+        String emd,
 
         @NotNull Double lat,
         @NotNull Double lng,
@@ -43,6 +46,6 @@ public record ListingRequest(
 
 ) {
     public static ListingRequest empty() {
-        return new ListingRequest(null, null, "", "", "", "", null, null, "", "", "", null, null, null, null, "", "", null, "");
+        return new ListingRequest(null, null, "", "", "", "", "", "", "", null, null, "", "", "", null, null, null, null, "", "", null, "");
     }
 }
