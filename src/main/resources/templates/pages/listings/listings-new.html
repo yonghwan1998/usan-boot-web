@@ -32,151 +32,69 @@
 
         <div class="common-step__step">
             <div class="common-step__num">1</div>
-            <div class="common-step__caption">Step 1</div>
+            <div class="common-step__caption">주소 선택</div>
         </div>
 
         <div class="common-step__line"></div>
 
         <div class="common-step__step">
             <div class="common-step__num">2</div>
-            <div class="common-step__caption">Step 2</div>
+            <div class="common-step__caption">상세주소</div>
         </div>
 
         <div class="common-step__line"></div>
 
         <div class="common-step__step">
             <div class="common-step__num">3</div>
-            <div class="common-step__caption">Step 3</div>
+            <div class="common-step__caption">매물 정보</div>
         </div>
 
     </div>
 
-    <div class="listing-text" id="listingText">집주인이신가요?</div>
+    <div class="listing-text" id="listingText">등록하시려는 매물의 주소를 입력해주세요.</div>
 
     <form th:action="@{/listings}" method="post" th:object="${listingRequest}" id="listingForm" enctype="multipart/form-data">
 
         <input type="hidden" th:field="*{addressName}" />
         <input type="hidden" th:field="*{roadAddress}" />
         <input type="hidden" th:field="*{jibunAddress}" />
+        <input type="hidden" th:field="*{sido}" />
+        <input type="hidden" th:field="*{sigungu}" />
+        <input type="hidden" th:field="*{emd}" />
         <input type="hidden" th:field="*{lat}" />
         <input type="hidden" th:field="*{lng}" />
 
-        <input type="hidden" th:field="*{role}" id="roleHidden" />
-        <input type="hidden" th:field="*{type}" id="typeHidden" />
+        <div class="listing-wrapper--address pr_16 pl_16">
 
-        <div class="listing-wrapper--listing pr_16 pl_16">
-
-            <div class="role-toggle flex_center" role="radiogroup" aria-label="역할 선택">
-                <input type="radio" name="role_ui_1" id="role-owner" value="OWNER">
-                <label for="role-owner" class="listing-pill role-pill">집주인</label>
-
-                <input type="radio" name="role_ui_1" id="role-tenant" value="TENANT">
-                <label for="role-tenant" class="listing-pill role-pill">세입자</label>
-
-                <input type="radio" name="role_ui_1" id="role-manager" value="MANAGER">
-                <label for="role-manager" class="listing-pill role-pill">관리인</label>
+            <div class="common-input-wrapper">
+                <input type="text"
+                       placeholder="주소를 입력해 주세요"
+                       class="common-input listing-address__input"
+                       name="addressKeyword"/>
+                <button type="button"
+                        class="common-input-btn common-input__magnifier-btn"></button>
             </div>
 
-            <div class="listing-text__type">등록하시려는 매물을 선택해 주세요.</div>
-
-            <div class="type-toggle" role="radiogroup" aria-label="매물 종류 선택">
-                <input type="radio" name="type_ui_1" id="type-apt" value="APT">
-                <label for="type-apt" class="listing-pill type-pill">아파트</label>
-
-                <input type="radio" name="type_ui_1" id="type-officetel" value="OFFICETEL">
-                <label for="type-officetel" class="listing-pill type-pill">오피스텔</label>
-
-                <input type="radio" name="type_ui_1" id="type-villa" value="VILLA">
-                <label for="type-villa" class="listing-pill type-pill">빌라/연립</label>
-
-                <input type="radio" name="type_ui_1" id="type-oneroom" value="ONEROOM">
-                <label for="type-oneroom" class="listing-pill type-pill">원룸</label>
-
-                <input type="radio" name="type_ui_1" id="type-tworoom" value="TWOROOM">
-                <label for="type-tworoom" class="listing-pill type-pill">투룸</label>
-
-                <input type="radio" name="type_ui_1" id="type-detached" value="DETACHED">
-                <label for="type-detached" class="listing-pill type-pill">단독/다가구</label>
-
-                <input type="radio" name="type_ui_1" id="type-rural" value="RURAL">
-                <label for="type-rural" class="listing-pill type-pill">전원주택</label>
-
-                <input type="radio" name="type_ui_1" id="type-mixedhouse" value="MIXEDHOUSE">
-                <label for="type-mixedhouse" class="listing-pill type-pill">상가주택</label>
-
-                <input type="radio" name="type_ui_1" id="type-hanok" value="HANOK">
-                <label for="type-hanok" class="listing-pill type-pill">한옥주택</label>
-
-                <input type="radio" name="type_ui_1" id="type-store" value="STORE">
-                <label for="type-store" class="listing-pill type-pill">상가</label>
-
-                <input type="radio" name="type_ui_1" id="type-office" value="OFFICE">
-                <label for="type-office" class="listing-pill type-pill">사무실</label>
-
-                <input type="radio" name="type_ui_1" id="type-building" value="BUILDING">
-                <label for="type-building" class="listing-pill type-pill">건물</label>
-
-                <input type="radio" name="type_ui_1" id="type-factory" value="FACTORY">
-                <label for="type-factory" class="listing-pill type-pill">공장/창고</label>
-
-                <input type="radio" name="type_ui_1" id="type-knowledge" value="KNOWLEDGE">
-                <label for="type-knowledge" class="listing-pill type-pill">지식산업센터</label>
-
-                <input type="radio" name="type_ui_1" id="type-land" value="LAND">
-                <label for="type-land" class="listing-pill type-pill">토지</label>
-
-                <input type="radio" name="type_ui_1" id="type-apt_sale" value="APT_SALE">
-                <label for="type-apt_sale" class="listing-pill type-pill">아파트분양권</label>
-
-                <input type="radio" name="type_ui_1" id="type-officetel_sale" value="OFFICETEL_SALE">
-                <label for="type-officetel_sale" class="listing-pill type-pill">오피스텔분양권</label>
-
-                <input type="radio" name="type_ui_1" id="type-redevelopment" value="REDEVELOPMENT">
-                <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
-
-                <input type="radio" name="type_ui_1" id="type-reconstruction" value="RECONSTRUCTION">
-                <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
-
-                <input type="radio" name="type_ui_1" id="type-presale" value="PRESALE">
-                <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
+            <div class="address-list-wrapper">
             </div>
 
         </div>
 
-        <div class="listing-wrapper--address-step pr_16 pl_16" hidden>
-
-            <div class="listing-wrapper--address">
-
-                <div class="common-input-wrapper">
-                    <input type="text"
-                           placeholder="주소를 입력해 주세요"
-                           class="common-input listing-address__input"
-                           name="addressKeyword"/>
-                    <button type="button"
-                            class="common-input-btn common-input__magnifier-btn"></button>
+        <div class="listing-wrapper--detail pr_16 pl_16" hidden>
+            <div class="selected-address-wrapper">
+                <div class="selected-address__top">
+                    <span class="selected-address__title listing-detail__address-summary">건물명</span>
                 </div>
-
-                <div class="address-list-wrapper">
+                <div class="selected-address__bottom">
+                    <span class="selected-address__jibun">지번</span>
+                    <span class="selected-address__address">지번 주소</span>
                 </div>
-
             </div>
-
-            <div class="listing-wrapper--detail" hidden>
-                <div class="selected-address-wrapper">
-                    <div class="selected-address__top">
-                        <span class="selected-address__title listing-detail__address-summary">건물명</span>
-                    </div>
-                    <div class="selected-address__bottom">
-                        <span class="selected-address__jibun">지번</span>
-                        <span class="selected-address__address">지번 주소</span>
-                    </div>
-                </div>
-                <div class="common-input-wrapper pr_16 pl_16">
-                    <input type="text"
-                           placeholder="상세주소를 입력해 주세요"
-                           class="common-input"
-                           th:field="*{addressDetail}"/>
-                </div>
+            <div class="common-input-wrapper">
+                <input type="text"
+                       placeholder="상세주소를 입력해 주세요"
+                       class="common-input"
+                       th:field="*{addressDetail}"/>
             </div>
         </div>
 
@@ -194,13 +112,13 @@
                             </div>
                         </div>
                         <div class="selected-address__right">
-                            <button type="button" class="listing-edit__edit-button">수정</button>
+                            <button type="button" class="listing-edit__edit-button" onclick="setStep(1)">수정</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">소유주 이름</div>
+                    <div class="listing-edit__section-title">소유주 이름<span class="common-required-mark">*</span></div>
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="이름 입력"
@@ -210,7 +128,7 @@
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">통신사</div>
+                    <div class="listing-edit__section-title">통신사<span class="common-required-mark">*</span></div>
                     <div class="common-select" data-name="carrier">
                         <div class="common-input-wrapper">
                             <input type="text"
@@ -235,7 +153,7 @@
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">소유주 휴대폰 번호</div>
+                    <div class="listing-edit__section-title">소유주 휴대폰 번호<span class="common-required-mark">*</span></div>
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="소유주 휴대폰 번호 입력"
@@ -245,7 +163,7 @@
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">거래 유형</div>
+                    <div class="listing-edit__section-title">거래 유형<span class="common-required-mark">*</span></div>
                     <div class="common-select" data-name="tradeType">
                         <div class="common-input-wrapper">
                             <input type="text"
@@ -269,7 +187,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="deposit" hidden>
                     <div class="listing-edit__section-title">보증금</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -277,11 +195,12 @@
                                step="1"
                                class="common-input"
                                th:field="*{depositManwon}"
-                               placeholder="보증금(만원) 입력" />
+                               placeholder="보증금(만원) 입력"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="rent" hidden>
                     <div class="listing-edit__section-title">월세</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -289,11 +208,12 @@
                                step="1"
                                class="common-input"
                                th:field="*{rentManwon}"
-                               placeholder="월세(만원) 입력" />
+                               placeholder="월세(만원) 입력"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="price" hidden>
                     <div class="listing-edit__section-title">매매가</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -301,11 +221,12 @@
                                step="1"
                                class="common-input"
                                th:field="*{priceManwon}"
-                               placeholder="매매가(만원) 입력" />
+                               placeholder="매매가(만원) 입력"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="dongho" hidden>
                     <div class="listing-edit__section-title">동·호수</div>
                     <div class="common-input-wrapper">
                         <input type="text"
@@ -315,7 +236,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="floor" hidden>
                     <div class="listing-edit__section-title">층</div>
                     <div class="common-input-wrapper">
                         <input type="text"
@@ -325,7 +246,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="area" hidden>
                     <div class="listing-edit__section-title">면적</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -337,31 +258,31 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">사진첨부</div>
+<!--                <div class="listing-edit__section">-->
+<!--                    <div class="listing-edit__section-title">사진첨부</div>-->
 
-                    <label class="common-upload" for="photoFiles">
-                        <input id="photoFiles"
-                               name="photoFiles"
-                               type="file"
-                               class="common-upload__input"
-                               accept="png,.jpg,.jpeg,.pdf"
-                               multiple
-                        />
+<!--                    <label class="common-upload" for="photoFiles">-->
+<!--                        <input id="photoFiles"-->
+<!--                               name="photoFiles"-->
+<!--                               type="file"-->
+<!--                               class="common-upload__input"-->
+<!--                               accept="png,.jpg,.jpeg,.pdf"-->
+<!--                               multiple-->
+<!--                        />-->
 
-                        <span class="common-upload__icon" aria-hidden="true"></span>
+<!--                        <span class="common-upload__icon" aria-hidden="true"></span>-->
 
-                        <span class="common-upload__text">
-                            여기를 눌러 사진을 첨부해 주세요.
-                        </span>
+<!--                        <span class="common-upload__text">-->
+<!--                            여기를 눌러 사진을 첨부해 주세요.-->
+<!--                        </span>-->
 
-                        <span class="common-upload__hint">
-                            첨부 가능한 확장자 - PNG, JPG, PDF
-                        </span>
-                    </label>
-                </div>
+<!--                        <span class="common-upload__hint">-->
+<!--                            첨부 가능한 확장자 - PNG, JPG, PDF-->
+<!--                        </span>-->
+<!--                    </label>-->
+<!--                </div>-->
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="description" hidden>
                     <div class="listing-edit__section-title">상세정보</div>
                     <div class="common-input-wrapper">
                         <textarea class="common-input"
@@ -382,82 +303,82 @@
 
                 <div class="listing-edit__section-wrapper">
                     <div class="listing-edit__section">
-                        <div class="listing-edit__section-title">소유 관계</div>
+                        <div class="listing-edit__section-title">소유 관계<span class="common-required-mark">*</span></div>
 
                         <div class="role-toggle" role="radiogroup" aria-label="역할 선택">
-                            <input type="radio" name="role_ui_3" id="role-owner-3" value="OWNER">
-                            <label for="role-owner-3" class="listing-pill role-pill">집주인</label>
+                            <input type="radio" name="role" id="role-owner" value="OWNER">
+                            <label for="role-owner" class="listing-pill role-pill">집주인</label>
 
-                            <input type="radio" name="role_ui_3" id="role-tenant-3" value="TENANT">
-                            <label for="role-tenant-3" class="listing-pill role-pill">세입자</label>
+                            <input type="radio" name="role" id="role-tenant" value="TENANT">
+                            <label for="role-tenant" class="listing-pill role-pill">세입자</label>
 
-                            <input type="radio" name="role_ui_3" id="role-manager-3" value="MANAGER">
-                            <label for="role-manager-3" class="listing-pill role-pill">관리인</label>
+                            <input type="radio" name="role" id="role-manager" value="MANAGER">
+                            <label for="role-manager" class="listing-pill role-pill">관리인</label>
                         </div>
                     </div>
                     <div class="listing-edit__section">
-                        <div class="listing-edit__section-title">매물종류</div>
+                        <div class="listing-edit__section-title">매물종류<span class="common-required-mark">*</span></div>
 
                         <div class="type-toggle" role="radiogroup" aria-label="매물 종류 선택">
-                            <input type="radio" name="type_ui_3" id="type-apt-3" value="APT">
-                            <label for="type-apt-3" class="listing-pill type-pill">아파트</label>
+                            <input type="radio" name="type" id="type-apt" value="APT">
+                            <label for="type-apt" class="listing-pill type-pill">아파트</label>
 
-                            <input type="radio" name="type_ui_3" id="type-officetel-3" value="OFFICETEL">
-                            <label for="type-officetel-3" class="listing-pill type-pill">오피스텔</label>
+                            <input type="radio" name="type" id="type-officetel" value="OFFICETEL">
+                            <label for="type-officetel" class="listing-pill type-pill">오피스텔</label>
 
-                            <input type="radio" name="type_ui_3" id="type-villa-3" value="VILLA">
-                            <label for="type-villa-3" class="listing-pill type-pill">빌라/연립</label>
+                            <input type="radio" name="type" id="type-villa" value="VILLA">
+                            <label for="type-villa" class="listing-pill type-pill">빌라/연립</label>
 
-                            <input type="radio" name="type_ui_3" id="type-oneroom-3" value="ONEROOM">
-                            <label for="type-oneroom-3" class="listing-pill type-pill">원룸</label>
+                            <input type="radio" name="type" id="type-oneroom" value="ONEROOM">
+                            <label for="type-oneroom" class="listing-pill type-pill">원룸</label>
 
-                            <input type="radio" name="type_ui_3" id="type-tworoom-3" value="TWOROOM">
-                            <label for="type-tworoom-3" class="listing-pill type-pill">투룸</label>
+                            <input type="radio" name="type" id="type-tworoom" value="TWOROOM">
+                            <label for="type-tworoom" class="listing-pill type-pill">투룸</label>
 
-                            <input type="radio" name="type_ui_3" id="type-detached-3" value="DETACHED">
-                            <label for="type-detached-3" class="listing-pill type-pill">단독/다가구</label>
+                            <input type="radio" name="type" id="type-detached" value="DETACHED">
+                            <label for="type-detached" class="listing-pill type-pill">단독/다가구</label>
 
-                            <input type="radio" name="type_ui_3" id="type-rural-3" value="RURAL">
-                            <label for="type-rural-3" class="listing-pill type-pill">전원주택</label>
+                            <input type="radio" name="type" id="type-rural" value="RURAL">
+                            <label for="type-rural" class="listing-pill type-pill">전원주택</label>
 
-                            <input type="radio" name="type_ui_3" id="type-mixedhouse-3" value="MIXEDHOUSE">
-                            <label for="type-mixedhouse-3" class="listing-pill type-pill">상가주택</label>
+                            <input type="radio" name="type" id="type-mixedhouse" value="MIXEDHOUSE">
+                            <label for="type-mixedhouse" class="listing-pill type-pill">상가주택</label>
 
-                            <input type="radio" name="type_ui_3" id="type-hanok-3" value="HANOK">
-                            <label for="type-hanok-3" class="listing-pill type-pill">한옥주택</label>
+                            <input type="radio" name="type" id="type-hanok" value="HANOK">
+                            <label for="type-hanok" class="listing-pill type-pill">한옥주택</label>
 
-                            <input type="radio" name="type_ui_3" id="type-store-3" value="STORE">
-                            <label for="type-store-3" class="listing-pill type-pill">상가</label>
+                            <input type="radio" name="type" id="type-store" value="STORE">
+                            <label for="type-store" class="listing-pill type-pill">상가</label>
 
-                            <input type="radio" name="type_ui_3" id="type-office-3" value="OFFICE">
-                            <label for="type-office-3" class="listing-pill type-pill">사무실</label>
+                            <input type="radio" name="type" id="type-office" value="OFFICE">
+                            <label for="type-office" class="listing-pill type-pill">사무실</label>
 
-                            <input type="radio" name="type_ui_3" id="type-building-3" value="BUILDING">
-                            <label for="type-building-3" class="listing-pill type-pill">건물</label>
+                            <input type="radio" name="type" id="type-building" value="BUILDING">
+                            <label for="type-building" class="listing-pill type-pill">건물</label>
 
-                            <input type="radio" name="type_ui_3" id="type-factory-3" value="FACTORY">
-                            <label for="type-factory-3" class="listing-pill type-pill">공장/창고</label>
+                            <input type="radio" name="type" id="type-factory" value="FACTORY">
+                            <label for="type-factory" class="listing-pill type-pill">공장/창고</label>
 
-                            <input type="radio" name="type_ui_3" id="type-knowledge-3" value="KNOWLEDGE">
-                            <label for="type-knowledge-3" class="listing-pill type-pill">지식산업센터</label>
+                            <input type="radio" name="type" id="type-knowledge" value="KNOWLEDGE">
+                            <label for="type-knowledge" class="listing-pill type-pill">지식산업센터</label>
 
-                            <input type="radio" name="type_ui_3" id="type-land-3" value="LAND">
-                            <label for="type-land-3" class="listing-pill type-pill">토지</label>
+                            <input type="radio" name="type" id="type-land" value="LAND">
+                            <label for="type-land" class="listing-pill type-pill">토지</label>
 
-                            <input type="radio" name="type_ui_3" id="type-apt_sale-3" value="APT_SALE">
-                            <label for="type-apt_sale-3" class="listing-pill type-pill">아파트분양권</label>
+                            <input type="radio" name="type" id="type-apt_sale" value="APT_SALE">
+                            <label for="type-apt_sale" class="listing-pill type-pill">아파트분양권</label>
 
-                            <input type="radio" name="type_ui_3" id="type-officetel_sale-3" value="OFFICETEL_SALE">
-                            <label for="type-officetel_sale-3" class="listing-pill type-pill">오피스텔분양권</label>
+                            <input type="radio" name="type" id="type-officetel_sale" value="OFFICETEL_SALE">
+                            <label for="type-officetel_sale" class="listing-pill type-pill">오피스텔분양권</label>
 
-                            <input type="radio" name="type_ui_3" id="type-redevelopment-3" value="REDEVELOPMENT">
-                            <label for="type-redevelopment-3" class="listing-pill type-pill">재개발</label>
+                            <input type="radio" name="type" id="type-redevelopment" value="REDEVELOPMENT">
+                            <label for="type-redevelopment" class="listing-pill type-pill">재개발</label>
 
-                            <input type="radio" name="type_ui_3" id="type-reconstruction-3" value="RECONSTRUCTION">
-                            <label for="type-reconstruction-3" class="listing-pill type-pill">재건축</label>
+                            <input type="radio" name="type" id="type-reconstruction" value="RECONSTRUCTION">
+                            <label for="type-reconstruction" class="listing-pill type-pill">재건축</label>
 
-                            <input type="radio" name="type_ui_3" id="type-presale-3" value="PRESALE">
-                            <label for="type-presale-3" class="listing-pill type-pill">분양중/예정</label>
+                            <input type="radio" name="type" id="type-presale" value="PRESALE">
+                            <label for="type-presale" class="listing-pill type-pill">분양중/예정</label>
                         </div>
                     </div>
                 </div>
@@ -475,14 +396,14 @@
 
     <script>
         const steps = [
-            { text: '집주인이신가요?',   show: '.listing-wrapper--listing' },
-            { text: '등록하시려는 주소를 입력해 주세요.', show: '.listing-wrapper--address-step' },
+            { text: '등록하시려는 매물의 주소를 입력해 주세요.', show: '.listing-wrapper--address' },
+            { text: '상세주소를 입력해 주세요.', show: '.listing-wrapper--detail' },
             { text: '', show: '.listing-wrapper--info' },
         ];
 
         const wrappers = [
-            '.listing-wrapper--listing',
-            '.listing-wrapper--address-step',
+            '.listing-wrapper--address',
+            '.listing-wrapper--detail',
             '.listing-wrapper--info',
         ];
 
@@ -538,7 +459,7 @@
             const btnNext = qs('#btnNext');
 
             if (btnNext) btnNext.textContent =
-                (step === steps.length) ? '완료' : '다음';
+                (step === steps.length) ? '발송하기' : '다음';
 
             // STEP BAR 갱신
             renderStepBar(step);
@@ -553,10 +474,10 @@
             const getByName = (name) => document.querySelector(`[name="${name}"]`);
             const val = (el) => (el?.value ?? '').trim();
 
-            const role = val($('#roleHidden'));
-            const type = val($('#typeHidden'));
+            const role = document.querySelector('input[name="role"]:checked')?.value ?? '';
+            const type = document.querySelector('input[name="type"]:checked')?.value ?? '';
 
-            const addressDetailEl = getByName('addressDetail'); // th:field="*{addressDetail}" -> name="addressDetail"
+            const addressDetailEl = getByName('addressDetail');
             const addressDetail = val(addressDetailEl);
 
             const ownerNameEl = getByName('ownerName');
@@ -580,24 +501,23 @@
 
             // Step 1
             if (step === 1) {
-                if (!role) return fail('역할을 선택해 주세요.');
-                if (!type) return fail('매물 종류를 선택해 주세요.');
+                if (!window.__SELECTED_ADDRESS__) {
+                    alert('주소를 먼저 선택해 주세요.');
+                    return false;
+                }
                 return true;
             }
 
             // Step 2
             if (step === 2) {
-                // search 상태면 detail 입력으로 유도
-                if (window.__ADDRESS_SUB_STEP__ !== 'detail') {
-                    alert('주소를 먼저 선택해 주세요.');
-                    return false;
-                }
                 if (!addressDetail) return fail('상세주소를 입력해 주세요.', addressDetailEl);
                 return true;
             }
 
             // Step 3
             if (step === 3) {
+                if (!role) return fail('소유 관계를 선택해 주세요.');
+                if (!type) return fail('매물 종류를 선택해 주세요.');
                 if (!ownerName) return fail('소유주 이름을 입력해 주세요.', ownerNameEl);
                 if (!carrier) return fail('통신사를 선택해 주세요.', $('.common-select[data-name="carrier"] .common-select__input') || carrierEl);
 
@@ -616,37 +536,12 @@
             return true;
         }
 
-        function setAddressSubStep(mode) {
-            const $step2 = document.querySelector('.listing-wrapper--address-step');
-            if (!$step2) return;
-
-            const $search = $step2.querySelector('.listing-wrapper--address');
-            const $detail = $step2.querySelector('.listing-wrapper--detail');
-            if (!$search || !$detail) return;
-
-            $search.hidden = (mode !== 'search');
-            $detail.hidden = (mode !== 'detail');
-
-            const $selectedWrap = $detail.querySelector('.selected-address-wrapper');
-            if ($selectedWrap) {
-                $selectedWrap.hidden = (mode === 'detail'); // detail이면 숨김
-            }
-
-            window.__ADDRESS_SUB_STEP__ = mode;
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const initial = Number(qs('.listing-step')?.getAttribute('data-step')) || 1;
             setStep(initial);
 
             qs('#btnPrev')?.addEventListener('click', () => {
                 const step = window.__LISTING_STEP__ || 1;
-
-                if (step === 2 && window.__ADDRESS_SUB_STEP__ === 'detail') {
-                    setAddressSubStep('search');
-                    return;
-                }
-
                 if (step > 1) setStep(step - 1);
             });
 
@@ -677,8 +572,6 @@
                 // 2) 현재 선택
                 item.classList.add('is-selected');
             });
-
-            setAddressSubStep('search');
         });
 
         function applySelectedAddressToUI(selected) {
@@ -765,6 +658,9 @@
                             data-building="${__escapeHtml(buildingName)}"
                             data-road="${__escapeHtml(road)}"
                             data-jibun="${__escapeHtml(jibun)}"
+                            data-sido="${__escapeHtml(item.sido || '')}"
+                            data-sigungu="${__escapeHtml(item.sigungu || '')}"
+                            data-emd="${__escapeHtml(item.emd || '')}"
                             data-lat="${item.lat}"
                             data-lng="${item.lng}"
                         >
@@ -817,6 +713,9 @@
                     name: $item.dataset.name || '',
                     roadAddress: $item.dataset.road || '',
                     jibunAddress: $item.dataset.jibun || '',
+                    sido: $item.dataset.sido || '',
+                    sigungu: $item.dataset.sigungu || '',
+                    emd: $item.dataset.emd || '',
                     lat: Number($item.dataset.lat),
                     lng: Number($item.dataset.lng),
                 };
@@ -831,14 +730,63 @@
                 setValue('addressName', selected.name);
                 setValue('roadAddress', selected.roadAddress);
                 setValue('jibunAddress', selected.jibunAddress);
+                setValue('sido', selected.sido);
+                setValue('sigungu', selected.sigungu);
+                setValue('emd', selected.emd);
                 setValue('lat', String(selected.lat ?? ''));
                 setValue('lng', String(selected.lng ?? ''));
 
                 applySelectedAddressToUI(selected);
 
-                setAddressSubStep('detail');
+                if (selected.sido && selected.emd) {
+                    const params = new URLSearchParams({
+                        sidoName:    selected.sido,
+                        sigunguName: selected.sigungu,
+                        emdName:     selected.emd,
+                        lat:         String(selected.lat),
+                        lng:         String(selected.lng),
+                    });
+                    fetch('/listings/api/region/save', { method: 'POST', body: params })
+                        .catch(() => {});
+                }
+
+                setStep(2);
             });
         });
+    </script>
+
+    <script>
+        (function () {
+            const SECTION_MAP = {
+                SALE:        ['price', 'dongho', 'floor', 'area', 'description'],
+                LAND_SALE:   ['price', 'area', 'description'],
+                JEONSE:      ['deposit', 'dongho', 'floor', 'area', 'description'],
+                MONTHLY:     ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                SEMI_JEONSE: ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                SHORT:       ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                COMMERCIAL:  ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+            };
+
+            function updateVisibleFields(tradeType) {
+                const visible = SECTION_MAP[tradeType] || [];
+                document.querySelectorAll('[data-section]').forEach(el => {
+                    el.hidden = !visible.includes(el.dataset.section);
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const options = document.querySelectorAll('.common-select[data-name="tradeType"] .common-select__options li[data-value]');
+                options.forEach(li => {
+                    li.addEventListener('click', () => {
+                        updateVisibleFields(li.dataset.value);
+                    });
+                });
+
+                // 수정 페이지: 기존 값 반영
+                const initial = (document.querySelector('[name="tradeType"]')?.value ?? '').trim();
+                if (initial) updateVisibleFields(initial);
+            });
+        })();
     </script>
 
     <script>
@@ -868,105 +816,21 @@
             const detailEl = document.querySelector('[name="addressDetail"]');
             if (!detailEl) return;
 
-            const update = () => {
+            detailEl.addEventListener('input', () => {
                 if (!window.__SELECTED_ADDRESS__) return;
-                applySelectedAddressToUI(window.__SELECTED_ADDRESS__);
-            };
+                const base = (window.__SELECTED_ADDRESS__.name || '').trim();
+                const detail = detailEl.value.trim();
+                const displayTitle = detail ? `${base} ${detail}` : base;
 
-            detailEl.addEventListener('input', update);
-            detailEl.addEventListener('change', update);
-        });
-    </script>
+                const addressNameEl = document.querySelector('[name="addressName"]');
+                if (addressNameEl) addressNameEl.value = displayTitle;
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Step1/Step3 라디오 동기화 (hidden = 실제 submit 값)
-            bindDualRadioToHidden('roleHidden', ['role_ui_1', 'role_ui_3']);
-            bindDualRadioToHidden('typeHidden', ['type_ui_1', 'type_ui_3']);
-
-            function bindDualRadioToHidden(hiddenId, uiNames) {
-                const hidden = document.getElementById(hiddenId);
-                if (!hidden) return;
-
-                const groups = uiNames
-                    .map(name => Array.from(document.querySelectorAll(`input[type="radio"][name="${name}"]`)))
-                    .filter(radios => radios.length > 0);
-
-                if (groups.length === 0) return;
-
-                let syncing = false;
-                const defer = (fn) =>
-                    (typeof queueMicrotask === 'function') ? queueMicrotask(fn) : setTimeout(fn, 0);
-
-                const setAll = (value) => {
-                    syncing = true;
-                    groups.forEach(radios => radios.forEach(r => (r.checked = (r.value === value))));
-                    defer(() => (syncing = false));
-                };
-
-                const getAnyChecked = () => {
-                    for (const radios of groups) {
-                        const c = radios.find(r => r.checked);
-                        if (c) return c.value;
-                    }
-                    return '';
-                };
-
-                const init = (hidden.value || '').trim();
-                if (init) setAll(init);
-                else {
-                    const v = getAnyChecked();
-                    if (v) hidden.value = v;
-                }
-
-                groups.forEach(radios => {
-                    radios.forEach(r => {
-                        r.addEventListener('change', () => {
-                            if (syncing || !r.checked) return;
-                            hidden.value = r.value;
-                            setAll(r.value);
-                        });
-                    });
+                document.querySelectorAll('.selected-address__title').forEach(el => {
+                    el.textContent = displayTitle;
                 });
-            }
-
-            // Step3 클릭 시 화면 하얘짐 방지 (전역 click 핸들러로 이벤트가 못 올라가게 캡처링에서 차단)
-            const isStep3RoleTypeArea = (el) =>
-                !!el.closest('.listing-wrapper--info .role-toggle, .listing-wrapper--info .type-toggle');
-
-            const findRadio = (target) => {
-                const label = target.closest('label');
-                if (label) {
-                    const id = label.getAttribute('for');
-                    if (id) {
-                        const radio = document.getElementById(id);
-                        if (radio && radio.type === 'radio') return radio;
-                    }
-                }
-                return target.closest('input[type="radio"]');
-            };
-
-            document.addEventListener('click', (e) => {
-                if (!isStep3RoleTypeArea(e.target)) return;
-
-                const radio = findRadio(e.target);
-                if (!radio) return;
-
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-
-                if (!radio.checked) {
-                    radio.checked = true;
-                    radio.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            }, true);
-
-            document.addEventListener('change', (e) => {
-                if (!isStep3RoleTypeArea(e.target)) return;
-                e.stopPropagation();
-                if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-            }, true);
+            });
         });
     </script>
+
+
 </section>

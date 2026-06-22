@@ -45,6 +45,15 @@ public class Listing {
     @Column(name = "address_detail", length = 255)
     private String addressDetail;
 
+    @Column(name = "sido", length = 50)
+    private String sido;
+
+    @Column(name = "sigungu", length = 50)
+    private String sigungu;
+
+    @Column(name = "emd", length = 50)
+    private String emd;
+
     @Column(precision = 10, scale = 7)
     private BigDecimal lat;
 
@@ -97,6 +106,7 @@ public class Listing {
     @Builder(access = AccessLevel.PRIVATE)
     private Listing(String publicId, Long userId, String role, String type,
                     String addressName, String roadAddress, String jibunAddress, String addressDetail,
+                    String sido, String sigungu, String emd,
                     BigDecimal lat, BigDecimal lng,
                     String ownerName, String carrier, String ownerPhone,
                     String tradeType, Integer depositManwon, Integer rentManwon, Integer priceManwon,
@@ -112,6 +122,9 @@ public class Listing {
         this.roadAddress = roadAddress;
         this.jibunAddress = jibunAddress;
         this.addressDetail = addressDetail;
+        this.sido = sido;
+        this.sigungu = sigungu;
+        this.emd = emd;
         this.lat = lat;
         this.lng = lng;
 
@@ -142,6 +155,9 @@ public class Listing {
                 .roadAddress(req.roadAddress())
                 .jibunAddress(req.jibunAddress())
                 .addressDetail(req.addressDetail())
+                .sido(req.sido())
+                .sigungu(req.sigungu())
+                .emd(req.emd())
                 .lat(toBigDecimal(req.lat()))
                 .lng(toBigDecimal(req.lng()))
                 .ownerName(req.ownerName())
@@ -166,6 +182,9 @@ public class Listing {
         this.roadAddress = req.roadAddress();
         this.jibunAddress = req.jibunAddress();
         this.addressDetail = req.addressDetail();
+        this.sido = req.sido();
+        this.sigungu = req.sigungu();
+        this.emd = req.emd();
         this.lat = toBigDecimal(req.lat());
         this.lng = toBigDecimal(req.lng());
         this.ownerName = req.ownerName();

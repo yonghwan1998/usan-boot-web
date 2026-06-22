@@ -193,6 +193,38 @@ function __escapeHtml(input) {
         .replaceAll("'", '&#039;');
 }
 
+/**
+ * @date    2026-06-22
+ * @author  yongss
+ * @param   {string} inputEl
+ * @return  {string}
+ *
+ * 처리 과정:
+ *  - 입력 받은 inputEl의 만원 단위를 원 단위로 변환
+ *  - 변환 한 hint를 표기
+ */
+function __showManwonHint(inputEl) {
+    const wrapper = inputEl.closest('.common-input-wrapper');
+    if (!wrapper) return;
+
+    let hint = wrapper.nextElementSibling;
+    if (!hint || !hint.classList.contains('manwon-hint')) {
+        hint = document.createElement('div');
+        hint.className = 'manwon-hint';
+        wrapper.insertAdjacentElement('afterend', hint);
+    }
+
+    const val = parseInt(inputEl.value, 10);
+    if (!inputEl.value || isNaN(val) || val <= 0) {
+        hint.textContent = '';
+        return;
+    }
+
+    hint.textContent = (val * 10000).toLocaleString('ko-KR') + '원';
+}
+
+
+
 (function () {
     const modal = document.getElementById('common-modal');
     const titleEl = document.getElementById('common-modal-title');

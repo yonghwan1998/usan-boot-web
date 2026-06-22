@@ -1,5 +1,5 @@
 .listing-page {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
 }
@@ -8,16 +8,13 @@
     padding: 8px 16px;
 }
 
-.listing-step {
-    padding: 0 64px;
-}
-
 .listing-text {
     text-align: center;
     font-weight: 500;
     font-size: 20px;
     color: #0d0d0d;
-    margin-bottom: 24px;
+    margin-bottom: 27px;
+    display: none;
 }
 
 .role-toggle {
@@ -27,6 +24,8 @@
 
 .role-toggle input[type="radio"] {
     position: absolute;
+    width: 0;
+    height: 0;
     opacity: 0;
     pointer-events: none;
 }
@@ -41,8 +40,8 @@
 }
 
 .role-pill {
-    border: 1px solid #1fad66;
-    color: #1fad66;
+    border: 1px solid #8b8b8b;
+    color: #b0b0b0;
 }
 
 .role-toggle input[type="radio"]:checked + .role-pill {
@@ -70,6 +69,8 @@
 
 .type-toggle input[type="radio"] {
     position: absolute;
+    width: 0;
+    height: 0;
     opacity: 0;
     pointer-events: none;
 }
@@ -77,11 +78,6 @@
 .type-pill {
     border: 1px solid #8b8b8b;
     color: #b0b0b0;
-}
-
-.role-toggle:has(input[type="radio"]:checked) ~ .type-toggle input[type="radio"]:not(:checked) + .type-pill {
-    border: 1px solid #1fad66;
-    color: #1fad66;
 }
 
 .type-toggle input[type="radio"]:checked + .type-pill {
@@ -96,7 +92,7 @@
     display: flex;
     flex-direction: column;
 
-    height: calc(var(--app-vh, 1vh) * 50);
+    height: 50dvh;;
 }
 
 .address-list-wrapper {
@@ -227,7 +223,7 @@
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
-    height: calc(var(--app-vh, 1vh) * 50);
+    height: 50dvh;;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -406,4 +402,12 @@
     font-size: 20px;
     color: #0d0d0d;
     white-space: nowrap;
+}
+
+.manwon-hint {
+    font-size: 14px;
+    color: #737373;
+    margin-top: 6px;
+    padding-left: 2px;
+    min-height: 20px;
 }
