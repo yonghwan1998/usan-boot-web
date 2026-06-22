@@ -16,6 +16,8 @@ public class AddressSearchService {
         this.kakaoWebClient = kakaoWebClient;
     }
 
+    private static String nvl(String s) { return s != null ? s : ""; }
+
     public List<Map<String, Object>> search(String q) {
 
         KakaoAddressSearchResponse resp = kakaoWebClient.get()
@@ -42,6 +44,19 @@ public class AddressSearchService {
             double lng = d.x() != null ? Double.parseDouble(d.x()) : 0.0;
             double lat = d.y() != null ? Double.parseDouble(d.y()) : 0.0;
 
+            String sido = "";
+            String sigungu = "";
+            String emd = "";
+            if (d.address() != null) {
+                sido    = nvl(d.address().region_1depth_name());
+                sigungu = nvl(d.address().region_2depth_name());
+                emd     = nvl(d.address().region_3depth_name());
+            } else if (d.road_address() != null) {
+                sido    = nvl(d.road_address().region_1depth_name());
+                sigungu = nvl(d.road_address().region_2depth_name());
+                emd     = nvl(d.road_address().region_3depth_name());
+            }
+
             Map<String, Object> m = new java.util.HashMap<>();
             m.put("name", name);
             m.put("buildingName", buildingName == null ? "" : buildingName);
@@ -49,6 +64,9 @@ public class AddressSearchService {
             m.put("jibunAddress", jibunAddr == null ? "" : jibunAddr);
             m.put("lat", lat);
             m.put("lng", lng);
+            m.put("sido", sido);
+            m.put("sigungu", sigungu);
+            m.put("emd", emd);
 
             return m;
         }).toList();
