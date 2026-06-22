@@ -8,14 +8,19 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.usanmap.usan.dto.BoundaryCodeResponse;
 import com.usanmap.usan.dto.ListingRequest;
+import com.usanmap.usan.entity.UserRegion;
+import com.usanmap.usan.repository.UserRegionRepository;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.AddressSearchService;
+import com.usanmap.usan.service.AdministrativeBoundaryService;
 import com.usanmap.usan.service.ListingPhotoService;
 import com.usanmap.usan.service.ListingService;
 import com.usanmap.usan.service.storage.FileStorageService;
 import com.usanmap.usan.service.storage.StoredFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +34,8 @@ public class ListingsController {
     private final ListingService listingService;
     private final ListingPhotoService listingPhotoService;
     private final SecurityUtils securityUtils;
+    private final AdministrativeBoundaryService administrativeBoundaryService;
+    private final UserRegionRepository userRegionRepository;
 
     /**
      * @date    2026-01-06
@@ -145,6 +152,41 @@ public class ListingsController {
         var items = addressSearchService.search(q);
 
         return Map.of("items", items);
+    }
+
+    @PostMapping("/api/region/save")
+    @ResponseBody
+    @jakarta.transaction.Transactional
+    public ResponseEntity<Void> saveRegion(
+            @RequestParam String sidoName,
+            @RequestParam String sigunguName,
+            @RequestParam String emdName,
+            @RequestParam double lat,
+            @RequestParam double lng
+    ) {
+        Long userId = securityUtils.currentUserId();
+        if (userId == null) return ResponseEntity.status(401).build();
+
+        BoundaryCodeResponse codes = administrativeBoundaryService.getRegionCodes(lat, lng);
+        String admCd = codes != null && codes.getEmdCode() != null ? codes.getEmdCode() : "";
+
+        BigDecimal bdLat = BigDecimal.valueOf(lat);
+        BigDecimal bdLng = BigDecimal.valueOf(lng);
+
+        userRegionRepository.findByUserId(userId).ifPresentOrElse(
+                existing -> existing.update(admCd, sidoName, sigunguName, emdName, bdLat, bdLng),
+                () -> userRegionRepository.save(UserRegion.builder()
+                        .userId(userId)
+                        .admCd(admCd)
+                        .sidoName(sidoName)
+                        .sigunguName(sigunguName)
+                        .emdName(emdName)
+                        .emdLat(bdLat)
+                        .emdLng(bdLng)
+                        .build())
+        );
+
+        return ResponseEntity.ok().build();
     }
 
 }

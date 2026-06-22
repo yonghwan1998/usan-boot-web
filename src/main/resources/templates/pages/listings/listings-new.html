@@ -735,6 +735,18 @@
 
                 applySelectedAddressToUI(selected);
 
+                if (selected.sido && selected.emd) {
+                    const params = new URLSearchParams({
+                        sidoName:    selected.sido,
+                        sigunguName: selected.sigungu,
+                        emdName:     selected.emd,
+                        lat:         String(selected.lat),
+                        lng:         String(selected.lng),
+                    });
+                    fetch('/listings/api/region/save', { method: 'POST', body: params })
+                        .catch(() => {});
+                }
+
                 setStep(2);
             });
         });
