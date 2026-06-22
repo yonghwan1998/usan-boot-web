@@ -118,7 +118,7 @@
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">소유주 이름<span class="required-mark">*</span></div>
+                    <div class="listing-edit__section-title">소유주 이름<span class="common-required-mark">*</span></div>
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="이름 입력"
@@ -128,7 +128,7 @@
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">통신사<span class="required-mark">*</span></div>
+                    <div class="listing-edit__section-title">통신사<span class="common-required-mark">*</span></div>
                     <div class="common-select" data-name="carrier">
                         <div class="common-input-wrapper">
                             <input type="text"
@@ -153,7 +153,7 @@
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">소유주 휴대폰 번호<span class="required-mark">*</span></div>
+                    <div class="listing-edit__section-title">소유주 휴대폰 번호<span class="common-required-mark">*</span></div>
                     <div class="common-input-wrapper">
                         <input type="text"
                                placeholder="소유주 휴대폰 번호 입력"
@@ -163,7 +163,7 @@
                 </div>
 
                 <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">거래 유형<span class="required-mark">*</span></div>
+                    <div class="listing-edit__section-title">거래 유형<span class="common-required-mark">*</span></div>
                     <div class="common-select" data-name="tradeType">
                         <div class="common-input-wrapper">
                             <input type="text"
@@ -187,7 +187,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="deposit" hidden>
                     <div class="listing-edit__section-title">보증금</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -200,7 +200,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="rent" hidden>
                     <div class="listing-edit__section-title">월세</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -213,7 +213,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="price" hidden>
                     <div class="listing-edit__section-title">매매가</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -226,7 +226,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="dongho" hidden>
                     <div class="listing-edit__section-title">동·호수</div>
                     <div class="common-input-wrapper">
                         <input type="text"
@@ -236,7 +236,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="floor" hidden>
                     <div class="listing-edit__section-title">층</div>
                     <div class="common-input-wrapper">
                         <input type="text"
@@ -246,7 +246,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="area" hidden>
                     <div class="listing-edit__section-title">면적</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -282,7 +282,7 @@
 <!--                    </label>-->
 <!--                </div>-->
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="description" hidden>
                     <div class="listing-edit__section-title">상세정보</div>
                     <div class="common-input-wrapper">
                         <textarea class="common-input"
@@ -303,7 +303,7 @@
 
                 <div class="listing-edit__section-wrapper">
                     <div class="listing-edit__section">
-                        <div class="listing-edit__section-title">소유 관계<span class="required-mark">*</span></div>
+                        <div class="listing-edit__section-title">소유 관계<span class="common-required-mark">*</span></div>
 
                         <div class="role-toggle" role="radiogroup" aria-label="역할 선택">
                             <input type="radio" name="role" id="role-owner" value="OWNER">
@@ -317,7 +317,7 @@
                         </div>
                     </div>
                     <div class="listing-edit__section">
-                        <div class="listing-edit__section-title">매물종류<span class="required-mark">*</span></div>
+                        <div class="listing-edit__section-title">매물종류<span class="common-required-mark">*</span></div>
 
                         <div class="type-toggle" role="radiogroup" aria-label="매물 종류 선택">
                             <input type="radio" name="type" id="type-apt" value="APT">
@@ -753,6 +753,40 @@
                 setStep(2);
             });
         });
+    </script>
+
+    <script>
+        (function () {
+            const SECTION_MAP = {
+                SALE:        ['price', 'dongho', 'floor', 'area', 'description'],
+                LAND_SALE:   ['price', 'area', 'description'],
+                JEONSE:      ['deposit', 'dongho', 'floor', 'area', 'description'],
+                MONTHLY:     ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                SEMI_JEONSE: ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                SHORT:       ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                COMMERCIAL:  ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+            };
+
+            function updateVisibleFields(tradeType) {
+                const visible = SECTION_MAP[tradeType] || [];
+                document.querySelectorAll('[data-section]').forEach(el => {
+                    el.hidden = !visible.includes(el.dataset.section);
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const options = document.querySelectorAll('.common-select[data-name="tradeType"] .common-select__options li[data-value]');
+                options.forEach(li => {
+                    li.addEventListener('click', () => {
+                        updateVisibleFields(li.dataset.value);
+                    });
+                });
+
+                // 수정 페이지: 기존 값 반영
+                const initial = (document.querySelector('[name="tradeType"]')?.value ?? '').trim();
+                if (initial) updateVisibleFields(initial);
+            });
+        })();
     </script>
 
     <script>
