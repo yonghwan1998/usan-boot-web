@@ -1,5 +1,5 @@
 .login-page {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     padding: 0 16px;
     display: flex;
     flex-direction: column;
@@ -10,7 +10,8 @@
     flex-direction: column;
     align-items: center;
     flex: 1;
-    padding: 50px 0;
+    margin-top: 50px;
+    margin-bottom: 34px;
 }
 
 .login-form {
@@ -65,8 +66,8 @@
     align-items: center;
     gap: 24px;
     width: 100%;
-    margin-top: 46px;
-    margin-bottom: 32px;
+    margin-top: 60px;
+    margin-bottom: 46px;
 }
 
 .sns__hr {
@@ -84,11 +85,7 @@
 
 .login-wrapper--sns-icons {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0 74px;
-    margin-bottom: 32px;
+    gap: 44px;
 }
 
 .sns__icon {
@@ -113,10 +110,12 @@
 }
 
 .login-bottom-wrapper {
+    position: sticky;
+    bottom: 0;
     display: flex;
     flex-direction: column;
     gap: 40px;
     width: 100%;
-    margin-top: auto;
+    background: #ffffff;
     padding-bottom: 34px;
 }
