@@ -76,7 +76,7 @@ public class ListingsController {
      * 처리 과정:
      *  - 폼 바인딩용 listingRequest에 담겨 전달 된 데이터를 검증
      *  - 검증 완료 된 데이터 DB에 저장
-     *  - 매물 관리하기 페이지로 리다이렉트
+     *  - 매물 보내기 페이지로 리다이렉트
      */
     @PostMapping("")
     public String create(@Valid @ModelAttribute("listingRequest") ListingRequest listingRequest,
@@ -98,9 +98,7 @@ public class ListingsController {
 
         listingPhotoService.saveAll(listing.getId(), storedFiles);
 
-        // TODO(yongss): 검증 완료 시 front에 status를 보내 매물 전송 or 매물 관리로 이동할 수 있게
-
-        return "redirect:/listings";
+        return "redirect:/map/listings/share";
     }
 
     /**
