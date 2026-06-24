@@ -28,6 +28,41 @@ public interface BrokerPropertyCountRepository extends JpaRepository<BrokerPrope
             @Param("east") double east
     );
 
+    @Query(value = """
+            SELECT
+              SUM(ST_Distance_Sphere(POINT(lng, lat), POINT(:lng, :lat)) <= 500),
+              SUM(ST_Distance_Sphere(POINT(lng, lat), POINT(:lng, :lat)) <= 1000),
+              SUM(ST_Distance_Sphere(POINT(lng, lat), POINT(:lng, :lat)) <= 2000),
+              SUM(ST_Distance_Sphere(POINT(lng, lat), POINT(:lng, :lat)) <= 3000)
+            FROM broker_property_count
+            WHERE lat BETWEEN :south AND :north
+              AND lng BETWEEN :west  AND :east
+            """, nativeQuery = true)
+    List<Object[]> countByRadii(
+            @Param("lat") double lat,
+            @Param("lng") double lng,
+            @Param("south") double south,
+            @Param("north") double north,
+            @Param("west") double west,
+            @Param("east") double east
+    );
+
+    @Query(value = """
+            SELECT * FROM broker_property_count
+            WHERE lat BETWEEN :south AND :north
+              AND lng BETWEEN :west  AND :east
+              AND ST_Distance_Sphere(POINT(lng, lat), POINT(:lng, :lat)) <= :radiusM
+            """, nativeQuery = true)
+    List<BrokerPropertyCount> findInRadius(
+            @Param("lat") double lat,
+            @Param("lng") double lng,
+            @Param("radiusM") double radiusM,
+            @Param("south") double south,
+            @Param("north") double north,
+            @Param("west") double west,
+            @Param("east") double east
+    );
+
     List<BrokerPropertyCount> findByLatBetweenAndLngBetween(
             BigDecimal south, BigDecimal north,
             BigDecimal west, BigDecimal east);
