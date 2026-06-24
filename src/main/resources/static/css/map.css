@@ -985,8 +985,8 @@ body {
 .circle-label {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
+    gap: 8px;
+    padding: 8px;
     border-radius: 12px;
     background: #FFFFFF;
     transform: translate(-50%, -50%);
@@ -995,12 +995,12 @@ body {
 .circle-label__info {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 2px;
     align-items: center;
 }
 
 .circle-label__distance {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #000000;
 }
@@ -1015,11 +1015,11 @@ body {
 }
 
 .circle-label__btn {
-    padding: 10px 16px;
+    padding: 8px 12px;
     background: #262626;
     border-radius: 10px;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 12px;
     color: #FFFFFF;
     cursor: pointer;
 }
