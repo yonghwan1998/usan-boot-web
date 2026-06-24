@@ -39,6 +39,14 @@ public class MapApiController {
         return mapService.getCountsByRadius(lat, lng);
     }
 
+    @GetMapping("/brokers/in-radius")
+    public List<BrokerMarkerDetailDto> getBrokersInRadius(
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam double radiusM) {
+        return mapService.getBrokersInRadius(lat, lng, radiusM);
+    }
+
     @GetMapping("/brokers")
     public List<BrokerMarkerDto> getBrokersInBounds(
             @RequestParam double south,

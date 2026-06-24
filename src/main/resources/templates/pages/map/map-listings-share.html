@@ -682,9 +682,22 @@
             }
         }
 
-        function selectBrokersInRadius(radiusM) {
-            // TODO: 반경 내 중개사 조회 API 연결 예정
+        async function selectBrokersInRadius(radiusM) {
+            if (!selectedListing?.lat || !selectedListing?.lng) {
+                showToast('매물을 먼저 선택해주세요.', true);
+                return;
+            }
             selectedDistanceM = radiusM;
+            try {
+                const res = await fetch(`/map/api/brokers/in-radius?lat=${selectedListing.lat}&lng=${selectedListing.lng}&radiusM=${radiusM}`);
+                if (!res.ok) throw new Error('중개사 조회 실패');
+                const brokers = await res.json();
+                lastFetchedBrokerCodes = brokers.map(b => String(b.brokerCode));
+                renderBrokerSheet(brokers);
+            } catch (e) {
+                console.error('[IN-RADIUS]', e);
+                showToast('중개사 정보를 불러올 수 없습니다.', true);
+            }
         }
 
         function clearMarkersAndClusters() {

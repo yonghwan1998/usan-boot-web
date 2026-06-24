@@ -71,6 +71,35 @@ public class MapService {
     }
 
     @Transactional(readOnly = true)
+    public List<BrokerMarkerDetailDto> getBrokersInRadius(double lat, double lng, double radiusM) {
+        double margin    = radiusM / 111320.0;
+        double marginLng = radiusM / (111320.0 * Math.cos(Math.toRadians(lat)));
+
+        return brokerPropertyCountRepository.findInRadius(
+                        lat, lng, radiusM,
+                        lat - margin, lat + margin,
+                        lng - marginLng, lng + marginLng)
+                .stream()
+                .map(b -> BrokerMarkerDetailDto.builder()
+                        .brokerCode(b.getBrokerCode())
+                        .brokerName(b.getBrokerName())
+                        .officeName(b.getOfficeName())
+                        .registrationNumber(b.getRegistrationNumber())
+                        .tel(b.getTel())
+                        .phone(b.getPhone())
+                        .sido(b.getSido())
+                        .sigungu(b.getSigungu())
+                        .emd(b.getEmd())
+                        .addrRoad(b.getAddrRoad())
+                        .addrJibun(b.getAddrJibun())
+                        .lat(b.getLat())
+                        .lng(b.getLng())
+                        .top5(BrokerPropertyTagFactory.topN(b, 5))
+                        .build())
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public BrokerMarkerDetailDto getBrokerDetail(UUID brokerCode) {
 
         BrokerPropertyCount broker = brokerPropertyCountRepository.findById(brokerCode)
