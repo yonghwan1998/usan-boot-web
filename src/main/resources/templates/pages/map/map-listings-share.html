@@ -34,28 +34,19 @@
                 <div class="common-header__right"></div>
             </div>
 
-            <!-- 항상 보이는 시트 열기 버튼 -->
-            <div class="map-ui__send-fab">
-                <button type="button" class="map-send-fab" id="open-sheet-btn">
-                    <span class="map-send-fab__icon" aria-hidden="true"></span>
-                    매물 보내기
-                </button>
-            </div>
+            <button type="button" class="map-ui__open-btn" id="open-sheet-btn">
+                열기
+            </button>
         </div>
-
-        <!-- 토스트 -->
-        <div id="send-toast" class="send-toast" aria-live="polite"></div>
 
         <!-- 바텀시트 -->
         <div id="broker-sheet" class="send-sheet">
 
-            <!-- 접히는 영역: 핸들 + 매물선택 + 중개사 목록 -->
             <div class="send-sheet__collapse">
                 <div class="send-sheet__handle-area">
                     <div class="send-sheet__handle"></div>
                 </div>
 
-                <!-- 매물 선택 (항상 보임, collapse 상단 고정) -->
                 <div class="send-sheet__listing-area">
                     <div class="common-select" id="listing-select">
                         <div class="common-input-wrapper">
@@ -70,13 +61,12 @@
                                 </span>
                             </button>
                             <span class="common-input-btn common-input__expand-btn" aria-hidden="true"></span>
-                            <ul class="common-select__options" id="listing-options" role="listbox"></ul>
+                            <ul class="common-select__options pointer" id="listing-options" role="listbox"></ul>
                         </div>
                     </div>
                 </div>
 
                 <div class="send-sheet__body">
-                    <!-- 전체선택 + 필터 -->
                     <div class="send-sheet__options">
                         <label class="send-sheet__check">
                             <input type="checkbox" id="select-all-checkbox">
@@ -89,27 +79,23 @@
                         </button>
                     </div>
 
-                    <!-- 힌트 -->
                     <div class="send-sheet__hint" id="broker-hint" style="display:none"></div>
 
-                    <!-- 중개사 목록 -->
-                    <div class="send-sheet__list" id="broker-sheet-content">
+                    <div class="send-sheet__list" id="send-sheet-content">
                         <p class="send-sheet__empty-msg">지도에서 중개사 마커를 선택하면<br>목록이 표시됩니다.</p>
                     </div>
                 </div>
+
+                <div class="send-sheet__cta">
+                    <button type="button" id="send-btn" class="send-sheet__send-btn" disabled>
+                        <span class="send-sheet__send-icon" aria-hidden="true"></span>
+                        <span id="send-btn-text" class="send-sheet__send-text">중개사를 선택해주세요</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- 항상 보이는 하단: 보내기 버튼 -->
-            <div class="send-sheet__cta">
-                <!-- 보내기 버튼 -->
-                <button type="button" id="send-btn" class="send-sheet__send-btn" disabled>
-                    <span class="send-sheet__send-icon" aria-hidden="true"></span>
-                    <span id="send-btn-text" class="send-sheet__send-text">중개사를 선택해주세요</span>
-                </button>
-            </div>
         </div>
 
-        <!-- 거리 필터 모달 -->
         <div id="filter-modal-overlay" class="filter-modal-overlay">
             <div class="filter-modal">
                 <div class="filter-modal__title">필터</div>
@@ -271,7 +257,7 @@
 
         /* ---- 중개사 시트 렌더링 ---- */
         function renderBrokerSheet(brokers) {
-            const content = document.getElementById('broker-sheet-content');
+            const content = document.getElementById('send-sheet-content');
             const hint    = document.getElementById('broker-hint');
             const allCb   = document.getElementById('select-all-checkbox');
             if (!content) return;
@@ -377,18 +363,6 @@
             } finally {
                 updateCtaInfo();
             }
-        }
-
-        /* ---- 토스트 ---- */
-        let _toastTimer = null;
-        function showToast(msg, isError = false) {
-            const el = document.getElementById('send-toast');
-            if (!el) return;
-            el.textContent = msg;
-            el.className   = 'send-toast' + (isError ? ' send-toast--error' : '');
-            el.classList.add('is-visible');
-            clearTimeout(_toastTimer);
-            _toastTimer = setTimeout(() => el.classList.remove('is-visible'), 3000);
         }
 
         /* ---- 미전송 매물 재발송 ---- */
@@ -769,7 +743,7 @@
             }
             function closeSheet() {
                 sheet.classList.remove('is-open');
-                collapse.style.transform = 'translateY(calc(100% - 108px))';
+                collapse.style.transform = 'translateY(calc(100% - 32px))';
             }
 
             closeSheet();
@@ -818,7 +792,7 @@
                 touchStartY = e.touches[0].clientY;
             }, { passive: true });
             document.addEventListener('touchmove', function (e) {
-                const scrollable = e.target.closest('#broker-sheet-content');
+                const scrollable = e.target.closest('#send-sheet-content');
                 if (scrollable) {
                     const swipingDown = e.touches[0].clientY > touchStartY;
                     if (swipingDown && scrollable.scrollTop <= 0) {
