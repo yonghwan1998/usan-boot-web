@@ -13,6 +13,7 @@ import com.usanmap.usan.repository.BrokerPropertyCountRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,6 +42,60 @@ public class MapService {
                         .lng(b.getLng())
                         .build()
                 )
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, Long> getCountsByRadius(double lat, double lng) {
+        double margin    = 3000.0 / 111320.0;
+        double marginLng = 3000.0 / (111320.0 * Math.cos(Math.toRadians(lat)));
+
+        List<Object[]> rows = brokerPropertyCountRepository.countByRadii(
+                lat, lng,
+                lat - margin, lat + margin,
+                lng - marginLng, lng + marginLng
+        );
+
+        if (rows.isEmpty()) return Map.of(500, 0L, 1000, 0L, 2000, 0L, 3000, 0L);
+        Object[] row = rows.get(0);
+        return Map.of(
+                500,  toLong(row[0]),
+                1000, toLong(row[1]),
+                2000, toLong(row[2]),
+                3000, toLong(row[3])
+        );
+    }
+
+    private long toLong(Object val) {
+        return val == null ? 0L : ((Number) val).longValue();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BrokerMarkerDetailDto> getBrokersInRadius(double lat, double lng, double radiusM) {
+        double margin    = radiusM / 111320.0;
+        double marginLng = radiusM / (111320.0 * Math.cos(Math.toRadians(lat)));
+
+        return brokerPropertyCountRepository.findInRadius(
+                        lat, lng, radiusM,
+                        lat - margin, lat + margin,
+                        lng - marginLng, lng + marginLng)
+                .stream()
+                .map(b -> BrokerMarkerDetailDto.builder()
+                        .brokerCode(b.getBrokerCode())
+                        .brokerName(b.getBrokerName())
+                        .officeName(b.getOfficeName())
+                        .registrationNumber(b.getRegistrationNumber())
+                        .tel(b.getTel())
+                        .phone(b.getPhone())
+                        .sido(b.getSido())
+                        .sigungu(b.getSigungu())
+                        .emd(b.getEmd())
+                        .addrRoad(b.getAddrRoad())
+                        .addrJibun(b.getAddrJibun())
+                        .lat(b.getLat())
+                        .lng(b.getLng())
+                        .top5(BrokerPropertyTagFactory.topN(b, 5))
+                        .build())
                 .toList();
     }
 
