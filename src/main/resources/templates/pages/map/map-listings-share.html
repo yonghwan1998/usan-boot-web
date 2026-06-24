@@ -408,6 +408,7 @@
         let map;
         let markers               = [];
         let listingMarkers        = [];
+        let listingCircles        = [];
         let markerClustering      = null;
         let selectedClusterMarker = null;
         let selectedClusterKey    = null;
@@ -609,6 +610,27 @@
                         zIndex: isSelected ? 200 : 100
                     });
                 });
+            renderListingCircles();
+        }
+
+        function renderListingCircles() {
+            listingCircles.forEach(c => c?.setMap(null));
+            listingCircles = [];
+            if (!map || !selectedListing?.lat || !selectedListing?.lng) return;
+
+            const center = new naver.maps.LatLng(selectedListing.lat, selectedListing.lng);
+            [500, 1000, 2000, 3000].forEach(radiusM => {
+                listingCircles.push(new naver.maps.Circle({
+                    map,
+                    center,
+                    radius:         radiusM,
+                    strokeColor:    '#FFFFFF',
+                    strokeOpacity:  0.3,
+                    strokeWeight:   1,
+                    fillColor:      '#FF5900',
+                    fillOpacity:    0.12
+                }));
+            });
         }
 
         function clearMarkersAndClusters() {
