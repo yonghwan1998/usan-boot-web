@@ -409,6 +409,7 @@
         let markers               = [];
         let listingMarkers        = [];
         let listingCircles        = [];
+        let circleOverlays        = [];
         let markerClustering      = null;
         let selectedClusterMarker = null;
         let selectedClusterKey    = null;
@@ -613,24 +614,61 @@
             renderListingCircles();
         }
 
+        const CIRCLE_RADII = [
+            { m: 500,  label: '0.5km' },
+            { m: 1000, label: '1km'   },
+            { m: 2000, label: '2km'   },
+            { m: 3000, label: '3km'   },
+        ];
+
         function renderListingCircles() {
             listingCircles.forEach(c => c?.setMap(null));
-            listingCircles = [];
+            circleOverlays.forEach(o => o?.setMap(null));
+            listingCircles  = [];
+            circleOverlays  = [];
             if (!map || !selectedListing?.lat || !selectedListing?.lng) return;
 
-            const center = new naver.maps.LatLng(selectedListing.lat, selectedListing.lng);
-            [500, 1000, 2000, 3000].forEach(radiusM => {
+            const lat    = selectedListing.lat;
+            const lng    = selectedListing.lng;
+            const center = new naver.maps.LatLng(lat, lng);
+
+            CIRCLE_RADII.forEach(({ m, label }) => {
                 listingCircles.push(new naver.maps.Circle({
                     map,
                     center,
-                    radius:         radiusM,
-                    strokeColor:    '#FFFFFF',
-                    strokeOpacity:  0.3,
-                    strokeWeight:   1,
-                    fillColor:      '#FF5900',
-                    fillOpacity:    0.12
+                    radius:        m,
+                    strokeColor:   '#FFFFFF',
+                    strokeOpacity: 0.3,
+                    strokeWeight:  1,
+                    fillColor:     '#FF5900',
+                    fillOpacity:   0.12
                 }));
+
+                const latOff = (m * 0.7071) / 111320;
+                const lngOff = (m * 0.7071) / (111320 * Math.cos(lat * Math.PI / 180));
+
+                const overlay = new naver.maps.Marker({
+                    map,
+                    position: new naver.maps.LatLng(lat + latOff, lng - lngOff),
+                    icon: {
+                        content: `<div class="circle-label">
+                                      <div class="circle-label__info">
+                                          <span class="circle-label__distance">${label}</span>
+                                          <span class="circle-label__count">150</span>
+                                      </div>
+                                      <button type="button" class="circle-label__btn" onclick="selectBrokersInRadius(${m})">선택</button>
+                                  </div>`,
+                        anchor: new naver.maps.Point(0, 0)
+                    },
+                    zIndex: 150
+                });
+                circleOverlays.push(overlay);
             });
+        }
+
+        function selectBrokersInRadius(radiusM) {
+            // TODO: 반경 내 중개사 조회 API 연결 예정
+            selectedDistanceM = radiusM;
         }
 
         function clearMarkersAndClusters() {

@@ -982,6 +982,48 @@ body {
     display: none;
 }
 
+.circle-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    transform: translate(-50%, -50%);
+}
+
+.circle-label__info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+.circle-label__distance {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.circle-label__count {
+    padding: 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #FF3B30;
+    border: 1px solid #D9D9D9;
+    border-radius: 10px;
+}
+
+.circle-label__btn {
+    padding: 10px 16px;
+    background: #262626;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 16px;
+    color: #FFFFFF;
+    cursor: pointer;
+}
+
 /* ===============================
    중개사 자세히 보기 시트
    =============================== */
