@@ -21,7 +21,6 @@
 <section>
     <script type="text/javascript"
             th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId} + '&submodules=gl'"></script>
-    <script type="text/javascript" src="/js/MarkerClustering.js"></script>
 
     <div class="main-content">
 
@@ -152,7 +151,7 @@
     </div>
 
     <!-- =============================================
-         JS 1: 상태 관리 / 매물 / 보내기 / 토스트
+         JS 1: 상태 관리 / 매물 / 보내기
     ============================================== -->
     <script th:inline="javascript">
 
@@ -180,8 +179,32 @@
                 selectListing(target);
             } catch (e) {
                 console.error('[MY-LISTINGS]', e);
-                showToast(e.message, true);
             }
+        }
+
+        async function resolveInitialCenter() {
+            // 1순위: 가장 최근 ACTIVE 매물
+            try {
+                const res = await fetch('/map/api/listings/my-listings');
+                if (res.ok) {
+                    const listings = await res.json();
+                    const paramId  = new URLSearchParams(location.search).get('listingId');
+                    const target   = listings.find(l => String(l.listingId) === paramId) ?? listings[0];
+                    if (target?.lat && target?.lng) return { lat: target.lat, lng: target.lng };
+                }
+            } catch {}
+
+            // 2순위: user_region
+            try {
+                const res = await fetch('/map/api/user-region');
+                if (res.ok) {
+                    const region = await res.json();
+                    if (region?.lat && region?.lng) return { lat: region.lat, lng: region.lng };
+                }
+            } catch {}
+
+            // 3순위: 기본 좌표
+            return { lat: 33.464933, lng: 126.530862 };
         }
 
         function selectListing(listing) {
@@ -359,7 +382,6 @@
                     listingName: selectedListing.addressName,
                     brokers:     Array.from(selectedBrokers.values())
                 }));
-                showToast(e.message, true);
             } finally {
                 updateCtaInfo();
             }
@@ -401,45 +423,20 @@
     </script>
 
     <!-- =============================================
-         JS 2: 지도 / 마커 / 클러스터
+         JS 2: 지도
     ============================================== -->
     <script th:inline="javascript">
 
         let map;
-        let markers               = [];
-        let listingMarkers        = [];
-        let listingCircles        = [];
-        let circleOverlays        = [];
-        let markerClustering      = null;
-        let selectedClusterMarker = null;
-        let selectedClusterKey    = null;
-        let lastFetchId           = 0;
+        let listingMarkers = [];
+        let listingCircles = [];
+        let circleOverlays = [];
 
-        const ZOOM_INITIAL     = 13;
-        const ZOOM_MAX         = 19;
-        const ZOOM_MARKER_MIN  = 17;
-        const ZOOM_CLUSTER_MIN = 15;
-        const ZOOM_EMD_MIN     = 13;
-        const ZOOM_SIGUNGU_MIN = 11;
-        const ZOOM_MIN         = 8;
+        const ZOOM_INITIAL = 13;
+        const ZOOM_MAX     = 19;
 
-        function makeClusterKey(members) {
-            return members.map(m => m.__brokerCode).filter(Boolean).sort().join(',');
-        }
-
-        function updateClusterOptionsByZoom(zoom) {
-            if (!markerClustering) return;
-            let g;
-            if      (zoom >= ZOOM_MARKER_MIN)  g = 56;
-            else if (zoom >= ZOOM_CLUSTER_MIN) g = 120;
-            else if (zoom >= ZOOM_EMD_MIN)     g = 180;
-            else if (zoom >= ZOOM_SIGUNGU_MIN) g = 240;
-            else                               g = 300;
-            markerClustering.setOptions({ gridSize: g });
-        }
-
-        function initMap() {
-            const center              = new naver.maps.LatLng(33.464933, 126.530862);
+        function initMap(initialCenter) {
+            const center              = new naver.maps.LatLng(initialCenter.lat, initialCenter.lng);
             const NAVER_DARK_THEME_ID = /*[[${naverDarkThemeId}]]*/ '';
 
             map = new naver.maps.Map('map', {
@@ -452,52 +449,13 @@
                 zoomControl: false,
             });
 
-            markerClustering = new MarkerClustering({
-                map,
-                markers:        [],
-                minClusterSize: 1,
-                maxZoom:        20,
-                icons: [{
-                    content: `<div class="usan-cluster">
-                                  <img src="/img/marker-agency-white.svg" class="usan-cluster__img"/>
-                                  <span class="usan-cluster__count"></span>
-                              </div>`,
-                    size:   new naver.maps.Size(56, 56),
-                    anchor: new naver.maps.Point(28, 56)
-                }],
-                indexGenerator: [1],
-                stylingFunction(clusterMarker, count) {
-                    const el   = clusterMarker.getElement();
-                    if (!el) return;
-                    const span = el.querySelector('.usan-cluster__count');
-                    const img  = el.querySelector('.usan-cluster__img');
-                    if (span) {
-                        span.style.display = count <= 1 ? 'none' : 'flex';
-                        span.textContent   = count <= 1 ? '' : String(count);
-                    }
-                    if (!img) return;
-                    const members = typeof clusterMarker.getClusterMember === 'function'
-                        ? clusterMarker.getClusterMember() : [];
-                    const key = members.length ? makeClusterKey(members) : null;
-                    img.src = (selectedClusterMarker && key === selectedClusterKey)
-                        ? '/img/marker-agency-orange.svg'
-                        : '/img/marker-agency-white.svg';
-                }
-            });
-
-            updateClusterOptionsByZoom(map.getZoom());
-            loadBrokersInBounds();
-
             naver.maps.Event.addListener(map, 'zoom_changed', () => {
-                updateClusterOptionsByZoom(map.getZoom());
                 if (window.closeSendSheet) window.closeSendSheet();
-                loadBrokersInBounds();
             });
             naver.maps.Event.addListener(map, 'dragend', () => {
                 if (document.getElementById('broker-sheet')?.classList.contains('is-open')) {
                     if (window.closeSendSheet) window.closeSendSheet();
                 }
-                loadBrokersInBounds();
             });
             naver.maps.Event.addListener(map, 'click', () => {
                 document.getElementById('listing-select')?.classList.remove('is-open');
@@ -505,48 +463,6 @@
                     if (window.closeSendSheet) window.closeSendSheet();
                 }
             });
-            naver.maps.Event.addListener(markerClustering, 'clusterclick', onClusterClick);
-        }
-
-        function loadBrokersInBounds() {
-            const bounds = map.getBounds();
-            if (!bounds) return;
-            const zoom = map.getZoom();
-            if (zoom <= ZOOM_MIN) { clearMarkersAndClusters(); return; }
-
-            const sw  = bounds.getSW(), ne = bounds.getNE();
-            const url = `/map/api/brokers?south=${sw.lat()}&north=${ne.lat()}&west=${sw.lng()}&east=${ne.lng()}`;
-            const fid = ++lastFetchId;
-
-            fetch(url)
-                .then(r => r.json())
-                .then(data => {
-                    if (fid !== lastFetchId) return;
-                    if (map.getZoom() <= ZOOM_MIN) { clearMarkersAndClusters(); return; }
-                    renderMarkers(data);
-                })
-                .catch(e => console.error('[MAP]', e));
-        }
-
-        function renderMarkers(brokers) {
-            clearMarkersAndClusters();
-            markers = brokers.map(b => {
-                const marker = new naver.maps.Marker({
-                    position: new naver.maps.LatLng(b.lat, b.lng),
-                    title:    b.officeName
-                });
-                marker.__brokerCode = b.brokerCode;
-
-                naver.maps.Event.addListener(marker, 'click', () => {
-                    fetchAndShowBrokers([String(b.brokerCode)]);
-                });
-
-                return marker;
-            });
-            if (markerClustering) {
-                markerClustering.setMarkers(markers);
-                naver.maps.Event.trigger(map, 'idle');
-            }
         }
 
         async function fetchAndShowBrokers(brokerCodes) {
@@ -570,21 +486,6 @@
                 console.error(e);
                 showToast('중개사 정보를 불러올 수 없습니다.', true);
             }
-        }
-
-        function onClusterClick(cluster) {
-            const members     = cluster.getClusterMember() || [];
-            const brokerCodes = members.map(m => m.__brokerCode).filter(Boolean);
-            if (!brokerCodes.length) return;
-
-            selectedClusterKey = makeClusterKey(members);
-            resetClusterIcons();
-
-            const el  = cluster._clusterMarker?.getElement?.();
-            const img = el?.querySelector('.usan-cluster__img');
-            if (img) { img.src = '/img/marker-agency-orange.svg'; selectedClusterMarker = cluster._clusterMarker; }
-
-            fetchAndShowBrokers(brokerCodes.map(String));
         }
 
         function renderListingMarkers() {
@@ -700,22 +601,10 @@
             }
         }
 
-        function clearMarkersAndClusters() {
-            markers.forEach(m => m?.setMap(null));
-            markers = [];
-            if (markerClustering) markerClustering.setMarkers([]);
-        }
-
-        function resetClusterIcons() {
-            document.querySelectorAll('.usan-cluster__img').forEach(img => {
-                img.src = '/img/marker-agency-white.svg';
-            });
-            selectedClusterMarker = null;
-        }
-
         /* ---- 초기화 ---- */
         window.onload = async function () {
-            initMap();
+            const initialCenter = await resolveInitialCenter();
+            initMap(initialCenter);
             await loadMyListings();
             await checkPendingShare();
 
