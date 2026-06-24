@@ -32,6 +32,13 @@ public class MapApiController {
     private final AdministrativeBoundaryService administrativeBoundaryService;
     private final AdministrativeBoundarySeedService administrativeBoundarySeedService;
 
+    @GetMapping("/brokers/count-by-radius")
+    public Map<Integer, Long> getCountsByRadius(
+            @RequestParam double lat,
+            @RequestParam double lng) {
+        return mapService.getCountsByRadius(lat, lng);
+    }
+
     @GetMapping("/brokers")
     public List<BrokerMarkerDto> getBrokersInBounds(
             @RequestParam double south,

@@ -612,6 +612,7 @@
                     });
                 });
             renderListingCircles();
+            loadCircleCounts();
         }
 
         const CIRCLE_RADII = [
@@ -654,7 +655,7 @@
                         content: `<div class="circle-label">
                                       <div class="circle-label__info">
                                           <span class="circle-label__distance">${label}</span>
-                                          <span class="circle-label__count">150</span>
+                                          <span class="circle-label__count" data-radius="${m}">-</span>
                                       </div>
                                       <button type="button" class="circle-label__btn" onclick="selectBrokersInRadius(${m})">선택</button>
                                   </div>`,
@@ -664,6 +665,21 @@
                 });
                 circleOverlays.push(overlay);
             });
+        }
+
+        async function loadCircleCounts() {
+            if (!selectedListing?.lat || !selectedListing?.lng) return;
+            try {
+                const res = await fetch(`/map/api/brokers/count-by-radius?lat=${selectedListing.lat}&lng=${selectedListing.lng}`);
+                if (!res.ok) return;
+                const counts = await res.json();
+                Object.entries(counts).forEach(([radius, count]) => {
+                    const el = document.querySelector(`.circle-label__count[data-radius="${radius}"]`);
+                    if (el) el.textContent = count;
+                });
+            } catch (e) {
+                console.error('[CIRCLE-COUNTS]', e);
+            }
         }
 
         function selectBrokersInRadius(radiusM) {
