@@ -78,7 +78,7 @@ public class Payment {
             paymentStatus = PaymentStatus.READY;
         }
         if (pgProvider == null) {
-            pgProvider = PgProvider.TOSS;
+            pgProvider = PgProvider.KCP;
         }
     }
 

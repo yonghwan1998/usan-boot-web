@@ -1,9 +1,5 @@
 package com.usanmap.usan.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.usanmap.usan.client.TossPaymentsClient;
-import com.usanmap.usan.config.TossProperties;
 import com.usanmap.usan.entity.enums.LedgerType;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.CreditService;
@@ -17,18 +13,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Map;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/credits")
 @RequiredArgsConstructor
 public class CreditsController {
 
+    private static final String MOCK_PAYMENT_ACCOUNT = "test@naver.com";
+
     private final CreditService creditService;
     private final SecurityUtils securityUtils;
-    private final TossProperties tossProperties;
-    private final TossPaymentsClient tossPaymentsClient;
-    private final ObjectMapper objectMapper;
     private final SmsService smsService;
 
     @Value("${usan.bank.name}")
@@ -54,7 +50,7 @@ public class CreditsController {
         Long userId = securityUtils.currentUserIdOrThrow();
         model.addAttribute("products", creditService.getActiveProducts());
         model.addAttribute("balance", creditService.getBalance(userId));
-        model.addAttribute("isTestAccount", tossProperties.isTestAccount(securityUtils.currentUserEmail()));
+        model.addAttribute("isTestAccount", MOCK_PAYMENT_ACCOUNT.equals(securityUtils.currentUserEmail()));
         return "pages/credits/credits-charge";
     }
 
@@ -98,44 +94,26 @@ public class CreditsController {
         model.addAttribute("productId", productId);
         model.addAttribute("productName", info.productName());
         model.addAttribute("amount", info.amount());
-        model.addAttribute("customerKey", "u_" + userId);
         model.addAttribute("customerEmail", info.customerEmail());
         model.addAttribute("customerName", info.customerName());
-        model.addAttribute("tossClientKey", tossProperties.resolveClientKey(securityUtils.currentUserEmail()));
         return "pages/credits/credits-checkout";
     }
 
-    @GetMapping("/toss/success")
-    public String tossSuccess(
-            @RequestParam String paymentKey,
-            @RequestParam String orderId,
-            @RequestParam int amount,
-            Model model
-    ) {
+    @PostMapping("/kcp/mock/pay")
+    public String kcpMockPay(@RequestParam String orderNo) {
         Long userId = securityUtils.currentUserIdOrThrow();
-        Map<String, Object> tossResponse = tossPaymentsClient.confirmPayment(paymentKey, orderId, amount);
-
-        String method = tossResponse.containsKey("method") ? String.valueOf(tossResponse.get("method")) : null;
-        String rawJson;
         try {
-            rawJson = objectMapper.writeValueAsString(tossResponse);
-        } catch (JsonProcessingException e) {
-            rawJson = "{}";
+            creditService.confirmKcpMockCharge(orderNo, userId);
+            return "redirect:/credits/complete?orderNo=" + orderNo;
+        } catch (Exception e) {
+            String msg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            return "redirect:/credits/kcp/fail?message=" + msg;
         }
-
-        creditService.confirmTossCharge(orderId, userId, paymentKey, method, amount, rawJson);
-        return "redirect:/credits/complete?orderNo=" + orderId;
     }
 
-    @GetMapping("/toss/fail")
-    public String tossFail(
-            @RequestParam String code,
-            @RequestParam String message,
-            @RequestParam(required = false) String orderId,
-            Model model
-    ) {
-        model.addAttribute("errorCode", code);
-        model.addAttribute("errorMessage", message);
+    @GetMapping("/kcp/fail")
+    public String kcpFail(@RequestParam(required = false) String message, Model model) {
+        model.addAttribute("errorMessage", message != null ? message : "결제 처리 중 오류가 발생했습니다.");
         return "pages/credits/credits-fail";
     }
 
