@@ -27,76 +27,101 @@
         <div class="common-header__right"></div>
     </div>
 
+    <form id="kcpMockForm" action="/credits/kcp/mock/pay" method="post">
+        <input type="hidden" name="orderNo" id="orderNo">
+    </form>
+
     <div class="credits-charge-wrapper credits-checkout-wrapper">
-        <div id="payment-method"></div>
-        <div id="agreement"></div>
+
+        <div class="checkout-product-info">
+            <div class="checkout-product-info__label">상품명</div>
+            <div class="checkout-product-info__value" th:text="${productName}">크레딧</div>
+        </div>
+
+        <div class="checkout-product-info">
+            <div class="checkout-product-info__label">결제 금액</div>
+            <div class="checkout-product-info__value"
+                 th:text="${#numbers.formatInteger(amount, 1, 'COMMA')} + '원'">0원</div>
+        </div>
+
+        <div class="checkout-product-info">
+            <div class="checkout-product-info__label">구매자</div>
+            <div class="checkout-product-info__value" th:text="${customerName}"></div>
+        </div>
+
+        <div class="checkout-mock-notice">
+            [테스트] KCP 결제 Mock — 실제 결제가 발생하지 않습니다.
+        </div>
+
     </div>
 
     <div class="btn__wrapper">
-        <button type="button" class="btn btn--next" id="btnPay" disabled>결제하기</button>
+        <button type="button" class="btn btn--next" id="btnPay">결제하기</button>
     </div>
 
     <style>
         .credits-checkout-wrapper {
-            padding: 0 0 100px;
-            overflow-y: auto;
+            padding: 24px 20px 100px;
+            gap: 0;
+        }
+
+        .checkout-product-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .checkout-product-info__label {
+            font-size: 15px;
+            font-weight: 500;
+            color: #8b8b8b;
+        }
+
+        .checkout-product-info__value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222222;
+        }
+
+        .checkout-mock-notice {
+            margin-top: 24px;
+            padding: 14px 16px;
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #795548;
+            line-height: 1.5;
         }
     </style>
 
-    <script src="https://js.tosspayments.com/v2/standard"></script>
     <script th:inline="javascript">
-        const productId    = /*[[${productId}]]*/ null;
-        const productName  = /*[[${productName}]]*/ '';
-        const amount       = /*[[${amount}]]*/ 0;
-        const customerKey  = /*[[${customerKey}]]*/ '';
-        const customerEmail = /*[[${customerEmail}]]*/ '';
-        const customerName  = /*[[${customerName}]]*/ '';
-        const clientKey    = /*[[${tossClientKey}]]*/ '';
+        const productId = /*[[${productId}]]*/ null;
 
-        const tossPayments = TossPayments(clientKey);
-        const widgets = tossPayments.widgets({ customerKey });
+        document.getElementById('btnPay').addEventListener('click', async () => {
+            const btn = document.getElementById('btnPay');
+            btn.disabled = true;
+            btn.textContent = '처리 중...';
 
-        async function init() {
-            // 1. 주문 생성
-            const orderRes = await fetch('/api/credits/orders?productId=' + productId, { method: 'POST' });
-            if (!orderRes.ok) {
-                alert('주문 생성에 실패했습니다. 다시 시도해주세요.');
-                history.back();
-                return;
-            }
-            const { orderNo } = await orderRes.json();
-
-            // 2. 결제 금액 설정
-            await widgets.setAmount({ currency: 'KRW', value: amount });
-
-            // 3. 결제 UI 렌더링
-            await Promise.all([
-                widgets.renderPaymentMethods({ selector: '#payment-method', variantKey: 'DEFAULT' }),
-                widgets.renderAgreement({ selector: '#agreement', variantKey: 'AGREEMENT' })
-            ]);
-
-            document.getElementById('btnPay').disabled = false;
-
-            // 4. 결제 요청
-            document.getElementById('btnPay').addEventListener('click', async () => {
-                try {
-                    await widgets.requestPayment({
-                        orderId: orderNo,
-                        orderName: productName,
-                        successUrl: window.location.origin + '/credits/toss/success',
-                        failUrl: window.location.origin + '/credits/toss/fail',
-                        customerEmail: customerEmail || undefined,
-                        customerName: customerName || undefined
-                    });
-                } catch (e) {
-                    if (e.code !== 'USER_CANCEL') {
-                        alert('결제 중 오류가 발생했습니다: ' + e.message);
-                    }
+            try {
+                const res = await fetch('/api/credits/orders?productId=' + productId, { method: 'POST' });
+                if (!res.ok) {
+                    alert('주문 생성에 실패했습니다. 다시 시도해주세요.');
+                    btn.disabled = false;
+                    btn.textContent = '결제하기';
+                    return;
                 }
-            });
-        }
-
-        init();
+                const { orderNo } = await res.json();
+                document.getElementById('orderNo').value = orderNo;
+                document.getElementById('kcpMockForm').submit();
+            } catch (e) {
+                alert('오류가 발생했습니다: ' + e.message);
+                btn.disabled = false;
+                btn.textContent = '결제하기';
+            }
+        });
     </script>
 </section>
 </html>
