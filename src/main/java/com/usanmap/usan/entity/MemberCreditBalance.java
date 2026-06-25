@@ -1,5 +1,6 @@
 package com.usanmap.usan.entity;
 
+import com.usanmap.usan.exception.InsufficientCreditException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -56,7 +57,7 @@ public class MemberCreditBalance {
 
     public void deductBalance(int amount) {
         if (this.balance < amount) {
-            throw new IllegalStateException("크레딧이 부족합니다.");
+            throw new InsufficientCreditException();
         }
         this.balance -= amount;
     }

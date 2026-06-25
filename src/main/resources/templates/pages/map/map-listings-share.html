@@ -348,6 +348,15 @@
             if (window.openSendSheet) window.openSendSheet();
         }
 
+        /* ---- 미전송 매물 세션 저장 ---- */
+        function savePendingShare() {
+            sessionStorage.setItem('USAN_PENDING_SHARE', JSON.stringify({
+                listingId:   selectedListing.listingId,
+                listingName: selectedListing.addressName,
+                brokers:     Array.from(selectedBrokers.values())
+            }));
+        }
+
         /* ---- 보내기 ---- */
         async function sendListing() {
             if (!selectedListing) {
@@ -387,8 +396,21 @@
                         brokerCodes: Array.from(selectedBrokers.keys())
                     })
                 });
-                if (res.status === 401) {
-                    location.href = '/login';
+                if (res.status === 401) { location.href = '/login'; return; }
+                if (res.status === 402) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">크레딧 충전이 필요해요</p>
+                            <p class="common-popup__desc">
+                                선택하신 매물을 발송하시려면<br>
+                                크레딧이 필요합니다. 충전하시겠어요?
+                            </p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--outline btn--sm" onclick="CommonPopup.close()">취소</button>
+                            <button class="btn btn--primary btn--sm" onclick="savePendingShare(); location.href='/credits/charge'">충전하기</button>
+                        `
+                    });
                     return;
                 }
 
@@ -411,11 +433,7 @@
                 updateCtaInfo();
                 if (window.closeSendSheet) window.closeSendSheet();
             } catch (e) {
-                sessionStorage.setItem('USAN_PENDING_SHARE', JSON.stringify({
-                    listingId:   selectedListing.listingId,
-                    listingName: selectedListing.addressName,
-                    brokers:     Array.from(selectedBrokers.values())
-                }));
+                savePendingShare();
             } finally {
                 updateCtaInfo();
             }
@@ -457,6 +475,13 @@
                         body:    JSON.stringify({ listingId, brokerCodes: brokers.map(b => b.brokerCode) })
                     });
                     if (res.status === 401) { location.href = '/login'; return; }
+                    if (res.status === 402) {
+                        CommonPopup.open({
+                            contentHtml: '<p class="common-popup__title">크레딧 부족</p><p class="common-popup__desc">크레딧이 부족합니다.<br>충전 페이지로 이동하시겠습니까?</p>',
+                            actionsHtml: '<button class="btn btn--outline btn--sm" onclick="CommonPopup.close()">취소</button><button class="btn btn--primary btn--sm" onclick="location.href=\'/credits/charge\'">충전하기</button>'
+                        });
+                        return;
+                    }
                     const body = await res.json().catch(() => ({}));
                     if (!res.ok) throw new Error(body.message ?? '전송에 실패했습니다.');
                     CommonPopup.open({

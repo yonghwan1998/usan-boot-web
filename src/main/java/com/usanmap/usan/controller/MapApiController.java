@@ -1,6 +1,7 @@
 package com.usanmap.usan.controller;
 
 import com.usanmap.usan.entity.enums.ListingStatus;
+import com.usanmap.usan.exception.InsufficientCreditException;
 import com.usanmap.usan.service.AdministrativeBoundarySeedService;
 import com.usanmap.usan.service.AdministrativeBoundaryService;
 import lombok.RequiredArgsConstructor;
@@ -122,6 +123,8 @@ public class MapApiController {
 
         try {
             smsService.sendListingShare(request.brokerCodes(), listing, userId);
+        } catch (InsufficientCreditException e) {
+            return ResponseEntity.status(402).body(Map.of("message", e.getMessage(), "errorCode", "INSUFFICIENT_CREDIT"));
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
