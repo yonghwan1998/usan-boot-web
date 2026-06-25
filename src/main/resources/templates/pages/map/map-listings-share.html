@@ -155,19 +155,22 @@
     ============================================== -->
     <script th:inline="javascript">
 
-        /* ---- 상태 ---- */
-        let myListings             = [];
-        let selectedListing        = null;
-        let selectedDistanceM      = null;
-        let selectedListingTypes   = new Set();
-        let lastFetchedBrokerCodes = [];
-        const selectedBrokers = new Map(); // brokerCode → {brokerCode, officeName}
+        let myListings              = [];
+        let selectedListing         = null;
+        let selectedDistanceM       = null;
+        let selectedListingTypes    = new Set();
+        let lastFetchedBrokerCodes  = [];
+        const selectedBrokers       = new Map();
 
         /* ---- 내 매물 로드 ---- */
         async function loadMyListings() {
             try {
                 const res = await fetch('/map/api/listings/my-listings');
-                if (res.status === 401) { location.href = '/login'; return; }
+
+                if (res.status === 401) {
+                    location.href = '/login';
+                    return;
+                }
                 if (!res.ok) throw new Error('매물 목록을 불러올 수 없습니다.');
 
                 myListings = await res.json();
@@ -244,13 +247,11 @@
             const ul = document.getElementById('listing-options');
             if (!ul) return;
             ul.innerHTML = myListings.length === 0
-                ? '<li style="color:#8b8b8b;cursor:default;pointer-events:none">등록된 매물이 없습니다.</li>'
+                ? '<li class="send-sheet__no-listing">등록된 매물이 없습니다.</li>'
                 : myListings.map((l, i) => {
-                    const active = selectedListing?.listingId === l.listingId;
-                    return `<li data-id="${l.listingId}" role="option"
-                                style="${active ? 'font-weight:700;background:#f7f7f7;' : ''}">
-                                <span style="font-weight:700">매물 ${i + 1}</span>
-                                <span style="margin-left:8px;color:#595959;font-size:14px">${l.addressName}</span>
+                    return `<li data-id="${l.listingId}" role="option">
+                                <span class="bold">매물 ${i + 1}</span>
+                                <span class="send-sheet__listing-list">${l.addressName}</span>
                             </li>`;
                 }).join('');
 
@@ -347,10 +348,41 @@
             if (window.openSendSheet) window.openSendSheet();
         }
 
+        /* ---- 미전송 매물 세션 저장 ---- */
+        function savePendingShare() {
+            sessionStorage.setItem('USAN_PENDING_SHARE', JSON.stringify({
+                listingId:   selectedListing.listingId,
+                listingName: selectedListing.addressName,
+                brokers:     Array.from(selectedBrokers.values())
+            }));
+        }
+
         /* ---- 보내기 ---- */
         async function sendListing() {
-            if (!selectedListing)           { showToast('보낼 매물을 선택해주세요.', true); return; }
-            if (selectedBrokers.size === 0) { showToast('중개사를 선택해주세요.', true);    return; }
+            if (!selectedListing) {
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">매물 선택 필요</p>
+                        <p class="common-popup__desc">보낼 매물을 선택해주세요.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--sm" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
+                return;
+            }
+            if (selectedBrokers.size === 0) {
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">중개사 선택 필요</p>
+                        <p class="common-popup__desc">중개사를 선택해주세요.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--sm" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
+                return;
+            }
 
             const btn = document.getElementById('send-btn');
             btn.disabled = true;
@@ -365,11 +397,35 @@
                     })
                 });
                 if (res.status === 401) { location.href = '/login'; return; }
+                if (res.status === 402) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">크레딧 충전이 필요해요</p>
+                            <p class="common-popup__desc">
+                                선택하신 매물을 발송하시려면<br>
+                                크레딧이 필요합니다. 충전하시겠어요?
+                            </p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                            <button class="btn btn--primary btn--pop" onclick="savePendingShare(); location.href='/credits/charge'">충전하기</button>
+                        `
+                    });
+                    return;
+                }
 
                 const body = await res.json().catch(() => ({}));
                 if (!res.ok) throw new Error(body.message ?? '전송에 실패했습니다.');
 
-                showToast(`${selectedBrokers.size}명의 중개사에게 전송했습니다.`);
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">전송 완료</p>
+                        <p class="common-popup__desc">${selectedBrokers.size}명의 중개사에게 전송했습니다.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
                 selectedBrokers.clear();
                 document.querySelectorAll('.send-broker__checkbox').forEach(cb => cb.checked = false);
                 const allCb = document.getElementById('select-all-checkbox');
@@ -377,11 +433,7 @@
                 updateCtaInfo();
                 if (window.closeSendSheet) window.closeSendSheet();
             } catch (e) {
-                sessionStorage.setItem('USAN_PENDING_SHARE', JSON.stringify({
-                    listingId:   selectedListing.listingId,
-                    listingName: selectedListing.addressName,
-                    brokers:     Array.from(selectedBrokers.values())
-                }));
+                savePendingShare();
             } finally {
                 updateCtaInfo();
             }
@@ -398,26 +450,70 @@
             const { listingId, brokers } = pending;
             if (!listingId || !brokers?.length) { sessionStorage.removeItem('USAN_PENDING_SHARE'); return; }
 
-            const lines   = brokers.map((b, i) => `${i + 1}. ${b.officeName}${b.addrJibun ? '\n   ' + b.addrJibun : ''}`).join('\n');
-            const message = `이전에 발송이 취소된 ${brokers.length}명의 중개사에게 매물을 보내시겠습니까?\n\n${lines}`;
+            const lines = brokers.map((b, i) => `${i + 1}. ${b.officeName}${b.addrJibun ? ' ' + b.addrJibun : ''}`).join('<br>');
 
             sessionStorage.removeItem('USAN_PENDING_SHARE');
 
-            if (!confirm(message)) return;
+            CommonPopup.open({
+                contentHtml: `
+                    <p class="common-popup__title">
+                        ${brokers.length}명의 중개사에게<br>
+                        매물을 보낼게요
+                    </p>
+                    <p class="common-popup__desc">${lines}</p>
+                `,
+                actionsHtml: `
+                    <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                    <button class="btn btn--primary btn--pop" id="pending-share-confirm-btn">보내기</button>`
+            });
 
-            try {
-                const res = await fetch('/map/api/listings/share', {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ listingId, brokerCodes: brokers.map(b => b.brokerCode) })
-                });
-                if (res.status === 401) { location.href = '/login'; return; }
-                const body = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(body.message ?? '전송에 실패했습니다.');
-                showToast(`${brokers.length}명의 중개사에게 전송했습니다.`);
-            } catch (e) {
-                showToast(e.message, true);
-            }
+            document.getElementById('pending-share-confirm-btn')?.addEventListener('click', async () => {
+                CommonPopup.close();
+                try {
+                    const res = await fetch('/map/api/listings/share', {
+                        method:  'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body:    JSON.stringify({ listingId, brokerCodes: brokers.map(b => b.brokerCode) })
+                    });
+                    if (res.status === 401) { location.href = '/login'; return; }
+                    if (res.status === 402) {
+                        CommonPopup.open({
+                            contentHtml: `
+                                <p class="common-popup__title">크레딧 충전이 필요해요</p>
+                                <p class="common-popup__desc">
+                                    선택하신 매물을 발송하시려면<br>
+                                    크레딧이 필요합니다. 충전하시겠어요?
+                                </p>
+                            `,
+                            actionsHtml: `
+                                <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                                <button class="btn btn--primary btn--pop" onclick="location.href=\'/credits/charge\'">충전하기</button>
+                            `
+                        });
+                        return;
+                    }
+                    const body = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(body.message ?? '전송에 실패했습니다.');
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">전송 완료</p>
+                            <p class="common-popup__desc">${brokers.length}명의 중개사에게 전송했습니다.</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
+                } catch (e) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">전송 실패</p><p class="common-popup__desc">${e.message}</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
+                }
+            });
         }
 
     </script>
@@ -484,7 +580,15 @@
                 renderBrokerSheet(await res.json());
             } catch (e) {
                 console.error(e);
-                showToast('중개사 정보를 불러올 수 없습니다.', true);
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">오류</p>
+                        <p class="common-popup__desc">중개사 정보를 불러올 수 없습니다.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
             }
         }
 
@@ -558,7 +662,7 @@
                                           <span class="circle-label__distance">${label}</span>
                                           <span class="circle-label__count" data-radius="${m}">-</span>
                                       </div>
-                                      <button type="button" class="circle-label__btn" onclick="selectBrokersInRadius(${m})">선택</button>
+                                      <button type="button" class="circle-label__btn" onclick="handleRadiusSelect(this, ${m})">선택</button>
                                   </div>`,
                         anchor: new naver.maps.Point(0, 0)
                     },
@@ -585,7 +689,15 @@
 
         async function selectBrokersInRadius(radiusM) {
             if (!selectedListing?.lat || !selectedListing?.lng) {
-                showToast('매물을 먼저 선택해주세요.', true);
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">매물 선택 필요</p>
+                        <p class="common-popup__desc">매물을 먼저 선택해주세요.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
                 return;
             }
             selectedDistanceM = radiusM;
@@ -597,8 +709,29 @@
                 renderBrokerSheet(brokers);
             } catch (e) {
                 console.error('[IN-RADIUS]', e);
-                showToast('중개사 정보를 불러올 수 없습니다.', true);
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">오류</p>
+                        <p class="common-popup__desc">중개사 정보를 불러올 수 없습니다.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
             }
+        }
+
+        function toggleLabelStyle(btn) {
+            document.querySelectorAll('.circle-label').forEach(el => {
+               el.classList.remove('is-active')
+            });
+
+            btn.closest('.circle-label').classList.add('is-active');
+        }
+
+        async function handleRadiusSelect(btn, radiusM) {
+            toggleLabelStyle(btn);
+            await selectBrokersInRadius(radiusM);
         }
 
         /* ---- 초기화 ---- */
@@ -618,7 +751,16 @@
             document.addEventListener('click', e => {
                 if (!e.target.closest('.is-no-listings')) return;
                 e.stopPropagation();
-                if (confirm('등록된 매물이 없습니다.\n매물을 등록하러 이동하시겠습니까?')) location.href = '/listings/new';
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">등록된 매물 없음</p>
+                        <p class="common-popup__desc">매물을 등록하러 이동하시겠습니까?</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                        <button class="btn btn--primary btn--pop" onclick="location.href=\'/listings/new\'">이동</button>
+                    `
+                });
             }, true);
 
             // layout.html의 common-select 핸들러가 is-open을 토글하므로 MutationObserver로 감지

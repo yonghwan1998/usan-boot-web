@@ -338,3 +338,107 @@ function __showManwonHint(inputEl) {
     // 전역으로 노출
     window.CommonModal = { open, close };
 })();
+
+(function () {
+    let el = null;
+    let isOpen = false;
+    let popstateHandlerBound = false;
+    let backdropHandler = null;
+
+    function mount() {
+        const div = document.createElement('div');
+        div.className = 'common-popup';
+        div.setAttribute('aria-hidden', 'true');
+        div.innerHTML =
+            '<div class="common-popup__backdrop" data-popup-close></div>' +
+            '<div class="common-popup__card" role="dialog" aria-modal="true">' +
+                '<div class="common-popup__content" id="common-popup-content"></div>' +
+                '<div class="common-popup__actions" id="common-popup-actions"></div>' +
+            '</div>';
+
+        const shell = document.querySelector('.mobile-shell');
+        (shell || document.body).appendChild(div);
+        return div;
+    }
+
+    function close() {
+        if (!isOpen || !el) return;
+
+        el.classList.remove('is-open');
+        el.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('is-modal-open');
+
+        el.querySelector('#common-popup-content').innerHTML = '';
+        el.querySelector('#common-popup-actions').innerHTML = '';
+
+        if (backdropHandler) {
+            el.removeEventListener('click', backdropHandler);
+            backdropHandler = null;
+        }
+
+        isOpen = false;
+
+        if (history.state && history.state.__COMMON_POPUP__ === true) {
+            history.back();
+        }
+    }
+
+    function open(opts) {
+        const {
+            contentHtml = '',
+            actionsHtml = '',
+            closeOnBackdrop = true,
+            closeOnEsc = true,
+            useBackButtonClose = true
+        } = (opts || {});
+
+        if (!el) el = mount();
+
+        el.querySelector('#common-popup-content').innerHTML = contentHtml;
+        el.querySelector('#common-popup-actions').innerHTML = actionsHtml;
+
+        el.classList.add('is-open');
+        el.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('is-modal-open');
+        isOpen = true;
+
+        if (useBackButtonClose) {
+            history.pushState({ __COMMON_POPUP__: true }, '');
+
+            if (!popstateHandlerBound) {
+                window.addEventListener('popstate', function () {
+                    if (!isOpen) return;
+                    el.classList.remove('is-open');
+                    el.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('is-modal-open');
+                    el.querySelector('#common-popup-content').innerHTML = '';
+                    el.querySelector('#common-popup-actions').innerHTML = '';
+                    if (backdropHandler) {
+                        el.removeEventListener('click', backdropHandler);
+                        backdropHandler = null;
+                    }
+                    isOpen = false;
+                });
+                popstateHandlerBound = true;
+            }
+        }
+
+        if (closeOnEsc) {
+            window.addEventListener('keydown', function onKey(e) {
+                if (!isOpen) return;
+                if (e.key === 'Escape') close();
+                window.removeEventListener('keydown', onKey);
+            });
+        }
+
+        if (closeOnBackdrop) {
+            backdropHandler = function (e) {
+                if (!isOpen) return;
+                if (e.target && e.target.matches('[data-popup-close]')) close();
+            };
+            el.addEventListener('click', backdropHandler);
+        }
+    }
+
+    window.CommonPopup = { open, close };
+})();

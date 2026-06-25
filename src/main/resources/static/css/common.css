@@ -97,6 +97,10 @@
     font-size: 16px;
     width: 100%;
 }
+.btn--pop {
+    font-size: 16px;
+    width: 140px;
+}
 .btn--ad {
     display: flex;
     align-items: center;
@@ -502,6 +506,60 @@
 body.is-modal-open {
     overflow: hidden;
     touch-action: none;
+}
+
+/* ================================
+   📌 common-popup_!
+   ================================ */
+.common-popup {
+    position: absolute;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 31px;
+}
+.common-popup.is-open {
+    display: flex;
+}
+.common-popup__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    touch-action: none;
+}
+.common-popup__card {
+    position: relative;
+    width: min(350px, 92vw);
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 28px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.common-popup__content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.common-popup__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.common-popup__title {
+    font-weight: 600;
+    font-size: 24px;
+    color: #262626;
+    text-align: center;
+}
+.common-popup__desc {
+    font-weight: 500;
+    font-size: 16px;
+    color: #404040;
+    text-align: center;
 }
 
 /* ================================
