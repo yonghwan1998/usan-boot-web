@@ -737,6 +737,12 @@ body {
     cursor: pointer;
 }
 
+.send-sheet__no-listing {
+    color: #8B8B8B;
+    cursor: default;
+    pointer-events: none;
+}
+
 .send-sheet__listing-left {
     display: inline-flex;
     align-items: center;
@@ -764,6 +770,12 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.send-sheet__listing-list {
+    margin-left: 8px;
+    color: #595959;
+    font-size: 14px;
 }
 
 .send-sheet__body {
