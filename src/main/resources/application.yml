@@ -83,12 +83,10 @@ naver:
     client-secret: ${NAVER_MAP_CLIENT_SECRET}
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
-toss:
-  payments:
-    test-client-key: ${TOSS_TEST_CLIENT_KEY}
-    test-secret-key: ${TOSS_TEST_SECRET_KEY}
-    live-client-key: ${TOSS_LIVE_CLIENT_KEY}
-    live-secret-key: ${TOSS_LIVE_SECRET_KEY}
+# KCP 연동 심사 완료 후 아래 설정 추가 예정
+# kcp:
+#   site-cd: ${KCP_SITE_CD}
+#   site-name: ${KCP_SITE_NAME}
 file:
   upload-dir: uploads
   public-prefix: /uploads
