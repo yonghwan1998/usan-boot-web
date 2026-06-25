@@ -558,7 +558,7 @@
                                           <span class="circle-label__distance">${label}</span>
                                           <span class="circle-label__count" data-radius="${m}">-</span>
                                       </div>
-                                      <button type="button" class="circle-label__btn" onclick="selectBrokersInRadius(${m})">선택</button>
+                                      <button type="button" class="circle-label__btn" onclick="handleRadiusSelect(this, ${m})">선택</button>
                                   </div>`,
                         anchor: new naver.maps.Point(0, 0)
                     },
@@ -599,6 +599,19 @@
                 console.error('[IN-RADIUS]', e);
                 showToast('중개사 정보를 불러올 수 없습니다.', true);
             }
+        }
+
+        function toggleLabelStyle(btn) {
+            document.querySelectorAll('.circle-label').forEach(el => {
+               el.classList.remove('is-active')
+            });
+
+            btn.closest('.circle-label').classList.add('is-active');
+        }
+
+        async function handleRadiusSelect(btn, radiusM) {
+            toggleLabelStyle(btn);
+            await selectBrokersInRadius(radiusM);
         }
 
         /* ---- 초기화 ---- */

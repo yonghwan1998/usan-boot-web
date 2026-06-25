@@ -992,6 +992,20 @@ body {
     transform: translate(-50%, -50%);
 }
 
+.circle-label.is-active {
+    background: #262626;
+}
+
+.circle-label.is-active > .circle-label__btn {
+    background: #FFFFFF;
+    font-weight: 700;
+    color: #262626;
+}
+
+.circle-label.is-active .circle-label__distance {
+    color: #FFFFFF;
+}
+
 .circle-label__info {
     display: flex;
     flex-direction: column;
@@ -1012,6 +1026,7 @@ body {
     color: #FF3B30;
     border: 1px solid #D9D9D9;
     border-radius: 10px;
+    background: #FFFFFF;
 }
 
 .circle-label__btn {
