@@ -192,9 +192,7 @@
         const brokerDataMap = {};
 
         let markers = [];
-        let markerClustering = null;
-        let selectedClusterMarker = null;
-        let selectedClusterKey = null;
+
 
         let myLocationMarker = null;
 
@@ -252,14 +250,6 @@
 
         const btnZoomIn = document.getElementById('zoomIn');
         const btnZoomOut = document.getElementById('zoomOut');
-
-        function makeClusterKey(members) {
-            return members
-                .map(m => m.__brokerCode)
-                .filter(Boolean)
-                .sort()
-                .join(',');
-        }
 
         function updateClusterOptionsByZoom(zoom) {
 
@@ -708,60 +698,7 @@
                 zoomControl: false,
             });
 
-            markerClustering = new MarkerClustering({
-                map: map,
-                markers: [],
-                minClusterSize: 1,
-                maxZoom: 20,
-                icons: [{
-                    content: `
-                        <div class="usan-cluster">
-                            <img src="/img/marker-agency-white.svg" class="usan-cluster__img" />
-                            <span class="usan-cluster__count"></span>
-                        </div>
-                    `,
-                    size: new naver.maps.Size(56, 56),
-                    anchor: new naver.maps.Point(28, 56)
-                }],
-                indexGenerator: [1],
-                stylingFunction: function(clusterMarker, count) {
 
-                    const el = clusterMarker.getElement();
-                    if (!el) return;
-
-                    const span = el.querySelector('.usan-cluster__count');
-                    const img = el.querySelector('.usan-cluster__img');
-
-                    if (!span) return;
-
-                    if (count <= 1) {
-                        span.style.display = 'none';
-                        span.textContent = '';
-                    } else {
-                        span.style.display = 'flex';
-                        span.textContent = String(count);
-                    }
-
-                    if (!img) return;
-
-                    const members = (typeof clusterMarker.getClusterMember === 'function')
-                        ? clusterMarker.getClusterMember()
-                        : [];
-
-                    if (!members || members.length === 0) {
-                        img.src = '/img/marker-agency-white.svg';
-                        return;
-                    }
-
-                    const key = makeClusterKey(members);
-
-                    if (selectedClusterMarker && key === selectedClusterKey) {
-                        img.src = '/img/marker-agency-orange.svg';
-                    } else {
-                        img.src = '/img/marker-agency-white.svg';
-                    }
-                }
-            });
 
             updateClusterOptionsByZoom(map.getZoom());
             bindBoundaryEvents();
@@ -793,25 +730,7 @@
 
 
 
-        function renderMarkers(brokers, zoom) {
 
-            markers = brokers.map(b => {
-                const marker = new naver.maps.Marker({
-                    position: new naver.maps.LatLng(b.lat, b.lng),
-                    title: b.officeName
-                });
-
-                marker.__brokerCode = b.brokerCode;
-
-                return marker;
-            });
-
-            if (markerClustering) {
-                markerClustering.setMarkers(markers);
-
-                naver.maps.Event.trigger(map, 'idle');
-            }
-        }
 
         async function onClusterClick(cluster) {
 
