@@ -189,7 +189,6 @@
         const MAP_CENTER_KEY = 'usan.map.center';
 
         // brokerCode → broker 데이터 캐시 (자세히 보기 시트에서 사용)
-        const brokerDataMap = {};
 
         let myLocationMarker = null;
 
@@ -202,10 +201,7 @@
         let regionLabelOverlays = [];
         let selectedBoundaryFeature = null;
 
-        let selectedDistance = null;
         let lastInfoData = null;
-        let lastClusterBrokers = null;
-        let lastClusterBrokerCodes = [];
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
         //- 20 level: 10m
@@ -718,158 +714,7 @@
                 loadAdministrativeBoundaries();
             });
 
-            naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster) {
-                onClusterClick(cluster);
-            });
-
             document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
-        }
-
-
-
-
-
-        async function onClusterClick(cluster) {
-
-            const clusterMarker = cluster._clusterMarker;
-
-            const members = cluster.getClusterMember() || [];
-
-            let brokerCodes = members
-                .map(m => m.__brokerCode)
-                .filter(Boolean);
-
-            if (!brokerCodes.length) {
-                console.warn('[MAP] cluster has no brokerCodes')
-                return;
-            }
-
-            selectedClusterKey = makeClusterKey(members);
-
-            if (clusterMarker && typeof clusterMarker.getElement === 'function') {
-
-                resetClusterIcons();
-
-                const el = clusterMarker.getElement();
-                if (el) {
-                    const img = el.querySelector('.usan-cluster__img');
-
-                    if (img) {
-                        img.src = '/img/marker-agency-orange.svg';
-                        selectedClusterMarker = clusterMarker;
-                    }
-                }
-            }
-
-            lastClusterBrokerCodes = brokerCodes;
-            await fetchClusterBrokers(brokerCodes);
-        }
-
-        async function fetchClusterBrokers(brokerCodes) {
-            try {
-                const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
-                const distanceM = selectedDistance
-                    ? (selectedDistance.endsWith('km') ? parseFloat(selectedDistance) * 1000 : parseFloat(selectedDistance))
-                    : null;
-
-                const res = await fetch('/map/api/brokers/cluster', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        brokerCodes,
-                        lat:       (chip && distanceM) ? parseFloat(chip.dataset.lat) : null,
-                        lng:       (chip && distanceM) ? parseFloat(chip.dataset.lng) : null,
-                        distanceM: (chip && distanceM) ? distanceM : null
-                    })
-                });
-
-                if (!res.ok) throw new Error('클러스터 중개사 조회 실패');
-
-                renderClusterSheet(await res.json());
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function renderClusterSheet(brokers) {
-            lastClusterBrokers = brokers;
-
-            const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
-            if (!sheet || !content) {
-                return;
-            }
-
-            const totalCount = brokers.length;
-
-            const itemsHtml = brokers.map(b => {
-                const brokerCode = b.brokerCode ?? '';
-                const officeName = b.officeName ?? '';
-                const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
-                const tel = b.phone ?? b.tel ?? '';
-
-                // 자세히 보기 시트를 위해 데이터 캐시
-                brokerDataMap[brokerCode] = b;
-                const top5 = (b.top5 ?? []);
-
-                const tags = top5.map(item => `
-                    <span class="listing__tag ${item.cssClass}">
-                        <span class="tag-label">${item.label}</span>
-                        <span class="tag-count">${item.count}</span>
-                    </span>
-                `).join(' ');
-
-                return `
-                    <div class="cluster-broker">
-
-                        <div class="cluster-broker-item" data-broker-code=${brokerCode}>
-
-                            <div class="cluster-broker-item__info">
-                                <div class="cluster-broker-item__meta">
-                                    <div class="cluster-broker-item__title">${officeName}</div>
-                                    <div class="cluster-broker-item__tags">${tags}</div>
-                                </div>
-
-                                <div class="cluster-broker-item__addr-wrapper">
-                                    <span class="cluster-broker-item__addr">${address}</span>
-                                    <span class="cluster-broker-item__expand-btn"></span>
-                                </div>
-                            </div>
-
-                            <div class="cluster-broker-item__thumb"></div>
-
-                        </div>
-
-                        <div class="cluster-broker-item__buttons">
-                            <button type="button" class="cluster-btn cluster-btn--send">
-                                <span class="cluster-btn__icon cluster-btn__icon--send"></span>
-                                <a href="/map/listings/share" class="cluster-btn__text">매물 보내기</a>
-                            </button>
-
-                            <button type="button" class="cluster-btn cluster-btn--call" data-tel="${tel}">
-                                <span class="cluster-btn__icon cluster-btn__icon--call"></span>
-                                <span class="cluster-btn__text">전화하기</span>
-                            </button>
-
-                            <button type="button" class="cluster-btn cluster-btn--more" data-broker-code="${brokerCode}" aria-label="자세히 보기">
-                                <span class="cluster-btn__icon--more"></span>
-                            </button>
-                        </div>
-
-                    </div>
-                `;
-            }).join('');
-
-            const html = `
-                <div class="bottom-sheet__caption">
-                    ${(() => { const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)'); return IS_LOGGED_IN && chip ? `<span class="bottom-sheet__bold">${chip.textContent}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''; })()} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
-                </div>
-                <div class="bottom-sheet__cluster-list">
-                    ${itemsHtml}
-                </div>
-            `;
-
-            openBrokerSheet(html);
         }
 
         document.addEventListener('click', (e) => {
@@ -1204,22 +1049,7 @@
             selectedDistance = null;
         }
 
-        function openBrokerSheet(html) {
 
-            const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
-            if (!sheet || !content) {
-                return;
-            }
-
-            if (html) {
-                content.innerHTML = html;
-            }
-
-            requestAnimationFrame(() => {
-                window.openBrokerSheetHalf?.();
-            });
-        }
 
         (function () {
             const sheet = document.getElementById('broker-sheet');
@@ -1386,8 +1216,6 @@
 
             window.closeBrokerSheet?.();
         }
-
-
 
         function resetClusterIcons() {
             const imgs = document.querySelectorAll('.usan-cluster__img');

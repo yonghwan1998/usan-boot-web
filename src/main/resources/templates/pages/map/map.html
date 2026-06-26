@@ -184,10 +184,14 @@
 
         let markers = []
         let markerClustering = null;
+        let lastFetchId = 0;
         let selectedClusterMarker = null;
         let selectedClusterKey = null;
+        let lastClusterBrokerCodes = [];
+        let selectedDistance = null;
+        let lastClusterBrokers = null;
+        const brokerDataMap = {};
 
-        let lastFetchId = 0;
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
         //- 20 level: 10m
@@ -306,6 +310,10 @@
                 loadBrokersInBounds();
             });
 
+            naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster) {
+                onClusterClick(cluster);
+            });
+
         }
 
         function loadBrokersInBounds() {
@@ -383,8 +391,330 @@
             }
         }
 
+
+        async function onClusterClick(cluster) {
+
+            const clusterMarker = cluster._clusterMarker;
+
+            const members = cluster.getClusterMember() || [];
+
+            let brokerCodes = members
+                .map(m => m.__brokerCode)
+                .filter(Boolean);
+
+            if (!brokerCodes.length) {
+                console.warn('[MAP] cluster has no brokerCodes')
+                return;
+            }
+
+            selectedClusterKey = makeClusterKey(members);
+
+            if (clusterMarker && typeof clusterMarker.getElement === 'function') {
+
+                // resetClusterIcons();
+
+                const el = clusterMarker.getElement();
+                if (el) {
+                    const img = el.querySelector('.usan-cluster__img');
+
+                    if (img) {
+                        img.src = '/img/marker-agency-orange.svg';
+                        selectedClusterMarker = clusterMarker;
+                    }
+                }
+            }
+
+            lastClusterBrokerCodes = brokerCodes;
+            await fetchClusterBrokers(brokerCodes);
+        }
+
+        async function fetchClusterBrokers(brokerCodes) {
+            try {
+                const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
+                const distanceM = selectedDistance
+                    ? (selectedDistance.endsWith('km') ? parseFloat(selectedDistance) * 1000 : parseFloat(selectedDistance))
+                    : null;
+
+                const res = await fetch('/map/api/brokers/cluster', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        brokerCodes,
+                        lat:       (chip && distanceM) ? parseFloat(chip.dataset.lat) : null,
+                        lng:       (chip && distanceM) ? parseFloat(chip.dataset.lng) : null,
+                        distanceM: (chip && distanceM) ? distanceM : null
+                    })
+                });
+
+                if (!res.ok) throw new Error('클러스터 중개사 조회 실패');
+
+                renderClusterSheet(await res.json());
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderClusterSheet(brokers) {
+            lastClusterBrokers = brokers;
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+            if (!sheet || !content) {
+                return;
+            }
+
+            const totalCount = brokers.length;
+
+            const itemsHtml = brokers.map(b => {
+                const brokerCode = b.brokerCode ?? '';
+                const officeName = b.officeName ?? '';
+                const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
+                const tel = b.phone ?? b.tel ?? '';
+
+                brokerDataMap[brokerCode] = b;
+                const top5 = (b.top5 ?? []);
+
+                const tags = top5.map(item => `
+                    <span class="listing__tag ${item.cssClass}">
+                        <span class="tag-label">${item.label}</span>
+                        <span class="tag-count">${item.count}</span>
+                    </span>
+                `).join(' ');
+
+                return `
+                    <div class="cluster-broker">
+
+                        <div class="cluster-broker-item" data-broker-code=${brokerCode}>
+
+                            <div class="cluster-broker-item__info">
+                                <div class="cluster-broker-item__meta">
+                                    <div class="cluster-broker-item__title">${officeName}</div>
+                                    <div class="cluster-broker-item__tags">${tags}</div>
+                                </div>
+
+                                <div class="cluster-broker-item__addr-wrapper">
+                                    <span class="cluster-broker-item__addr">${address}</span>
+                                    <span class="cluster-broker-item__expand-btn"></span>
+                                </div>
+                            </div>
+
+                            <div class="cluster-broker-item__thumb"></div>
+
+                        </div>
+
+                        <div class="cluster-broker-item__buttons">
+                            <button type="button" class="cluster-btn cluster-btn--send">
+                                <span class="cluster-btn__icon cluster-btn__icon--send"></span>
+                                <a href="/map/listings/share" class="cluster-btn__text">매물 보내기</a>
+                            </button>
+
+                            <button type="button" class="cluster-btn cluster-btn--call" data-tel="${tel}">
+                                <span class="cluster-btn__icon cluster-btn__icon--call"></span>
+                                <span class="cluster-btn__text">전화하기</span>
+                            </button>
+
+                            <button type="button" class="cluster-btn cluster-btn--more" data-broker-code="${brokerCode}" aria-label="자세히 보기">
+                                <span class="cluster-btn__icon--more"></span>
+                            </button>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="bottom-sheet__caption">
+                    ${(() => {
+                        const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
+
+                        return chip ? `
+                            <span class="bottom-sheet__bold">
+                                ${chip.textContent}
+                            </span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : '';
+                    })()} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
+                </div>
+                <div class="bottom-sheet__cluster-list">
+                    ${itemsHtml}
+                </div>
+            `;
+
+            openBrokerSheet(html);
+        }
+
+        function openBrokerSheet(html) {
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+            if (!sheet || !content) {
+                return;
+            }
+
+            if (html) {
+                content.innerHTML = html;
+            }
+
+            requestAnimationFrame(() => {
+                window.openBrokerSheetHalf?.();
+            });
+        }
+
         window.onload = initMap;
 
+    </script>
+
+    <!-- =============================================
+        JS : bottom-sheet control
+    ============================================== -->
+    <script>
+        (function () {
+            const sheet = document.getElementById('broker-sheet');
+            if (!sheet) return;
+
+            const handleArea =
+                sheet.querySelector('.bottom-sheet__handle-wrapper') ||
+                sheet.querySelector('.bottom-sheet__handle')?.parentElement;
+            if (!handleArea) return;
+
+            const STATE = Object.freeze({ CLOSED: 'CLOSED', HALF: 'HALF', FULL: 'FULL' });
+
+            function yByStatePx(State) {
+                const h = sheet.getBoundingClientRect().height;
+                if (state ===STATE.FULL) return 0;
+                if (state ===STATE.HALF) return h * 0.4;
+                return h;
+            }
+
+            function getCurrentY() {
+                const style = window.getComputedStyle(sheet);
+                const m = new DOMMatrixReadOnly(style.transform);
+                return m.m42;
+            }
+
+            function clamp(n, min, max) {
+                return Math.max(min, Math.min(max, n));
+            }
+
+            let state = STATE.CLOSED;
+
+            let dragging = false;
+            let startY = 0;
+            let startSheetY = 0;
+
+            function applyState(next, {animate = true} = {}) {
+                state = next;
+
+                sheet.classList.remove('is-half', 'is-full', 'is-dragging');
+                if (animate) {
+                    // CSS transition 사용
+                } else {
+                    sheet.classList.add('is-dragging');//transition off
+                }
+
+                if (state === STATE.HALF) sheet.classList.add('is-half');
+                if (state === STATE.FULL) sheet.classList.add('is-full');
+
+                // 상태별 transform은 CSS가 담당(translateY %)
+                // 드래그 중에 남긴 inline transform이 있으면 제거해서 CSS로 복귀
+                if (animate) sheet.style.transform = '';
+            }
+
+            function snapToNearest(y) {
+                const h = sheet.getBoundingClientRect().height;
+                const points = [
+                    { s: STATE.FULL,  y: 0 },
+                    { s: STATE.HALF,  y: h * 0.4 },
+                    { s: STATE.CLOSED,y: h }
+                ];
+
+                // 가장 가까운 점 선택
+                let best = points[0];
+                let bestDist = Math.abs(y - best.y);
+                for (const p of points.slice(1)) {
+                    const d = Math.abs(y - p.y);
+                    if (d < bestDist) { best = p; bestDist = d; }
+                }
+                applyState(best.s, { animate: true });
+            }
+
+            function isOpen() {
+                return state !== STATE.CLOSED;
+            }
+
+            document.addEventListener('pointerdown', (e) => {
+                if (!isOpen()) return;
+                if (dragging) return;
+                if (sheet.contains(e.target)) return;
+                // 필터 모달이 열려 있으면 시트를 닫지 않음
+                const filterModal = document.getElementById('filter-modal-overlay');
+                if (filterModal && filterModal.classList.contains('is-open')) return;
+                // 자세히 보기 시트가 열려 있으면 broker-sheet는 닫지 않음
+                const detailSheet = document.getElementById('broker-detail-sheet');
+                if (detailSheet && detailSheet.classList.contains('is-open')) return;
+                applyState(STATE.CLOSED, { animate: true });
+            });
+
+            // 자세히 보기 시트 바깥 클릭 → 자세히 보기만 닫기
+            document.addEventListener('pointerdown', (e) => {
+                const detailSheet = document.getElementById('broker-detail-sheet');
+                if (!detailSheet || !detailSheet.classList.contains('is-open')) return;
+                if (detailSheet.contains(e.target)) return;
+                closeBrokerDetail();
+            });
+
+            function onDown(e) {
+                dragging = true;
+
+                //드래그 시작 시점의 실제 translateY를 기준으로 잡기
+                startY = e.clientY;
+                startSheetY = (sheet.style.transform ? getCurrentY() : yByStatePx(state));
+
+                sheet.classList.add('is-dragging');
+
+                //드래그 중에는 inline transform으로 직접 따라가게
+                sheet.style.transform = `translate(-50%, ${startSheetY}px)`;
+
+                handleArea.setPointerCapture?.(e.pointerId);
+            }
+
+            function onMove(e) {
+                if (!dragging) return;
+
+                const h = sheet.getBoundingClientRect().height;
+                const delta = e.clientY - startY;
+
+                //y는 0~h 사이
+                const nextY = clamp(startSheetY + delta, 0, h);
+
+                sheet.style.transform = `translate(-50%, ${nextY}px)`;
+            }
+
+            function onUp() {
+                if (!dragging) return;
+                dragging = false;
+
+                sheet.classList.remove('is-dragging');
+
+                const y = getCurrentY();
+                snapToNearest(y);
+            }
+
+            /** 이벤트 바인딩 **/
+            handleArea.addEventListener('pointerdown', onDown);
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointercancel', onUp);
+
+            //외부 제어 API
+            window.openBrokerSheetHalf = () => applyState(STATE.HALF, { animate: true });
+            window.openBrokerSheetFull = () => applyState(STATE.FULL, { animate: true });
+            window.closeBrokerSheet = () => applyState(STATE.CLOSED, { animate: true });
+
+            // 리사이즈 시 현재 상태를 다시 적용(좌표 재계산 필요)
+            window.addEventListener('resize', () => applyState(state, { animate: false }));
+
+            //초기 닫힘
+            applyState(STATE.CLOSED, { animate: true });
+        })();
     </script>
 
     <!-- iOS Safari pull-to-refresh 방지 -->
