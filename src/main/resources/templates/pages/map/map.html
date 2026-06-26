@@ -391,7 +391,6 @@
             }
         }
 
-
         async function onClusterClick(cluster) {
 
             const clusterMarker = cluster._clusterMarker;
@@ -565,12 +564,28 @@
             });
         }
 
+        function closeBrokerSheet() {
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+
+            if (!sheet || !content) return;
+
+            const hasContent = content.innerHTML.trim().length > 0;
+
+            if (!hasContent) {
+                return;
+            }
+
+            window.closeBrokerSheet?.();
+        }
+
         window.onload = initMap;
 
     </script>
 
     <!-- =============================================
-        JS : bottom-sheet control
+        JS 99: bottom-sheet control
     ============================================== -->
     <script>
         (function () {
