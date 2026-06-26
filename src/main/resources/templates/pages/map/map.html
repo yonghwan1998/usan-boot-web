@@ -182,6 +182,7 @@
 
         let map;
 
+        // JS 1: 중개사 마커 / 클러스터링
         let markers = []
         let markerClustering = null;
         let lastFetchId = 0;
@@ -191,6 +192,9 @@
         let selectedDistance = null;
         let lastClusterBrokers = null;
         const brokerDataMap = {};
+
+        // JS 2: 중개사 상세정보 시트
+        let brokerDetailMap = null;
 
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
@@ -304,10 +308,12 @@
 
             naver.maps.Event.addListener(map, 'zoom_changed', function () {
                 loadBrokersInBounds();
+                closeBrokerSheet();
             });
 
             naver.maps.Event.addListener(map, 'dragend', function () {
                 loadBrokersInBounds();
+                closeBrokerSheet();
             });
 
             naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster) {
@@ -580,7 +586,258 @@
             window.closeBrokerSheet?.();
         }
 
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cluster-btn--call');
+            if (!btn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const raw = btn.getAttribute('data-tel') || '';
+            const tel = normalizePhone(raw);
+
+            if (!tel) {
+                alert('전화번호가 없습니다.');
+                return;
+            }
+
+            // 모바일: 전화 앱 열기 / PC: 기본 앱이 없으면 반응 없을 수 있음
+            window.location.href = `tel:${tel}`;
+        });
+
         window.onload = initMap;
+
+    </script>
+
+    <!-- =============================================
+         JS 2: 중개사 상세정보 시트
+    ============================================== -->
+    <script>
+
+        /**
+         * @date    2026-01-25
+         * @author  yongss
+         * @desc    클러스터 리스트 버튼 토글
+         *
+         * 예외/주의:
+         *  - addr-wrapper 클릭은 대상에서 제외
+         *  - renderClusterSheet가 innerHTML을 갈아끼워도 동작하게
+         *  - 다른 아이템 클릭 시 기존 열림 닫힘
+         */
+        (() => {
+            const sheetContent = document.getElementById('broker-sheet-content');
+            if (!sheetContent) return;
+
+            let openedBrokerEl = null;
+
+            sheetContent.addEventListener('click', (e) => {
+                // addr-wrapper 클릭은 제외
+                if (e.target.closest('.cluster-broker-item__addr-wrapper')) return;
+
+                // 버튼 영역 클릭은 제외(버튼 자체 클릭 유지)
+                if (e.target.closest('.cluster-broker-item__buttons')) return;
+
+                const item = e.target.closest('.cluster-broker-item');
+                if (!item) return;
+
+                const broker = item.closest('.cluster-broker');
+                if (!broker) return;
+
+                // 다른 거 열려 있으면 닫기
+                if (openedBrokerEl && openedBrokerEl !== broker) {
+                    openedBrokerEl.classList.remove('is-open');
+                }
+
+                // 같은 거면 토글
+                const willOpen = !broker.classList.contains('is-open');
+                broker.classList.toggle('is-open', willOpen);
+                openedBrokerEl = willOpen ? broker : null;
+            });
+        })();
+
+        // 자세히 보기 시트 - 더보기 버튼 클릭
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cluster-btn--more');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const code = btn.dataset.brokerCode;
+            const broker = brokerDataMap[code];
+            if (broker) openBrokerDetail(broker);
+        });
+
+        function openBrokerDetail(broker) {
+            const sheet = document.getElementById('broker-detail-sheet');
+            const body  = document.getElementById('brokerDetailBody');
+            const btnCall = document.getElementById('brokerDetailCall');
+            const btnSend = document.getElementById('brokerDetailSend');
+            if (!sheet || !body) return;
+
+            const officeName = broker.officeName ?? '';
+            const brokerName = broker.brokerName ?? '';
+            const address    = [broker.sido, broker.sigungu].filter(Boolean).join(' ');
+            const regNum     = broker.registrationNumber ?? '';
+            const tel        = broker.tel ?? '';
+            const phone      = broker.phone ?? '';
+
+            const tags = (broker.top5 ?? []).map(t => `
+                <span class="broker-tag ${t.cssClass ?? ''}">
+                    <span class="tag-label">${t.label}</span>
+                    <span class="tag-label">${t.count}</span>
+                </span>
+            `).join('');
+
+            body.innerHTML = `
+                <div class="broker-content-wrapper">
+                    <div class="broker-info-wrapper">
+                        <div class="broker-info">
+                            <div class="broker-info__basic">
+                                <div class="broker-info__title">
+                                    <div class="broker-info__office">${officeName}</div>
+                                    <div class="broker-info__name">${brokerName}</div>
+                                </div>
+                                <div class="broker-info__address-wrapper">
+                                    <span class="broker-info__address">${address}</span>
+                                </div>
+                            </div>
+                            <div class="broker-tags">${tags}</div>
+                        </div>
+                        <div class="broker-info__details">
+                            ${regNum ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__scroll"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">중개사등록번호</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${regNum}</span>
+                                </div>
+                            </div>` : ''}
+                            ${tel ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__tel"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">전화번호</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${tel}</span>
+                                </div>
+                            </div>` : ''}
+                            ${phone ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__phone"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">휴대전화</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${phone}</span>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="broker-info__line" style="display: none"></div>
+
+                    <div class="broker-info__additional-wrapper" style="display: none">
+                        <div class="broker-info__additional-title">추가정보</div>
+                        <div class="broker-info__additional">
+                            <div class="broker-info__additional-item">
+                                <span class="broker-info__additional-text">최근 활동</span>
+                                <span class="broker-info__additional-recent">최근 7일간 12건 응답</span>
+                            </div>
+                            <div class="broker-info__additional-item">
+                                <span class="broker-info__additional-text">평점</span>
+                                <span class="broker-info__additional-rating-wrapper">
+                                    <span class="broker-info__additional-rating-icon"></span>
+                                    <span class="broker-info__additional-rating">4.2점</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${(broker.lat && broker.lng) ? `
+                    <div class="broker-info__line"></div>
+                    <div class="broker-info__map-wrapper">
+                        <div class="broker-info__map-title">지도 보기</div>
+                        <div id="brokerDetailMap" class="broker-info__map"></div>
+                    </div>` : ''}
+                </div>
+            `;
+
+            // 전화 버튼 연결
+            const callTel = normalizePhone(phone || tel);
+            btnCall.onclick = () => {
+                if (!callTel) { alert('전화번호가 없습니다.'); return; }
+                window.location.href = `tel:${callTel}`;
+            };
+
+            // 매물 보내기 버튼 연결
+            btnSend.onclick = () => { location.href = '/map/listings/share'; };
+
+            // 시트 열기
+            sheet.classList.add('is-open');
+
+            // 미니 지도 초기화 (시트가 visible 된 뒤)
+            if (broker.lat && broker.lng) {
+                requestAnimationFrame(() => {
+                    const mapEl = document.getElementById('brokerDetailMap');
+                    if (!mapEl || typeof naver === 'undefined') return;
+                    const center = new naver.maps.LatLng(broker.lat, broker.lng);
+                    brokerDetailMap = new naver.maps.Map(mapEl, {
+                        center: center,
+                        zoom: 15,
+                        draggable: true,
+                        pinchZoom: true,
+                        scrollWheel: false,
+                        zoomControl: false,
+                        mapTypeControl: false
+                    });
+                    new naver.maps.Marker({
+                        position: center,
+                        map: brokerDetailMap,
+                        icon: {
+                            url: '/img/60x60-broker-pin.png',
+                            size: new naver.maps.Size(60, 60),
+                            scaledSize: new naver.maps.Size(60, 60),
+                            anchor: new naver.maps.Point(30, 60)
+                        }
+                    });
+                });
+            }
+        }
+
+        // 자세히 보기 시트 - 닫기
+        document.getElementById('brokerDetailClose')?.addEventListener('click', closeBrokerDetail);
+
+        function closeBrokerDetail() {
+            const sheet = document.getElementById('broker-detail-sheet');
+            if (!sheet) return;
+            sheet.classList.remove('is-open');
+            brokerDetailMap = null;
+        }
+
+        function normalizePhone(value) {
+            if (!value) return '';
+
+            // "02-123-4567", "010 1234 5678", "+82 10-1234-5678" 대응
+            let v = String(value).trim();
+
+            // 내선 제거 (예: "02-123-4567 내선123")
+            v = v.replace(/(내선|ext\.?)\s*\d+/gi, '').trim();
+
+            // 숫자/플러스만 남기기
+            v = v.replace(/[^\d+]/g, '');
+
+            // +82 케이스를 0으로 변환(간단 처리)
+            // +8210xxxxxxxx -> 010xxxxxxxx
+            if (v.startsWith('+82')) {
+                v = '0' + v.slice(3);
+            }
+
+            // 너무 짧으면 무효
+            const digits = v.replace(/[^\d]/g, '');
+            if (digits.length < 9) return '';
+
+            return v;
+        }
 
     </script>
 
