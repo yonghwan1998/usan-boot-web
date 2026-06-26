@@ -191,9 +191,6 @@
         // brokerCode → broker 데이터 캐시 (자세히 보기 시트에서 사용)
         const brokerDataMap = {};
 
-        let markers = [];
-
-
         let myLocationMarker = null;
 
         let boundaryFeatures = [];
@@ -1390,19 +1387,7 @@
             window.closeBrokerSheet?.();
         }
 
-        function clearMarkersAndClusters() {
 
-            if (markers && markers.length > 0) {
-                markers.forEach(m => {
-                    if (m) m.setMap(null);
-                });
-            }
-            markers = [];
-
-            if (markerClustering) {
-                markerClustering.setMarkers([]);
-            }
-        }
 
         function resetClusterIcons() {
             const imgs = document.querySelectorAll('.usan-cluster__img');

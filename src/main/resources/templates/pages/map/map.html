@@ -175,11 +175,14 @@
 
     </div>
 
-    <!-- map control -->
+    <!-- =============================================
+         JS 1: 중개사 마커 / 클러스터링
+    ============================================== -->
     <script>
 
         let map;
 
+        let markers = []
         let markerClustering = null;
         let selectedClusterMarker = null;
         let selectedClusterKey = null;
@@ -310,13 +313,12 @@
             const bounds = map.getBounds();
             if (!bounds) return;
 
-            const zoom = map.getZoom();
+            const currentZoom = map.getZoom();
 
-            // 행정경계만 보여야 하는 구간
-            // if (zoom < ZOOM_CLUSTER_MIN) {
-            //     clearMarkersAndClusters();
-            //     return;
-            // }
+            if (currentZoom < ZOOM_CLUSTER_MIN) {
+                clearMarkersAndClusters();
+                return;
+            }
 
             const sw = bounds.getSW();
             const ne = bounds.getNE();
@@ -334,14 +336,6 @@
                 .then(res => res.json())
                 .then(data => {
                     if (fetchId !== lastFetchId) return;
-
-                    const currentZoom = map.getZoom();
-
-                    // if (currentZoom < ZOOM_CLUSTER_MIN) {
-                    //     clearMarkersAndClusters();
-                    //     return;
-                    // }
-
                     renderMarkers(data);
                 })
                 .catch(err => console.error('[MAP] fetch error:', err));
@@ -373,6 +367,20 @@
                 .filter(Boolean)
                 .sort()
                 .join(',');
+        }
+
+        function clearMarkersAndClusters() {
+
+            if (markers && markers.length > 0) {
+                markers.forEach(m => {
+                    if (m) m.setMap(null);
+                });
+            }
+            markers = [];
+
+            if (markerClustering) {
+                markerClustering.setMarkers([]);
+            }
         }
 
         window.onload = initMap;
