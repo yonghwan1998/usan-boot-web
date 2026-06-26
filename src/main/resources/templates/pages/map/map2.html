@@ -1217,13 +1217,6 @@
             window.closeBrokerSheet?.();
         }
 
-        function resetClusterIcons() {
-            const imgs = document.querySelectorAll('.usan-cluster__img');
-            imgs.forEach(img => {
-                img.src = '/img/marker-agency-white.svg';
-            });
-        }
-
         btnZoomIn.addEventListener('click', () => {
             const zoom = map.getZoom();
             if (zoom < ZOOM_MAX) {

@@ -411,7 +411,7 @@
 
             if (clusterMarker && typeof clusterMarker.getElement === 'function') {
 
-                // resetClusterIcons();
+                resetClusterIcons();
 
                 const el = clusterMarker.getElement();
                 if (el) {
@@ -426,6 +426,13 @@
 
             lastClusterBrokerCodes = brokerCodes;
             await fetchClusterBrokers(brokerCodes);
+        }
+
+        function resetClusterIcons() {
+            const imgs = document.querySelectorAll('.usan-cluster__img');
+            imgs.forEach(img => {
+                img.src = '/img/marker-agency-white.svg';
+            });
         }
 
         async function fetchClusterBrokers(brokerCodes) {
