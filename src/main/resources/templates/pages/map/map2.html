@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">우리 동네 부동산 지도 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent"></th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, follow">
+    <link rel="stylesheet" th:href="@{/css/broker.css(t=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/map.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section>
+    <h1 class="sr-only">동네 부동산 지도</h1>
+    <!-- 네이버 지도 API -->
+    <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
+    <script type="text/javascript" src="/js/MarkerClustering.js"></script>
+
+    <!-- 지도 영역 -->
+    <div class="main-content">
+        <div id="map" class="map"></div>
+
+        <!-- 지도 UI 오버레이 -->
+        <div class="map-ui">
+
+            <div class="map-ui__top">
+                <div class="map-search">
+                    <button class="map-temp__btn map-temp__btn--temp" type="button" aria-label="검색" th:onclick="|location.href='@{/}'|"></button>
+<!--                    <button class="map-search__btn map-search__btn&#45;&#45;search" type="button" aria-label="검색"></button>// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)-->
+<!--                    <input class="map-search__input" type="text" placeholder="주소 검색" />// TODO(yongss): 추후 복구(해당 줄 복사하여 전체 롤백)-->
+                    <div class="map-temp__input">우리 동네 부동산, 우산 ☂️</div>
+                </div>
+
+                <button class="map-icon-btn" type="button" aria-label="알림">
+                    <span class="map-icon--bell"></span>
+                </button>
+            </div>
+
+            <div class="map-ui__chips">
+                <button class="map-chip" id="btn-my-location" type="button">
+                    <span class="map-icon--gps"></span>
+                    <span class="map-chip__my-location">내 위치</span>
+                </button>
+                <button class="map-chip" type="button" data-lat="33.497234" data-lng="126.513691">신사</button>
+                <button class="map-chip" type="button">이태원</button>
+                <button class="map-chip" type="button" data-lat="33.253912" data-lng="126.528928">테스트 주소</button>
+            </div>
+
+            <div class="map-ui__right-bottom">
+                <div class="map-zoom">
+                    <button type="button" class="map-zoom__btn" id="zoomIn" aria-label="줌인">
+                        <span class="map-icon--zoom-in"></span>
+                    </button>
+                    <button type="button" class="map-zoom__btn" id="zoomOut" aria-label="줌아웃">
+                        <span class="map-icon--zoom-out"></span>
+                    </button>
+                </div>
+
+                <div class="map-send-wrapper">
+                    <button th:onclick="|location.href='@{/map/listings/share}'|" class="map-send" type="button" aria-label="매물 보내기">
+                        <span class="map-icon--send"></span>
+                        <span class="map-send__text">매물 보내기</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 행정구역 정보 바텀시트 -->
+        <div id="info-sheet" class="bottom-sheet">
+
+            <div class="bottom-sheet__handle-wrapper">
+                <div class="bottom-sheet__handle"></div>
+            </div>
+
+            <div class="bottom-sheet__contents-wrapper">
+
+                <div class="bottom-sheet__options">
+                    <div class="bottom-sheet-btn__distance">필터</div>
+                    <div class="bottom-sheet-toggle__wrapper">
+                        <span class="bottom-sheet-txt">중개사</span>
+                        <span class="bottom-sheet-txt is-selected">정보</span>
+                    </div>
+                </div>
+
+                <div class="bottom-sheet__line"></div>
+
+                <div class="info-sheet__region-tabs" id="info-sheet-tabs"></div>
+
+                <div id="info-sheet-content"></div>
+            </div>
+        </div>
+
+        <!-- 선택된 중개사 바텀시트 -->
+        <div id="broker-sheet" class="bottom-sheet">
+
+            <div class="bottom-sheet__handle-wrapper">
+                <div class="bottom-sheet__handle"></div>
+            </div>
+
+            <div class="bottom-sheet__contents-wrapper">
+
+                <div class="bottom-sheet__options">
+                    <div class="bottom-sheet-btn__distance">필터</div>
+                    <div class="bottom-sheet-toggle__wrapper">
+                        <span class="bottom-sheet-txt is-selected">중개사</span>
+                        <span class="bottom-sheet-txt">정보</span>
+                    </div>
+                </div>
+
+                <div class="bottom-sheet__line"></div>
+
+                <div id="broker-sheet-content"></div>
+            </div>
+        </div>
+
+        <!-- 거리 필터 모달 -->
+        <div id="filter-modal-overlay" class="filter-modal-overlay">
+            <div class="filter-modal">
+                <div class="filter-modal__title">필터</div>
+
+                <hr class="filter-modal__hr">
+
+                <div class="filter-modal__section">
+
+                    <div class="filter-modal__section--distance">
+                        <div class="filter-modal__section-title">거리 선택</div>
+                        <div class="filter-modal__chips">
+                            <button type="button" class="filter-chip__distance" data-distance="100">100m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="300">300m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="500">500m</button>
+                            <button type="button" class="filter-chip__distance" data-distance="1000">1km</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="filter-modal__footer">
+                    <button type="button" class="filter-modal__btn filter-modal__btn--cancel" id="filterModalCancel">취소</button>
+                    <button type="button" class="filter-modal__btn filter-modal__btn--apply" id="filterModalApply">적용</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 중개사 자세히 보기 시트 -->
+        <div id="broker-detail-sheet" class="broker-detail-sheet">
+
+            <div class="broker-detail-sheet__header">
+                <button type="button" class="broker-detail-sheet__close" id="brokerDetailClose" aria-label="닫기"></button>
+                <span class="broker-detail-sheet__title">자세히 보기</span>
+                <button type="button" class="broker-detail-sheet__heart" aria-label="찜하기"></button>
+            </div>
+
+            <div class="broker-detail-sheet__body" id="brokerDetailBody">
+                <!-- JS로 동적 렌더링 -->
+            </div>
+
+            <div class="broker-detail-sheet__footer">
+                <button type="button" class="action-btn action-btn--call" id="brokerDetailCall" aria-label="전화하기">
+                    <span class="action-btn__icon action-btn__icon--call"></span>
+                </button>
+                <button type="button" class="action-btn action-btn--send" id="brokerDetailSend">
+                    <span class="action-btn__icon action-btn__icon--send" aria-hidden="true"></span>
+                    <span class="action-btn__text">매물 보내기</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Thymeleaf 인라인 변수 -->
+    <script th:inline="javascript">
+        const IS_LOGGED_IN = /*[[${login.authenticated}]]*/ false;
+    </script>
+
+    <!-- map control -->
+    <script>
+
+        const MAP_CENTER_KEY = 'usan.map.center';
+
+        // brokerCode → broker 데이터 캐시 (자세히 보기 시트에서 사용)
+        const brokerDataMap = {};
+
+        let markers = [];
+        let markerClustering = null;
+        let selectedClusterMarker = null;
+        let selectedClusterKey = null;
+
+        let myLocationMarker = null;
+
+        let boundaryFeatures = [];
+        let boundaryCache = new Map();
+        let currentBoundaryKey = null;
+        let lastBoundaryRequestId = 0;
+        let regionCodeCache = new Map();
+
+        let regionLabelOverlays = [];
+        let selectedBoundaryFeature = null;
+
+        let selectedDistance = null;
+        let lastInfoData = null;
+        let lastClusterBrokers = null;
+        let lastClusterBrokerCodes = [];
+
+        //[zoom 레벨(숫자가 클수록 zoom 확대)]
+        //- 20 level: 10m
+        //- 19 level: 20m
+        //- 18 level: 30m
+        //- 17 level: 50m
+        //- 16 level: 100m
+        //- 15 level: 300m
+        //- 14 level: 500m
+        //- 13 level: 1km
+        //- 12 level: 3km
+        //- 11 level: 5km
+        //- 10 level: 10km
+        //- 9  level: 20km
+        //- 8  level: 30km
+
+        //[zoom 단계 변수]
+        //(ZOOM_INITIAL)    초기: 13 level (1km)
+        //(ZOOM_MAX)        지도 최대: 19 level (20m)
+        //(ZOOM_MARKER)     마커 보이기: 19 ~ 17 level (20m ~ 50m)
+        //(ZOOM_CLUSTER)    클러스터 보이기: 16 ~ 15 level (100m ~ 300m)
+        //(ZOOM_EMD)        읍면동 보이기: 14 ~ 13 level (500m ~ 1km)
+        //(ZOOM_SIGUNGU)    시군구 보이기: 12 ~ 11 level (3km ~ 5km)
+        //(ZOOM_SIDO)       시도 보이기: 10 ~ 8 level (10km ~ 30km)
+        //(ZOOM_MIN)        지도 최소: 8 level (30km)
+        const ZOOM_INITIAL = 13;
+        const ZOOM_MAX = 19;
+        const ZOOM_MARKER_MAX = 19;
+        const ZOOM_MARKER_MIN = 17;
+        const ZOOM_CLUSTER_MAX = 16;
+        const ZOOM_CLUSTER_MIN = 15;
+        const ZOOM_EMD_MAX = 14;
+        const ZOOM_EMD_MIN = 13;
+        const ZOOM_SIGUNGU_MAX = 12;
+        const ZOOM_SIGUNGU_MIN = 11;
+        const ZOOM_SIDO_MAX = 10;
+        const ZOOM_SIDO_MIN = 8;
+        const ZOOM_MIN = 8;
+
+        const btnZoomIn = document.getElementById('zoomIn');
+        const btnZoomOut = document.getElementById('zoomOut');
+
+        function makeClusterKey(members) {
+            return members
+                .map(m => m.__brokerCode)
+                .filter(Boolean)
+                .sort()
+                .join(',');
+        }
+
+        function updateClusterOptionsByZoom(zoom) {
+
+            if (!markerClustering) {
+                return;
+            }
+
+            let gridSize;
+
+            if (zoom >= ZOOM_MARKER_MIN) {
+                gridSize = 56;
+            } else if (zoom >= ZOOM_CLUSTER_MIN) {
+                gridSize = 120;
+            } else if (zoom >= ZOOM_EMD_MIN) {
+                gridSize = 180;
+            } else if (zoom >= ZOOM_SIGUNGU_MIN) {
+                gridSize = 240;
+            } else {
+                gridSize = 300;
+            }
+
+            markerClustering.setOptions({
+                gridSize: gridSize,
+            });
+        }
+
+        function getBoundaryLevelByZoom(zoom) {
+            if (zoom >= ZOOM_EMD_MIN && zoom <= ZOOM_EMD_MAX) {
+                return 'EMD';
+            }
+
+            if (zoom >= ZOOM_SIGUNGU_MIN && zoom <= ZOOM_SIGUNGU_MAX) {
+                return 'SIGUNGU';
+            }
+
+            if (zoom >= ZOOM_SIDO_MIN && zoom <= ZOOM_SIDO_MAX) {
+                return 'SIDO';
+            }
+
+            return null;
+        }
+
+        function createRegionLabelOverlay(lat, lng, name) {
+            function Overlay() {
+                this._position = new naver.maps.LatLng(lat, lng);
+                this._name = name;
+                this._div = null;
+            }
+
+            Overlay.prototype = new naver.maps.OverlayView();
+
+            Overlay.prototype.onAdd = function () {
+                const div = document.createElement('div');
+                div.className = 'region-pill';
+                div.textContent = this._name;
+                this.getPanes().floatPane.appendChild(div);
+                this._div = div;
+            };
+
+            Overlay.prototype.draw = function () {
+                if (!this._div) return;
+                const pos = this.getProjection().fromCoordToOffset(this._position);
+                this._div.style.left = pos.x + 'px';
+                this._div.style.top = pos.y + 'px';
+            };
+
+            Overlay.prototype.onRemove = function () {
+                if (this._div && this._div.parentNode) {
+                    this._div.parentNode.removeChild(this._div);
+                    this._div = null;
+                }
+            };
+
+            return new Overlay();
+        }
+
+        function clearRegionLabels() {
+            regionLabelOverlays.forEach(o => o.setMap(null));
+            regionLabelOverlays = [];
+            selectedBoundaryFeature = null;
+            closeInfoSheet();
+        }
+
+        async function loadRegionLabels(level) {
+            clearRegionLabels();
+
+            const bounds = map.getBounds();
+            if (!bounds) return;
+
+            const sw = bounds.getSW();
+            const ne = bounds.getNE();
+
+            const url = `/map/api/region-labels?level=${level}&south=${sw.lat()}&north=${ne.lat()}&west=${sw.lng()}&east=${ne.lng()}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return;
+
+                const labels = await res.json();
+
+                labels.forEach(label => {
+                    const overlay = createRegionLabelOverlay(label.lat, label.lng, label.name);
+                    overlay.setMap(map);
+                    regionLabelOverlays.push(overlay);
+                });
+            } catch (e) {
+                console.error('[MAP] region labels load error:', e);
+            }
+        }
+
+        function clearBoundaryFeatures() {
+            if (!map || !map.data) return;
+
+            clearRegionLabels();
+
+            boundaryFeatures.forEach(feature => {
+                map.data.removeFeature(feature);
+            });
+
+            boundaryFeatures = [];
+            currentBoundaryKey = null;
+        }
+
+        async function fetchGeoJson(url) {
+            if (boundaryCache.has(url)) {
+                return boundaryCache.get(url);
+            }
+
+            const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`GeoJSON 로딩 실패: ${url}`);
+            }
+
+            const data = await res.json();
+            boundaryCache.set(url, data);
+            return data;
+        }
+
+        async function fetchRegionCodeByCenter() {
+            if (!map) {
+                throw new Error('map is not initialized');
+            }
+
+            const center = map.getCenter();
+            const lat = center.lat();
+            const lng = center.lng();
+
+            const cacheKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+            if (regionCodeCache.has(cacheKey)) {
+                return regionCodeCache.get(cacheKey);
+            }
+
+            const res = await fetch(`/map/api/region-code?lat=${lat}&lng=${lng}`);
+            if (!res.ok) {
+                throw new Error('행정구역 코드 조회 실패');
+            }
+
+            const data = await res.json();
+
+            /**
+             * 기대 응답 예시
+             * {
+             *   "sidoCode": "41",
+             *   "sigunguCode": "41131",
+             *   "emdCode": "4113110200"
+             * }
+             */
+            regionCodeCache.set(cacheKey, data);
+            return data;
+        }
+
+        async function resolveBoundaryRequest() {
+            const zoom = map.getZoom();
+            const level = getBoundaryLevelByZoom(zoom);
+
+            if (!level) {
+                return null;
+            }
+
+            if (level === 'SIDO') {
+                return {
+                    level: 'SIDO',
+                    key: 'SIDO_ALL',
+                    url: '/geo/sido.geo.json'
+                };
+            }
+
+            const region = await fetchRegionCodeByCenter();
+
+            if (level === 'SIGUNGU') {
+                if (!region?.sidoCode) {
+                    return null;
+                }
+
+                return {
+                    level: 'SIGUNGU',
+                    key: `SIGUNGU_${region.sidoCode}`,
+                    url: `/geo/sigungu/${region.sidoCode}.geo.json`
+                };
+            }
+
+            if (level === 'EMD') {
+                if (!region?.sigunguCode) {
+                    return null;
+                }
+
+                return {
+                    level: 'EMD',
+                    key: `EMD_${region.sigunguCode}`,
+                    url: `/geo/emd/${region.sigunguCode}.geo.json`
+                };
+            }
+
+            return null;
+        }
+
+        function applyBoundaryStyle() {
+            map.data.setStyle(function(feature) {
+                const level = feature.getProperty('level');
+
+                if (level === 'SIDO') {
+                    return {
+                        fillColor: '#a4a4a4',
+                        fillOpacity: 0,
+                        strokeColor: '#475569',
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8,
+                        clickable: true
+                    };
+                }
+
+                if (level === 'SIGUNGU') {
+                    return {
+                        fillColor: '#a4a4a4',
+                        fillOpacity: 0,
+                        strokeColor: '#475569',
+                        strokeWeight: 2,
+                        strokeOpacity: 0.75,
+                        clickable: true
+                    };
+                }
+
+                return {
+                    fillColor: '#a4a4a4',
+                    fillOpacity: 0,
+                    strokeColor: '#475569',
+                    strokeWeight: 1,
+                    strokeOpacity: 0.7,
+                    clickable: true
+                };
+            });
+        }
+
+        async function loadAdministrativeBoundaries() {
+            try {
+                const requestId = ++lastBoundaryRequestId;
+                const request = await resolveBoundaryRequest();
+
+                if (requestId !== lastBoundaryRequestId) {
+                    return;
+                }
+
+                if (!request) {
+                    clearBoundaryFeatures();
+                    return;
+                }
+
+                if (currentBoundaryKey === request.key) {
+                    loadRegionLabels(request.level);
+                    return;
+                }
+
+                clearBoundaryFeatures();
+
+                const geojson = await fetchGeoJson(request.url);
+
+                if (requestId !== lastBoundaryRequestId) {
+                    return;
+                }
+
+                boundaryFeatures = map.data.addGeoJson(geojson);
+                currentBoundaryKey = request.key;
+
+                applyBoundaryStyle();
+                loadRegionLabels(request.level);
+            } catch (e) {
+                console.error('[MAP] boundary load error:', e);
+                clearBoundaryFeatures();
+            }
+        }
+
+        function closeInfoSheet() {
+            const sheet = document.getElementById('info-sheet');
+            sheet.classList.remove('is-half', 'is-full');
+        }
+
+        function renderInfoSheet(data) {
+            lastInfoData = data;
+            const tabs = [data.sidoName, data.sigunguName, data.emdName].filter(Boolean);
+            const regionName = tabs[tabs.length - 1] ?? '';
+
+            document.getElementById('info-sheet-tabs').innerHTML = tabs
+                .map((name, i) => `<span class="info-sheet__tab${i === tabs.length - 1 ? ' is-active' : ''}">${name}</span>`)
+                .join('');
+
+            const statsHtml = data.propertyStats.map(stat => {
+                const barClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-bar--');
+                const pctClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-pct--');
+                return `
+                    <div class="info-sheet__stat-item">
+                        <div class="info-sheet__stat-header">
+                            <div class="listing__tag ${stat.cssClass}">
+                                <span class="tag-label">${stat.label}</span>
+                                <span class="tag-count">${stat.count}</span>
+                            </div>
+                            <span class="info-sheet__stat-pct ${pctClass}">${stat.percentage} %</span>
+                        </div>
+                        <div class="info-sheet__stat-bar-wrap">
+                            <div class="info-sheet__stat-bar ${barClass}" style="width:${stat.percentage}%"></div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            const selectedListingName = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)')?.textContent ?? null;
+
+            document.getElementById('info-sheet-content').innerHTML = `
+                <p class="bottom-sheet__caption">
+                    ${IS_LOGGED_IN && selectedListingName ? `<span class="bottom-sheet__bold">${selectedListingName}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''}
+                    <span class="bottom-sheet__bold">${data.brokerCount}명</span>의 중개사가 있습니다.
+                </p>
+                <div class="info-sheet__stat-list">${statsHtml}</div>`;
+        }
+
+        async function openInfoSheet(feature) {
+            closeBrokerSheet();
+
+            const admCd = feature.getProperty('admCd');
+            if (!admCd) return;
+
+            const url = `/map/api/region-info?admCd=${admCd}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return;
+                const data = await res.json();
+                renderInfoSheet(data);
+                document.getElementById('info-sheet').classList.add('is-half');
+            } catch (e) {
+                console.error('[MAP] region info load error:', e);
+            }
+        }
+
+        const BOUNDARY_HOVER_STYLE = {
+            fillColor: '#98adff',
+            fillOpacity: 0.2,
+            strokeColor: '#475569',
+            strokeWeight: 3,
+            strokeOpacity: 1
+        };
+
+        function selectBoundaryFeature(feature) {
+            // 이전 선택 해제
+            if (selectedBoundaryFeature) {
+                map.data.revertStyle(selectedBoundaryFeature);
+                const prevOverlay = regionLabelOverlays.find(o => o._name === selectedBoundaryFeature.getProperty('name'));
+                if (prevOverlay?._div) prevOverlay._div.classList.remove('region-pill--selected');
+            }
+
+            // 새 선택 적용
+            selectedBoundaryFeature = feature;
+            map.data.overrideStyle(feature, BOUNDARY_HOVER_STYLE);
+
+            const overlay = regionLabelOverlays.find(o => o._name === feature.getProperty('name'));
+            if (overlay?._div) overlay._div.classList.add('region-pill--selected');
+        }
+
+        function bindBoundaryEvents() {
+            map.data.addListener('mouseover', function (e) {
+                if (e.feature === selectedBoundaryFeature) return;
+                map.data.overrideStyle(e.feature, BOUNDARY_HOVER_STYLE);
+            });
+
+            map.data.addListener('mouseout', function (e) {
+                if (e.feature === selectedBoundaryFeature) return;
+                map.data.revertStyle(e.feature);
+            });
+
+            map.data.addListener('click', function (e) {
+                selectBoundaryFeature(e.feature);
+                openInfoSheet(e.feature);
+            });
+        }
+
+        async function initMap() {
+
+            let lat, lng;
+
+            // 1순위: localStorage
+            const saved = loadMapCenter();
+            if (saved) {
+                lat = saved.lat;
+                lng = saved.lng;
+            }
+
+            // 2순위: user_region 테이블 위경도
+            if (lat == null) {
+                try {
+                    const res = await fetch('/map/api/user-region');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data?.lat != null && data?.lng != null) {
+                            lat = Number(data.lat);
+                            lng = Number(data.lng);
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            // 3순위: 실제 현재 위치
+            if (lat == null && navigator.geolocation) {
+                try {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            timeout: 5000,
+                            maximumAge: 60000
+                        });
+                    });
+                    lat = pos.coords.latitude;
+                    lng = pos.coords.longitude;
+                } catch (_) {}
+            }
+
+            // 4순위: 임의 주소
+            if (lat == null) {
+                lat = 37.201429248;
+                lng = 127.095487163;
+            }
+
+            const center = new naver.maps.LatLng(lat, lng);
+
+            map = new naver.maps.Map('map', {
+                center:  center,
+                zoom:    saved?.zoom ?? ZOOM_INITIAL,
+                maxZoom: ZOOM_MAX,
+                zoomControl: false,
+            });
+
+            markerClustering = new MarkerClustering({
+                map: map,
+                markers: [],
+                minClusterSize: 1,
+                maxZoom: 20,
+                icons: [{
+                    content: `
+                        <div class="usan-cluster">
+                            <img src="/img/marker-agency-white.svg" class="usan-cluster__img" />
+                            <span class="usan-cluster__count"></span>
+                        </div>
+                    `,
+                    size: new naver.maps.Size(56, 56),
+                    anchor: new naver.maps.Point(28, 56)
+                }],
+                indexGenerator: [1],
+                stylingFunction: function(clusterMarker, count) {
+
+                    const el = clusterMarker.getElement();
+                    if (!el) return;
+
+                    const span = el.querySelector('.usan-cluster__count');
+                    const img = el.querySelector('.usan-cluster__img');
+
+                    if (!span) return;
+
+                    if (count <= 1) {
+                        span.style.display = 'none';
+                        span.textContent = '';
+                    } else {
+                        span.style.display = 'flex';
+                        span.textContent = String(count);
+                    }
+
+                    if (!img) return;
+
+                    const members = (typeof clusterMarker.getClusterMember === 'function')
+                        ? clusterMarker.getClusterMember()
+                        : [];
+
+                    if (!members || members.length === 0) {
+                        img.src = '/img/marker-agency-white.svg';
+                        return;
+                    }
+
+                    const key = makeClusterKey(members);
+
+                    if (selectedClusterMarker && key === selectedClusterKey) {
+                        img.src = '/img/marker-agency-orange.svg';
+                    } else {
+                        img.src = '/img/marker-agency-white.svg';
+                    }
+                }
+            });
+
+            updateClusterOptionsByZoom(map.getZoom());
+            bindBoundaryEvents();
+
+            loadMyListings();
+            loadAdministrativeBoundaries();
+
+            naver.maps.Event.addListener(map, 'zoom_changed', function () {
+                updateClusterOptionsByZoom(map.getZoom());
+                closeBrokerSheet();
+                loadAdministrativeBoundaries();
+            });
+
+            naver.maps.Event.addListener(map, 'dragend', function () {
+                const sheet = document.getElementById('broker-sheet');
+                if (sheet && (sheet.classList.contains('is-half') || sheet.classList.contains('is-full'))) {
+                    closeBrokerSheet();
+                }
+
+                loadAdministrativeBoundaries();
+            });
+
+            naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster) {
+                onClusterClick(cluster);
+            });
+
+            document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
+        }
+
+
+
+        function renderMarkers(brokers, zoom) {
+
+            markers = brokers.map(b => {
+                const marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng(b.lat, b.lng),
+                    title: b.officeName
+                });
+
+                marker.__brokerCode = b.brokerCode;
+
+                return marker;
+            });
+
+            if (markerClustering) {
+                markerClustering.setMarkers(markers);
+
+                naver.maps.Event.trigger(map, 'idle');
+            }
+        }
+
+        async function onClusterClick(cluster) {
+
+            const clusterMarker = cluster._clusterMarker;
+
+            const members = cluster.getClusterMember() || [];
+
+            let brokerCodes = members
+                .map(m => m.__brokerCode)
+                .filter(Boolean);
+
+            if (!brokerCodes.length) {
+                console.warn('[MAP] cluster has no brokerCodes')
+                return;
+            }
+
+            selectedClusterKey = makeClusterKey(members);
+
+            if (clusterMarker && typeof clusterMarker.getElement === 'function') {
+
+                resetClusterIcons();
+
+                const el = clusterMarker.getElement();
+                if (el) {
+                    const img = el.querySelector('.usan-cluster__img');
+
+                    if (img) {
+                        img.src = '/img/marker-agency-orange.svg';
+                        selectedClusterMarker = clusterMarker;
+                    }
+                }
+            }
+
+            lastClusterBrokerCodes = brokerCodes;
+            await fetchClusterBrokers(brokerCodes);
+        }
+
+        async function fetchClusterBrokers(brokerCodes) {
+            try {
+                const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
+                const distanceM = selectedDistance
+                    ? (selectedDistance.endsWith('km') ? parseFloat(selectedDistance) * 1000 : parseFloat(selectedDistance))
+                    : null;
+
+                const res = await fetch('/map/api/brokers/cluster', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        brokerCodes,
+                        lat:       (chip && distanceM) ? parseFloat(chip.dataset.lat) : null,
+                        lng:       (chip && distanceM) ? parseFloat(chip.dataset.lng) : null,
+                        distanceM: (chip && distanceM) ? distanceM : null
+                    })
+                });
+
+                if (!res.ok) throw new Error('클러스터 중개사 조회 실패');
+
+                renderClusterSheet(await res.json());
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderClusterSheet(brokers) {
+            lastClusterBrokers = brokers;
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+            if (!sheet || !content) {
+                return;
+            }
+
+            const totalCount = brokers.length;
+
+            const itemsHtml = brokers.map(b => {
+                const brokerCode = b.brokerCode ?? '';
+                const officeName = b.officeName ?? '';
+                const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
+                const tel = b.phone ?? b.tel ?? '';
+
+                // 자세히 보기 시트를 위해 데이터 캐시
+                brokerDataMap[brokerCode] = b;
+                const top5 = (b.top5 ?? []);
+
+                const tags = top5.map(item => `
+                    <span class="listing__tag ${item.cssClass}">
+                        <span class="tag-label">${item.label}</span>
+                        <span class="tag-count">${item.count}</span>
+                    </span>
+                `).join(' ');
+
+                return `
+                    <div class="cluster-broker">
+
+                        <div class="cluster-broker-item" data-broker-code=${brokerCode}>
+
+                            <div class="cluster-broker-item__info">
+                                <div class="cluster-broker-item__meta">
+                                    <div class="cluster-broker-item__title">${officeName}</div>
+                                    <div class="cluster-broker-item__tags">${tags}</div>
+                                </div>
+
+                                <div class="cluster-broker-item__addr-wrapper">
+                                    <span class="cluster-broker-item__addr">${address}</span>
+                                    <span class="cluster-broker-item__expand-btn"></span>
+                                </div>
+                            </div>
+
+                            <div class="cluster-broker-item__thumb"></div>
+
+                        </div>
+
+                        <div class="cluster-broker-item__buttons">
+                            <button type="button" class="cluster-btn cluster-btn--send">
+                                <span class="cluster-btn__icon cluster-btn__icon--send"></span>
+                                <a href="/map/listings/share" class="cluster-btn__text">매물 보내기</a>
+                            </button>
+
+                            <button type="button" class="cluster-btn cluster-btn--call" data-tel="${tel}">
+                                <span class="cluster-btn__icon cluster-btn__icon--call"></span>
+                                <span class="cluster-btn__text">전화하기</span>
+                            </button>
+
+                            <button type="button" class="cluster-btn cluster-btn--more" data-broker-code="${brokerCode}" aria-label="자세히 보기">
+                                <span class="cluster-btn__icon--more"></span>
+                            </button>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="bottom-sheet__caption">
+                    ${(() => { const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)'); return IS_LOGGED_IN && chip ? `<span class="bottom-sheet__bold">${chip.textContent}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''; })()} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
+                </div>
+                <div class="bottom-sheet__cluster-list">
+                    ${itemsHtml}
+                </div>
+            `;
+
+            openBrokerSheet(html);
+        }
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cluster-btn--call');
+            if (!btn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const raw = btn.getAttribute('data-tel') || '';
+            const tel = normalizePhone(raw);
+
+            if (!tel) {
+                alert('전화번호가 없습니다.');
+                return;
+            }
+
+            // 모바일: 전화 앱 열기 / PC: 기본 앱이 없으면 반응 없을 수 있음
+            window.location.href = `tel:${tel}`;
+        });
+
+        // 자세히 보기 시트 - 더보기 버튼 클릭
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cluster-btn--more');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const code = btn.dataset.brokerCode;
+            const broker = brokerDataMap[code];
+            if (broker) openBrokerDetail(broker);
+        });
+
+        // 자세히 보기 시트 - 닫기
+        document.getElementById('brokerDetailClose')?.addEventListener('click', closeBrokerDetail);
+
+        // 자세히 보기 시트 열기
+        let brokerDetailMap = null;
+
+        function openBrokerDetail(broker) {
+            const sheet = document.getElementById('broker-detail-sheet');
+            const body  = document.getElementById('brokerDetailBody');
+            const btnCall = document.getElementById('brokerDetailCall');
+            const btnSend = document.getElementById('brokerDetailSend');
+            if (!sheet || !body) return;
+
+            const officeName = broker.officeName ?? '';
+            const brokerName = broker.brokerName ?? '';
+            const address    = [broker.sido, broker.sigungu].filter(Boolean).join(' ');
+            const regNum     = broker.registrationNumber ?? '';
+            const tel        = broker.tel ?? '';
+            const phone      = broker.phone ?? '';
+
+            const tags = (broker.top5 ?? []).map(t => `
+                <span class="broker-tag ${t.cssClass ?? ''}">
+                    <span class="tag-label">${t.label}</span>
+                    <span class="tag-label">${t.count}</span>
+                </span>
+            `).join('');
+
+            body.innerHTML = `
+                <div class="broker-content-wrapper">
+                    <div class="broker-info-wrapper">
+                        <div class="broker-info">
+                            <div class="broker-info__basic">
+                                <div class="broker-info__title">
+                                    <div class="broker-info__office">${officeName}</div>
+                                    <div class="broker-info__name">${brokerName}</div>
+                                </div>
+                                <div class="broker-info__address-wrapper">
+                                    <span class="broker-info__address">${address}</span>
+                                </div>
+                            </div>
+                            <div class="broker-tags">${tags}</div>
+                        </div>
+                        <div class="broker-info__details">
+                            ${regNum ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__scroll"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">중개사등록번호</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${regNum}</span>
+                                </div>
+                            </div>` : ''}
+                            ${tel ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__tel"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">전화번호</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${tel}</span>
+                                </div>
+                            </div>` : ''}
+                            ${phone ? `
+                            <div class="broker-info__detail">
+                                <span class="broker-icon__phone"></span>
+                                <div class="broker-info__detail-gap">
+                                    <span class="broker-info__detail-text">휴대전화</span>
+                                    <span class="broker-info__detail-text">:</span>
+                                    <span class="broker-info__detail-text">${phone}</span>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="broker-info__line"></div>
+
+                    <div class="broker-info__additional-wrapper">
+                        <div class="broker-info__additional-title">추가정보</div>
+                        <div class="broker-info__additional">
+                            <div class="broker-info__additional-item">
+                                <span class="broker-info__additional-text">최근 활동</span>
+                                <span class="broker-info__additional-recent">최근 7일간 12건 응답</span>
+                            </div>
+                            <div class="broker-info__additional-item">
+                                <span class="broker-info__additional-text">평점</span>
+                                <span class="broker-info__additional-rating-wrapper">
+                                    <span class="broker-info__additional-rating-icon"></span>
+                                    <span class="broker-info__additional-rating">4.2점</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${(broker.lat && broker.lng) ? `
+                    <div class="broker-info__line"></div>
+                    <div class="broker-info__map-wrapper">
+                        <div class="broker-info__map-title">지도 보기</div>
+                        <div id="brokerDetailMap" class="broker-info__map"></div>
+                    </div>` : ''}
+                </div>
+            `;
+
+            // 전화 버튼 연결
+            const callTel = normalizePhone(phone || tel);
+            btnCall.onclick = () => {
+                if (!callTel) { alert('전화번호가 없습니다.'); return; }
+                window.location.href = `tel:${callTel}`;
+            };
+
+            // 매물 보내기 버튼 연결
+            btnSend.onclick = () => { location.href = '/map/listings/share'; };
+
+            // 시트 열기
+            sheet.classList.add('is-open');
+
+            // 미니 지도 초기화 (시트가 visible 된 뒤)
+            if (broker.lat && broker.lng) {
+                requestAnimationFrame(() => {
+                    const mapEl = document.getElementById('brokerDetailMap');
+                    if (!mapEl || typeof naver === 'undefined') return;
+                    const center = new naver.maps.LatLng(broker.lat, broker.lng);
+                    brokerDetailMap = new naver.maps.Map(mapEl, {
+                        center: center,
+                        zoom: 15,
+                        draggable: true,
+                        pinchZoom: true,
+                        scrollWheel: false,
+                        zoomControl: false,
+                        mapTypeControl: false
+                    });
+                    new naver.maps.Marker({
+                        position: center,
+                        map: brokerDetailMap,
+                        icon: {
+                            url: '/img/60x60-broker-pin.png',
+                            size: new naver.maps.Size(60, 60),
+                            scaledSize: new naver.maps.Size(60, 60),
+                            anchor: new naver.maps.Point(30, 60)
+                        }
+                    });
+                });
+            }
+        }
+
+        function closeBrokerDetail() {
+            const sheet = document.getElementById('broker-detail-sheet');
+            if (!sheet) return;
+            sheet.classList.remove('is-open');
+            brokerDetailMap = null;
+        }
+
+        function normalizePhone(value) {
+            if (!value) return '';
+
+            // "02-123-4567", "010 1234 5678", "+82 10-1234-5678" 대응
+            let v = String(value).trim();
+
+            // 내선 제거 (예: "02-123-4567 내선123")
+            v = v.replace(/(내선|ext\.?)\s*\d+/gi, '').trim();
+
+            // 숫자/플러스만 남기기
+            v = v.replace(/[^\d+]/g, '');
+
+            // +82 케이스를 0으로 변환(간단 처리)
+            // +8210xxxxxxxx -> 010xxxxxxxx
+            if (v.startsWith('+82')) {
+                v = '0' + v.slice(3);
+            }
+
+            // 너무 짧으면 무효
+            const digits = v.replace(/[^\d]/g, '');
+            if (digits.length < 9) return '';
+
+            return v;
+        }
+
+        function clearChipOn() {
+            document.querySelectorAll('.map-ui__chips .map-chip.is-on')
+                .forEach(el => el.classList.remove('is-on'));
+        }
+
+        async function ensureGeoPermissionOrGuide() {
+            // permissions API 지원 안 하는 브라우저(일부 Safari 등)
+            if (!navigator.permissions || !navigator.permissions.query) {
+                return { ok: true, reason: 'unknown' }; // 그냥 getCurrentPosition으로 시도
+            }
+
+            try {
+                const status = await navigator.permissions.query({ name: 'geolocation' });
+
+                if (status.state === 'denied') {
+
+                    const ua = navigator.userAgent;
+                    const isAndroid = /Android/i.test(ua);
+                    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+                    const isMac = /Macintosh/i.test(ua);
+
+                    let message = "위치 권한이 차단되어 있어요.\n\n";
+
+                    if (isAndroid) {
+                        message +=
+                            "📱 Android (Chrome)\n" +
+                            "• 주소창 왼쪽 🔒 또는 i 버튼 → '권한' → 위치 → 허용\n" +
+                            "• 또는 설정 앱 → 앱 → Chrome → 권한 → 위치 → 허용\n";
+                    } else if (isIOS) {
+                        message +=
+                            "📱 iPhone / iPad\n" +
+                            "• 설정 → Safari → 위치 → 허용\n" +
+                            "• 또는 설정 → 개인정보 보호 → 위치 서비스 → Safari\n";
+                    } else if (isMac) {
+                        message +=
+                            "💻 Safari (Mac)\n" +
+                            "• Safari 설정 → 웹사이트 → 위치 → 해당 사이트 허용\n";
+                    } else {
+                        message +=
+                            "💻 Chrome (PC)\n" +
+                            "• 주소창 왼쪽 🔒 → '사이트 설정' → 위치 → 허용\n";
+                    }
+
+                    alert(message);
+
+                    return {ok: false, reason: 'denied'};
+                }
+
+                return { ok: true, reason: status.state };
+            } catch (e) {
+                return { ok: true, reason: 'error' };
+            }
+        }
+
+        async function goToMyLocation(e) {
+            if (!navigator.geolocation) {
+                alert("현재 브라우저에서는 위치 정보를 사용할 수 없습니다.");
+                return;
+            }
+
+            const perm = await ensureGeoPermissionOrGuide();
+            if (!perm.ok) return;
+
+            clearChipOn();
+            const btn = document.getElementById('btn-my-location');
+            if (btn) btn.classList.add('is-on');
+
+            selectedDistance = null;
+            document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                el.textContent = '필터';
+            });
+
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const location = new naver.maps.LatLng(lat, lng);
+
+                    map.setCenter(location);
+                    map.setZoom(17);
+
+                    // 기존 마커 제거
+                    if (myLocationMarker) {
+                        myLocationMarker.setMap(null);
+                    }
+
+                    // 내 위치 마커 찍기
+                    myLocationMarker = new naver.maps.Marker({
+                        position: location,
+                        map: map,
+                        icon: {
+                            content: `
+                                <div style="
+                                    width:14px;
+                                    height:14px;
+                                    background:#4285f4;
+                                    border-radius:50%;
+                                    border:3px solid white;
+                                    box-shadow:0 0 6px rgba(0,0,0,0.3);
+                                "></div>
+                            `,
+                            anchor: new naver.maps.Point(7, 7)
+                        }
+                    });
+                },
+                function (err) {
+                    if (err.code === 1) { // PERMISSION_DENIED
+                        alert(
+                            "위치 권한이 거부되어 있어요.\n\n" +
+                            "브라우저/OS 설정에서 이 사이트의 위치 권한을 '허용'으로 바꾼 뒤 다시 눌러주세요."
+                        );
+                    } else {
+                        alert("위치 정보를 불러오지 못했습니다: " + err.message);
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 8000,
+                    maximumAge: 0
+                }
+            );
+
+            document.querySelector('.bottom-sheet-btn__distance').textContent = '필터';
+            selectedDistance = null;
+        }
+
+        function openBrokerSheet(html) {
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+            if (!sheet || !content) {
+                return;
+            }
+
+            if (html) {
+                content.innerHTML = html;
+            }
+
+            requestAnimationFrame(() => {
+                window.openBrokerSheetHalf?.();
+            });
+        }
+
+        (function () {
+            const sheet = document.getElementById('broker-sheet');
+            if (!sheet) return;
+
+            const handleArea =
+                sheet.querySelector('.bottom-sheet__handle-wrapper') ||
+                sheet.querySelector('.bottom-sheet__handle')?.parentElement;
+            if (!handleArea) return;
+
+            const STATE = Object.freeze({ CLOSED: 'CLOSED', HALF: 'HALF', FULL: 'FULL' });
+
+            function yByStatePx(State) {
+                const h = sheet.getBoundingClientRect().height;
+                if (state ===STATE.FULL) return 0;
+                if (state ===STATE.HALF) return h * 0.4;
+                return h;
+            }
+
+            function getCurrentY() {
+                const style = window.getComputedStyle(sheet);
+                const m = new DOMMatrixReadOnly(style.transform);
+                return m.m42;
+            }
+
+            function clamp(n, min, max) {
+                return Math.max(min, Math.min(max, n));
+            }
+
+            let state = STATE.CLOSED;
+
+            let dragging = false;
+            let startY = 0;
+            let startSheetY = 0;
+
+            function applyState(next, {animate = true} = {}) {
+                state = next;
+
+                sheet.classList.remove('is-half', 'is-full', 'is-dragging');
+                if (animate) {
+                    // CSS transition 사용
+                } else {
+                    sheet.classList.add('is-dragging');//transition off
+                }
+
+                if (state === STATE.HALF) sheet.classList.add('is-half');
+                if (state === STATE.FULL) sheet.classList.add('is-full');
+
+                // 상태별 transform은 CSS가 담당(translateY %)
+                // 드래그 중에 남긴 inline transform이 있으면 제거해서 CSS로 복귀
+                if (animate) sheet.style.transform = '';
+            }
+
+            function snapToNearest(y) {
+                const h = sheet.getBoundingClientRect().height;
+                const points = [
+                    { s: STATE.FULL,  y: 0 },
+                    { s: STATE.HALF,  y: h * 0.4 },
+                    { s: STATE.CLOSED,y: h }
+                ];
+
+                // 가장 가까운 점 선택
+                let best = points[0];
+                let bestDist = Math.abs(y - best.y);
+                for (const p of points.slice(1)) {
+                    const d = Math.abs(y - p.y);
+                    if (d < bestDist) { best = p; bestDist = d; }
+                }
+                applyState(best.s, { animate: true });
+            }
+
+            function isOpen() {
+                return state !== STATE.CLOSED;
+            }
+
+            document.addEventListener('pointerdown', (e) => {
+                if (!isOpen()) return;
+                if (dragging) return;
+                if (sheet.contains(e.target)) return;
+                // 필터 모달이 열려 있으면 시트를 닫지 않음
+                const filterModal = document.getElementById('filter-modal-overlay');
+                if (filterModal && filterModal.classList.contains('is-open')) return;
+                // 자세히 보기 시트가 열려 있으면 broker-sheet는 닫지 않음
+                const detailSheet = document.getElementById('broker-detail-sheet');
+                if (detailSheet && detailSheet.classList.contains('is-open')) return;
+                applyState(STATE.CLOSED, { animate: true });
+            });
+
+            // 자세히 보기 시트 바깥 클릭 → 자세히 보기만 닫기
+            document.addEventListener('pointerdown', (e) => {
+                const detailSheet = document.getElementById('broker-detail-sheet');
+                if (!detailSheet || !detailSheet.classList.contains('is-open')) return;
+                if (detailSheet.contains(e.target)) return;
+                closeBrokerDetail();
+            });
+
+            function onDown(e) {
+                dragging = true;
+
+                //드래그 시작 시점의 실제 translateY를 기준으로 잡기
+                startY = e.clientY;
+                startSheetY = (sheet.style.transform ? getCurrentY() : yByStatePx(state));
+
+                sheet.classList.add('is-dragging');
+
+                //드래그 중에는 inline transform으로 직접 따라가게
+                sheet.style.transform = `translate(-50%, ${startSheetY}px)`;
+
+                handleArea.setPointerCapture?.(e.pointerId);
+            }
+
+            function onMove(e) {
+                if (!dragging) return;
+
+                const h = sheet.getBoundingClientRect().height;
+                const delta = e.clientY - startY;
+
+                //y는 0~h 사이
+                const nextY = clamp(startSheetY + delta, 0, h);
+
+                sheet.style.transform = `translate(-50%, ${nextY}px)`;
+            }
+
+            function onUp() {
+                if (!dragging) return;
+                dragging = false;
+
+                sheet.classList.remove('is-dragging');
+
+                const y = getCurrentY();
+                snapToNearest(y);
+            }
+
+            /** 이벤트 바인딩 **/
+            handleArea.addEventListener('pointerdown', onDown);
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointercancel', onUp);
+
+            //외부 제어 API
+            window.openBrokerSheetHalf = () => applyState(STATE.HALF, { animate: true });
+            window.openBrokerSheetFull = () => applyState(STATE.FULL, { animate: true });
+            window.closeBrokerSheet = () => applyState(STATE.CLOSED, { animate: true });
+
+            // 리사이즈 시 현재 상태를 다시 적용(좌표 재계산 필요)
+            window.addEventListener('resize', () => applyState(state, { animate: false }));
+
+            //초기 닫힘
+            applyState(STATE.CLOSED, { animate: true });
+        })();
+
+        function closeBrokerSheet() {
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+
+            if (!sheet || !content) return;
+
+            const hasContent = content.innerHTML.trim().length > 0;
+
+            if (!hasContent) {
+                return;
+            }
+
+            window.closeBrokerSheet?.();
+        }
+
+        function clearMarkersAndClusters() {
+
+            if (markers && markers.length > 0) {
+                markers.forEach(m => {
+                    if (m) m.setMap(null);
+                });
+            }
+            markers = [];
+
+            if (markerClustering) {
+                markerClustering.setMarkers([]);
+            }
+        }
+
+        function resetClusterIcons() {
+            const imgs = document.querySelectorAll('.usan-cluster__img');
+            imgs.forEach(img => {
+                img.src = '/img/marker-agency-white.svg';
+            });
+        }
+
+        btnZoomIn.addEventListener('click', () => {
+            const zoom = map.getZoom();
+            if (zoom < ZOOM_MAX) {
+                map.setZoom(zoom + 1, true);
+            }
+        });
+
+        btnZoomOut.addEventListener('click', () => {
+            const zoom = map.getZoom();
+            if (zoom > ZOOM_MIN) {
+                map.setZoom(zoom - 1, true);
+            }
+        });
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    .map-chip 클릭 시 localStorage에 데이터 저장 후 지도 페이지 리로드
+         */
+        document.addEventListener('click', (e) => {
+            const chip = e.target.closest('.map-chip');
+            if (!chip) return;
+
+            const lat = chip.dataset.lat;
+            const lng = chip.dataset.lng;
+            if (!lat || !lng) return;
+
+            saveMapCenter(lat, lng, 15);
+            location.href = '/map';
+        });
+
+        /**
+         * @date    2026-01-25
+         * @author  yongss
+         * @desc    클러스터 리스트 버튼 토글
+         *
+         * 예외/주의:
+         *  - addr-wrapper 클릭은 대상에서 제외
+         *  - renderClusterSheet가 innerHTML을 갈아끼워도 동작하게
+         *  - 다른 아이템 클릭 시 기존 열림 닫힘
+         */
+        (() => {
+            const sheetContent = document.getElementById('broker-sheet-content');
+            if (!sheetContent) return;
+
+            let openedBrokerEl = null;
+
+            sheetContent.addEventListener('click', (e) => {
+                // addr-wrapper 클릭은 제외
+                if (e.target.closest('.cluster-broker-item__addr-wrapper')) return;
+
+                // 버튼 영역 클릭은 제외(버튼 자체 클릭 유지)
+                if (e.target.closest('.cluster-broker-item__buttons')) return;
+
+                const item = e.target.closest('.cluster-broker-item');
+                if (!item) return;
+
+                const broker = item.closest('.cluster-broker');
+                if (!broker) return;
+
+                // 다른 거 열려 있으면 닫기
+                if (openedBrokerEl && openedBrokerEl !== broker) {
+                    openedBrokerEl.classList.remove('is-open');
+                }
+
+                // 같은 거면 토글
+                const willOpen = !broker.classList.contains('is-open');
+                broker.classList.toggle('is-open', willOpen);
+                openedBrokerEl = willOpen ? broker : null;
+            });
+        })();
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 backend 에서 저장한 매물 데이터 받아온 뒤 .map-chip 으로 뿌려주기
+         *
+         * 예외/주의:
+         *  - 첫번째 .map-chip은 남기고 나머지 제거
+         */
+        async function loadMyListings() {
+            const chipsWrap = document.querySelector('.map-ui__chips');
+            if (!chipsWrap) return;
+
+            const chips = Array.from(chipsWrap.querySelectorAll('.map-chip'));
+            const keepChip = chips[0];
+            chipsWrap.innerHTML = '';
+            if (keepChip) chipsWrap.appendChild(keepChip);
+
+            const url = '/map/api/listings/my-listings';
+
+            let data;
+            try {
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!res.ok) {
+                    console.warn('[loadMyListings] fetch failed:', res.status);
+                    return;
+                }
+
+                data = await res.json();
+            } catch (e) {
+                console.error('[loadMyListings] fetch error:', e);
+                return;
+            }
+
+            const list = Array.isArray(data) ? data : (data?.items ?? []);
+            if (!Array.isArray(list) || list.length === 0) return;
+
+            const frag = document.createDocumentFragment();
+
+            let chipIndex = 1;
+            list.forEach((item) => {
+                const lat = item?.lat;
+                const lng = item?.lng;
+
+                if (lat == null || lng == null) return;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'map-chip';
+                btn.textContent = `매물 ${chipIndex++}`;
+
+                btn.dataset.lat = String(lat);
+                btn.dataset.lng = String(lng);
+
+                if (item?.listingId != null) btn.dataset.listingId = String(item.listingId);
+
+                frag.appendChild(btn);
+            });
+
+            chipsWrap.appendChild(frag);
+
+            const saved = loadMapCenter();
+            if (saved) {
+                const chipEls = Array.from(chipsWrap.querySelectorAll('.map-chip[data-lat][data-lng]'));
+
+                chipEls.forEach(c => c.classList.remove('is-on'));
+
+                let best = null;
+                let bestDist = Infinity;
+
+                chipEls.forEach(c => {
+                    const clat = Number(c.dataset.lat);
+                    const clng = Number(c.dataset.lng);
+                    const d = Math.abs(clat - saved.lat) + Math.abs(clng - saved.lng);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        best = c;
+                    }
+                });
+
+                if (best) best.classList.add('is-on');
+            }
+        }
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장, 30시간 동안 저장
+         */
+        function saveMapCenter(lat, lng, zoom) {
+            const MAP_CENTER_EXPIRE_HOURS = 30;
+            const MAP_CENTER_EXPIRE_MS = MAP_CENTER_EXPIRE_HOURS * 60 * 60 * 1000;
+
+            const now = Date.now()
+
+            localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
+                lat:  Number(lat),
+                lng:  Number(lng),
+                zoom: zoom ?? null,
+                at:   now,
+                expiresAt: now + MAP_CENTER_EXPIRE_MS
+            }));
+        }
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 localStorage의 MAP_CENTER 데이터 로드
+         */
+        function loadMapCenter() {
+            try {
+                const raw = localStorage.getItem(MAP_CENTER_KEY);
+                if (!raw) return;
+
+                const v = JSON.parse(raw);
+
+                if (v?.expiresAt && Date.now() > v.expiresAt) {
+                    localStorage.removeItem(MAP_CENTER_KEY);
+                    return null;
+                }
+
+                if (typeof v?.lat !== 'number' || typeof v?.lng !== 'number') return null;
+
+                return v;
+            } catch (_) {
+                localStorage.removeItem(MAP_CENTER_KEY);
+                return null;
+            }
+        }
+
+        // 거리 필터 모달
+        (function () {
+            const overlay = document.getElementById('filter-modal-overlay');
+            const btnCancel = document.getElementById('filterModalCancel');
+            const btnApply = document.getElementById('filterModalApply');
+
+            function openFilterModal() {
+                overlay.classList.add('is-open');
+            }
+
+            function closeFilterModal() {
+                overlay.classList.remove('is-open');
+            }
+
+            // .bottom-sheet-btn__distance 클릭 시 모달 열기
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.bottom-sheet-btn__distance')) return;
+
+                if (!IS_LOGGED_IN) {
+                    if (confirm('로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?')) {
+                        location.href = '/login';
+                    }
+                    return;
+                }
+
+                const listingChips = Array.from(
+                    document.querySelectorAll('.map-ui__chips .map-chip:not(#btn-my-location)')
+                );
+
+                // 1. 매물 없음
+                if (listingChips.length === 0) {
+                    if (confirm('등록된 매물이 없습니다.\n매물을 등록하시겠습니까?')) {
+                        location.href = '/listings/new';
+                    }
+                    return;
+                }
+
+                // 2. 매물은 있지만 선택된 칩 없음
+                const hasSelected = listingChips.some(c => c.classList.contains('is-on'));
+                if (!hasSelected) {
+                    alert('매물을 먼저 선택해 주세요.');
+                    return;
+                }
+
+                openFilterModal();
+            });
+
+            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
+            overlay.addEventListener('click', (e) => {
+                const chip = e.target.closest('.filter-chip__distance');
+                if (!chip) return;
+                const wasActive = chip.classList.contains('is-active');
+                overlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
+                if (!wasActive) chip.classList.add('is-active');
+            });
+
+            // 오버레이 바깥 클릭 닫기
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeFilterModal();
+            });
+
+            btnCancel.addEventListener('click', closeFilterModal);
+
+            btnApply.addEventListener('click', () => {
+                const active = overlay.querySelector('.filter-chip__distance.is-active');
+                selectedDistance = active?.textContent ?? null;
+                document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                    el.textContent = selectedDistance ?? '필터';
+                });
+                closeFilterModal();
+
+                const infoSheet = document.getElementById('info-sheet');
+                const brokerSheet = document.getElementById('broker-sheet');
+                if (infoSheet.classList.contains('is-half') || infoSheet.classList.contains('is-full')) {
+                    if (lastInfoData) renderInfoSheet(lastInfoData);
+                } else if (brokerSheet.classList.contains('is-half') || brokerSheet.classList.contains('is-full')) {
+                    if (lastClusterBrokerCodes.length) fetchClusterBrokers(lastClusterBrokerCodes);
+                }
+            });
+        })();
+
+        window.onload = initMap;
+
+    </script>
+
+</section>
+</html>

@@ -178,6 +178,10 @@
     <!-- map control -->
     <script>
 
+        let map;
+
+        let lastFetchId = 0;
+
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
         //- 20 level: 10m
         //- 19 level: 20m
@@ -223,13 +227,65 @@
 
             const center = new naver.maps.LatLng(lat, lng);
 
-            let map = new naver.maps.Map('map', {
+            map = new naver.maps.Map('map', {
                 center:  center,
                 zoom: ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
                 zoomControl: false,
             });
 
+            loadBrokersInBounds();
+
+            naver.maps.Event.addListener(map, 'zoom_changed', function () {
+                loadBrokersInBounds();
+            });
+
+            naver.maps.Event.addListener(map, 'dragend', function () {
+                loadBrokersInBounds();
+            });
+
+        }
+
+        function loadBrokersInBounds() {
+
+            const bounds = map.getBounds();
+            if (!bounds) return;
+
+            const zoom = map.getZoom();
+
+            // 행정경계만 보여야 하는 구간
+            // if (zoom < ZOOM_CLUSTER_MIN) {
+            //     clearMarkersAndClusters();
+            //     return;
+            // }
+
+            const sw = bounds.getSW();
+            const ne = bounds.getNE();
+
+            const south = sw.lat();
+            const north = ne.lat();
+            const west = sw.lng();
+            const east = ne.lng();
+
+            const url = `/map/api/brokers?south=${south}&north=${north}&west=${west}&east=${east}`;
+
+            const fetchId = ++lastFetchId;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (fetchId !== lastFetchId) return;
+
+                    const currentZoom = map.getZoom();
+
+                    // if (currentZoom < ZOOM_CLUSTER_MIN) {
+                    //     clearMarkersAndClusters();
+                    //     return;
+                    // }
+
+                    // renderMarkers(data, currentZoom);
+                })
+                .catch(err => console.error('[MAP] fetch error:', err));
         }
 
         window.onload = initMap;
