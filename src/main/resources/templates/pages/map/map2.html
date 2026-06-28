@@ -847,47 +847,6 @@
             }
         });
 
-        /**
-         * @date    2026-01-31
-         * @author  yongss
-         * @desc    .map-chip 클릭 시 localStorage에 데이터 저장 후 지도 페이지 리로드
-         */
-        document.addEventListener('click', (e) => {
-            const chip = e.target.closest('.map-chip');
-            if (!chip) return;
-
-            const lat = chip.dataset.lat;
-            const lng = chip.dataset.lng;
-            if (!lat || !lng) return;
-
-            saveMapCenter(lat, lng, 15);
-            location.href = '/map';
-        });
-
-
-
-        /**
-         * @date    2026-01-31
-         * @author  yongss
-         * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장, 30시간 동안 저장
-         */
-        function saveMapCenter(lat, lng, zoom) {
-            const MAP_CENTER_EXPIRE_HOURS = 30;
-            const MAP_CENTER_EXPIRE_MS = MAP_CENTER_EXPIRE_HOURS * 60 * 60 * 1000;
-
-            const now = Date.now()
-
-            localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
-                lat:  Number(lat),
-                lng:  Number(lng),
-                zoom: zoom ?? null,
-                at:   now,
-                expiresAt: now + MAP_CENTER_EXPIRE_MS
-            }));
-        }
-
-
-
         // 거리 필터 모달
         (function () {
             const overlay = document.getElementById('filter-modal-overlay');
