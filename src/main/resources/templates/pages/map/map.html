@@ -198,6 +198,7 @@
 
         // JS 3: .map-chip
         const MAP_CENTER_KEY = 'usan.map.center';
+        let myLocationMarker = null;
 
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
@@ -287,7 +288,7 @@
 
             map = new naver.maps.Map('map', {
                 center:  center,
-                zoom: ZOOM_INITIAL,
+                zoom: saved?.zoom ?? ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
                 zoomControl: false,
             });
@@ -1039,6 +1040,127 @@
                 expiresAt: now + MAP_CENTER_EXPIRE_MS
             }));
         }
+
+        async function goToMyLocation(e) {
+            if (!navigator.geolocation) {
+                alert("현재 브라우저에서는 위치 정보를 사용할 수 없습니다.");
+                return;
+            }
+
+            const perm = await ensureGeoPermissionOrGuide();
+            if (!perm.ok) return;
+
+            clearChipOn();
+            const btn = document.getElementById('btn-my-location');
+            if (btn) btn.classList.add('is-on');
+
+            selectedDistance = null;
+            document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                el.textContent = '필터';
+            });
+
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const location = new naver.maps.LatLng(lat, lng);
+
+                    map.setCenter(location);
+                    map.setZoom(17);
+
+                    // 기존 마커 제거
+                    if (myLocationMarker) {
+                        myLocationMarker.setMap(null);
+                    }
+
+                    // 내 위치 마커 찍기
+                    myLocationMarker = new naver.maps.Marker({
+                        position: location,
+                        map: map,
+                        icon: {
+                            content: `
+                                <div class="my-location-icon"></div>
+                            `,
+                            anchor: new naver.maps.Point(7, 7)
+                        }
+                    });
+                },
+                function (err) {
+                    if (err.code === 1) { // PERMISSION_DENIED
+                        alert(
+                            "위치 권한이 거부되어 있어요.\n\n" +
+                            "브라우저/OS 설정에서 이 사이트의 위치 권한을 '허용'으로 바꾼 뒤 다시 눌러주세요."
+                        );
+                    } else {
+                        alert("위치 정보를 불러오지 못했습니다: " + err.message);
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 3000,
+                    maximumAge: 0
+                }
+            );
+
+            document.querySelector('.bottom-sheet-btn__distance').textContent = '필터';
+            selectedDistance = null;
+        }
+
+        async function ensureGeoPermissionOrGuide() {
+            // permissions API 지원 안 하는 브라우저(일부 Safari 등)
+            if (!navigator.permissions || !navigator.permissions.query) {
+                return { ok: true, reason: 'unknown' }; // 그냥 getCurrentPosition으로 시도
+            }
+
+            try {
+                const status = await navigator.permissions.query({ name: 'geolocation' });
+
+                if (status.state === 'denied') {
+
+                    const ua = navigator.userAgent;
+                    const isAndroid = /Android/i.test(ua);
+                    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+                    const isMac = /Macintosh/i.test(ua);
+
+                    let message = "위치 권한이 차단되어 있어요.\n\n";
+
+                    if (isAndroid) {
+                        message +=
+                            "📱 Android (Chrome)\n" +
+                            "• 주소창 왼쪽 🔒 또는 i 버튼 → '권한' → 위치 → 허용\n" +
+                            "• 또는 설정 앱 → 앱 → Chrome → 권한 → 위치 → 허용\n";
+                    } else if (isIOS) {
+                        message +=
+                            "📱 iPhone / iPad\n" +
+                            "• 설정 → Safari → 위치 → 허용\n" +
+                            "• 또는 설정 → 개인정보 보호 → 위치 서비스 → Safari\n";
+                    } else if (isMac) {
+                        message +=
+                            "💻 Safari (Mac)\n" +
+                            "• Safari 설정 → 웹사이트 → 위치 → 해당 사이트 허용\n";
+                    } else {
+                        message +=
+                            "💻 Chrome (PC)\n" +
+                            "• 주소창 왼쪽 🔒 → '사이트 설정' → 위치 → 허용\n";
+                    }
+
+                    alert(message);
+
+                    return {ok: false, reason: 'denied'};
+                }
+
+                return { ok: true, reason: status.state };
+            } catch (e) {
+                return { ok: true, reason: 'error' };
+            }
+        }
+
+        function clearChipOn() {
+            document.querySelectorAll('.map-ui__chips .map-chip.is-on')
+                .forEach(el => el.classList.remove('is-on'));
+        }
+
+        document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
 
     </script>
 
