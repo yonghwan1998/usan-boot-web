@@ -240,8 +240,48 @@
 
 
         async function initMap() {
-            let lat = 37.201429248;
-            let lng = 127.095487163;
+            let lat, lng;
+
+            // 1순위: localStorage
+            const saved = loadMapCenter();
+            if (saved) {
+                lat = saved.lat;
+                lng = saved.lng;
+            }
+
+            // 2순위: user_region 테이블 위경도
+            if (lat == null) {
+                try {
+                    const res = await fetch('/map/api/user-region');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data?.lat != null && data?.lng != null) {
+                            lat = Number(data.lat);
+                            lng = Number(data.lng);
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            // 3순위: 실제 현재 위치
+            if (lat == null && navigator.geolocation) {
+                try {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            timeout: 3000,
+                            maximumAge: 60000
+                        });
+                    });
+                    lat = pos.coords.latitude;
+                    lng = pos.coords.longitude;
+                } catch (_) {}
+            }
+
+            // 4순위: 임의 주소
+            if (lat == null) {
+                lat = 37.201429248;
+                lng = 127.095487163;
+            }
 
             const center = new naver.maps.LatLng(lat, lng);
 
