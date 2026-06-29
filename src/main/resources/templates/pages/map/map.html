@@ -261,6 +261,9 @@
         const ZOOM_SIDO_MIN = 8;
         const ZOOM_MIN = 8;
 
+        const btnZoomIn = document.getElementById('zoomIn');
+        const btnZoomOut = document.getElementById('zoomOut');
+
 
         async function initMap() {
             let lat, lng;
@@ -393,6 +396,20 @@
 
             naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster) {
                 onClusterClick(cluster);
+            });
+
+            btnZoomIn.addEventListener('click', () => {
+                const zoom = map.getZoom();
+                if (zoom < ZOOM_MAX) {
+                    map.setZoom(zoom + 1, true);
+                }
+            });
+
+            btnZoomOut.addEventListener('click', () => {
+                const zoom = map.getZoom();
+                if (zoom > ZOOM_MIN) {
+                    map.setZoom(zoom - 1, true);
+                }
             });
 
         }
