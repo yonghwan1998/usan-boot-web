@@ -3,6 +3,7 @@ package com.usanmap.usan.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import com.usanmap.usan.dto.BrokerMarkerDto;
 import com.usanmap.usan.entity.BrokerPropertyCount;
 
 import java.math.BigDecimal;
@@ -63,9 +64,12 @@ public interface BrokerPropertyCountRepository extends JpaRepository<BrokerPrope
             @Param("east") double east
     );
 
-    List<BrokerPropertyCount> findByLatBetweenAndLngBetween(
-            BigDecimal south, BigDecimal north,
-            BigDecimal west, BigDecimal east);
+    @Query("SELECT new com.usanmap.usan.dto.BrokerMarkerDto(b.brokerCode, b.brokerName, b.officeName, b.lat, b.lng) " +
+           "FROM BrokerPropertyCount b " +
+           "WHERE b.lat BETWEEN :south AND :north AND b.lng BETWEEN :west AND :east")
+    List<BrokerMarkerDto> findMarkersInBounds(
+            @Param("south") BigDecimal south, @Param("north") BigDecimal north,
+            @Param("west") BigDecimal west, @Param("east") BigDecimal east);
     List<BrokerPropertyCount> findByBrokerCodeIn(Collection<UUID> brokerCodes);
 
     List<BrokerPropertyCount> findBySidoAndSigunguAndEmd(String sido, String sigungu, String emd);

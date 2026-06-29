@@ -50,9 +50,6 @@
                     <span class="map-icon--gps"></span>
                     <span class="map-chip__my-location">내 위치</span>
                 </button>
-                <button class="map-chip" type="button" data-lat="33.497234" data-lng="126.513691">신사</button>
-                <button class="map-chip" type="button">이태원</button>
-                <button class="map-chip" type="button" data-lat="33.253912" data-lng="126.528928">테스트 주소</button>
             </div>
 
             <div class="map-ui__right-bottom">
@@ -178,41 +175,53 @@
 
     </div>
 
-    <!-- Thymeleaf 인라인 변수 -->
     <script th:inline="javascript">
         const IS_LOGGED_IN = /*[[${login.authenticated}]]*/ false;
     </script>
 
-    <!-- map control -->
+    <!-- =============================================
+         JS 1: 중개사 마커 / 클러스터링
+    ============================================== -->
     <script>
 
-        const MAP_CENTER_KEY = 'usan.map.center';
-
-        // brokerCode → broker 데이터 캐시 (자세히 보기 시트에서 사용)
-        const brokerDataMap = {};
-
         let map;
-        let markers = [];
+
+        // JS 1: 중개사 마커 / 클러스터링
+        let markers = []
         let markerClustering = null;
+        let lastFetchId = 0;
         let selectedClusterMarker = null;
         let selectedClusterKey = null;
+        let lastClusterBrokerCodes = [];
+        let selectedDistance = null;
+        let lastClusterBrokers = null;
+        const brokerDataMap = {};
 
+        // JS 2: 중개사 상세정보 시트
+        let brokerDetailMap = null;
+
+        // JS 3: .map-chip
+        const MAP_CENTER_KEY = 'usan.map.center';
         let myLocationMarker = null;
 
-        let boundaryFeatures = [];
-        let boundaryCache = new Map();
-        let currentBoundaryKey = null;
+        // JS 4: 필터
+        let lastInfoData = null;
+
+        // JS 5: 정보 탭
+        let selectedBoundaryFeature = null;
+        const BOUNDARY_HOVER_STYLE = {
+            fillColor: '#98adff',
+            fillOpacity: 0.2,
+            strokeColor: '#475569',
+            strokeWeight: 3,
+            strokeOpacity: 1
+        };
+        let regionLabelOverlays = [];
         let lastBoundaryRequestId = 0;
         let regionCodeCache = new Map();
-
-        let regionLabelOverlays = [];
-        let selectedBoundaryFeature = null;
-
-        let lastFetchId = 0;
-        let selectedDistance = null;
-        let lastInfoData = null;
-        let lastClusterBrokers = null;
-        let lastClusterBrokerCodes = [];
+        let currentBoundaryKey = null;
+        let boundaryFeatures = [];
+        let boundaryCache = new Map();
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
         //- 20 level: 10m
@@ -255,409 +264,8 @@
         const btnZoomIn = document.getElementById('zoomIn');
         const btnZoomOut = document.getElementById('zoomOut');
 
-        function makeClusterKey(members) {
-            return members
-                .map(m => m.__brokerCode)
-                .filter(Boolean)
-                .sort()
-                .join(',');
-        }
-
-        function updateClusterOptionsByZoom(zoom) {
-
-            if (!markerClustering) {
-                return;
-            }
-
-            let gridSize;
-
-            if (zoom >= ZOOM_MARKER_MIN) {
-                gridSize = 56;
-            } else if (zoom >= ZOOM_CLUSTER_MIN) {
-                gridSize = 120;
-            } else if (zoom >= ZOOM_EMD_MIN) {
-                gridSize = 180;
-            } else if (zoom >= ZOOM_SIGUNGU_MIN) {
-                gridSize = 240;
-            } else {
-                gridSize = 300;
-            }
-
-            markerClustering.setOptions({
-                gridSize: gridSize,
-            });
-        }
-
-        function getBoundaryLevelByZoom(zoom) {
-            if (zoom >= ZOOM_EMD_MIN && zoom <= ZOOM_EMD_MAX) {
-                return 'EMD';
-            }
-
-            if (zoom >= ZOOM_SIGUNGU_MIN && zoom <= ZOOM_SIGUNGU_MAX) {
-                return 'SIGUNGU';
-            }
-
-            if (zoom >= ZOOM_SIDO_MIN && zoom <= ZOOM_SIDO_MAX) {
-                return 'SIDO';
-            }
-
-            return null;
-        }
-
-        function createRegionLabelOverlay(lat, lng, name) {
-            function Overlay() {
-                this._position = new naver.maps.LatLng(lat, lng);
-                this._name = name;
-                this._div = null;
-            }
-
-            Overlay.prototype = new naver.maps.OverlayView();
-
-            Overlay.prototype.onAdd = function () {
-                const div = document.createElement('div');
-                div.className = 'region-pill';
-                div.textContent = this._name;
-                this.getPanes().floatPane.appendChild(div);
-                this._div = div;
-            };
-
-            Overlay.prototype.draw = function () {
-                if (!this._div) return;
-                const pos = this.getProjection().fromCoordToOffset(this._position);
-                this._div.style.left = pos.x + 'px';
-                this._div.style.top = pos.y + 'px';
-            };
-
-            Overlay.prototype.onRemove = function () {
-                if (this._div && this._div.parentNode) {
-                    this._div.parentNode.removeChild(this._div);
-                    this._div = null;
-                }
-            };
-
-            return new Overlay();
-        }
-
-        function clearRegionLabels() {
-            regionLabelOverlays.forEach(o => o.setMap(null));
-            regionLabelOverlays = [];
-            selectedBoundaryFeature = null;
-            closeInfoSheet();
-        }
-
-        async function loadRegionLabels(level) {
-            clearRegionLabels();
-
-            const bounds = map.getBounds();
-            if (!bounds) return;
-
-            const sw = bounds.getSW();
-            const ne = bounds.getNE();
-
-            const url = `/map/api/region-labels?level=${level}&south=${sw.lat()}&north=${ne.lat()}&west=${sw.lng()}&east=${ne.lng()}`;
-
-            try {
-                const res = await fetch(url);
-                if (!res.ok) return;
-
-                const labels = await res.json();
-
-                labels.forEach(label => {
-                    const overlay = createRegionLabelOverlay(label.lat, label.lng, label.name);
-                    overlay.setMap(map);
-                    regionLabelOverlays.push(overlay);
-                });
-            } catch (e) {
-                console.error('[MAP] region labels load error:', e);
-            }
-        }
-
-        function clearBoundaryFeatures() {
-            if (!map || !map.data) return;
-
-            clearRegionLabels();
-
-            boundaryFeatures.forEach(feature => {
-                map.data.removeFeature(feature);
-            });
-
-            boundaryFeatures = [];
-            currentBoundaryKey = null;
-        }
-
-        async function fetchGeoJson(url) {
-            if (boundaryCache.has(url)) {
-                return boundaryCache.get(url);
-            }
-
-            const res = await fetch(url);
-            if (!res.ok) {
-                throw new Error(`GeoJSON 로딩 실패: ${url}`);
-            }
-
-            const data = await res.json();
-            boundaryCache.set(url, data);
-            return data;
-        }
-
-        async function fetchRegionCodeByCenter() {
-            if (!map) {
-                throw new Error('map is not initialized');
-            }
-
-            const center = map.getCenter();
-            const lat = center.lat();
-            const lng = center.lng();
-
-            const cacheKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
-
-            if (regionCodeCache.has(cacheKey)) {
-                return regionCodeCache.get(cacheKey);
-            }
-
-            const res = await fetch(`/map/api/region-code?lat=${lat}&lng=${lng}`);
-            if (!res.ok) {
-                throw new Error('행정구역 코드 조회 실패');
-            }
-
-            const data = await res.json();
-
-            /**
-             * 기대 응답 예시
-             * {
-             *   "sidoCode": "41",
-             *   "sigunguCode": "41131",
-             *   "emdCode": "4113110200"
-             * }
-             */
-            regionCodeCache.set(cacheKey, data);
-            return data;
-        }
-
-        async function resolveBoundaryRequest() {
-            const zoom = map.getZoom();
-            const level = getBoundaryLevelByZoom(zoom);
-
-            if (!level) {
-                return null;
-            }
-
-            if (level === 'SIDO') {
-                return {
-                    level: 'SIDO',
-                    key: 'SIDO_ALL',
-                    url: '/geo/sido.geo.json'
-                };
-            }
-
-            const region = await fetchRegionCodeByCenter();
-
-            if (level === 'SIGUNGU') {
-                if (!region?.sidoCode) {
-                    return null;
-                }
-
-                return {
-                    level: 'SIGUNGU',
-                    key: `SIGUNGU_${region.sidoCode}`,
-                    url: `/geo/sigungu/${region.sidoCode}.geo.json`
-                };
-            }
-
-            if (level === 'EMD') {
-                if (!region?.sigunguCode) {
-                    return null;
-                }
-
-                return {
-                    level: 'EMD',
-                    key: `EMD_${region.sigunguCode}`,
-                    url: `/geo/emd/${region.sigunguCode}.geo.json`
-                };
-            }
-
-            return null;
-        }
-
-        function applyBoundaryStyle() {
-            map.data.setStyle(function(feature) {
-                const level = feature.getProperty('level');
-
-                if (level === 'SIDO') {
-                    return {
-                        fillColor: '#a4a4a4',
-                        fillOpacity: 0,
-                        strokeColor: '#475569',
-                        strokeWeight: 2,
-                        strokeOpacity: 0.8,
-                        clickable: true
-                    };
-                }
-
-                if (level === 'SIGUNGU') {
-                    return {
-                        fillColor: '#a4a4a4',
-                        fillOpacity: 0,
-                        strokeColor: '#475569',
-                        strokeWeight: 2,
-                        strokeOpacity: 0.75,
-                        clickable: true
-                    };
-                }
-
-                return {
-                    fillColor: '#a4a4a4',
-                    fillOpacity: 0,
-                    strokeColor: '#475569',
-                    strokeWeight: 1,
-                    strokeOpacity: 0.7,
-                    clickable: true
-                };
-            });
-        }
-
-        async function loadAdministrativeBoundaries() {
-            try {
-                const requestId = ++lastBoundaryRequestId;
-                const request = await resolveBoundaryRequest();
-
-                if (requestId !== lastBoundaryRequestId) {
-                    return;
-                }
-
-                if (!request) {
-                    clearBoundaryFeatures();
-                    return;
-                }
-
-                if (currentBoundaryKey === request.key) {
-                    loadRegionLabels(request.level);
-                    return;
-                }
-
-                clearBoundaryFeatures();
-
-                const geojson = await fetchGeoJson(request.url);
-
-                if (requestId !== lastBoundaryRequestId) {
-                    return;
-                }
-
-                boundaryFeatures = map.data.addGeoJson(geojson);
-                currentBoundaryKey = request.key;
-
-                applyBoundaryStyle();
-                loadRegionLabels(request.level);
-            } catch (e) {
-                console.error('[MAP] boundary load error:', e);
-                clearBoundaryFeatures();
-            }
-        }
-
-        function closeInfoSheet() {
-            const sheet = document.getElementById('info-sheet');
-            sheet.classList.remove('is-half', 'is-full');
-        }
-
-        function renderInfoSheet(data) {
-            lastInfoData = data;
-            const tabs = [data.sidoName, data.sigunguName, data.emdName].filter(Boolean);
-            const regionName = tabs[tabs.length - 1] ?? '';
-
-            document.getElementById('info-sheet-tabs').innerHTML = tabs
-                .map((name, i) => `<span class="info-sheet__tab${i === tabs.length - 1 ? ' is-active' : ''}">${name}</span>`)
-                .join('');
-
-            const statsHtml = data.propertyStats.map(stat => {
-                const barClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-bar--');
-                const pctClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-pct--');
-                return `
-                    <div class="info-sheet__stat-item">
-                        <div class="info-sheet__stat-header">
-                            <div class="listing__tag ${stat.cssClass}">
-                                <span class="tag-label">${stat.label}</span>
-                                <span class="tag-count">${stat.count}</span>
-                            </div>
-                            <span class="info-sheet__stat-pct ${pctClass}">${stat.percentage} %</span>
-                        </div>
-                        <div class="info-sheet__stat-bar-wrap">
-                            <div class="info-sheet__stat-bar ${barClass}" style="width:${stat.percentage}%"></div>
-                        </div>
-                    </div>`;
-            }).join('');
-
-            const selectedListingName = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)')?.textContent ?? null;
-
-            document.getElementById('info-sheet-content').innerHTML = `
-                <p class="bottom-sheet__caption">
-                    ${IS_LOGGED_IN && selectedListingName ? `<span class="bottom-sheet__bold">${selectedListingName}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''}
-                    <span class="bottom-sheet__bold">${data.brokerCount}명</span>의 중개사가 있습니다.
-                </p>
-                <div class="info-sheet__stat-list">${statsHtml}</div>`;
-        }
-
-        async function openInfoSheet(feature) {
-            closeBrokerSheet();
-
-            const admCd = feature.getProperty('admCd');
-            if (!admCd) return;
-
-            const url = `/map/api/region-info?admCd=${admCd}`;
-
-            try {
-                const res = await fetch(url);
-                if (!res.ok) return;
-                const data = await res.json();
-                renderInfoSheet(data);
-                document.getElementById('info-sheet').classList.add('is-half');
-            } catch (e) {
-                console.error('[MAP] region info load error:', e);
-            }
-        }
-
-        const BOUNDARY_HOVER_STYLE = {
-            fillColor: '#98adff',
-            fillOpacity: 0.2,
-            strokeColor: '#475569',
-            strokeWeight: 3,
-            strokeOpacity: 1
-        };
-
-        function selectBoundaryFeature(feature) {
-            // 이전 선택 해제
-            if (selectedBoundaryFeature) {
-                map.data.revertStyle(selectedBoundaryFeature);
-                const prevOverlay = regionLabelOverlays.find(o => o._name === selectedBoundaryFeature.getProperty('name'));
-                if (prevOverlay?._div) prevOverlay._div.classList.remove('region-pill--selected');
-            }
-
-            // 새 선택 적용
-            selectedBoundaryFeature = feature;
-            map.data.overrideStyle(feature, BOUNDARY_HOVER_STYLE);
-
-            const overlay = regionLabelOverlays.find(o => o._name === feature.getProperty('name'));
-            if (overlay?._div) overlay._div.classList.add('region-pill--selected');
-        }
-
-        function bindBoundaryEvents() {
-            map.data.addListener('mouseover', function (e) {
-                if (e.feature === selectedBoundaryFeature) return;
-                map.data.overrideStyle(e.feature, BOUNDARY_HOVER_STYLE);
-            });
-
-            map.data.addListener('mouseout', function (e) {
-                if (e.feature === selectedBoundaryFeature) return;
-                map.data.revertStyle(e.feature);
-            });
-
-            map.data.addListener('click', function (e) {
-                selectBoundaryFeature(e.feature);
-                openInfoSheet(e.feature);
-            });
-        }
 
         async function initMap() {
-
             let lat, lng;
 
             // 1순위: localStorage
@@ -686,7 +294,7 @@
                 try {
                     const pos = await new Promise((resolve, reject) => {
                         navigator.geolocation.getCurrentPosition(resolve, reject, {
-                            timeout: 5000,
+                            timeout: 3000,
                             maximumAge: 60000
                         });
                     });
@@ -705,7 +313,7 @@
 
             map = new naver.maps.Map('map', {
                 center:  center,
-                zoom:    saved?.zoom ?? ZOOM_INITIAL,
+                zoom: saved?.zoom ?? ZOOM_INITIAL,
                 maxZoom: ZOOM_MAX,
                 zoomControl: false,
             });
@@ -767,46 +375,53 @@
 
             updateClusterOptionsByZoom(map.getZoom());
             bindBoundaryEvents();
+            loadAdministrativeBoundaries();
 
             loadMyListings();
-            loadAdministrativeBoundaries();
+
             loadBrokersInBounds();
 
             naver.maps.Event.addListener(map, 'zoom_changed', function () {
                 updateClusterOptionsByZoom(map.getZoom());
-                closeBrokerSheet();
                 loadAdministrativeBoundaries();
                 loadBrokersInBounds();
+                closeBrokerSheet();
             });
 
             naver.maps.Event.addListener(map, 'dragend', function () {
-                const sheet = document.getElementById('broker-sheet');
-                if (sheet && (sheet.classList.contains('is-half') || sheet.classList.contains('is-full'))) {
-                    closeBrokerSheet();
-                }
-
                 loadAdministrativeBoundaries();
                 loadBrokersInBounds();
+                closeBrokerSheet();
             });
 
             naver.maps.Event.addListener(markerClustering, 'clusterclick', function(cluster) {
                 onClusterClick(cluster);
             });
 
-            document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
+            btnZoomIn.addEventListener('click', () => {
+                const zoom = map.getZoom();
+                if (zoom < ZOOM_MAX) {
+                    map.setZoom(zoom + 1, true);
+                }
+            });
+
+            btnZoomOut.addEventListener('click', () => {
+                const zoom = map.getZoom();
+                if (zoom > ZOOM_MIN) {
+                    map.setZoom(zoom - 1, true);
+                }
+            });
+
         }
 
         function loadBrokersInBounds() {
 
             const bounds = map.getBounds();
-            if (!bounds) {
-                return;
-            }
+            if (!bounds) return;
 
-            const zoom = map.getZoom();
+            const currentZoom = map.getZoom();
 
-            // 행정경계만 보여야 하는 구간
-            if (zoom < ZOOM_CLUSTER_MIN) {
+            if (currentZoom < ZOOM_CLUSTER_MIN) {
                 clearMarkersAndClusters();
                 return;
             }
@@ -826,23 +441,13 @@
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    if (fetchId !== lastFetchId) {
-                        return;
-                    }
-
-                    const currentZoom = map.getZoom();
-
-                    if (currentZoom < ZOOM_CLUSTER_MIN) {
-                        clearMarkersAndClusters();
-                        return;
-                    }
-
-                    renderMarkers(data, currentZoom);
+                    if (fetchId !== lastFetchId) return;
+                    renderMarkers(data);
                 })
                 .catch(err => console.error('[MAP] fetch error:', err));
         }
 
-        function renderMarkers(brokers, zoom) {
+        function renderMarkers(brokers) {
 
             markers = brokers.map(b => {
                 const marker = new naver.maps.Marker({
@@ -859,6 +464,28 @@
                 markerClustering.setMarkers(markers);
 
                 naver.maps.Event.trigger(map, 'idle');
+            }
+        }
+
+        function makeClusterKey(members) {
+            return members
+                .map(m => m.__brokerCode)
+                .filter(Boolean)
+                .sort()
+                .join(',');
+        }
+
+        function clearMarkersAndClusters() {
+
+            if (markers && markers.length > 0) {
+                markers.forEach(m => {
+                    if (m) m.setMap(null);
+                });
+            }
+            markers = [];
+
+            if (markerClustering) {
+                markerClustering.setMarkers([]);
             }
         }
 
@@ -896,6 +523,13 @@
 
             lastClusterBrokerCodes = brokerCodes;
             await fetchClusterBrokers(brokerCodes);
+        }
+
+        function resetClusterIcons() {
+            const imgs = document.querySelectorAll('.usan-cluster__img');
+            imgs.forEach(img => {
+                img.src = '/img/marker-agency-white.svg';
+            });
         }
 
         async function fetchClusterBrokers(brokerCodes) {
@@ -941,7 +575,6 @@
                 const address = b.sido + ' ' + b.sigungu + ' ' + b.emd;
                 const tel = b.phone ?? b.tel ?? '';
 
-                // 자세히 보기 시트를 위해 데이터 캐시
                 brokerDataMap[brokerCode] = b;
                 const top5 = (b.top5 ?? []);
 
@@ -995,7 +628,14 @@
 
             const html = `
                 <div class="bottom-sheet__caption">
-                    ${(() => { const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)'); return IS_LOGGED_IN && chip ? `<span class="bottom-sheet__bold">${chip.textContent}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''; })()} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
+                    ${(() => {
+                        const chip = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)');
+
+                        return chip ? `
+                            <span class="bottom-sheet__bold">
+                                ${chip.textContent}
+                            </span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : '';
+                    })()} <span class="bottom-sheet__bold">${totalCount}명</span>의 중개사가 있습니다.
                 </div>
                 <div class="bottom-sheet__cluster-list">
                     ${itemsHtml}
@@ -1003,6 +643,39 @@
             `;
 
             openBrokerSheet(html);
+        }
+
+        function openBrokerSheet(html) {
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+            if (!sheet || !content) {
+                return;
+            }
+
+            if (html) {
+                content.innerHTML = html;
+            }
+
+            requestAnimationFrame(() => {
+                window.openBrokerSheetHalf?.();
+            });
+        }
+
+        function closeBrokerSheet() {
+
+            const sheet = document.getElementById('broker-sheet');
+            const content = document.getElementById('broker-sheet-content');
+
+            if (!sheet || !content) return;
+
+            const hasContent = content.innerHTML.trim().length > 0;
+
+            if (!hasContent) {
+                return;
+            }
+
+            window.closeBrokerSheet?.();
         }
 
         document.addEventListener('click', (e) => {
@@ -1016,13 +689,71 @@
             const tel = normalizePhone(raw);
 
             if (!tel) {
-                alert('전화번호가 없습니다.');
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">전화 불가</p>
+                        <p class="common-popup__desc">전화번호가 없습니다.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
                 return;
             }
 
             // 모바일: 전화 앱 열기 / PC: 기본 앱이 없으면 반응 없을 수 있음
             window.location.href = `tel:${tel}`;
         });
+
+        window.onload = initMap;
+
+    </script>
+
+    <!-- =============================================
+         JS 2: 중개사 상세정보 시트
+    ============================================== -->
+    <script>
+
+        /**
+         * @date    2026-01-25
+         * @author  yongss
+         * @desc    클러스터 리스트 버튼 토글
+         *
+         * 예외/주의:
+         *  - addr-wrapper 클릭은 대상에서 제외
+         *  - renderClusterSheet가 innerHTML을 갈아끼워도 동작하게
+         *  - 다른 아이템 클릭 시 기존 열림 닫힘
+         */
+        (() => {
+            const sheetContent = document.getElementById('broker-sheet-content');
+            if (!sheetContent) return;
+
+            let openedBrokerEl = null;
+
+            sheetContent.addEventListener('click', (e) => {
+                // addr-wrapper 클릭은 제외
+                if (e.target.closest('.cluster-broker-item__addr-wrapper')) return;
+
+                // 버튼 영역 클릭은 제외(버튼 자체 클릭 유지)
+                if (e.target.closest('.cluster-broker-item__buttons')) return;
+
+                const item = e.target.closest('.cluster-broker-item');
+                if (!item) return;
+
+                const broker = item.closest('.cluster-broker');
+                if (!broker) return;
+
+                // 다른 거 열려 있으면 닫기
+                if (openedBrokerEl && openedBrokerEl !== broker) {
+                    openedBrokerEl.classList.remove('is-open');
+                }
+
+                // 같은 거면 토글
+                const willOpen = !broker.classList.contains('is-open');
+                broker.classList.toggle('is-open', willOpen);
+                openedBrokerEl = willOpen ? broker : null;
+            });
+        })();
 
         // 자세히 보기 시트 - 더보기 버튼 클릭
         document.addEventListener('click', (e) => {
@@ -1035,12 +766,6 @@
             const broker = brokerDataMap[code];
             if (broker) openBrokerDetail(broker);
         });
-
-        // 자세히 보기 시트 - 닫기
-        document.getElementById('brokerDetailClose')?.addEventListener('click', closeBrokerDetail);
-
-        // 자세히 보기 시트 열기
-        let brokerDetailMap = null;
 
         function openBrokerDetail(broker) {
             const sheet = document.getElementById('broker-detail-sheet');
@@ -1109,9 +834,9 @@
                         </div>
                     </div>
 
-                    <div class="broker-info__line"></div>
+                    <div class="broker-info__line" style="display: none"></div>
 
-                    <div class="broker-info__additional-wrapper">
+                    <div class="broker-info__additional-wrapper" style="display: none">
                         <div class="broker-info__additional-title">추가정보</div>
                         <div class="broker-info__additional">
                             <div class="broker-info__additional-item">
@@ -1140,7 +865,18 @@
             // 전화 버튼 연결
             const callTel = normalizePhone(phone || tel);
             btnCall.onclick = () => {
-                if (!callTel) { alert('전화번호가 없습니다.'); return; }
+                if (!callTel) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">전화 불가</p>
+                            <p class="common-popup__desc">전화번호가 없습니다.</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
+                    return;
+                }
                 window.location.href = `tel:${callTel}`;
             };
 
@@ -1179,6 +915,9 @@
             }
         }
 
+        // 자세히 보기 시트 - 닫기
+        document.getElementById('brokerDetailClose')?.addEventListener('click', closeBrokerDetail);
+
         function closeBrokerDetail() {
             const sheet = document.getElementById('broker-detail-sheet');
             if (!sheet) return;
@@ -1211,9 +950,246 @@
             return v;
         }
 
-        function clearChipOn() {
-            document.querySelectorAll('.map-ui__chips .map-chip.is-on')
-                .forEach(el => el.classList.remove('is-on'));
+    </script>
+
+    <!-- =============================================
+         JS 3: .map-chip
+    ============================================== -->
+    <script>
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 backend 에서 저장한 매물 데이터 받아온 뒤 .map-chip 으로 뿌려주기
+         *
+         * 예외/주의:
+         *  - 첫번째 .map-chip은 남기고 나머지 제거
+         */
+        async function loadMyListings() {
+            const chipsWrap = document.querySelector('.map-ui__chips');
+            if (!chipsWrap) return;
+
+            const chips = Array.from(chipsWrap.querySelectorAll('.map-chip'));
+            const keepChip = chips[0];
+            chipsWrap.innerHTML = '';
+            if (keepChip) chipsWrap.appendChild(keepChip);
+
+            const url = '/map/api/listings/my-listings';
+
+            let data;
+            try {
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!res.ok) {
+                    console.warn('[loadMyListings] fetch failed:', res.status);
+                    return;
+                }
+
+                data = await res.json();
+            } catch (e) {
+                console.error('[loadMyListings] fetch error:', e);
+                return;
+            }
+
+            const list = Array.isArray(data) ? data : (data?.items ?? []);
+            if (!Array.isArray(list) || list.length === 0) return;
+
+            const frag = document.createDocumentFragment();
+
+            let chipIndex = 1;
+            list.forEach((item) => {
+                const lat = item?.lat;
+                const lng = item?.lng;
+
+                if (lat == null || lng == null) return;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'map-chip';
+                btn.textContent = `매물 ${chipIndex++}`;
+
+                btn.dataset.lat = String(lat);
+                btn.dataset.lng = String(lng);
+
+                if (item?.listingId != null) btn.dataset.listingId = String(item.listingId);
+
+                frag.appendChild(btn);
+            });
+
+            chipsWrap.appendChild(frag);
+
+            const saved = loadMapCenter();
+            if (saved) {
+                const chipEls = Array.from(chipsWrap.querySelectorAll('.map-chip[data-lat][data-lng]'));
+
+                chipEls.forEach(c => c.classList.remove('is-on'));
+
+                let best = null;
+                let bestDist = Infinity;
+
+                chipEls.forEach(c => {
+                    const clat = Number(c.dataset.lat);
+                    const clng = Number(c.dataset.lng);
+                    const d = Math.abs(clat - saved.lat) + Math.abs(clng - saved.lng);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        best = c;
+                    }
+                });
+
+                if (best) best.classList.add('is-on');
+            }
+        }
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 localStorage의 MAP_CENTER 데이터 로드
+         */
+        function loadMapCenter() {
+            try {
+                const raw = localStorage.getItem(MAP_CENTER_KEY);
+                if (!raw) return;
+
+                const v = JSON.parse(raw);
+
+                if (v?.expiresAt && Date.now() > v.expiresAt) {
+                    localStorage.removeItem(MAP_CENTER_KEY);
+                    return null;
+                }
+
+                if (typeof v?.lat !== 'number' || typeof v?.lng !== 'number') return null;
+
+                return v;
+            } catch (_) {
+                localStorage.removeItem(MAP_CENTER_KEY);
+                return null;
+            }
+        }
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    .map-chip 클릭 시 localStorage에 데이터 저장 후 지도 페이지 리로드
+         */
+        document.addEventListener('click', (e) => {
+            const chip = e.target.closest('.map-chip');
+            if (!chip) return;
+
+            const lat = chip.dataset.lat;
+            const lng = chip.dataset.lng;
+            if (!lat || !lng) return;
+
+            saveMapCenter(lat, lng, 15);
+            location.href = '/map';
+        });
+
+        /**
+         * @date    2026-01-31
+         * @author  yongss
+         * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장, 30시간 동안 저장
+         */
+        function saveMapCenter(lat, lng, zoom) {
+            const MAP_CENTER_EXPIRE_HOURS = 30;
+            const MAP_CENTER_EXPIRE_MS = MAP_CENTER_EXPIRE_HOURS * 60 * 60 * 1000;
+
+            const now = Date.now()
+
+            localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
+                lat:  Number(lat),
+                lng:  Number(lng),
+                zoom: zoom ?? null,
+                at:   now,
+                expiresAt: now + MAP_CENTER_EXPIRE_MS
+            }));
+        }
+
+        async function goToMyLocation(e) {
+            if (!navigator.geolocation) {
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">위치 사용 불가</p>
+                        <p class="common-popup__desc">현재 브라우저에서는 위치 정보를 사용할 수 없습니다.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
+                return;
+            }
+
+            const perm = await ensureGeoPermissionOrGuide();
+            if (!perm.ok) return;
+
+            clearChipOn();
+            const btn = document.getElementById('btn-my-location');
+            if (btn) btn.classList.add('is-on');
+
+            selectedDistance = null;
+            document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                el.textContent = '필터';
+            });
+
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const location = new naver.maps.LatLng(lat, lng);
+
+                    map.setCenter(location);
+                    map.setZoom(17);
+
+                    // 기존 마커 제거
+                    if (myLocationMarker) {
+                        myLocationMarker.setMap(null);
+                    }
+
+                    // 내 위치 마커 찍기
+                    myLocationMarker = new naver.maps.Marker({
+                        position: location,
+                        map: map,
+                        icon: {
+                            content: `
+                                <div class="my-location-icon"></div>
+                            `,
+                            anchor: new naver.maps.Point(7, 7)
+                        }
+                    });
+                },
+                function (err) {
+                    if (err.code === 1) { // PERMISSION_DENIED
+                        CommonPopup.open({
+                            contentHtml: `
+                                <p class="common-popup__title">위치 권한 거부됨</p>
+                                <p class="common-popup__desc">위치 권한이 거부되어 있어요.<br><br>브라우저/OS 설정에서 이 사이트의 위치 권한을 '허용'으로 바꾼 뒤 다시 눌러주세요.</p>
+                            `,
+                            actionsHtml: `
+                                <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                            `
+                        });
+                    } else {
+                        CommonPopup.open({
+                            contentHtml: `
+                                <p class="common-popup__title">위치 오류</p>
+                                <p class="common-popup__desc">위치 정보를 불러오지 못했습니다.<br>${err.message}</p>
+                            `,
+                            actionsHtml: `
+                                <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                            `
+                        });
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 3000,
+                    maximumAge: 0
+                }
+            );
+
+            document.querySelector('.bottom-sheet-btn__distance').textContent = '필터';
+            selectedDistance = null;
         }
 
         async function ensureGeoPermissionOrGuide() {
@@ -1254,7 +1230,15 @@
                             "• 주소창 왼쪽 🔒 → '사이트 설정' → 위치 → 허용\n";
                     }
 
-                    alert(message);
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">위치 권한 차단됨</p>
+                            <p class="common-popup__desc">${message.replace(/\n/g, '<br>')}</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
 
                     return {ok: false, reason: 'denied'};
                 }
@@ -1265,95 +1249,517 @@
             }
         }
 
-        async function goToMyLocation(e) {
-            if (!navigator.geolocation) {
-                alert("현재 브라우저에서는 위치 정보를 사용할 수 없습니다.");
-                return;
+        function clearChipOn() {
+            document.querySelectorAll('.map-ui__chips .map-chip.is-on')
+                .forEach(el => el.classList.remove('is-on'));
+        }
+
+        document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
+
+    </script>
+
+    <!-- =============================================
+        JS 4: 필터
+    ============================================== -->
+    <script>
+        (function () {
+            const overlay = document.getElementById('filter-modal-overlay');
+            const btnCancel = document.getElementById('filterModalCancel');
+            const btnApply = document.getElementById('filterModalApply');
+
+            function openFilterModal() {
+                overlay.classList.add('is-open');
             }
 
-            const perm = await ensureGeoPermissionOrGuide();
-            if (!perm.ok) return;
+            function closeFilterModal() {
+                overlay.classList.remove('is-open');
+            }
 
-            clearChipOn();
-            const btn = document.getElementById('btn-my-location');
-            if (btn) btn.classList.add('is-on');
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.bottom-sheet-btn__distance')) return;
 
-            selectedDistance = null;
-            document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
-                el.textContent = '필터';
-            });
-
-            navigator.geolocation.getCurrentPosition(
-                function (pos) {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    const location = new naver.maps.LatLng(lat, lng);
-
-                    map.setCenter(location);
-                    map.setZoom(17);
-
-                    // 기존 마커 제거
-                    if (myLocationMarker) {
-                        myLocationMarker.setMap(null);
-                    }
-
-                    // 내 위치 마커 찍기
-                    myLocationMarker = new naver.maps.Marker({
-                        position: location,
-                        map: map,
-                        icon: {
-                            content: `
-                                <div style="
-                                    width:14px;
-                                    height:14px;
-                                    background:#4285f4;
-                                    border-radius:50%;
-                                    border:3px solid white;
-                                    box-shadow:0 0 6px rgba(0,0,0,0.3);
-                                "></div>
-                            `,
-                            anchor: new naver.maps.Point(7, 7)
-                        }
+                if (!IS_LOGGED_IN) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">로그인 필요</p>
+                            <p class="common-popup__desc">로그인이 필요한 기능입니다.<br>로그인 페이지로 이동하시겠습니까?</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close(); location.href='/login'">확인</button>
+                        `
                     });
-                },
-                function (err) {
-                    if (err.code === 1) { // PERMISSION_DENIED
-                        alert(
-                            "위치 권한이 거부되어 있어요.\n\n" +
-                            "브라우저/OS 설정에서 이 사이트의 위치 권한을 '허용'으로 바꾼 뒤 다시 눌러주세요."
-                        );
-                    } else {
-                        alert("위치 정보를 불러오지 못했습니다: " + err.message);
-                    }
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 8000,
-                    maximumAge: 0
+                    return;
                 }
-            );
 
-            document.querySelector('.bottom-sheet-btn__distance').textContent = '필터';
-            selectedDistance = null;
-        }
+                const listingChips = Array.from(
+                    document.querySelectorAll('.map-ui__chips .map-chip:not(#btn-my-location)')
+                );
 
-        function openBrokerSheet(html) {
+                // 1. 매물 없음
+                if (listingChips.length === 0) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">매물 없음</p>
+                            <p class="common-popup__desc">등록된 매물이 없습니다.<br>매물을 등록하시겠습니까?</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close(); location.href='/listings/new'">확인</button>
+                        `
+                    });
+                    return;
+                }
 
-            const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
-            if (!sheet || !content) {
+                // 2. 매물은 있지만 선택된 칩 없음
+                const hasSelected = listingChips.some(c => c.classList.contains('is-on'));
+                if (!hasSelected) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">매물 미선택</p>
+                            <p class="common-popup__desc">매물을 먼저 선택해 주세요.</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
+                    return;
+                }
+
+                openFilterModal();
+            });
+
+            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
+            overlay.addEventListener('click', (e) => {
+                const chip = e.target.closest('.filter-chip__distance');
+                if (!chip) return;
+                const wasActive = chip.classList.contains('is-active');
+                overlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
+                if (!wasActive) chip.classList.add('is-active');
+            });
+
+            // 오버레이 바깥 클릭 닫기
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeFilterModal();
+            });
+
+            btnCancel.addEventListener('click', closeFilterModal);
+
+            btnApply.addEventListener('click', () => {
+                const active = overlay.querySelector('.filter-chip__distance.is-active');
+                selectedDistance = active?.textContent ?? null;
+                document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                    el.textContent = selectedDistance ?? '필터';
+                });
+                closeFilterModal();
+
+                const infoSheet = document.getElementById('info-sheet');
+                const brokerSheet = document.getElementById('broker-sheet');
+                if (infoSheet.classList.contains('is-half') || infoSheet.classList.contains('is-full')) {
+                    if (lastInfoData) renderInfoSheet(lastInfoData);
+                } else if (brokerSheet.classList.contains('is-half') || brokerSheet.classList.contains('is-full')) {
+                    if (lastClusterBrokerCodes.length) fetchClusterBrokers(lastClusterBrokerCodes);
+                }
+            });
+        })();
+    </script>
+
+    <!-- =============================================
+        JS 5: 정보 탭
+    ============================================== -->
+    <script>
+
+        function updateClusterOptionsByZoom(zoom) {
+
+            if (!markerClustering) {
                 return;
             }
 
-            if (html) {
-                content.innerHTML = html;
+            let gridSize;
+
+            if (zoom >= ZOOM_MARKER_MIN) {
+                gridSize = 56;
+            } else if (zoom >= ZOOM_CLUSTER_MIN) {
+                gridSize = 120;
+            } else if (zoom >= ZOOM_EMD_MIN) {
+                gridSize = 180;
+            } else if (zoom >= ZOOM_SIGUNGU_MIN) {
+                gridSize = 240;
+            } else {
+                gridSize = 300;
             }
 
-            requestAnimationFrame(() => {
-                window.openBrokerSheetHalf?.();
+            markerClustering.setOptions({
+                gridSize: gridSize,
             });
         }
 
+        function bindBoundaryEvents() {
+            map.data.addListener('mouseover', function (e) {
+                if (e.feature === selectedBoundaryFeature) return;
+                map.data.overrideStyle(e.feature, BOUNDARY_HOVER_STYLE);
+            });
+
+            map.data.addListener('mouseout', function (e) {
+                if (e.feature === selectedBoundaryFeature) return;
+                map.data.revertStyle(e.feature);
+            });
+
+            map.data.addListener('click', function (e) {
+                selectBoundaryFeature(e.feature);
+                openInfoSheet(e.feature);
+            });
+        }
+
+        function selectBoundaryFeature(feature) {
+            // 이전 선택 해제
+            if (selectedBoundaryFeature) {
+                map.data.revertStyle(selectedBoundaryFeature);
+                const prevOverlay = regionLabelOverlays.find(o => o._name === selectedBoundaryFeature.getProperty('name'));
+                if (prevOverlay?._div) prevOverlay._div.classList.remove('region-pill--selected');
+            }
+
+            // 새 선택 적용
+            selectedBoundaryFeature = feature;
+            map.data.overrideStyle(feature, BOUNDARY_HOVER_STYLE);
+
+            const overlay = regionLabelOverlays.find(o => o._name === feature.getProperty('name'));
+            if (overlay?._div) overlay._div.classList.add('region-pill--selected');
+        }
+
+        async function loadAdministrativeBoundaries() {
+            try {
+                const requestId = ++lastBoundaryRequestId;
+                const request = await resolveBoundaryRequest();
+
+                if (requestId !== lastBoundaryRequestId) {
+                    return;
+                }
+
+                if (!request) {
+                    clearBoundaryFeatures();
+                    return;
+                }
+
+                if (currentBoundaryKey === request.key) {
+                    loadRegionLabels(request.level);
+                    return;
+                }
+
+                clearBoundaryFeatures();
+
+                const geojson = await fetchGeoJson(request.url);
+
+                if (requestId !== lastBoundaryRequestId) {
+                    return;
+                }
+
+                boundaryFeatures = map.data.addGeoJson(geojson);
+                currentBoundaryKey = request.key;
+
+                applyBoundaryStyle();
+                loadRegionLabels(request.level);
+            } catch (e) {
+                console.error('[MAP] boundary load error:', e);
+                clearBoundaryFeatures();
+            }
+        }
+
+        async function resolveBoundaryRequest() {
+            const zoom = map.getZoom();
+            const level = getBoundaryLevelByZoom(zoom);
+
+            if (!level) {
+                return null;
+            }
+
+            if (level === 'SIDO') {
+                return {
+                    level: 'SIDO',
+                    key: 'SIDO_ALL',
+                    url: '/geo/sido.geo.json'
+                };
+            }
+
+            const region = await fetchRegionCodeByCenter();
+
+            if (level === 'SIGUNGU') {
+                if (!region?.sidoCode) {
+                    return null;
+                }
+
+                return {
+                    level: 'SIGUNGU',
+                    key: `SIGUNGU_${region.sidoCode}`,
+                    url: `/geo/sigungu/${region.sidoCode}.geo.json`
+                };
+            }
+
+            if (level === 'EMD') {
+                if (!region?.sigunguCode) {
+                    return null;
+                }
+
+                return {
+                    level: 'EMD',
+                    key: `EMD_${region.sigunguCode}`,
+                    url: `/geo/emd/${region.sigunguCode}.geo.json`
+                };
+            }
+
+            return null;
+        }
+
+        function getBoundaryLevelByZoom(zoom) {
+            if (zoom >= ZOOM_EMD_MIN && zoom <= ZOOM_EMD_MAX) {
+                return 'EMD';
+            }
+
+            if (zoom >= ZOOM_SIGUNGU_MIN && zoom <= ZOOM_SIGUNGU_MAX) {
+                return 'SIGUNGU';
+            }
+
+            if (zoom >= ZOOM_SIDO_MIN && zoom <= ZOOM_SIDO_MAX) {
+                return 'SIDO';
+            }
+
+            return null;
+        }
+
+        async function fetchRegionCodeByCenter() {
+            if (!map) {
+                throw new Error('map is not initialized');
+            }
+
+            const center = map.getCenter();
+            const lat = center.lat();
+            const lng = center.lng();
+
+            const cacheKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+            if (regionCodeCache.has(cacheKey)) {
+                return regionCodeCache.get(cacheKey);
+            }
+
+            const res = await fetch(`/map/api/region-code?lat=${lat}&lng=${lng}`);
+            if (!res.ok) {
+                throw new Error('행정구역 코드 조회 실패');
+            }
+
+            const data = await res.json();
+
+            /**
+             * 기대 응답 예시
+             * {
+             *   "sidoCode": "41",
+             *   "sigunguCode": "41131",
+             *   "emdCode": "4113110200"
+             * }
+             */
+            regionCodeCache.set(cacheKey, data);
+            return data;
+        }
+
+        function clearBoundaryFeatures() {
+            if (!map || !map.data) return;
+
+            clearRegionLabels();
+
+            boundaryFeatures.forEach(feature => {
+                map.data.removeFeature(feature);
+            });
+
+            boundaryFeatures = [];
+            currentBoundaryKey = null;
+        }
+
+        function clearRegionLabels() {
+            regionLabelOverlays.forEach(o => o.setMap(null));
+            regionLabelOverlays = [];
+            selectedBoundaryFeature = null;
+            closeInfoSheet();
+        }
+
+        function closeInfoSheet() {
+            const sheet = document.getElementById('info-sheet');
+            sheet.classList.remove('is-half', 'is-full');
+        }
+
+        async function loadRegionLabels(level) {
+            clearRegionLabels();
+
+            const bounds = map.getBounds();
+            if (!bounds) return;
+
+            const sw = bounds.getSW();
+            const ne = bounds.getNE();
+
+            const url = `/map/api/region-labels?level=${level}&south=${sw.lat()}&north=${ne.lat()}&west=${sw.lng()}&east=${ne.lng()}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return;
+
+                const labels = await res.json();
+
+                labels.forEach(label => {
+                    const overlay = createRegionLabelOverlay(label.lat, label.lng, label.name);
+                    overlay.setMap(map);
+                    regionLabelOverlays.push(overlay);
+                });
+            } catch (e) {
+                console.error('[MAP] region labels load error:', e);
+            }
+        }
+
+        function createRegionLabelOverlay(lat, lng, name) {
+            function Overlay() {
+                this._position = new naver.maps.LatLng(lat, lng);
+                this._name = name;
+                this._div = null;
+            }
+
+            Overlay.prototype = new naver.maps.OverlayView();
+
+            Overlay.prototype.onAdd = function () {
+                const div = document.createElement('div');
+                div.className = 'region-pill';
+                div.textContent = this._name;
+                this.getPanes().floatPane.appendChild(div);
+                this._div = div;
+            };
+
+            Overlay.prototype.draw = function () {
+                if (!this._div) return;
+                const pos = this.getProjection().fromCoordToOffset(this._position);
+                this._div.style.left = pos.x + 'px';
+                this._div.style.top = pos.y + 'px';
+            };
+
+            Overlay.prototype.onRemove = function () {
+                if (this._div && this._div.parentNode) {
+                    this._div.parentNode.removeChild(this._div);
+                    this._div = null;
+                }
+            };
+
+            return new Overlay();
+        }
+
+        async function fetchGeoJson(url) {
+            if (boundaryCache.has(url)) {
+                return boundaryCache.get(url);
+            }
+
+            const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`GeoJSON 로딩 실패: ${url}`);
+            }
+
+            const data = await res.json();
+            boundaryCache.set(url, data);
+            return data;
+        }
+
+        function applyBoundaryStyle() {
+            map.data.setStyle(function(feature) {
+                const level = feature.getProperty('level');
+
+                if (level === 'SIDO') {
+                    return {
+                        fillColor: '#a4a4a4',
+                        fillOpacity: 0,
+                        strokeColor: '#475569',
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8,
+                        clickable: true
+                    };
+                }
+
+                if (level === 'SIGUNGU') {
+                    return {
+                        fillColor: '#a4a4a4',
+                        fillOpacity: 0,
+                        strokeColor: '#475569',
+                        strokeWeight: 2,
+                        strokeOpacity: 0.75,
+                        clickable: true
+                    };
+                }
+
+                return {
+                    fillColor: '#a4a4a4',
+                    fillOpacity: 0,
+                    strokeColor: '#475569',
+                    strokeWeight: 1,
+                    strokeOpacity: 0.7,
+                    clickable: true
+                };
+            });
+        }
+
+        async function openInfoSheet(feature) {
+            closeBrokerSheet();
+
+            const admCd = feature.getProperty('admCd');
+            if (!admCd) return;
+
+            const url = `/map/api/region-info?admCd=${admCd}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return;
+                const data = await res.json();
+                renderInfoSheet(data);
+                document.getElementById('info-sheet').classList.add('is-half');
+            } catch (e) {
+                console.error('[MAP] region info load error:', e);
+            }
+        }
+
+        function renderInfoSheet(data) {
+            lastInfoData = data;
+            const tabs = [data.sidoName, data.sigunguName, data.emdName].filter(Boolean);
+            const regionName = tabs[tabs.length - 1] ?? '';
+
+            document.getElementById('info-sheet-tabs').innerHTML = tabs
+                .map((name, i) => `<span class="info-sheet__tab${i === tabs.length - 1 ? ' is-active' : ''}">${name}</span>`)
+                .join('');
+
+            const statsHtml = data.propertyStats.map(stat => {
+                const barClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-bar--');
+                const pctClass = stat.cssClass.replace('listing__tag--', 'info-sheet__stat-pct--');
+                return `
+                    <div class="info-sheet__stat-item">
+                        <div class="info-sheet__stat-header">
+                            <div class="listing__tag ${stat.cssClass}">
+                                <span class="tag-label">${stat.label}</span>
+                                <span class="tag-count">${stat.count}</span>
+                            </div>
+                            <span class="info-sheet__stat-pct ${pctClass}">${stat.percentage} %</span>
+                        </div>
+                        <div class="info-sheet__stat-bar-wrap">
+                            <div class="info-sheet__stat-bar ${barClass}" style="width:${stat.percentage}%"></div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            const selectedListingName = document.querySelector('.map-ui__chips .map-chip.is-on:not(#btn-my-location)')?.textContent ?? null;
+
+            document.getElementById('info-sheet-content').innerHTML = `
+                <p class="bottom-sheet__caption">
+                    ${IS_LOGGED_IN && selectedListingName ? `<span class="bottom-sheet__bold">${selectedListingName}</span> 기준으로 ${selectedDistance ? `<span class="bottom-sheet__bold">${selectedDistance}</span> 이내에` : ''}` : ''}
+                    <span class="bottom-sheet__bold">${data.brokerCount}명</span>의 중개사가 있습니다.
+                </p>
+                <div class="info-sheet__stat-list">${statsHtml}</div>`;
+        }
+
+    </script>
+
+    <!-- =============================================
+        JS 99: bottom-sheet control
+    ============================================== -->
+    <script>
         (function () {
             const sheet = document.getElementById('broker-sheet');
             if (!sheet) return;
@@ -1503,332 +1909,6 @@
             //초기 닫힘
             applyState(STATE.CLOSED, { animate: true });
         })();
-
-        function closeBrokerSheet() {
-
-            const sheet = document.getElementById('broker-sheet');
-            const content = document.getElementById('broker-sheet-content');
-
-            if (!sheet || !content) return;
-
-            const hasContent = content.innerHTML.trim().length > 0;
-
-            if (!hasContent) {
-                return;
-            }
-
-            window.closeBrokerSheet?.();
-        }
-
-        function clearMarkersAndClusters() {
-
-            if (markers && markers.length > 0) {
-                markers.forEach(m => {
-                    if (m) m.setMap(null);
-                });
-            }
-            markers = [];
-
-            if (markerClustering) {
-                markerClustering.setMarkers([]);
-            }
-        }
-
-        function resetClusterIcons() {
-            const imgs = document.querySelectorAll('.usan-cluster__img');
-            imgs.forEach(img => {
-                img.src = '/img/marker-agency-white.svg';
-            });
-        }
-
-        btnZoomIn.addEventListener('click', () => {
-            const zoom = map.getZoom();
-            if (zoom < ZOOM_MAX) {
-                map.setZoom(zoom + 1, true);
-            }
-        });
-
-        btnZoomOut.addEventListener('click', () => {
-            const zoom = map.getZoom();
-            if (zoom > ZOOM_MIN) {
-                map.setZoom(zoom - 1, true);
-            }
-        });
-
-        /**
-         * @date    2026-01-31
-         * @author  yongss
-         * @desc    .map-chip 클릭 시 localStorage에 데이터 저장 후 지도 페이지 리로드
-         */
-        document.addEventListener('click', (e) => {
-            const chip = e.target.closest('.map-chip');
-            if (!chip) return;
-
-            const lat = chip.dataset.lat;
-            const lng = chip.dataset.lng;
-            if (!lat || !lng) return;
-
-            saveMapCenter(lat, lng, 15);
-            location.href = '/map';
-        });
-
-        /**
-         * @date    2026-01-25
-         * @author  yongss
-         * @desc    클러스터 리스트 버튼 토글
-         *
-         * 예외/주의:
-         *  - addr-wrapper 클릭은 대상에서 제외
-         *  - renderClusterSheet가 innerHTML을 갈아끼워도 동작하게
-         *  - 다른 아이템 클릭 시 기존 열림 닫힘
-         */
-        (() => {
-            const sheetContent = document.getElementById('broker-sheet-content');
-            if (!sheetContent) return;
-
-            let openedBrokerEl = null;
-
-            sheetContent.addEventListener('click', (e) => {
-                // addr-wrapper 클릭은 제외
-                if (e.target.closest('.cluster-broker-item__addr-wrapper')) return;
-
-                // 버튼 영역 클릭은 제외(버튼 자체 클릭 유지)
-                if (e.target.closest('.cluster-broker-item__buttons')) return;
-
-                const item = e.target.closest('.cluster-broker-item');
-                if (!item) return;
-
-                const broker = item.closest('.cluster-broker');
-                if (!broker) return;
-
-                // 다른 거 열려 있으면 닫기
-                if (openedBrokerEl && openedBrokerEl !== broker) {
-                    openedBrokerEl.classList.remove('is-open');
-                }
-
-                // 같은 거면 토글
-                const willOpen = !broker.classList.contains('is-open');
-                broker.classList.toggle('is-open', willOpen);
-                openedBrokerEl = willOpen ? broker : null;
-            });
-        })();
-
-        /**
-         * @date    2026-01-31
-         * @author  yongss
-         * @desc    함수 호출 시 backend 에서 저장한 매물 데이터 받아온 뒤 .map-chip 으로 뿌려주기
-         *
-         * 예외/주의:
-         *  - 첫번째 .map-chip은 남기고 나머지 제거
-         */
-        async function loadMyListings() {
-            const chipsWrap = document.querySelector('.map-ui__chips');
-            if (!chipsWrap) return;
-
-            const chips = Array.from(chipsWrap.querySelectorAll('.map-chip'));
-            const keepChip = chips[0];
-            chipsWrap.innerHTML = '';
-            if (keepChip) chipsWrap.appendChild(keepChip);
-
-            const url = '/map/api/listings/my-listings';
-
-            let data;
-            try {
-                const res = await fetch(url, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                if (!res.ok) {
-                    console.warn('[loadMyListings] fetch failed:', res.status);
-                    return;
-                }
-
-                data = await res.json();
-            } catch (e) {
-                console.error('[loadMyListings] fetch error:', e);
-                return;
-            }
-
-            const list = Array.isArray(data) ? data : (data?.items ?? []);
-            if (!Array.isArray(list) || list.length === 0) return;
-
-            const frag = document.createDocumentFragment();
-
-            let chipIndex = 1;
-            list.forEach((item) => {
-                const lat = item?.lat;
-                const lng = item?.lng;
-
-                if (lat == null || lng == null) return;
-
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'map-chip';
-                btn.textContent = `매물 ${chipIndex++}`;
-
-                btn.dataset.lat = String(lat);
-                btn.dataset.lng = String(lng);
-
-                if (item?.listingId != null) btn.dataset.listingId = String(item.listingId);
-
-                frag.appendChild(btn);
-            });
-
-            chipsWrap.appendChild(frag);
-
-            const saved = loadMapCenter();
-            if (saved) {
-                const chipEls = Array.from(chipsWrap.querySelectorAll('.map-chip[data-lat][data-lng]'));
-
-                chipEls.forEach(c => c.classList.remove('is-on'));
-
-                let best = null;
-                let bestDist = Infinity;
-
-                chipEls.forEach(c => {
-                    const clat = Number(c.dataset.lat);
-                    const clng = Number(c.dataset.lng);
-                    const d = Math.abs(clat - saved.lat) + Math.abs(clng - saved.lng);
-                    if (d < bestDist) {
-                        bestDist = d;
-                        best = c;
-                    }
-                });
-
-                if (best) best.classList.add('is-on');
-            }
-        }
-
-        /**
-         * @date    2026-01-31
-         * @author  yongss
-         * @desc    함수 호출 시 localStorage에 사용자가 클릭한 .map-chip의 데이터 저장, 30시간 동안 저장
-         */
-        function saveMapCenter(lat, lng, zoom) {
-            const MAP_CENTER_EXPIRE_HOURS = 30;
-            const MAP_CENTER_EXPIRE_MS = MAP_CENTER_EXPIRE_HOURS * 60 * 60 * 1000;
-
-            const now = Date.now()
-
-            localStorage.setItem(MAP_CENTER_KEY, JSON.stringify({
-                lat:  Number(lat),
-                lng:  Number(lng),
-                zoom: zoom ?? null,
-                at:   now,
-                expiresAt: now + MAP_CENTER_EXPIRE_MS
-            }));
-        }
-
-        /**
-         * @date    2026-01-31
-         * @author  yongss
-         * @desc    함수 호출 시 localStorage의 MAP_CENTER 데이터 로드
-         */
-        function loadMapCenter() {
-            try {
-                const raw = localStorage.getItem(MAP_CENTER_KEY);
-                if (!raw) return;
-
-                const v = JSON.parse(raw);
-
-                if (v?.expiresAt && Date.now() > v.expiresAt) {
-                    localStorage.removeItem(MAP_CENTER_KEY);
-                    return null;
-                }
-
-                if (typeof v?.lat !== 'number' || typeof v?.lng !== 'number') return null;
-
-                return v;
-            } catch (_) {
-                localStorage.removeItem(MAP_CENTER_KEY);
-                return null;
-            }
-        }
-
-        // 거리 필터 모달
-        (function () {
-            const overlay = document.getElementById('filter-modal-overlay');
-            const btnCancel = document.getElementById('filterModalCancel');
-            const btnApply = document.getElementById('filterModalApply');
-
-            function openFilterModal() {
-                overlay.classList.add('is-open');
-            }
-
-            function closeFilterModal() {
-                overlay.classList.remove('is-open');
-            }
-
-            // .bottom-sheet-btn__distance 클릭 시 모달 열기
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.bottom-sheet-btn__distance')) return;
-
-                if (!IS_LOGGED_IN) {
-                    if (confirm('로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?')) {
-                        location.href = '/login';
-                    }
-                    return;
-                }
-
-                const listingChips = Array.from(
-                    document.querySelectorAll('.map-ui__chips .map-chip:not(#btn-my-location)')
-                );
-
-                // 1. 매물 없음
-                if (listingChips.length === 0) {
-                    if (confirm('등록된 매물이 없습니다.\n매물을 등록하시겠습니까?')) {
-                        location.href = '/listings/new';
-                    }
-                    return;
-                }
-
-                // 2. 매물은 있지만 선택된 칩 없음
-                const hasSelected = listingChips.some(c => c.classList.contains('is-on'));
-                if (!hasSelected) {
-                    alert('매물을 먼저 선택해 주세요.');
-                    return;
-                }
-
-                openFilterModal();
-            });
-
-            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
-            overlay.addEventListener('click', (e) => {
-                const chip = e.target.closest('.filter-chip__distance');
-                if (!chip) return;
-                const wasActive = chip.classList.contains('is-active');
-                overlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
-                if (!wasActive) chip.classList.add('is-active');
-            });
-
-            // 오버레이 바깥 클릭 닫기
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeFilterModal();
-            });
-
-            btnCancel.addEventListener('click', closeFilterModal);
-
-            btnApply.addEventListener('click', () => {
-                const active = overlay.querySelector('.filter-chip__distance.is-active');
-                selectedDistance = active?.textContent ?? null;
-                document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
-                    el.textContent = selectedDistance ?? '필터';
-                });
-                closeFilterModal();
-
-                const infoSheet = document.getElementById('info-sheet');
-                const brokerSheet = document.getElementById('broker-sheet');
-                if (infoSheet.classList.contains('is-half') || infoSheet.classList.contains('is-full')) {
-                    if (lastInfoData) renderInfoSheet(lastInfoData);
-                } else if (brokerSheet.classList.contains('is-half') || brokerSheet.classList.contains('is-full')) {
-                    if (lastClusterBrokerCodes.length) fetchClusterBrokers(lastClusterBrokerCodes);
-                }
-            });
-        })();
-
-        window.onload = initMap;
-
     </script>
 
     <!-- iOS Safari pull-to-refresh 방지 -->
