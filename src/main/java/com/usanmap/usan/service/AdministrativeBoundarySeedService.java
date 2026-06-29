@@ -121,20 +121,27 @@ public class AdministrativeBoundarySeedService {
 
             jdbcTemplate.update("""
                 INSERT INTO administrative_boundary
-                    (adm_cd, name, adm_level, parent_adm_cd, geom, created_at, updated_at)
+                    (adm_cd, name, adm_level, parent_adm_cd, geom, lat, lng, created_at, updated_at)
                 VALUES
-                    (?, ?, ?, ?, ST_SRID(ST_GeomFromGeoJSON(?), 4326), NOW(), NOW())
+                    (?, ?, ?, ?, ST_SRID(ST_GeomFromGeoJSON(?), 4326),
+                     ST_Y(ST_Centroid(ST_SRID(ST_GeomFromGeoJSON(?), 0))),
+                     ST_X(ST_Centroid(ST_SRID(ST_GeomFromGeoJSON(?), 0))),
+                     NOW(), NOW())
                 ON DUPLICATE KEY UPDATE
                     name = VALUES(name),
                     adm_level = VALUES(adm_level),
                     parent_adm_cd = VALUES(parent_adm_cd),
                     geom = VALUES(geom),
+                    lat = VALUES(lat),
+                    lng = VALUES(lng),
                     updated_at = NOW()
                 """,
                     admCd,
                     name,
                     level,
                     parentAdmCd,
+                    geometryJson,
+                    geometryJson,
                     geometryJson
             );
         } catch (Exception e) {

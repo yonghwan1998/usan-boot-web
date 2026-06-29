@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Geometry;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,6 +36,12 @@ public class AdministrativeBoundary {
 
     @Column(name = "geom", nullable = false, columnDefinition = "geometry SRID 4326")
     private Geometry geom;
+
+    @Column(name = "lat", precision = 10, scale = 7)
+    private BigDecimal lat;
+
+    @Column(name = "lng", precision = 10, scale = 7)
+    private BigDecimal lng;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

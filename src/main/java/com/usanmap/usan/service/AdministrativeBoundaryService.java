@@ -203,6 +203,7 @@ public class AdministrativeBoundaryService {
                 .findLabelsByLevelInBounds(level, south, north, west, east);
 
         return projections.stream()
+                .filter(p -> p.getLat() != null && p.getLng() != null)
                 .map(p -> new RegionLabelDto(p.getName(), p.getLat(), p.getLng()))
                 .toList();
     }

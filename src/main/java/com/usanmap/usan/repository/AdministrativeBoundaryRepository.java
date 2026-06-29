@@ -40,10 +40,10 @@ public interface AdministrativeBoundaryRepository extends JpaRepository<Administ
     }
 
     @Query(value = """
-        SELECT ab.adm_cd                                                         AS admCd,
-               ab.name                                                           AS name,
-               ST_X(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lat,
-               ST_Y(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))          AS lng
+        SELECT ab.adm_cd AS admCd,
+               ab.name   AS name,
+               ab.lat    AS lat,
+               ab.lng    AS lng
         FROM administrative_boundary ab
         WHERE ab.adm_level = 'EMD'
           AND ab.parent_adm_cd = :sigunguCd
@@ -75,9 +75,9 @@ public interface AdministrativeBoundaryRepository extends JpaRepository<Administ
     );
 
     @Query(value = """
-        SELECT ab.name                                                          AS name,
-               ST_X(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))         AS lat,
-               ST_Y(ST_Centroid(ST_GeomFromWKB(ST_AsBinary(ab.geom))))         AS lng
+        SELECT ab.name  AS name,
+               ab.lat   AS lat,
+               ab.lng   AS lng
         FROM administrative_boundary ab
         WHERE ab.adm_level = :admLevel
           AND MBRIntersects(
@@ -103,7 +103,7 @@ public interface AdministrativeBoundaryRepository extends JpaRepository<Administ
 
     interface RegionLabelProjection {
         String getName();
-        double getLat();
-        double getLng();
+        Double getLat();
+        Double getLng();
     }
 }
