@@ -14,6 +14,7 @@ import com.usanmap.usan.repository.ListingRepository;
 import com.usanmap.usan.repository.UserRegionRepository;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.MapService;
+import com.usanmap.usan.service.RegionStatService;
 import com.usanmap.usan.service.SmsService;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class MapApiController {
     private final SmsService        smsService;
     private final AdministrativeBoundaryService administrativeBoundaryService;
     private final AdministrativeBoundarySeedService administrativeBoundarySeedService;
+    private final RegionStatService regionStatService;
 
     @GetMapping("/brokers/count-by-radius")
     public Map<Integer, Long> getCountsByRadius(
@@ -158,5 +160,11 @@ public class MapApiController {
     @PostMapping("/admin/boundaries/seed/all")
     public ResponseEntity<BoundarySeedResponse> seedAll() {
         return ResponseEntity.ok(administrativeBoundarySeedService.seedAll());
+    }
+
+    @PostMapping("/admin/region-stat/refresh")
+    public ResponseEntity<Void> refreshRegionStat() {
+        regionStatService.refresh();
+        return ResponseEntity.ok().build();
     }
 }
