@@ -75,7 +75,12 @@ public class AdministrativeBoundaryService {
         AdministrativeBoundary boundary = administrativeBoundaryRepository.findByAdmCd(admCd).orElse(null);
         if (boundary == null) return new RegionInfoDto(null, null, null, null, 0, List.of());
 
-        RegionStat stat = regionStatRepository.findById(admCd).orElse(null);
+        String statKey = switch (boundary.getAdmLevel()) {
+            case SIDO     -> admCd.substring(0, 2);
+            case SIGUNGU  -> admCd.substring(0, 5);
+            case EMD      -> admCd;
+        };
+        RegionStat stat = regionStatRepository.findById(statKey).orElse(null);
 
         String sidoName = null, sigunguName = null, emdName = null;
 
