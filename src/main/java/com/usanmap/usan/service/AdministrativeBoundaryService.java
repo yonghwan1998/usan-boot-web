@@ -2,18 +2,19 @@ package com.usanmap.usan.service;
 
 import com.usanmap.usan.dto.*;
 import com.usanmap.usan.entity.AdministrativeBoundary;
+import com.usanmap.usan.entity.RegionStat;
 import com.usanmap.usan.entity.enums.AdministrativeLevel;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository.EmdItemProjection;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository.RegionLabelProjection;
 import com.usanmap.usan.repository.AdministrativeBoundaryRepository.RegionSelectProjection;
-import com.usanmap.usan.repository.CrawledListingRepository;
-import com.usanmap.usan.repository.CrawledListingRepository.ListingTypeStat;
+import com.usanmap.usan.repository.RegionStatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 public class AdministrativeBoundaryService {
 
     private final AdministrativeBoundaryRepository administrativeBoundaryRepository;
-    private final CrawledListingRepository crawledListingRepository;
+    private final RegionStatRepository regionStatRepository;
 
     public BoundaryCodeResponse getRegionCodes(double lat, double lng) {
         AdministrativeBoundary sido = administrativeBoundaryRepository
@@ -72,90 +73,98 @@ public class AdministrativeBoundaryService {
 
     public RegionInfoDto getRegionInfo(String admCd) {
         AdministrativeBoundary boundary = administrativeBoundaryRepository.findByAdmCd(admCd).orElse(null);
+        if (boundary == null) return new RegionInfoDto(null, null, null, null, 0, List.of());
 
-        String sidoName = null, sigunguName = null, emdName = null, level = null;
-        List<ListingTypeStat> stats = List.of();
-        long brokerCount = 0;
+        RegionStat stat = regionStatRepository.findById(admCd).orElse(null);
 
-        if (boundary != null) {
-            level = boundary.getAdmLevel().name();
-            switch (boundary.getAdmLevel()) {
-                case SIDO -> {
-                    sidoName = boundary.getName();
-                    String sidoCode = admCd.substring(0, 2);
-                    stats = crawledListingRepository.countByListingTypeAndSidoCode(sidoCode);
-                    brokerCount = crawledListingRepository.countDistinctBrokerBySidoCode(sidoCode);
-                }
-                case SIGUNGU -> {
-                    sigunguName = boundary.getName();
-                    sidoName = administrativeBoundaryRepository
-                            .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIDO, admCd.substring(0, 2))
-                            .map(AdministrativeBoundary::getName).orElse(null);
-                    String sigunguCode = admCd.substring(0, 5);
-                    stats = crawledListingRepository.countByListingTypeAndSigunguCode(sigunguCode);
-                    brokerCount = crawledListingRepository.countDistinctBrokerBySigunguCode(sigunguCode);
-                }
-                case EMD -> {
-                    emdName = boundary.getName();
-                    sigunguName = administrativeBoundaryRepository
-                            .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIGUNGU, admCd.substring(0, 5))
-                            .map(AdministrativeBoundary::getName).orElse(null);
-                    sidoName = administrativeBoundaryRepository
-                            .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIDO, admCd.substring(0, 2))
-                            .map(AdministrativeBoundary::getName).orElse(null);
-                    String emdCode = admCd.substring(0, Math.min(10, admCd.length()));
-                    stats = crawledListingRepository.countByListingTypeAndEmdCode(emdCode);
-                    brokerCount = crawledListingRepository.countDistinctBrokerByEmdCode(emdCode);
-                }
+        String sidoName = null, sigunguName = null, emdName = null;
+
+        switch (boundary.getAdmLevel()) {
+            case SIDO -> sidoName = boundary.getName();
+            case SIGUNGU -> {
+                sigunguName = boundary.getName();
+                sidoName = administrativeBoundaryRepository
+                        .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIDO, admCd.substring(0, 2))
+                        .map(AdministrativeBoundary::getName).orElse(null);
+            }
+            case EMD -> {
+                emdName = boundary.getName();
+                sigunguName = administrativeBoundaryRepository
+                        .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIGUNGU, admCd.substring(0, 5))
+                        .map(AdministrativeBoundary::getName).orElse(null);
+                sidoName = administrativeBoundaryRepository
+                        .findFirstByAdmLevelAndAdmCdStartingWith(AdministrativeLevel.SIDO, admCd.substring(0, 2))
+                        .map(AdministrativeBoundary::getName).orElse(null);
             }
         }
 
-        return new RegionInfoDto(level, sidoName, sigunguName, emdName,
-                (int) brokerCount, buildPropertyStats(stats));
+        int brokerCount = stat != null ? stat.getBrokerCount() : 0;
+        List<PropertyStatDto> propertyStats = stat != null ? buildPropertyStats(stat) : List.of();
+
+        return new RegionInfoDto(boundary.getAdmLevel().name(), sidoName, sigunguName, emdName, brokerCount, propertyStats);
     }
 
-    private List<PropertyStatDto> buildPropertyStats(List<ListingTypeStat> stats) {
-        if (stats.isEmpty()) return List.of();
+    private static final Map<String, String> CSS_CLASS_MAP = Map.ofEntries(
+            Map.entry("아파트",         "listing__tag--apt"),
+            Map.entry("오피스텔",       "listing__tag--officetel"),
+            Map.entry("빌라/연립",      "listing__tag--villa"),
+            Map.entry("원룸",           "listing__tag--oneroom"),
+            Map.entry("투룸",           "listing__tag--tworoom"),
+            Map.entry("단독/다가구",    "listing__tag--detached"),
+            Map.entry("전원주택",       "listing__tag--rural"),
+            Map.entry("상가주택",       "listing__tag--mixedhouse"),
+            Map.entry("한옥주택",       "listing__tag--hanok"),
+            Map.entry("상가",           "listing__tag--store"),
+            Map.entry("사무실",         "listing__tag--office"),
+            Map.entry("건물",           "listing__tag--building"),
+            Map.entry("공장/창고",      "listing__tag--factory"),
+            Map.entry("지식산업센터",   "listing__tag--knowledge"),
+            Map.entry("토지",           "listing__tag--land"),
+            Map.entry("아파트분양권",   "listing__tag--apt-sale"),
+            Map.entry("오피스텔분양권", "listing__tag--officetel-sale"),
+            Map.entry("재개발",         "listing__tag--redevelopment"),
+            Map.entry("재건축",         "listing__tag--reconstruction"),
+            Map.entry("분양중/예정",    "listing__tag--presale")
+    );
 
-        Map<String, String> cssClassMap = Map.ofEntries(
-                Map.entry("아파트",        "listing__tag--apt"),
-                Map.entry("오피스텔",      "listing__tag--officetel"),
-                Map.entry("빌라/연립",     "listing__tag--villa"),
-                Map.entry("원룸",          "listing__tag--oneroom"),
-                Map.entry("투룸",          "listing__tag--tworoom"),
-                Map.entry("단독/다가구",   "listing__tag--detached"),
-                Map.entry("전원주택",      "listing__tag--rural"),
-                Map.entry("상가주택",      "listing__tag--mixedhouse"),
-                Map.entry("한옥주택",      "listing__tag--hanok"),
-                Map.entry("상가",          "listing__tag--store"),
-                Map.entry("사무실",        "listing__tag--office"),
-                Map.entry("건물",          "listing__tag--building"),
-                Map.entry("공장/창고",     "listing__tag--factory"),
-                Map.entry("지식산업센터",  "listing__tag--knowledge"),
-                Map.entry("토지",          "listing__tag--land"),
-                Map.entry("아파트분양권",  "listing__tag--apt-sale"),
-                Map.entry("오피스텔분양권","listing__tag--officetel-sale"),
-                Map.entry("재개발",        "listing__tag--redevelopment"),
-                Map.entry("재건축",        "listing__tag--reconstruction"),
-                Map.entry("분양중/예정",   "listing__tag--presale")
-        );
+    private List<PropertyStatDto> buildPropertyStats(RegionStat stat) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        counts.put("아파트",         stat.getAptCnt());
+        counts.put("오피스텔",       stat.getOfficetelCnt());
+        counts.put("빌라/연립",      stat.getVillaCnt());
+        counts.put("원룸",           stat.getOneroomCnt());
+        counts.put("투룸",           stat.getTworoomCnt());
+        counts.put("단독/다가구",    stat.getDetachedCnt());
+        counts.put("전원주택",       stat.getRuralCnt());
+        counts.put("상가주택",       stat.getMixedhouseCnt());
+        counts.put("한옥주택",       stat.getHanokCnt());
+        counts.put("상가",           stat.getStoreCnt());
+        counts.put("사무실",         stat.getOfficeCnt());
+        counts.put("건물",           stat.getBuildingCnt());
+        counts.put("공장/창고",      stat.getFactoryCnt());
+        counts.put("지식산업센터",   stat.getKnowledgeCnt());
+        counts.put("토지",           stat.getLandCnt());
+        counts.put("아파트분양권",   stat.getAptSaleCnt());
+        counts.put("오피스텔분양권", stat.getOfficetelSaleCnt());
+        counts.put("재개발",         stat.getRedevelopmentCnt());
+        counts.put("재건축",         stat.getReconstructionCnt());
+        counts.put("분양중/예정",    stat.getPresaleCnt());
 
-        List<ListingTypeStat> sorted = stats.stream()
-                .filter(s -> s.getCount() > 0)
-                .sorted(Comparator.comparingLong(ListingTypeStat::getCount).reversed())
+        List<Map.Entry<String, Integer>> sorted = counts.entrySet().stream()
+                .filter(e -> e.getValue() > 0)
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .toList();
 
-        long total = sorted.stream().mapToLong(ListingTypeStat::getCount).sum();
+        long total = sorted.stream().mapToLong(Map.Entry::getValue).sum();
 
         return sorted.stream()
-                .map(s -> new PropertyStatDto(
-                        s.getListingType(),
-                        cssClassMap.getOrDefault(s.getListingType(), "listing__tag--apt"),
-                        (int) s.getCount(),
-                        total > 0 ? Math.round(s.getCount() * 100f / total) : 0
+                .map(e -> new PropertyStatDto(
+                        e.getKey(),
+                        CSS_CLASS_MAP.getOrDefault(e.getKey(), "listing__tag--apt"),
+                        e.getValue(),
+                        total > 0 ? Math.round(e.getValue() * 100f / total) : 0
                 ))
                 .toList();
-
     }
 
     public List<RegionSelectItemDto> getSidoList() {
