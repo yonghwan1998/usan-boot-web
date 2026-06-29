@@ -175,6 +175,10 @@
 
     </div>
 
+    <script th:inline="javascript">
+        const IS_LOGGED_IN = /*[[${login.authenticated}]]*/ false;
+    </script>
+
     <!-- =============================================
          JS 1: 중개사 마커 / 클러스터링
     ============================================== -->
@@ -199,6 +203,9 @@
         // JS 3: .map-chip
         const MAP_CENTER_KEY = 'usan.map.center';
         let myLocationMarker = null;
+
+        // JS 4: 필터
+        let lastInfoData = null;
 
 
         //[zoom 레벨(숫자가 클수록 zoom 확대)]
@@ -1162,6 +1169,90 @@
 
         document.getElementById('btn-my-location').addEventListener('click', goToMyLocation);
 
+    </script>
+
+    <!-- =============================================
+        JS 4: 필터
+    ============================================== -->
+    <script>
+        (function () {
+            const overlay = document.getElementById('filter-modal-overlay');
+            const btnCancel = document.getElementById('filterModalCancel');
+            const btnApply = document.getElementById('filterModalApply');
+
+            function openFilterModal() {
+                overlay.classList.add('is-open');
+            }
+
+            function closeFilterModal() {
+                overlay.classList.remove('is-open');
+            }
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.bottom-sheet-btn__distance')) return;
+
+                if (!IS_LOGGED_IN) {
+                    if (confirm('로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?')) {
+                        location.href = '/login';
+                    }
+                    return;
+                }
+
+                const listingChips = Array.from(
+                    document.querySelectorAll('.map-ui__chips .map-chip:not(#btn-my-location)')
+                );
+
+                // 1. 매물 없음
+                if (listingChips.length === 0) {
+                    if (confirm('등록된 매물이 없습니다.\n매물을 등록하시겠습니까?')) {
+                        location.href = '/listings/new';
+                    }
+                    return;
+                }
+
+                // 2. 매물은 있지만 선택된 칩 없음
+                const hasSelected = listingChips.some(c => c.classList.contains('is-on'));
+                if (!hasSelected) {
+                    alert('매물을 먼저 선택해 주세요.');
+                    return;
+                }
+
+                openFilterModal();
+            });
+
+            // 거리 칩 단일 선택 (이미 선택된 칩 재클릭 시 해제)
+            overlay.addEventListener('click', (e) => {
+                const chip = e.target.closest('.filter-chip__distance');
+                if (!chip) return;
+                const wasActive = chip.classList.contains('is-active');
+                overlay.querySelectorAll('.filter-chip__distance').forEach(c => c.classList.remove('is-active'));
+                if (!wasActive) chip.classList.add('is-active');
+            });
+
+            // 오버레이 바깥 클릭 닫기
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeFilterModal();
+            });
+
+            btnCancel.addEventListener('click', closeFilterModal);
+
+            btnApply.addEventListener('click', () => {
+                const active = overlay.querySelector('.filter-chip__distance.is-active');
+                selectedDistance = active?.textContent ?? null;
+                document.querySelectorAll('.bottom-sheet-btn__distance').forEach(el => {
+                    el.textContent = selectedDistance ?? '필터';
+                });
+                closeFilterModal();
+
+                const infoSheet = document.getElementById('info-sheet');
+                const brokerSheet = document.getElementById('broker-sheet');
+                if (infoSheet.classList.contains('is-half') || infoSheet.classList.contains('is-full')) {
+                    if (lastInfoData) renderInfoSheet(lastInfoData);
+                } else if (brokerSheet.classList.contains('is-half') || brokerSheet.classList.contains('is-full')) {
+                    if (lastClusterBrokerCodes.length) fetchClusterBrokers(lastClusterBrokerCodes);
+                }
+            });
+        })();
     </script>
 
     <!-- =============================================
