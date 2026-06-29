@@ -25,24 +25,9 @@ public class MapService {
 
     @Transactional(readOnly = true)
     public List<BrokerMarkerDto> getBrokersInBounds(double south, double north, double west, double east) {
-
-        BigDecimal southBd = new BigDecimal(south);
-        BigDecimal northBd = new BigDecimal(north);
-        BigDecimal westBd = new BigDecimal(west);
-        BigDecimal eastBd = new BigDecimal(east);
-
-        List<BrokerPropertyCount> entities = brokerPropertyCountRepository.findByLatBetweenAndLngBetween(southBd, northBd, westBd, eastBd);
-
-        return entities.stream()
-                .map(b -> BrokerMarkerDto.builder()
-                        .brokerCode(b.getBrokerCode())
-                        .brokerName(b.getBrokerName())
-                        .officeName(b.getOfficeName())
-                        .lat(b.getLat())
-                        .lng(b.getLng())
-                        .build()
-                )
-                .toList();
+        return brokerPropertyCountRepository.findMarkersInBounds(
+                new BigDecimal(south), new BigDecimal(north),
+                new BigDecimal(west),  new BigDecimal(east));
     }
 
     @Transactional(readOnly = true)
