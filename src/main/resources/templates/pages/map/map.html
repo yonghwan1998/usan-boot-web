@@ -650,7 +650,15 @@
             const tel = normalizePhone(raw);
 
             if (!tel) {
-                alert('전화번호가 없습니다.');
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">전화 불가</p>
+                        <p class="common-popup__desc">전화번호가 없습니다.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
                 return;
             }
 
@@ -818,7 +826,18 @@
             // 전화 버튼 연결
             const callTel = normalizePhone(phone || tel);
             btnCall.onclick = () => {
-                if (!callTel) { alert('전화번호가 없습니다.'); return; }
+                if (!callTel) {
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">전화 불가</p>
+                            <p class="common-popup__desc">전화번호가 없습니다.</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
+                    return;
+                }
                 window.location.href = `tel:${callTel}`;
             };
 
@@ -1050,7 +1069,15 @@
 
         async function goToMyLocation(e) {
             if (!navigator.geolocation) {
-                alert("현재 브라우저에서는 위치 정보를 사용할 수 없습니다.");
+                CommonPopup.open({
+                    contentHtml: `
+                        <p class="common-popup__title">위치 사용 불가</p>
+                        <p class="common-popup__desc">현재 브라우저에서는 위치 정보를 사용할 수 없습니다.</p>
+                    `,
+                    actionsHtml: `
+                        <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                    `
+                });
                 return;
             }
 
@@ -1094,12 +1121,25 @@
                 },
                 function (err) {
                     if (err.code === 1) { // PERMISSION_DENIED
-                        alert(
-                            "위치 권한이 거부되어 있어요.\n\n" +
-                            "브라우저/OS 설정에서 이 사이트의 위치 권한을 '허용'으로 바꾼 뒤 다시 눌러주세요."
-                        );
+                        CommonPopup.open({
+                            contentHtml: `
+                                <p class="common-popup__title">위치 권한 거부됨</p>
+                                <p class="common-popup__desc">위치 권한이 거부되어 있어요.<br><br>브라우저/OS 설정에서 이 사이트의 위치 권한을 '허용'으로 바꾼 뒤 다시 눌러주세요.</p>
+                            `,
+                            actionsHtml: `
+                                <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                            `
+                        });
                     } else {
-                        alert("위치 정보를 불러오지 못했습니다: " + err.message);
+                        CommonPopup.open({
+                            contentHtml: `
+                                <p class="common-popup__title">위치 오류</p>
+                                <p class="common-popup__desc">위치 정보를 불러오지 못했습니다.<br>${err.message}</p>
+                            `,
+                            actionsHtml: `
+                                <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                            `
+                        });
                     }
                 },
                 {
@@ -1151,7 +1191,15 @@
                             "• 주소창 왼쪽 🔒 → '사이트 설정' → 위치 → 허용\n";
                     }
 
-                    alert(message);
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">위치 권한 차단됨</p>
+                            <p class="common-popup__desc">${message.replace(/\n/g, '<br>')}</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
 
                     return {ok: false, reason: 'denied'};
                 }
@@ -1192,9 +1240,16 @@
                 if (!e.target.closest('.bottom-sheet-btn__distance')) return;
 
                 if (!IS_LOGGED_IN) {
-                    if (confirm('로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?')) {
-                        location.href = '/login';
-                    }
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">로그인 필요</p>
+                            <p class="common-popup__desc">로그인이 필요한 기능입니다.<br>로그인 페이지로 이동하시겠습니까?</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close(); location.href='/login'">확인</button>
+                        `
+                    });
                     return;
                 }
 
@@ -1204,16 +1259,31 @@
 
                 // 1. 매물 없음
                 if (listingChips.length === 0) {
-                    if (confirm('등록된 매물이 없습니다.\n매물을 등록하시겠습니까?')) {
-                        location.href = '/listings/new';
-                    }
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">매물 없음</p>
+                            <p class="common-popup__desc">등록된 매물이 없습니다.<br>매물을 등록하시겠습니까?</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--outline btn--pop" onclick="CommonPopup.close()">취소</button>
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close(); location.href='/listings/new'">확인</button>
+                        `
+                    });
                     return;
                 }
 
                 // 2. 매물은 있지만 선택된 칩 없음
                 const hasSelected = listingChips.some(c => c.classList.contains('is-on'));
                 if (!hasSelected) {
-                    alert('매물을 먼저 선택해 주세요.');
+                    CommonPopup.open({
+                        contentHtml: `
+                            <p class="common-popup__title">매물 미선택</p>
+                            <p class="common-popup__desc">매물을 먼저 선택해 주세요.</p>
+                        `,
+                        actionsHtml: `
+                            <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                        `
+                    });
                     return;
                 }
 
