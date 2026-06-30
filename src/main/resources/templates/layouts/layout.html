@@ -140,6 +140,8 @@
                 if (!data) return;
                 const balanceEl = document.querySelector('.card__credit-credit');
                 if (balanceEl) balanceEl.textContent = Number(data.balance).toLocaleString('ko-KR') + 'C';
+                const countEl = document.querySelector('.card__credit-count');
+                if (countEl) countEl.textContent = '/ ' + Number(data.balance).toLocaleString('ko-KR') + '건';
                 const totalSpan = document.querySelector('.credit__total-text .point_b');
                 if (totalSpan) totalSpan.textContent = data.total;
                 renderCreditItems(data.items);

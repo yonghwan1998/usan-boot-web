@@ -323,10 +323,22 @@
     color: #000000;
 }
 
+.card__credit-credit-wrapper {
+    display: flex;
+    gap: 4px;
+    align-items: end;
+}
+
 .card__credit-credit {
     font-weight: 700;
     font-size: 32px;
     color: #000000;
+}
+
+.card__credit-count {
+    font-weight: 400;
+    font-size: 14px;
+    color: #8C8C8C;
 }
 
 .more-content__credit {
