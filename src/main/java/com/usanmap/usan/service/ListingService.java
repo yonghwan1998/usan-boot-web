@@ -1,5 +1,6 @@
 package com.usanmap.usan.service;
 
+import com.usanmap.usan.entity.enums.ListingStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ListingService {
 
     @Transactional(readOnly = true)
     public List<MyListingDto> getMyListings(Long userId) {
-        return listingRepository.findAllByUserIdOrderByUpdatedAtDesc(userId).stream()
+        return listingRepository.findAllByUserIdAndStatusOrderByUpdatedAtDesc(userId, ListingStatus.ACTIVE).stream()
                 .map(l -> new MyListingDto(
                         l.getId(),
                         l.getPublicId(),
