@@ -1,5 +1,5 @@
 .credits-page {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     padding: 0 16px;
     display: flex;
     flex-direction: column;
@@ -10,7 +10,7 @@
     flex-direction: column;
     gap: 36px;
     margin-top: 36px;
-    height: calc(var(--app-vh, 1vh) * 60);
+    height: 60dvh;
     min-height: 0;
 }
 
