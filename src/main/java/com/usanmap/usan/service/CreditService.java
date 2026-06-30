@@ -54,9 +54,9 @@ public class CreditService {
         User user = userRepository.getReferenceById(userId);
         Pageable pageable = PageRequest.of(0, 50);
         if (type == null) {
-            return creditLedgerRepository.findByMemberOrderByCreatedAtDesc(user, pageable).getContent();
+            return creditLedgerRepository.findTop5ByMemberOrderByCreatedAtDesc(user, pageable).getContent();
         }
-        return creditLedgerRepository.findByMemberAndLedgerTypeOrderByCreatedAtDesc(user, type, pageable).getContent();
+        return creditLedgerRepository.findTop5ByMemberAndLedgerTypeOrderByCreatedAtDesc(user, type, pageable).getContent();
     }
 
     @Transactional(readOnly = true)

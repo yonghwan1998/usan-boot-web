@@ -1,5 +1,5 @@
 .credits-page {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     padding: 0 16px;
     display: flex;
     flex-direction: column;
@@ -10,7 +10,7 @@
     flex-direction: column;
     gap: 36px;
     margin-top: 36px;
-    height: calc(var(--app-vh, 1vh) * 60);
+    height: 60dvh;
     min-height: 0;
 }
 
@@ -230,7 +230,7 @@
 .credits-charge__method-title {
     font-weight: 500;
     font-size: 20px;
-    color: #0d0d0d;
+    color: #0D0D0D;
 }
 
 .credits-charge__price-wrapper {
@@ -264,6 +264,24 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+.credits-charge__credits-wrapper {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.credits-charge__divide {
+    width: 1px;
+    height: 16px;
+    background: #D9D9D9;
+}
+
+.credits-charge__able {
+    font-weight: 500;
+    font-size: 12px;
+    color: #737373;
 }
 
 .credits-charge__check {

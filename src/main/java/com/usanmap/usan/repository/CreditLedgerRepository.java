@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CreditLedgerRepository extends JpaRepository<CreditLedger, Long> {
 
-    Page<CreditLedger> findByMemberOrderByCreatedAtDesc(User member, Pageable pageable);
+    Page<CreditLedger> findTop5ByMemberOrderByCreatedAtDesc(User member, Pageable pageable);
 
-    Page<CreditLedger> findByMemberAndLedgerTypeOrderByCreatedAtDesc(User member, LedgerType ledgerType, Pageable pageable);
+    Page<CreditLedger> findTop5ByMemberAndLedgerTypeOrderByCreatedAtDesc(User member, LedgerType ledgerType, Pageable pageable);
 }
