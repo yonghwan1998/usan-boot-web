@@ -28,7 +28,7 @@
     </div>
 
     <form th:action="@{/listings/{publicId}/edit(publicId=${publicId})}" method="post"
-          th:object="${listingRequest}" id="listingForm" class="listing-edit-form" enctype="multipart/form-data">
+          th:object="${listingRequest}" id="listingForm" class="listing-edit-form">
 
         <!-- 주소 hidden fields (서버 값으로 초기화, JS에서 갱신) -->
         <input type="hidden" name="addressName"  id="hiddenAddressName"  th:value="${listingRequest.addressName}" />
@@ -36,6 +36,9 @@
         <input type="hidden" name="jibunAddress" id="hiddenJibunAddress" th:value="${listingRequest.jibunAddress}" />
         <input type="hidden" name="lat"          id="hiddenLat"          th:value="${listingRequest.lat}" />
         <input type="hidden" name="lng"          id="hiddenLng"          th:value="${listingRequest.lng}" />
+        <input type="hidden" name="sido"         id="hiddenSido"         th:value="${listingRequest.sido}" />
+        <input type="hidden" name="sigungu"      id="hiddenSigungu"      th:value="${listingRequest.sigungu}" />
+        <input type="hidden" name="emd"          id="hiddenEmd"          th:value="${listingRequest.emd}" />
 
         <!-- 역할/타입 hidden fields (radio 버튼과 동기화) -->
         <input type="hidden" name="role" id="roleHidden" th:value="${listingRequest.role}" />
@@ -166,7 +169,7 @@
                             <li data-value="MVNO_KT">알뜰폰 KT</li>
                             <li data-value="MVNO_LGU">알뜰폰 LGU+</li>
                         </ul>
-                        <input type="hidden" name="carrier" th:value="${listingRequest.carrier}" />
+                        <input type="hidden" th:field="*{carrier}" />
                     </div>
                 </div>
 
@@ -199,44 +202,47 @@
                             <li data-value="SHORT">단기임대</li>
                             <li data-value="COMMERCIAL">임대(상가/사무실 등)</li>
                         </ul>
-                        <input type="hidden" name="tradeType" th:value="${listingRequest.tradeType}" />
+                        <input type="hidden" th:field="*{tradeType}" />
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="deposit" hidden>
                     <div class="listing-edit__section-title">보증금</div>
                     <div class="common-input-wrapper">
                         <input type="number"
                                min="0" step="1"
                                placeholder="보증금(만원) 입력"
                                class="common-input"
-                               th:field="*{depositManwon}" />
+                               th:field="*{depositManwon}"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="rent" hidden>
                     <div class="listing-edit__section-title">월세</div>
                     <div class="common-input-wrapper">
                         <input type="number"
                                min="0" step="1"
                                placeholder="월세(만원) 입력"
                                class="common-input"
-                               th:field="*{rentManwon}" />
+                               th:field="*{rentManwon}"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="price" hidden>
                     <div class="listing-edit__section-title">매매가</div>
                     <div class="common-input-wrapper">
                         <input type="number"
                                min="0" step="1"
                                placeholder="매매가(만원) 입력"
                                class="common-input"
-                               th:field="*{priceManwon}" />
+                               th:field="*{priceManwon}"
+                               oninput="__showManwonHint(this)" />
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="dongho" hidden>
                     <div class="listing-edit__section-title">동·호수</div>
                     <div class="common-input-wrapper">
                         <input type="text"
@@ -246,7 +252,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="floor" hidden>
                     <div class="listing-edit__section-title">층</div>
                     <div class="common-input-wrapper">
                         <input type="text"
@@ -256,7 +262,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
+                <div class="listing-edit__section" data-section="area" hidden>
                     <div class="listing-edit__section-title">면적</div>
                     <div class="common-input-wrapper">
                         <input type="number"
@@ -267,22 +273,7 @@
                     </div>
                 </div>
 
-                <div class="listing-edit__section">
-                    <div class="listing-edit__section-title">사진첨부</div>
-                    <label class="common-upload" for="photoFiles">
-                        <input id="photoFiles"
-                               name="photoFiles"
-                               type="file"
-                               class="common-upload__input"
-                               accept=".png,.jpg,.jpeg,.pdf"
-                               multiple />
-                        <span class="common-upload__icon" aria-hidden="true"></span>
-                        <span class="common-upload__text">여기를 눌러 사진을 첨부해 주세요.</span>
-                        <span class="common-upload__hint">첨부 가능한 확장자 - PNG, JPG, PDF</span>
-                    </label>
-                </div>
-
-                <div class="listing-edit__section">
+<div class="listing-edit__section" data-section="description" hidden>
                     <div class="listing-edit__section-title">상세정보</div>
                     <div class="common-input-wrapper">
                         <textarea placeholder="상세정보 입력"
@@ -389,6 +380,9 @@
                                  data-name="${__escapeHtml(title)}"
                                  data-road="${__escapeHtml(road)}"
                                  data-jibun="${__escapeHtml(jibun)}"
+                                 data-sido="${__escapeHtml(item.sido || '')}"
+                                 data-sigungu="${__escapeHtml(item.sigungu || '')}"
+                                 data-emd="${__escapeHtml(item.emd || '')}"
                                  data-lat="${item.lat}"
                                  data-lng="${item.lng}">
                                 <div class="matched-address__top">
@@ -429,6 +423,9 @@
                     document.getElementById('hiddenJibunAddress').value  = item.dataset.jibun;
                     document.getElementById('hiddenLat').value           = item.dataset.lat;
                     document.getElementById('hiddenLng').value           = item.dataset.lng;
+                    document.getElementById('hiddenSido').value          = item.dataset.sido || '';
+                    document.getElementById('hiddenSigungu').value       = item.dataset.sigungu || '';
+                    document.getElementById('hiddenEmd').value           = item.dataset.emd || '';
 
                     document.getElementById('addressDisplay').textContent = name;
                     addressSearchSection.hidden = true;
@@ -444,6 +441,40 @@
 
             document.getElementById('btnCancel')?.addEventListener('click', () => history.back());
         });
+    </script>
+
+    <script>
+        (function () {
+            const SECTION_MAP = {
+                SALE:        ['price', 'dongho', 'floor', 'area', 'description'],
+                LAND_SALE:   ['price', 'area', 'description'],
+                JEONSE:      ['deposit', 'dongho', 'floor', 'area', 'description'],
+                MONTHLY:     ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                SEMI_JEONSE: ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                SHORT:       ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+                COMMERCIAL:  ['deposit', 'rent', 'dongho', 'floor', 'area', 'description'],
+            };
+
+            function updateVisibleFields(tradeType) {
+                const visible = SECTION_MAP[tradeType] || [];
+                document.querySelectorAll('[data-section]').forEach(el => {
+                    el.hidden = !visible.includes(el.dataset.section);
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const options = document.querySelectorAll('.common-select[data-name="tradeType"] .common-select__options li[data-value]');
+                options.forEach(li => {
+                    li.addEventListener('click', () => {
+                        updateVisibleFields(li.dataset.value);
+                    });
+                });
+
+                // 기존 값으로 초기화
+                const initial = (document.querySelector('[name="tradeType"]')?.value ?? '').trim();
+                if (initial) updateVisibleFields(initial);
+            });
+        })();
     </script>
 
 </section>
