@@ -169,6 +169,7 @@
    📌 common-header_!
    ================================ */
 .common-header {
+    flex-shrink: 0;
     position: relative;
     display: flex;
     align-items: center;
@@ -615,6 +616,12 @@ body.is-modal-open {
    ================================ */
 .mt_20 {
     margin-top: 20px; !important;
+}
+.mr_16 {
+    margin-right: 16px !important;
+}
+.ml_16 {
+    margin-left: 16px !important;
 }
 
 /* ================================
