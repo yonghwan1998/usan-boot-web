@@ -76,6 +76,11 @@ public class SmsService {
         sendSms(List.of(phone.replaceAll("[^0-9]", "")), content, null);
     }
 
+    public void sendTempPassword(String phone, String tempPassword) {
+        String content = "[우산] 임시 비밀번호는 [" + tempPassword + "] 입니다.\n로그인 후 반드시 비밀번호를 변경해 주세요.";
+        sendSms(List.of(phone.replaceAll("[^0-9]", "")), content, null);
+    }
+
     public void sendBankTransferApproved(String userPhone, int creditAmount) {
         if (userPhone == null || userPhone.isBlank()) {
             log.warn("승인 SMS 발송 실패 - 유저 전화번호 없음");
