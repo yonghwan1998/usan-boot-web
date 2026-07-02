@@ -71,6 +71,11 @@ public class SmsService {
         }
     }
 
+    public void sendVerificationCode(String phone, String code) {
+        String content = "[우산] 인증번호 [" + code + "]를 입력해 주세요.";
+        sendSms(List.of(phone.replaceAll("[^0-9]", "")), content, null);
+    }
+
     public void sendBankTransferApproved(String userPhone, int creditAmount) {
         if (userPhone == null || userPhone.isBlank()) {
             log.warn("승인 SMS 발송 실패 - 유저 전화번호 없음");
