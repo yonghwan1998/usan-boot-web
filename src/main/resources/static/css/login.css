@@ -178,3 +178,9 @@
     color: #0D0D0D;
 }
 
+.find-form__message {
+    padding: 0 4px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #404040;
+}
