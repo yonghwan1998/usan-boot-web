@@ -10,6 +10,16 @@ public class LoginController {
 
     @GetMapping("")
     public String loginPage() {
-        return "pages/login";
+        return "pages/login/login";
+    }
+
+    @GetMapping("/find-id")
+    public String findIdPage() {
+        return "pages/login/find-id";
+    }
+
+    @GetMapping("/find-pw")
+    public String findPwPage() {
+        return "pages/login/find-pw";
     }
 }

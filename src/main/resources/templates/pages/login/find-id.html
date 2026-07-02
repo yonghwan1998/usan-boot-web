@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">아이디 찾기 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/login.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="find-page">
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <h1 class="common-header__title">계정 찾기</h1>
+        <div class="common-header__right btn--X"></div>
+    </div>
+
+    <div class="find-tabs">
+        <a class="find-tab find-tab--active" th:href="@{/login/find-id}">이메일 찾기</a>
+        <a class="find-tab" th:href="@{/login/find-pw}">비밀번호 찾기</a>
+    </div>
+    <div class="find-content">
+        <h2 class="find-content__title">이메일 찾기를 위해 핸드폰 번호를 입력해 주세요</h2>
+
+        <div class="find-form">
+            <div class="find-form__group">
+                <label class="find-form__label">핸드폰 번호</label>
+                <input class="common-input" type="number" placeholder="핸드폰 번호를 입력해 주세요">
+            </div>
+
+            <div class="find-form__group">
+                <label class="find-form__label">인증번호 입력</label>
+                <input class="common-input" type="number" placeholder="인증번호를 입력해 주세요">
+                <p class="find-form__message">인증번호 6자리를 입력해주세요</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn__wrapper">
+        <div class="btn btn--prev" id="btnPrev">이전</div>
+        <div class="btn btn--next" id="btnNext">인증번호 받기</div>
+    </div>
+
+    <script>
+
+    </script>
+
+</section>
+</html>
