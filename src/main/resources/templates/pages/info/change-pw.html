@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">비밀번호 재설정 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/info.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="change-pw-page">
+
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <h1 class="common-header__title">비밀번호 재설정</h1>
+        <div class="common-header__right"></div>
+    </div>
+
+    <div class="change-pw-content">
+        <h2 class="change-pw-content__title">새로운 비밀번호를 입력해 주세요</h2>
+
+        <div class="change-pw-wrapper">
+
+            <div class="change-pw-form">
+                <div class="change-pw__text">현재 비밀번호</div>
+
+                <div class="common-input-wrapper target__view-wrapper">
+                    <input type="password" placeholder="현재 비밀번호를 입력해 주세요" class="common-input target--view-input" value="">
+                    <button type="button" class="common-input-btn target--view-btn common-input__eye-slash-btn" onclick="__toggleViewBtn(this)"></button>
+                </div>
+            </div>
+
+            <div class="change-pw-form">
+                <div class="change-pw__text">새 비밀번호</div>
+
+                <div class="common-input-wrapper target__view-wrapper">
+                    <input type="password" placeholder="새로운 비밀번호를 입력해 주세요" class="common-input target--view-input" value="">
+                    <button type="button" class="common-input-btn target--view-btn common-input__eye-slash-btn" onclick="__toggleViewBtn(this)"></button>
+                </div>
+                <div class="change-pw__caption">영문, 숫자, 특수문자를 조합해 8자 이상 입력해 주세요.</div>
+            </div>
+
+            <div class="change-pw-form">
+                <div class="change-pw__text">새 비밀번호 확인</div>
+
+                <div class="common-input-wrapper target__view-wrapper">
+                    <input type="password" placeholder="새 비밀번호를 다시 입력해 주세요" class="common-input target--view-input" value="">
+                    <button type="button" class="common-input-btn common-input__eye-slash-btn target--view-btn" onclick="__toggleViewBtn(this)"></button>
+                </div>
+
+                <div class="common-text--error">비밀번호가 일치하지 않습니다.</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="btn__wrapper">
+        <div class="btn btn--prev" id="btnPrev">이전</div>
+        <div class="btn btn--next" id="btnNext">변경 완료</div>
+    </div>
+
+</section>
+</html>
