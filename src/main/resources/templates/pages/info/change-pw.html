@@ -37,16 +37,17 @@
                 <div class="change-pw__text">현재 비밀번호</div>
 
                 <div class="common-input-wrapper target__view-wrapper">
-                    <input type="password" placeholder="현재 비밀번호를 입력해 주세요" class="common-input target--view-input" value="">
+                    <input type="password" id="currentPwInput" placeholder="현재 비밀번호를 입력해 주세요" class="common-input target--view-input" value="">
                     <button type="button" class="common-input-btn target--view-btn common-input__eye-slash-btn" onclick="__toggleViewBtn(this)"></button>
                 </div>
+                <div class="common-text--error" id="currentPwError">현재 비밀번호가 일치하지 않습니다.</div>
             </div>
 
             <div class="change-pw-form">
                 <div class="change-pw__text">새 비밀번호</div>
 
                 <div class="common-input-wrapper target__view-wrapper">
-                    <input type="password" placeholder="새로운 비밀번호를 입력해 주세요" class="common-input target--view-input" value="">
+                    <input type="password" id="newPwInput" placeholder="새로운 비밀번호를 입력해 주세요" class="common-input target--view-input" value="">
                     <button type="button" class="common-input-btn target--view-btn common-input__eye-slash-btn" onclick="__toggleViewBtn(this)"></button>
                 </div>
                 <div class="change-pw__caption">영문, 숫자, 특수문자를 조합해 8자 이상 입력해 주세요.</div>
@@ -56,11 +57,11 @@
                 <div class="change-pw__text">새 비밀번호 확인</div>
 
                 <div class="common-input-wrapper target__view-wrapper">
-                    <input type="password" placeholder="새 비밀번호를 다시 입력해 주세요" class="common-input target--view-input" value="">
+                    <input type="password" id="confirmPwInput" placeholder="새 비밀번호를 다시 입력해 주세요" class="common-input target--view-input" value="">
                     <button type="button" class="common-input-btn common-input__eye-slash-btn target--view-btn" onclick="__toggleViewBtn(this)"></button>
                 </div>
 
-                <div class="common-text--error">비밀번호가 일치하지 않습니다.</div>
+                <div class="common-text--error" id="confirmPwError">비밀번호가 일치하지 않습니다.</div>
             </div>
 
         </div>
@@ -70,6 +71,80 @@
         <div class="btn btn--prev" id="btnPrev">이전</div>
         <div class="btn btn--next" id="btnNext">변경 완료</div>
     </div>
+
+    <script>
+        const currentPwInput = document.getElementById('currentPwInput');
+        const newPwInput = document.getElementById('newPwInput');
+        const confirmPwInput = document.getElementById('confirmPwInput');
+        const currentPwError = document.getElementById('currentPwError');
+        const confirmPwError = document.getElementById('confirmPwError');
+        const btnNext = document.getElementById('btnNext');
+
+        function setError(el, isVisible) {
+            el.classList.toggle('is-visible', isVisible);
+        }
+
+        async function requestChangePassword(currentPassword, newPassword) {
+            const res = await fetch('/api/info/change-pw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ currentPassword, newPassword })
+            });
+            if (!res.ok) throw new Error('change-pw failed');
+            return await res.json();
+        }
+
+        btnNext.addEventListener('click', async () => {
+            const currentPassword = currentPwInput.value;
+            const newPassword = newPwInput.value;
+            const confirmPassword = confirmPwInput.value;
+
+            setError(currentPwError, false);
+            setError(confirmPwError, false);
+
+            if (__isBlank(currentPassword)) {
+                alert('현재 비밀번호를 입력해 주세요.');
+                return;
+            }
+
+            if (!__isValidPassword(newPassword)) {
+                alert('영문, 숫자, 특수문자를 조합해 8자 이상 입력해 주세요.');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                setError(confirmPwError, true);
+                return;
+            }
+
+            let data;
+            try {
+                data = await requestChangePassword(currentPassword, newPassword);
+            } catch (e) {
+                alert('비밀번호 변경 중 오류가 발생했습니다.');
+                return;
+            }
+
+            if (data.result === 'WRONG_CURRENT_PASSWORD') {
+                setError(currentPwError, true);
+                return;
+            }
+
+            if (data.result === 'SOCIAL_ACCOUNT') {
+                alert('소셜 로그인 계정은 비밀번호 재설정이 불가합니다.\n홈 화면으로 이동합니다.');
+                location.href = '/';
+                return;
+            }
+
+            if (data.result !== 'SUCCESS') {
+                alert('비밀번호 변경 중 오류가 발생했습니다.');
+                return;
+            }
+
+            alert('비밀번호 재설정을 완료 했습니다.');
+            location.href = '/';
+        });
+    </script>
 
 </section>
 </html>
