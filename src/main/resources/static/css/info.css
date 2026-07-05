@@ -1,0 +1,43 @@
+.change-pw-page {
+    min-height: 100dvh;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.change-pw-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-top: 16px;
+}
+
+.change-pw-content__title {
+    font-weight: 500;
+    font-size: 20px;
+    color: #0D0D0D;
+}
+
+.change-pw-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.change-pw-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.change-pw__text {
+    font-weight: 500;
+    font-size: 16px;
+    color: #0D0D0D;
+}
+
+.change-pw__caption {
+    font-weight: 500;
+    font-size: 14px;
+    color: #8C8C8C;
+}

@@ -223,7 +223,27 @@ function __showManwonHint(inputEl) {
     hint.textContent = (val * 10000).toLocaleString('ko-KR') + '원';
 }
 
+/**
+ * @date    2026-07-02
+ * @author  yongss
+ * @param   {string} email
+ * @return  {string}
+ *
+ * 처리 과정:
+ *  - 입력 받은 email을 앞 두자리와 도메인을 제외하고 '*'로 변환
+ *  - ex. na***@gmail.com
+ */
+function __maskEmail(email) {
+    const atIdx = email.indexOf('@');
+    if (atIdx <= 0) return email;
 
+    const local = email.slice(0, atIdx);
+    const domain = email.slice(atIdx);
+    const visible = local.slice(0, 2);
+    const masked = '*'.repeat(Math.max(local.length - 2, 0));
+
+    return visible + masked + domain;
+}
 
 (function () {
     const modal = document.getElementById('common-modal');

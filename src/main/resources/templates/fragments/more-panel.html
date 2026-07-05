@@ -85,11 +85,12 @@
                 <div class="link__text">발송내역</div>
                 <div class="link__icon"></div>
             </div>
-            <div class="more-content__link"
+            <a class="more-content__link"
+                 th:href="@{/info/change-pw}"
                  th:if="${login.authenticated}">
                 <div class="link__text">내 정보 수정하기</div>
                 <div class="link__icon"></div>
-            </div>
+            </a>
             <form th:action="@{/logout}"
                   method="post"
                   th:if="${login.authenticated}">
