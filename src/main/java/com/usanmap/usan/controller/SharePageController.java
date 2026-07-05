@@ -3,6 +3,7 @@ package com.usanmap.usan.controller;
 import com.usanmap.usan.entity.BrokerPropertyCount;
 import com.usanmap.usan.repository.BrokerPropertyCountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,9 @@ import com.usanmap.usan.repository.ListingRepository;
 @RequiredArgsConstructor
 public class SharePageController {
 
+    @Value("${NAVER_MAP_CLIENT_ID}")
+    private String naverClientId;
+
     private final ListingRepository listingRepository;
     private final BrokerPropertyCountRepository brokerPropertyCountRepository;
 
@@ -24,6 +28,7 @@ public class SharePageController {
         Listing listing = listingRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new IllegalArgumentException("매물을 찾을 수 없습니다."));
         model.addAttribute("listing", listing);
+        model.addAttribute("naverClientId", naverClientId);
         return "pages/share/listing";
     }
 
