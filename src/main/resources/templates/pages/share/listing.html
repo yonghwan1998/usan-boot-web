@@ -17,9 +17,9 @@
 
 <th:block th:fragment="extraCss">
     <link rel="canonical" th:href="${listing != null} ? 'https://usanmap.com/l/' + ${listing.publicId} : 'https://usanmap.com'">
-    <meta name="description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.type} ?: '') + ' ' + (${listing.tradeType} ?: '') + ' 매물 정보 - 우산에서 확인하세요.' : '매물 정보 - 우산'">
+    <meta name="description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.typeLabel} ?: '') + ' ' + (${listing.tradeTypeLabel} ?: '') + ' 매물 정보 - 우산에서 확인하세요.' : '매물 정보 - 우산'">
     <meta property="og:title" th:content="${listing != null} ? ${listing.addressName} + ' 매물 안내' : '매물 안내 | 우산'">
-    <meta property="og:description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.type} ?: '') + ' 매물입니다. 우산에서 확인하세요.' : '매물 정보를 우산에서 확인하세요.'">
+    <meta property="og:description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.typeLabel} ?: '') + ' 매물입니다. 우산에서 확인하세요.' : '매물 정보를 우산에서 확인하세요.'">
     <meta property="og:type" content="article">
     <meta name="twitter:title" th:content="${listing != null} ? ${listing.addressName} + ' 매물 안내' : '매물 안내'">
     <meta name="twitter:description" th:content="${listing != null} ? ${listing.addressName} + ' 매물 정보입니다.' : '매물 정보를 확인하세요.'">
@@ -28,7 +28,7 @@
       "@context": "https://schema.org",
       "@type": "Product",
       "name": /*[[${listing != null ? listing.addressName + ' 매물' : '매물 정보'}]]*/ "매물 정보",
-      "description": /*[[${listing != null ? listing.addressName + ' ' + (listing.type ?: '') + ' ' + (listing.tradeType ?: '') + ' 매물입니다.' : '매물 정보를 확인하세요.'}]]*/ "",
+      "description": /*[[${listing != null ? listing.addressName + ' ' + (listing.typeLabel ?: '') + ' ' + (listing.tradeTypeLabel ?: '') + ' 매물입니다.' : '매물 정보를 확인하세요.'}]]*/ "",
       "url": /*[[${listing != null ? 'https://usanmap.com/l/' + listing.publicId : 'https://usanmap.com'}]]*/ "https://usanmap.com"
     }
     </script>
@@ -47,24 +47,26 @@
 
         <div class="l-title-block">
             <div class="l-title-name">
-                <h1 class="l-property-name">우산갤러리아오피스텔</h1>
+                <h1 class="l-property-name" th:text="${listing.addressName} + ' ' + ${listing.addressDetail}">우산갤러리아오피스텔</h1>
 
                 <button class="l-property__addr-wrapper">
-                    <span class="l-property__addr">서울특별시 강남구</span>
+                    <span class="l-property__addr" th:text="${listing.sido} + ' ' + ${listing.sigungu}">서울특별시 강남구</span>
                     <span class="l-property-addr__expand-btn"></span>
                 </button>
             </div>
 
             <div class="l-price-block">
-                <span class="l-price__trade-type">월세</span>
-                <span class="l-price__price">3000/20</span>
+                <span class="l-price__trade-type" th:text="${listing.tradeTypeLabel}">월세</span>
+                <span class="l-price__price" th:text="${listing.priceLabel}">3000/20</span>
             </div>
         </div>
 
         <div class="l-contact-block">
-            <span class="l-contact-tag">김영한 KT</span>
-            <span class="l-contact-number">010-7667-7119</span>
-            <button class="l-contact-copy" type="button" aria-label="연락처 복사" onclick="navigator.clipboard.writeText('010-7667-7119')"></button>
+            <span class="l-contact-tag" th:text="${listing.ownerName + ' ' + (listing.carrier ?: '')}">김영한 KT</span>
+            <span class="l-contact-number" th:text="${listing.ownerPhone}">010-7667-7119</span>
+            <button class="l-contact-copy" type="button" aria-label="연락처 복사"
+                    th:attr="data-phone=${listing.ownerPhone}"
+                    onclick="navigator.clipboard.writeText(this.dataset.phone)"></button>
         </div>
 
         <div class="l-info-section">
@@ -73,28 +75,28 @@
 
             <div class="l-info-section__content">
                 <div class="l-info-row">
-                    <span class="l-info-label">보증금/월세</span>
-                    <span class="l-info-value">3000/20만원</span>
+                    <span class="l-info-label" th:text="${listing.tradeTypeLabel == '전세'} ? '전세금' : (${listing.tradeTypeLabel == '매매'} ? '매매가' : '보증금/월세')">보증금/월세</span>
+                    <span class="l-info-value" th:text="${listing.priceLabel} + '만원'">3000/20만원</span>
                 </div>
                 <div class="l-info-row">
                     <span class="l-info-label">동·호수</span>
-                    <span class="l-info-value">104동 1201호</span>
+                    <span class="l-info-value" th:text="${listing.dongho}">104동 1201호</span>
                 </div>
                 <div class="l-info-row">
                     <span class="l-info-label">층</span>
-                    <span class="l-info-value">12층</span>
+                    <span class="l-info-value" th:text="${listing.floorInfo}">12층</span>
                 </div>
                 <div class="l-info-row">
                     <span class="l-info-label">면적</span>
                     <span class="l-info-value">
-                        20.00㎡
+                        <span th:text="${listing.areaM2} + '㎡'">20.00㎡</span>
                         <span class="l-info-area-unit">평</span>
                     </span>
                 </div>
 
                 <div class="l-info-footer">
                     <div class="l-info-footer__supply">
-                        <span>
+                        <span th:text="${#temporals.format(listing.createdAt, 'yyyy.MM.dd')} + ' 최초 게재'">
                             2026.07.05 최초 게재
                         </span>
                         <span>우리동네부동산 제공</span>
@@ -109,8 +111,8 @@
 
         <script th:inline="javascript">
 
-            const lat = 37.1754769;
-            const lng = 127.0621528;
+            const lat = [[${listing.lat}]];
+            const lng = [[${listing.lng}]];
 
             const center = new naver.maps.LatLng(lat, lng);
 
