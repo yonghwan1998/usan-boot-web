@@ -64,9 +64,8 @@
         <div class="l-contact-block">
             <span class="l-contact-tag" th:text="${listing.ownerName + ' ' + (listing.carrier ?: '')}">김영한 KT</span>
             <span class="l-contact-number" th:text="${listing.ownerPhone}">010-7667-7119</span>
-            <button class="l-contact-copy" type="button" aria-label="연락처 복사"
-                    th:attr="data-phone=${listing.ownerPhone}"
-                    onclick="navigator.clipboard.writeText(this.dataset.phone)"></button>
+            <button class="l-contact-copy" id="btnContactCopy" type="button" aria-label="연락처 복사"
+                    th:attr="data-phone=${listing.ownerPhone}"></button>
         </div>
 
         <div class="l-info-section">
@@ -89,8 +88,8 @@
                 <div class="l-info-row">
                     <span class="l-info-label">면적</span>
                     <span class="l-info-value">
-                        <span th:text="${listing.areaM2} + '㎡'">20.00㎡</span>
-                        <span class="l-info-area-unit">평</span>
+                        <span id="areaValue" th:attr="data-m2=${listing.areaM2}" th:text="${listing.areaM2} + '㎡'">20.00㎡</span>
+                        <span class="l-info-area-unit" id="areaUnitToggle">평</span>
                     </span>
                 </div>
 
@@ -138,6 +137,65 @@
             });
         </script>
 
+        <script>
+            function showToast(message) {
+                const toast = document.getElementById('lToast');
+                if (!toast) return;
+
+                toast.textContent = message;
+                toast.classList.add('is-visible');
+
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(() => {
+                    toast.classList.remove('is-visible');
+                }, 2000);
+            }
+
+            const btnContactCopy = document.getElementById('btnContactCopy');
+            if (btnContactCopy) {
+                btnContactCopy.addEventListener('click', async () => {
+                    const phone = btnContactCopy.dataset.phone;
+                    if (!phone) return;
+
+                    try {
+                        await navigator.clipboard.writeText(phone);
+                        showToast('복사되었습니다');
+                    } catch (e) {
+                        showToast('복사에 실패했습니다');
+                    }
+                });
+            }
+
+            const areaValue = document.getElementById('areaValue');
+            const areaUnitToggle = document.getElementById('areaUnitToggle');
+            if (areaValue && areaUnitToggle) {
+                const m2 = parseFloat(areaValue.dataset.m2);
+                let showingPyeong = false;
+
+                areaUnitToggle.addEventListener('click', () => {
+                    if (isNaN(m2)) return;
+
+                    showingPyeong = !showingPyeong;
+                    if (showingPyeong) {
+                        areaValue.textContent = (m2 / 3.305785).toFixed(2) + '평';
+                        areaUnitToggle.textContent = '㎡';
+                    } else {
+                        areaValue.textContent = m2.toFixed(2) + '㎡';
+                        areaUnitToggle.textContent = '평';
+                    }
+                });
+            }
+
+            const btnSend = document.getElementById('btnSend');
+            if (btnSend) {
+                btnSend.addEventListener('click', () => {
+                    const phone = btnSend.dataset.phone;
+                    if (!phone) return;
+                    location.href = 'tel:' + phone;
+                });
+            }
+        </script>
+
         <div class="l-introduction-section">
             <div class="l-introduction__title">우산은 이런 서비스에요</div>
             <div class="l-introduction__content">
@@ -152,11 +210,13 @@
         </div>
 
         <div class="action-btn__wrapper l-bottom">
-            <button class="action-btn action-btn--send" id="btnSend">
+            <button class="action-btn action-btn--send" id="btnSend" th:attr="data-phone=${listing.ownerPhone}">
                 <span class="action-btn__icon action-btn__icon--send" aria-hidden="전화하기"></span>
                 <span class="action-btn__text">전화하기</span>
             </button>
         </div>
+
+        <div class="l-toast" id="lToast" role="status" aria-live="polite"></div>
 
     </div>
 

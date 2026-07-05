@@ -207,6 +207,29 @@
     color: #404040;
 }
 
+.l-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 96px;
+    transform: translate(-50%, 8px);
+    padding: 12px 20px;
+    border-radius: 999px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 10050;
+}
+
+.l-toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
 .l-bottom {
     margin-bottom: 62px;
 }
