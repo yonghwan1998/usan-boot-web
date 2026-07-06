@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.usanmap.usan.dto.ListingRequest;
 import com.usanmap.usan.entity.enums.ListingStatus;
+import com.usanmap.usan.entity.enums.ListingTradeType;
+import com.usanmap.usan.entity.enums.ListingType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -202,6 +204,24 @@ public class Listing {
 
     public void markDeleted() {
         this.status = ListingStatus.DELETED;
+    }
+
+    public String getTypeLabel() {
+        return type == null ? null : ListingType.valueOf(type).getLabel();
+    }
+
+    public String getTradeTypeLabel() {
+        return tradeType == null ? null : ListingTradeType.valueOf(tradeType).getLabel();
+    }
+
+    // 매매: 매매가, 전세: 전세금, 그 외(월세/반전세/단기/상가): 보증금/월세
+    public String getPriceLabel() {
+        if (tradeType == null) return null;
+        return switch (ListingTradeType.valueOf(tradeType)) {
+            case SALE -> String.valueOf(priceManwon);
+            case JEONSE -> String.valueOf(depositManwon);
+            default -> depositManwon + "/" + rentManwon;
+        };
     }
 
     @PrePersist

@@ -8,7 +8,7 @@
       )}">
 
 <head>
-    <title th:fragment="title">매물번호 99999999 | 우산</title>
+    <title th:fragment="title">매물 정보 | 우산</title>
 </head>
 
 <th:block th:fragment="pcSideContent">
@@ -17,9 +17,9 @@
 
 <th:block th:fragment="extraCss">
     <link rel="canonical" th:href="${listing != null} ? 'https://usanmap.com/l/' + ${listing.publicId} : 'https://usanmap.com'">
-    <meta name="description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.type} ?: '') + ' ' + (${listing.tradeType} ?: '') + ' 매물 정보 - 우산에서 확인하세요.' : '매물 정보 - 우산'">
+    <meta name="description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.typeLabel} ?: '') + ' ' + (${listing.tradeTypeLabel} ?: '') + ' 매물 정보 - 우산에서 확인하세요.' : '매물 정보 - 우산'">
     <meta property="og:title" th:content="${listing != null} ? ${listing.addressName} + ' 매물 안내' : '매물 안내 | 우산'">
-    <meta property="og:description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.type} ?: '') + ' 매물입니다. 우산에서 확인하세요.' : '매물 정보를 우산에서 확인하세요.'">
+    <meta property="og:description" th:content="${listing != null} ? ${listing.addressName} + ' ' + (${listing.typeLabel} ?: '') + ' 매물입니다. 우산에서 확인하세요.' : '매물 정보를 우산에서 확인하세요.'">
     <meta property="og:type" content="article">
     <meta name="twitter:title" th:content="${listing != null} ? ${listing.addressName} + ' 매물 안내' : '매물 안내'">
     <meta name="twitter:description" th:content="${listing != null} ? ${listing.addressName} + ' 매물 정보입니다.' : '매물 정보를 확인하세요.'">
@@ -28,7 +28,7 @@
       "@context": "https://schema.org",
       "@type": "Product",
       "name": /*[[${listing != null ? listing.addressName + ' 매물' : '매물 정보'}]]*/ "매물 정보",
-      "description": /*[[${listing != null ? listing.addressName + ' ' + (listing.type ?: '') + ' ' + (listing.tradeType ?: '') + ' 매물입니다.' : '매물 정보를 확인하세요.'}]]*/ "",
+      "description": /*[[${listing != null ? listing.addressName + ' ' + (listing.typeLabel ?: '') + ' ' + (listing.tradeTypeLabel ?: '') + ' 매물입니다.' : '매물 정보를 확인하세요.'}]]*/ "",
       "url": /*[[${listing != null ? 'https://usanmap.com/l/' + listing.publicId : 'https://usanmap.com'}]]*/ "https://usanmap.com"
     }
     </script>
@@ -37,249 +37,189 @@
 
 <section class="l-page">
 
-    <div class="common-header l-header">
-        <button class="common-header__back" th:onclick="history.back()"></button>
-        <h1 class="common-header__title">매물번호 999999</h1>
-        <div class="common-header__right btn--heart"></div>
-    </div>
-
-    <div class="img-slider" data-slider>
-        <div class="img-slider__track" data-track>
-            <div class="img-slider__slide"><img src="/img/sample.png" alt="매물 사진 1" loading="eager"></div>
-            <div class="img-slider__slide"><img src="/img/sample.png" alt="매물 사진 2" loading="lazy"></div>
-            <div class="img-slider__slide"><img src="/img/sample.png" alt="매물 사진 3" loading="lazy"></div>
-            <div class="img-slider__slide"><img src="/img/sample.png" alt="매물 사진 4" loading="lazy"></div>
-            <div class="img-slider__slide"><img src="/img/sample.png" alt="매물 사진 5" loading="lazy"></div>
-        </div>
-
-        <button type="button" class="img-slider__btn img-slider__btn--prev" data-prev aria-label="이전 사진"></button>
-        <button type="button" class="img-slider__btn img-slider__btn--next" data-next aria-label="다음 사진"></button>
-
-        <div class="img-slider__badge" data-badge>1 / 5</div>
+    <div class="common-header">
+        <a class="common-header__back" th:href="@{/}"></a>
+        <h1 class="common-header__title">매물 정보</h1>
+        <div class="common-header__right"></div>
     </div>
 
     <div class="l-wrapper">
 
         <div class="l-title-block">
-
             <div class="l-title-name">
-                <h1 class="l-property-name">우산갤러리아오피스텔</h1>
+                <h1 class="l-property-name" th:text="${listing.addressName} + ' ' + ${listing.addressDetail}">우산갤러리아오피스텔</h1>
 
                 <button class="l-property__addr-wrapper">
-                    <span class="l-property__addr">서울특별시 강남구</span>
+                    <span class="l-property__addr" th:text="${listing.sido} + ' ' + ${listing.sigungu}">서울특별시 강남구</span>
                     <span class="l-property-addr__expand-btn"></span>
                 </button>
             </div>
 
             <div class="l-price-block">
-                <span class="l-price__trade-type">월세</span>
-                <span class="l-price__price">3000/20</span>
+                <span class="l-price__trade-type" th:text="${listing.tradeTypeLabel}">월세</span>
+                <span class="l-price__price" th:text="${listing.priceLabel}">3000/20</span>
             </div>
-
-        </div>
-
-        <div class="l-meta-block">
-            <div class="l-meta-row">빌라/연립 | 2025.09.18(10개월차) |</div>
-            <div class="l-meta-row">면적 20.00㎡ (전용 20.00) | 1/24층</div>
         </div>
 
         <div class="l-contact-block">
-            <span class="l-contact-tag">연락처</span>
-            <span class="l-contact-number">010-7667-7119</span>
-            <button class="l-contact-copy" type="button" aria-label="연락처 복사"
-                    onclick="navigator.clipboard.writeText('010-7667-7119')"></button>
+            <span class="l-contact-tag" th:text="${listing.ownerName + ' ' + (listing.carrier ?: '')}">김영한 KT</span>
+            <span class="l-contact-number" th:text="${listing.ownerPhone}">010-7667-7119</span>
+            <button class="l-contact-copy" id="btnContactCopy" type="button" aria-label="연락처 복사"
+                    th:attr="data-phone=${listing.ownerPhone}"></button>
         </div>
-
-        <div class="l-confirmed-badge">확인매물 2025.10.30</div>
-
-        <div class="l-office-name">서울황금부동산</div>
-
-        <div class="l-desc">★공실상태 바로 입주 가능!★<br>아름다운 원룸, 역세권 저렴한 가성비 오피스텔!</div>
 
         <div class="l-info-section">
 
-            <div class="l-info-section__title">
-                기본 정보
-            </div>
+            <div class="l-info-section__title">기본 정보</div>
 
             <div class="l-info-section__content">
                 <div class="l-info-row">
-                    <span class="l-info-label">보증금/월세</span>
-                    <span class="l-info-value">3000/20만원</span>
+                    <span class="l-info-label" th:text="${listing.tradeTypeLabel == '전세'} ? '전세금' : (${listing.tradeTypeLabel == '매매'} ? '매매가' : '보증금/월세')">보증금/월세</span>
+                    <span class="l-info-value" th:text="${listing.priceLabel} + '만원'">3000/20만원</span>
                 </div>
                 <div class="l-info-row">
-                    <span class="l-info-label">관리비</span>
+                    <span class="l-info-label">동·호수</span>
+                    <span class="l-info-value" th:text="${listing.dongho}">104동 1201호</span>
+                </div>
+                <div class="l-info-row">
+                    <span class="l-info-label">층</span>
+                    <span class="l-info-value" th:text="${listing.floorInfo}">12층</span>
+                </div>
+                <div class="l-info-row">
+                    <span class="l-info-label">면적</span>
                     <span class="l-info-value">
-                        2만원
-                        <a class="l-info-link" href="#">상세보기</a>
+                        <span id="areaValue" th:attr="data-m2=${listing.areaM2}" th:text="${listing.areaM2} + '㎡'">20.00㎡</span>
+                        <span class="l-info-area-unit" id="areaUnitToggle">평</span>
                     </span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">공급면적</span>
-                    <span class="l-info-value">
-                        20.00㎡
-                        <span class="l-info-area-unit">평</span>
-                    </span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">전용면적</span>
-                    <span class="l-info-value">20.00㎡ (전용률 100%)</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">해당층/총층</span>
-                    <span class="l-info-value">1/24층</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">방수/욕실수</span>
-                    <span class="l-info-value">2/1개</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">향</span>
-                    <span class="l-info-value">거실 기준 (북향)</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">복층여부</span>
-                    <span class="l-info-value">단층</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">입주가능일</span>
-                    <span class="l-info-value">즉시입주가능</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">매물번호</span>
-                    <span class="l-info-value">99999999</span>
                 </div>
 
                 <div class="l-info-footer">
                     <div class="l-info-footer__supply">
-                        <span>
-                            2025.10.30 최초 게재
+                        <span th:text="${#temporals.format(listing.createdAt, 'yyyy.MM.dd')} + ' 최초 게재'">
+                            2026.07.05 최초 게재
                         </span>
                         <span>우리동네부동산 제공</span>
                     </div>
-                    <button class="l-info-report-link" type="button">허위매물 신고하기</button>
                 </div>
             </div>
         </div>
 
-        <div class="l-info-section l-info-section__building">
-            <h2 class="l-info-section__title">건물 정보</h2>
+        <div id="listingMap" class="listing__map"></div>
 
-            <div class="l-info-section__content">
+        <script type="text/javascript" th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverClientId}"></script>
 
-                <div class="l-info-row">
-                    <span class="l-info-label">위치</span>
-                    <span class="l-info-value">서울특별시 강남구 우산동 999999-99</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">건축물용도</span>
-                    <span class="l-info-value">공동주택</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">주구조</span>
-                    <span class="l-info-value">철근콘크리트구조</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">사용승인일</span>
-                    <span class="l-info-value">2025.09.18</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">세대수</span>
-                    <span class="l-info-value">92세대</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">난방</span>
-                    <span class="l-info-value">개별난방/도시가스</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">주차</span>
-                    <span class="l-info-value">50대</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">지역</span>
-                    <span class="l-info-value">도시지역</span>
-                </div>
-            </div>
-        </div>
+        <script th:inline="javascript">
 
-        <div class="l-info-section">
-            <h2 class="l-info-section__title">중개사</h2>
+            const lat = [[${listing.lat}]];
+            const lng = [[${listing.lng}]];
 
-            <div class="l-info-section__content">
-                <div class="l-info-row">
-                    <span class="l-agency-card__wrapper">
-                        <span class="l-agency-card__avatar">
-                            <img class="l-agency-card__avatar" src="/img/96x96-basic-profile.svg" alt="중개사 프로필">
-                        </span>
+            const center = new naver.maps.LatLng(lat, lng);
 
-                        <span class="l-agency-card__info">
-                            <span class="l-agency-card__name">김우산</span>
-                            <span class="l-agency-card__office">서울황금부동산</span>
-                        </span>
-                    </span>
-                    <span class="l-info-value">
-                        <a class="l-info-link" href="#">상세보기</a>
-                    </span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">전화</span>
-                    <span class="l-info-value">02-777-7777 / 010-7777-7777</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">위치</span>
-                    <span class="l-info-value">서울특별시 강남구 우산동 골든스타라이트 상가 158호</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">등록번호</span>
-                    <span class="l-info-value">가-7777-777</span>
-                </div>
-                <div class="l-info-row">
-                    <span class="l-info-label">중개사 매물</span>
-                    <span class="l-info-value">최근 3개월 집주인확인 30건</span>
-                </div>
+            const map = new naver.maps.Map('listingMap', {
+                center: center,
+                zoom: 15,
+                draggable: true,
+                pinchZoom: true,
+                scrollWheel: false,
+                zoomControl: false,
+                mapTypeControl: false
+            });
+
+            const marker = new naver.maps.Marker({
+                position: center,
+                map: map,
+                icon: {
+                    url: '/img/60x60-broker-pin.png',
+                    size: new naver.maps.Size(60, 60),
+                    scaledSize: new naver.maps.Size(60, 60),
+                    anchor: new naver.maps.Point(30, 60) //이미지 하단 중앙 기준
+                }
+            });
+        </script>
+
+        <script>
+            function showToast(message) {
+                const toast = document.getElementById('lToast');
+                if (!toast) return;
+
+                toast.textContent = message;
+                toast.classList.add('is-visible');
+
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(() => {
+                    toast.classList.remove('is-visible');
+                }, 2000);
+            }
+
+            const btnContactCopy = document.getElementById('btnContactCopy');
+            if (btnContactCopy) {
+                btnContactCopy.addEventListener('click', async () => {
+                    const phone = btnContactCopy.dataset.phone;
+                    if (!phone) return;
+
+                    try {
+                        await navigator.clipboard.writeText(phone);
+                        showToast('복사되었습니다');
+                    } catch (e) {
+                        showToast('복사에 실패했습니다');
+                    }
+                });
+            }
+
+            const areaValue = document.getElementById('areaValue');
+            const areaUnitToggle = document.getElementById('areaUnitToggle');
+            if (areaValue && areaUnitToggle) {
+                const m2 = parseFloat(areaValue.dataset.m2);
+                let showingPyeong = false;
+
+                areaUnitToggle.addEventListener('click', () => {
+                    if (isNaN(m2)) return;
+
+                    showingPyeong = !showingPyeong;
+                    if (showingPyeong) {
+                        areaValue.textContent = (m2 / 3.305785).toFixed(2) + '평';
+                        areaUnitToggle.textContent = '㎡';
+                    } else {
+                        areaValue.textContent = m2.toFixed(2) + '㎡';
+                        areaUnitToggle.textContent = '평';
+                    }
+                });
+            }
+
+            const btnSend = document.getElementById('btnSend');
+            if (btnSend) {
+                btnSend.addEventListener('click', () => {
+                    const phone = btnSend.dataset.phone;
+                    if (!phone) return;
+                    location.href = 'tel:' + phone;
+                });
+            }
+        </script>
+
+        <div class="l-introduction-section">
+            <div class="l-introduction__title">우산은 이런 서비스에요</div>
+            <div class="l-introduction__content">
+                집을 내놓을 때마다 여러 부동산에 일일이 전화하고,<br>
+                내 매물이 포털에 잘 올라갔는지 확인하기 답답하셨죠?<br>
+                '우리 동네 부동산'은 오직 매도인(집주인/임대인)만을 위한<br>
+                맞춤형 매물 유통 서비스입니다.<br>
+                <br>
+                복잡한 절차 없이 한 번의 터치로 동네의 수많은 중개사에게<br>
+                내 매물을 알리세요!!
             </div>
         </div>
 
         <div class="action-btn__wrapper l-bottom">
-            <button class="action-btn action-btn--call" id="btnCall" aria-label="전화하기">
-                <span class="action-btn__icon action-btn__icon--call"></span>
-            </button>
-
-            <button class="action-btn action-btn--send" id="btnSend">
-                <span class="action-btn__icon action-btn__icon--send" aria-hidden="true"></span>
-                <span class="action-btn__text">문의하기</span>
+            <button class="action-btn action-btn--send" id="btnSend" th:attr="data-phone=${listing.ownerPhone}">
+                <span class="action-btn__icon action-btn__icon--send" aria-hidden="전화하기"></span>
+                <span class="action-btn__text">전화하기</span>
             </button>
         </div>
+
+        <div class="l-toast" id="lToast" role="status" aria-live="polite"></div>
 
     </div>
 
 </section>
 
-<script>
-    /* ---- 이미지 슬라이더 ---- */
-    document.querySelectorAll('[data-slider]').forEach(function (slider) {
-        const track = slider.querySelector('[data-track]');
-        const slides = track.querySelectorAll('.img-slider__slide');
-        const badge = slider.querySelector('[data-badge]');
-        const total = slides.length;
-        let current = 0;
-
-        function goTo(idx) {
-            current = (idx + total) % total;
-            track.style.transform = 'translateX(-' + (current * 100) + '%)';
-            if (badge) badge.textContent = (current + 1) + ' / ' + total;
-        }
-
-        slider.querySelector('[data-prev]')?.addEventListener('click', function () { goTo(current - 1); });
-        slider.querySelector('[data-next]')?.addEventListener('click', function () { goTo(current + 1); });
-
-        /* 터치/스와이프 */
-        let startX = 0;
-        track.addEventListener('touchstart', function (e) { startX = e.touches[0].clientX; }, { passive: true });
-        track.addEventListener('touchend', function (e) {
-            const diff = startX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 40) goTo(diff > 0 ? current + 1 : current - 1);
-        });
-    });
-</script>
 </html>

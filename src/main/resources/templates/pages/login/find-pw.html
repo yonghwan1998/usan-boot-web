@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">비밀번호 찾기 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/login.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="find-page">
+    <div class="common-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <h1 class="common-header__title">계정 찾기</h1>
+        <div class="common-header__right btn--X"></div>
+    </div>
+
+    <div class="find-tabs">
+        <a class="find-tab" th:href="@{/login/find-id}">이메일 찾기</a>
+        <a class="find-tab find-tab--active" th:href="@{/login/find-pw}">비밀번호 찾기</a>
+    </div>
+    <div class="find-content">
+        <h2 class="find-content__title" id="findTitle">이메일과 핸드폰 번호를 입력해 주세요</h2>
+
+        <div class="find-form">
+            <div class="find-form__group">
+                <label class="find-form__label">이메일</label>
+                <input class="common-input" type="text" id="emailInput" placeholder="이메일을 입력해 주세요">
+            </div>
+
+            <div class="find-form__group">
+                <label class="find-form__label">핸드폰 번호</label>
+                <input class="common-input" type="text" inputmode="numeric" id="phoneInput" placeholder="핸드폰 번호를 입력해 주세요">
+            </div>
+
+            <div class="find-form__group" id="codeGroup" hidden>
+                <label class="find-form__label">인증번호 입력</label>
+                <input class="common-input" type="text" inputmode="numeric" id="codeInput" maxlength="6" placeholder="인증번호를 입력해 주세요">
+                <p class="find-form__message" id="codeMessage">인증번호 6자리를 입력해주세요</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn__wrapper">
+        <div class="btn btn--prev" id="btnPrev">이전</div>
+        <div class="btn btn--next" id="btnNext">인증번호 받기</div>
+    </div>
+
+    <script>
+        let __codeSent = false;
+
+        const findTitle = document.getElementById('findTitle');
+        const emailInput = document.getElementById('emailInput');
+        const phoneInput = document.getElementById('phoneInput');
+        const codeGroup = document.getElementById('codeGroup');
+        const codeInput = document.getElementById('codeInput');
+        const codeMessage = document.getElementById('codeMessage');
+        const btnNext = document.getElementById('btnNext');
+
+        phoneInput.addEventListener('input', (e) => {
+            e.target.value = __formatPhone(e.target.value);
+        });
+
+        function setCodeMessage(text, isError) {
+            codeMessage.textContent = text;
+            codeMessage.classList.toggle('common-text--error', isError);
+            codeMessage.classList.toggle('is-visible', isError);
+        }
+
+        function openNotFoundPopup() {
+            CommonPopup.open({
+                contentHtml: `
+                    <p class="common-popup__title">알림</p>
+                    <p class="common-popup__desc">존재하지 않는 유저 또는<br>소셜 로그인 계정입니다.</p>
+                `,
+                actionsHtml: `
+                    <button class="btn btn--primary btn--pop" onclick="CommonPopup.close()">확인</button>
+                `
+            });
+        }
+
+        function openResetSuccessPopup() {
+            CommonPopup.open({
+                contentHtml: `
+                    <p class="common-popup__title">비밀번호 찾기</p>
+                    <p class="common-popup__desc">임시 비밀번호를 문자로 보내드렸어요.<br>로그인 후 비밀번호를 변경해 주세요.</p>
+                `,
+                actionsHtml: `
+                    <button class="btn btn--primary btn--pop" onclick="location.href='/login'">로그인</button>
+                `
+            });
+        }
+
+        async function requestFindPwSendCode(email, phone) {
+            const res = await fetch('/login/api/find-pw/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ email, phone })
+            });
+            if (!res.ok) throw new Error('send-code failed');
+            return await res.json();
+        }
+
+        async function requestFindPwReset(phone, code) {
+            const res = await fetch('/login/api/find-pw/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ phone, code })
+            });
+            if (!res.ok) throw new Error('reset failed');
+            return await res.json();
+        }
+
+        btnNext.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const phone = phoneInput.value;
+
+            if (!__codeSent) {
+                if (__isBlank(email) || !__isValidEmail(email)) {
+                    alert('이메일 형식을 확인해 주세요.');
+                    return;
+                }
+
+                if (!__isValidPhone(phone)) {
+                    alert('전화번호 형식을 확인해 주세요. 예) 010-1234-5678');
+                    return;
+                }
+
+                let data;
+                try {
+                    data = await requestFindPwSendCode(email, phone);
+                } catch (e) {
+                    alert('인증번호 발송 중 오류가 발생했습니다.');
+                    return;
+                }
+
+                if (data.result === 'NOT_FOUND') {
+                    openNotFoundPopup();
+                    return;
+                }
+
+                __codeSent = true;
+                findTitle.textContent = '인증번호를 입력해 주세요';
+                codeGroup.hidden = false;
+                btnNext.textContent = '비밀번호 찾기';
+                codeInput.focus();
+                return;
+            }
+
+            const code = codeInput.value;
+            if (__isBlank(code) || code.length !== 6) {
+                setCodeMessage('인증번호 6자리를 입력해 주세요', true);
+                return;
+            }
+
+            let data;
+            try {
+                data = await requestFindPwReset(phone, code);
+            } catch (e) {
+                setCodeMessage('조회 중 오류가 발생했습니다.', true);
+                return;
+            }
+
+            if (data.result === 'INVALID_CODE') {
+                setCodeMessage('인증번호가 올바르지 않습니다.', true);
+                return;
+            }
+
+            if (data.result === 'NOT_FOUND') {
+                openNotFoundPopup();
+                return;
+            }
+
+            setCodeMessage('인증번호 6자리를 입력해주세요', false);
+            openResetSuccessPopup();
+        });
+    </script>
+
+</section>
+</html>
