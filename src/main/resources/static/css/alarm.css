@@ -1,5 +1,5 @@
 .alarm-page {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
 }
@@ -9,7 +9,7 @@
 }
 
 .alarm-wrapper {
-    min-height: calc(var(--app-vh, 1vh) * 100);
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     background: #f2f2f2;
@@ -129,8 +129,6 @@
 }
 
 .alarm__item {
-    display: flex;
-    gap: 12px;
     border-radius: 16px;
     padding: 16px;
     background: #ffffff;
@@ -138,13 +136,6 @@
 
 .alarm__item.is-read {
     background: #d9d9d9;
-}
-
-.alarm__thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #8c8c8c;
 }
 
 .alarm__content {
@@ -169,6 +160,19 @@
     display: flex;
     gap: 4px;
     align-items: center;
+}
+
+.alarm-content__listing-number {
+    width: 44px;
+    height: 22px;
+    align-content: center;
+    text-align: center;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 10px;
+    color: #4B2E6B;
+    background: #F5EBFF;
 }
 
 .alarm-content__name {
@@ -215,7 +219,14 @@
     gap: 4px;
 }
 
-.alarm-content__count,
+.alarm-content__whole-icon {
+    width: 16px;
+    height: 16px;
+    mask: url("../img/16x16-whole.svg") center/contain no-repeat;
+    -webkit-mask: url("../img/16x16-whole.svg") center/contain no-repeat;
+    background-color: #8C8C8C;
+}
+
 .alarm-content__view {
     font-weight: 400;
     font-size: 14px;
