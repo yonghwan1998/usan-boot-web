@@ -27,7 +27,7 @@
         <div class="common-header__right"></div>
     </div>
 
-    <form id="kcpMockForm" action="/credits/kcp/mock/pay" method="post">
+    <form id="hectoPayForm" action="/credits/hecto/pay" method="post">
         <input type="hidden" name="orderNo" id="orderNo">
     </form>
 
@@ -47,10 +47,6 @@
         <div class="checkout-product-info">
             <div class="checkout-product-info__label">구매자</div>
             <div class="checkout-product-info__value" th:text="${customerName}"></div>
-        </div>
-
-        <div class="checkout-mock-notice">
-            [테스트] KCP 결제 Mock — 실제 결제가 발생하지 않습니다.
         </div>
 
     </div>
@@ -84,17 +80,6 @@
             font-weight: 600;
             color: #222222;
         }
-
-        .checkout-mock-notice {
-            margin-top: 24px;
-            padding: 14px 16px;
-            background: #fff8e1;
-            border: 1px solid #ffe082;
-            border-radius: 10px;
-            font-size: 13px;
-            color: #795548;
-            line-height: 1.5;
-        }
     </style>
 
     <script th:inline="javascript">
@@ -115,7 +100,7 @@
                 }
                 const { orderNo } = await res.json();
                 document.getElementById('orderNo').value = orderNo;
-                document.getElementById('kcpMockForm').submit();
+                document.getElementById('hectoPayForm').submit();
             } catch (e) {
                 alert('오류가 발생했습니다: ' + e.message);
                 btn.disabled = false;

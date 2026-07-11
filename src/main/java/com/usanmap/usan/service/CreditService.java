@@ -1,5 +1,6 @@
 package com.usanmap.usan.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usanmap.usan.entity.*;
 import com.usanmap.usan.entity.enums.*;
 import com.usanmap.usan.repository.*;
@@ -27,6 +28,7 @@ public class CreditService {
     private final MemberCreditBalanceRepository memberCreditBalanceRepository;
     private final CreditLedgerRepository creditLedgerRepository;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
     public List<CreditProduct> getActiveProducts() {
         return creditProductRepository.findByIsActiveTrueOrderBySortOrderAsc();
@@ -147,7 +149,7 @@ public class CreditService {
 
         Payment payment = Payment.builder()
                 .creditOrder(order)
-                .pgProvider(PgProvider.KCP)
+                .pgProvider(PgProvider.HECTO)
                 .paymentStatus(PaymentStatus.READY)
                 .requestedAmount(product.getPriceAmount())
                 .build();
@@ -156,8 +158,8 @@ public class CreditService {
         return orderNo;
     }
 
-    @Transactional
-    public void confirmKcpMockCharge(String orderNo, Long userId) {
+    @Transactional(readOnly = true)
+    public CreditOrder getOrderForPayment(String orderNo, Long userId) {
         CreditOrder order = creditOrderRepository.findByOrderNo(orderNo)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
         if (!order.getMember().getId().equals(userId)) {
@@ -166,18 +168,68 @@ public class CreditService {
         if (order.getOrderStatus() != OrderStatus.READY) {
             throw new IllegalStateException("이미 처리된 주문입니다.");
         }
+        return order;
+    }
+
+    /**
+     * 헥토파이낸셜 노티(notiUrl) 또는 결제완료 리턴(nextUrl)으로부터 전달된 결과를 반영한다.
+     * 노티와 리턴이 거의 동시에 도착할 수 있어 주문 행에 비관적 락을 걸어 중복 적립을 막고,
+     * 이미 처리된 주문이면 그대로 성공(true)을 반환해 재통보에도 안전하도록 한다.
+     */
+    @Transactional
+    public boolean confirmHectoCharge(Map<String, String> result) {
+        String orderNo = result.get("mchtTrdNo");
+        if (orderNo == null || orderNo.isBlank()) {
+            return false;
+        }
+
+        CreditOrder order = creditOrderRepository.findByOrderNoForUpdate(orderNo).orElse(null);
+        if (order == null) {
+            return false;
+        }
+        if (order.getOrderStatus() == OrderStatus.PAID) {
+            return true;
+        }
+        if (order.getOrderStatus() != OrderStatus.READY) {
+            return false;
+        }
+
+        Payment payment = paymentRepository.findByCreditOrder(order).orElse(null);
+        if (payment == null) {
+            return false;
+        }
+
+        boolean success = "0021".equals(result.get("outStatCd"));
+        if (!success) {
+            order.setOrderStatus(OrderStatus.FAILED);
+            payment.setPaymentStatus(PaymentStatus.FAILED);
+            payment.setFailureCode(result.get("outRsltCd"));
+            payment.setFailureMessage(result.get("outRsltMsg"));
+            payment.setRawResponseJson(toJson(result));
+            return false;
+        }
+
+        int trdAmt;
+        try {
+            trdAmt = Integer.parseInt(result.get("trdAmt"));
+        } catch (Exception e) {
+            return false;
+        }
+        if (trdAmt != order.getPriceAmountSnapshot()) {
+            order.setOrderStatus(OrderStatus.FAILED);
+            payment.setPaymentStatus(PaymentStatus.FAILED);
+            payment.setFailureMessage("결제 금액이 일치하지 않습니다.");
+            payment.setRawResponseJson(toJson(result));
+            return false;
+        }
 
         LocalDateTime now = LocalDateTime.now();
-        String mockTranCd = "MOCK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
-
-        Payment payment = paymentRepository.findByCreditOrder(order)
-                .orElseThrow(() -> new IllegalStateException("결제 정보를 찾을 수 없습니다."));
-        payment.setPaymentKey(mockTranCd);
+        payment.setPaymentKey(result.get("trdNo"));
         payment.setMethod("카드");
         payment.setPaymentStatus(PaymentStatus.SUCCESS);
-        payment.setApprovedAmount(order.getPriceAmountSnapshot());
+        payment.setApprovedAmount(trdAmt);
         payment.setApprovedAt(now);
-        payment.setRawResponseJson("{\"mock\":true,\"tran_cd\":\"" + mockTranCd + "\"}");
+        payment.setRawResponseJson(toJson(result));
 
         order.setOrderStatus(OrderStatus.PAID);
         order.setPaidAt(now);
@@ -196,9 +248,19 @@ public class CreditService {
                 .ledgerType(LedgerType.CHARGE)
                 .changeAmount(order.getTotalCreditSnapshot())
                 .balanceAfter(balance.getBalance())
-                .description(order.getProductNameSnapshot() + " 충전 (KCP)")
+                .description(order.getProductNameSnapshot() + " 충전 (헥토파이낸셜)")
                 .build();
         creditLedgerRepository.save(ledger);
+
+        return true;
+    }
+
+    private String toJson(Map<String, String> data) {
+        try {
+            return objectMapper.writeValueAsString(data);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 
     @Transactional
