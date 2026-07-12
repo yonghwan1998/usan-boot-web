@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">알림 센터 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/notification.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="notification-page">
+    <div class="common-header notification-header">
+        <button class="common-header__back" th:onclick="history.back()"></button>
+        <h1 class="common-header__title">알림 센터</h1>
+        <div class="common-header__right btn--setting"></div>
+    </div>
+
+    <div class="notification-wrapper non-existing" hidden>
+
+        <div class="notification__non-existing-wrapper">
+            <img src="/img/170x81-alarm-face.png" class="icon__notification-face" alt="알림 없음" loading="lazy">
+            <div class="non-existing__text-wrapper">
+                <div class="non-existing__title">알림이 아직 없어요!</div>
+                <div class="non-existing__text">새 매물이나 중요한 소식이 오면<br>여기에서 알려드려요!</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="notification-wrapper existing">
+
+        <div class="notification__existing-wrapper">
+
+            <div class="notification__notice">
+                <span class="notification__notice-text">알림이 허용되어 있지 않습니다.</span>
+                <span class="notification__notice-icon"></span>
+            </div>
+
+            <div class="notification__button-wrapper">
+                <div class="notification__button">
+                    <span class="notification__check-icon"></span>
+                    <span class="notification__button-text">모두 읽기</span>
+                </div>
+                <div class="notification__button">
+                    <span class="notification__trash-icon"></span>
+                    <span class="notification__button-text">삭제하기</span>
+                </div>
+            </div>
+
+            <div class="notification__list-wrapper">
+
+                <div class="notification__item">
+                    <div class="notification__content">
+                        <div class="notification-content__top">
+                            <div class="notification-content__info">
+                                <div class="notification-content__title">
+                                    <span class="notification-content__listing-number">매물 1</span>
+                                    <span class="notification-content__name">우산갤러리아파트</span>
+                                    <span class="notification-content__dot">·</span>
+                                    <span class="notification-content__date">1일 전</span>
+                                </div>
+                                <span class="notification-content__more"></span>
+                            </div>
+                            <div class="notification-content__message">14명의 중개사에게 매물을 보냈습니다</div>
+                        </div>
+
+                        <div class="notification-content__bottom">
+                            <span class="notification-content__whole-icon"></span>
+                            <span class="notification-content__view">알림 더 보기 +13</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification__item is-read">
+                    <div class="notification__content">
+                        <div class="notification-content__top">
+                            <div class="notification-content__info">
+                                <div class="notification-content__title">
+                                    <span class="notification-content__listing-number">매물 2</span>
+                                    <span class="notification-content__name">삼성화이트</span>
+                                    <span class="notification-content__dot">·</span>
+                                    <span class="notification-content__date">7일 전</span>
+                                </div>
+                                <span class="notification-content__more"></span>
+                            </div>
+                            <div class="notification-content__message">4명의 중개사에게 매물을 보냈습니다</div>
+                        </div>
+
+                        <div class="notification-content__bottom">
+                            <span class="notification-content__whole-icon"></span>
+                            <span class="notification-content__view">알림 더 보기 +3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification__item">
+                    <div class="notification__content">
+                        <div class="notification-content__top">
+                            <div class="notification-content__info">
+                                <div class="notification-content__title">
+                                    <span class="notification-content__listing-number">매물 1</span>
+                                    <span class="notification-content__name">우산갤러리아파트</span>
+                                    <span class="notification-content__dot">·</span>
+                                    <span class="notification-content__date">65일 전</span>
+                                </div>
+                                <span class="notification-content__more"></span>
+                            </div>
+                            <div class="notification-content__message">45명의 중개사에게 매물을 보냈습니다</div>
+                        </div>
+
+                        <div class="notification-content__bottom">
+                            <span class="notification-content__whole-icon"></span>
+                            <span class="notification-content__view">알림 더 보기 +44</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="notification-sheet-overlay"></div>
+
+    <div class="notification-sheet">
+        <div class="notification-sheet__handle-wrapper">
+            <div class="notification-sheet__handle"></div>
+        </div>
+
+        <div class="notification-sheet__header">
+            <span class="notification-sheet__title">매물 전송 내역</span>
+            <span class="notification-sheet__close"></span>
+        </div>
+
+        <div class="notification-sheet__summary">
+            <div class="notification-sheet__summary-top">
+                <span class="notification-sheet__listing-number">매물 1</span>
+                <span class="notification-sheet__dot">·</span>
+                <span class="notification-sheet__date">2일 전</span>
+            </div>
+            <div class="notification-sheet__addr-wrapper">
+                <div class="notification-sheet__name">우산갤러리아파트</div>
+                <div class="notification-sheet__address">서울특별시 강남구 신사동 123-45</div>
+            </div>
+
+        </div>
+
+        <div class="notification-sheet__count">7명의 중개사에게 매물을 발송했어요</div>
+
+        <div class="notification-sheet__list">
+
+            <div class="notification-sheet__row">
+                <div class="notification-sheet__row-top">
+                    <span class="notification-sheet__row-name">우리동네부동산</span>
+                    <span class="notification-sheet__dot">·</span>
+                    <span class="notification-sheet__row-date">26.05.23 오후 1:30</span>
+                </div>
+                <div class="notification-sheet__row-address">서울특별시 강남구 우산동 818-2</div>
+            </div>
+
+            <div class="notification-sheet__row">
+                <div class="notification-sheet__row-top">
+                    <span class="notification-sheet__row-name">서울강남부동산</span>
+                    <span class="notification-sheet__dot">·</span>
+                    <span class="notification-sheet__row-date">26.05.23 오후 1:30</span>
+                </div>
+                <div class="notification-sheet__row-address">경기도 우산시 빗물동 77-1</div>
+            </div>
+
+            <div class="notification-sheet__row">
+                <div class="notification-sheet__row-top">
+                    <span class="notification-sheet__row-name">가로수길부동산</span>
+                    <span class="notification-sheet__dot">·</span>
+                    <span class="notification-sheet__row-date">26.05.23 오후 1:30</span>
+                </div>
+                <div class="notification-sheet__row-address">서울특별시 강남구 가로수길 333</div>
+            </div>
+
+            <div class="notification-sheet__row">
+                <div class="notification-sheet__row-top">
+                    <span class="notification-sheet__row-name">우리동네부동산</span>
+                    <span class="notification-sheet__dot">·</span>
+                    <span class="notification-sheet__row-date">26.05.23 오후 1:30</span>
+                </div>
+                <div class="notification-sheet__row-address">경기도 우산시 빗물동 77-1</div>
+            </div>
+
+            <div class="notification-sheet__row">
+                <div class="notification-sheet__row-top">
+                    <span class="notification-sheet__row-name">홍대입구부동산</span>
+                    <span class="notification-sheet__dot">·</span>
+                    <span class="notification-sheet__row-date">27.05.23 오후 2:00</span>
+                </div>
+                <div class="notification-sheet__row-address">서울특별시 마포구 홍익로 45</div>
+            </div>
+
+            <div class="notification-sheet__row">
+                <div class="notification-sheet__row-top">
+                    <span class="notification-sheet__row-name">역삼부동산</span>
+                    <span class="notification-sheet__dot">·</span>
+                    <span class="notification-sheet__row-date">27.05.23 오후 3:10</span>
+                </div>
+                <div class="notification-sheet__row-address">서울특별시 강남구 역삼동 707-9</div>
+            </div>
+
+            <div class="notification-sheet__row">
+                <div class="notification-sheet__row-top">
+                    <span class="notification-sheet__row-name">청담부동산</span>
+                    <span class="notification-sheet__dot">·</span>
+                    <span class="notification-sheet__row-date">28.05.23 오전 11:20</span>
+                </div>
+                <div class="notification-sheet__row-address">서울특별시 강남구 청담동 90-3</div>
+            </div>
+
+        </div>
+
+        <div class="notification-sheet__footer">
+            <button type="button" class="notification-sheet__delete-btn">
+                <span class="notification-sheet__trash-icon"></span>
+            </button>
+            <button type="button" class="notification-sheet__view-btn">내역 보기</button>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        (function () {
+            const overlay = document.querySelector('.notification-sheet-overlay');
+            const sheet = document.querySelector('.notification-sheet');
+            const items = document.querySelectorAll('.notification__item');
+            const closeBtn = document.querySelector('.notification-sheet__close');
+
+            function openSheet() {
+                overlay.classList.add('is-open');
+                sheet.classList.add('is-open');
+            }
+
+            function closeSheet() {
+                overlay.classList.remove('is-open');
+                sheet.classList.remove('is-open');
+            }
+
+            items.forEach(function (item) {
+                item.addEventListener('click', openSheet);
+            });
+
+            closeBtn.addEventListener('click', closeSheet);
+            overlay.addEventListener('click', closeSheet);
+        })();
+    </script>
+
+</section>
