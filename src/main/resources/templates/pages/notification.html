@@ -24,7 +24,7 @@
     <div class="common-header notification-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
         <h1 class="common-header__title">알림 센터</h1>
-        <div class="common-header__right btn--setting"></div>
+        <button type="button" class="common-header__right btn--setting notification-header__cancel"></button>
     </div>
 
     <div class="notification-wrapper non-existing" hidden>
@@ -53,10 +53,22 @@
                     <span class="notification__check-icon"></span>
                     <span class="notification__button-text">모두 읽기</span>
                 </div>
-                <div class="notification__button">
+                <div class="notification__button notification-header__delete-mode">
                     <span class="notification__trash-icon"></span>
                     <span class="notification__button-text">삭제하기</span>
                 </div>
+            </div>
+
+            <div class="notification__select-bar" hidden>
+                <label class="notification__select-all">
+                    <span class="notification__select-all-checkbox">
+                        <span class="notification__checkbox-icon"></span>
+                    </span>
+                    <span class="notification__select-all-text">전체 선택</span>
+                </label>
+                <button type="button" class="notification__delete-confirm-btn" aria-label="선택 삭제">
+                    <span class="notification__trash-icon"></span>
+                </button>
             </div>
 
             <div class="notification__list-wrapper">
@@ -81,6 +93,9 @@
                             <span class="notification-content__view">알림 더 보기 +13</span>
                         </div>
                     </div>
+                    <span class="notification__item-checkbox">
+                        <span class="notification__checkbox-icon"></span>
+                    </span>
                 </div>
 
                 <div class="notification__item is-read">
@@ -103,6 +118,9 @@
                             <span class="notification-content__view">알림 더 보기 +3</span>
                         </div>
                     </div>
+                    <span class="notification__item-checkbox">
+                        <span class="notification__checkbox-icon"></span>
+                    </span>
                 </div>
 
                 <div class="notification__item">
@@ -125,6 +143,9 @@
                             <span class="notification-content__view">알림 더 보기 +44</span>
                         </div>
                     </div>
+                    <span class="notification__item-checkbox">
+                        <span class="notification__checkbox-icon"></span>
+                    </span>
                 </div>
 
             </div>
@@ -242,6 +263,13 @@
             const items = document.querySelectorAll('.notification__item');
             const closeBtn = document.querySelector('.notification-sheet__close');
 
+            const page = document.querySelector('.notification-page');
+            const buttonWrapper = document.querySelector('.notification__button-wrapper');
+            const selectBar = document.querySelector('.notification__select-bar');
+            const deleteModeBtn = document.querySelector('.notification-header__delete-mode');
+            const cancelBtn = document.querySelector('.notification-header__cancel');
+            const selectAllCheckbox = document.querySelector('.notification__select-all-checkbox');
+
             function openSheet() {
                 overlay.classList.add('is-open');
                 sheet.classList.add('is-open');
@@ -252,8 +280,55 @@
                 sheet.classList.remove('is-open');
             }
 
+            function updateSelectAllState() {
+                const checkboxes = document.querySelectorAll('.notification__item-checkbox');
+                const allChecked = Array.from(checkboxes).every(function (checkbox) {
+                    return checkbox.classList.contains('is-checked');
+                });
+                selectAllCheckbox.classList.toggle('is-checked', allChecked);
+            }
+
+            function enterDeleteMode() {
+                page.classList.add('is-delete-mode');
+                buttonWrapper.hidden = true;
+                selectBar.hidden = false;
+                document.querySelectorAll('.notification__item-checkbox').forEach(function (checkbox) {
+                    checkbox.classList.add('is-checked');
+                });
+                updateSelectAllState();
+            }
+
+            function exitDeleteMode() {
+                page.classList.remove('is-delete-mode');
+                buttonWrapper.hidden = false;
+                selectBar.hidden = true;
+            }
+
             items.forEach(function (item) {
-                item.addEventListener('click', openSheet);
+                item.addEventListener('click', function () {
+                    if (page.classList.contains('is-delete-mode')) {
+                        item.querySelector('.notification__item-checkbox').classList.toggle('is-checked');
+                        updateSelectAllState();
+                    } else {
+                        openSheet();
+                    }
+                });
+            });
+
+            deleteModeBtn.addEventListener('click', enterDeleteMode);
+            cancelBtn.addEventListener('click', function () {
+                if (page.classList.contains('is-delete-mode')) {
+                    exitDeleteMode();
+                }
+            });
+
+            selectAllCheckbox.addEventListener('click', function (event) {
+                event.stopPropagation();
+                const shouldCheck = !selectAllCheckbox.classList.contains('is-checked');
+                document.querySelectorAll('.notification__item-checkbox').forEach(function (checkbox) {
+                    checkbox.classList.toggle('is-checked', shouldCheck);
+                });
+                selectAllCheckbox.classList.toggle('is-checked', shouldCheck);
             });
 
             closeBtn.addEventListener('click', closeSheet);
