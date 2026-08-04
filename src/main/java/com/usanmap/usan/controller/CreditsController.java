@@ -1,8 +1,10 @@
 package com.usanmap.usan.controller;
 
+import com.usanmap.usan.entity.CreditOrder;
 import com.usanmap.usan.entity.enums.LedgerType;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.CreditService;
+import com.usanmap.usan.service.HectoPaymentService;
 import com.usanmap.usan.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,10 +13,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/credits")
@@ -24,6 +29,7 @@ public class CreditsController {
     private static final String MOCK_PAYMENT_ACCOUNT = "test@naver.com";
 
     private final CreditService creditService;
+    private final HectoPaymentService hectoPaymentService;
     private final SecurityUtils securityUtils;
     private final SmsService smsService;
 
@@ -99,20 +105,63 @@ public class CreditsController {
         return "pages/credits/credits-checkout";
     }
 
-    @PostMapping("/kcp/mock/pay")
-    public String kcpMockPay(@RequestParam String orderNo) {
+    @PostMapping("/hecto/pay")
+    public String hectoPay(@RequestParam String orderNo, Model model) {
         Long userId = securityUtils.currentUserIdOrThrow();
         try {
-            creditService.confirmKcpMockCharge(orderNo, userId);
-            return "redirect:/credits/complete?orderNo=" + orderNo;
+            CreditOrder order = creditService.getOrderForPayment(orderNo, userId);
+            model.addAttribute("actionUrl", hectoPaymentService.getPaymentActionUrl());
+            model.addAttribute("params", hectoPaymentService.buildPaymentParams(order));
+            return "pages/credits/hecto-bridge";
         } catch (Exception e) {
             String msg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-            return "redirect:/credits/kcp/fail?message=" + msg;
+            return "redirect:/credits/fail?message=" + msg;
         }
     }
 
-    @GetMapping("/kcp/fail")
-    public String kcpFail(@RequestParam(required = false) String message, Model model) {
+    /** nextUrl: 결제창에서 결제 완료 후 사용자 브라우저가 돌아오는 지점 */
+    @RequestMapping(value = "/hecto/return", method = {RequestMethod.GET, RequestMethod.POST})
+    public String hectoReturn(@RequestParam Map<String, String> result) {
+        String orderNo = result.get("mchtTrdNo");
+        if (orderNo == null || !hectoPaymentService.verifyResultHash(result)) {
+            String msg = URLEncoder.encode("결제 검증에 실패했습니다.", StandardCharsets.UTF_8);
+            return "redirect:/credits/fail?message=" + msg;
+        }
+
+        if (hectoPaymentService.isSuccess(result)) {
+            creditService.confirmHectoCharge(result);
+            return "redirect:/credits/complete?orderNo=" + orderNo;
+        }
+
+        String reason = result.getOrDefault("outRsltMsg", "결제가 실패했습니다.");
+        String msg = URLEncoder.encode(reason, StandardCharsets.UTF_8);
+        return "redirect:/credits/fail?message=" + msg;
+    }
+
+    /** cancUrl: 결제창에서 사용자가 결제를 취소했을 때 돌아오는 지점 */
+    @RequestMapping(value = "/hecto/cancel", method = {RequestMethod.GET, RequestMethod.POST})
+    public String hectoCancel() {
+        String msg = URLEncoder.encode("결제를 취소했습니다.", StandardCharsets.UTF_8);
+        return "redirect:/credits/fail?message=" + msg;
+    }
+
+    /** notiUrl: 헥토파이낸셜 서버가 직접 호출하는 서버-서버 결과 통보(No 세션/쿠키) */
+    @PostMapping("/hecto/noti")
+    @ResponseBody
+    public String hectoNoti(@RequestParam Map<String, String> result) {
+        if (!hectoPaymentService.verifyResultHash(result)) {
+            return "FAIL";
+        }
+        try {
+            creditService.confirmHectoCharge(result);
+            return "OK";
+        } catch (Exception e) {
+            return "FAIL";
+        }
+    }
+
+    @GetMapping("/fail")
+    public String creditsFail(@RequestParam(required = false) String message, Model model) {
         model.addAttribute("errorMessage", message != null ? message : "결제 처리 중 오류가 발생했습니다.");
         return "pages/credits/credits-fail";
     }

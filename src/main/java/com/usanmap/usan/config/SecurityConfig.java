@@ -32,6 +32,7 @@ public class SecurityConfig {
                                 "/download/**",
                                 "/policy/**",
                                 "/geo/**",
+                                "/credits/hecto/noti",
                                 "/.well-known/**",
                                 "/error",
                                 "/css/**",
