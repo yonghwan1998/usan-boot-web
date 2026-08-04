@@ -2,6 +2,6 @@ package com.usanmap.usan.entity.enums;
 
 public enum PgProvider {
     TOSS,
-    KCP,
+    HECTO,
     BANK_TRANSFER
 }
