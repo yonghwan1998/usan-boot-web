@@ -53,3 +53,9 @@ src/main/resources/application-dev.yml
 
 ### GeoJSON ###
 data/
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
