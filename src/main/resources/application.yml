@@ -83,10 +83,13 @@ naver:
     client-secret: ${NAVER_MAP_CLIENT_SECRET}
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
-# KCP 연동 심사 완료 후 아래 설정 추가 예정
-# kcp:
-#   site-cd: ${KCP_SITE_CD}
-#   site-name: ${KCP_SITE_NAME}
+hecto:
+  mcht-id: ${HECTO_MCHT_ID:}
+  hash-key: ${HECTO_HASH_KEY:ST1009281328226982205}
+  enc-key: ${HECTO_ENC_KEY:pgSettle30y739r82jtd709yOfZ2yK5K}
+  test-mode: ${HECTO_TEST_MODE:true}
+  mcht-name: ${HECTO_MCHT_NAME:우리동네부동산}
+  mcht-ename: ${HECTO_MCHT_ENAME:Usanmap}
 file:
   upload-dir: uploads
   public-prefix: /uploads

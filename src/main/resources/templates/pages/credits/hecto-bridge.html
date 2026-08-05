@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>결제창으로 이동 중...</title>
+</head>
+<body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;color:#555;">
+    <p>결제창으로 이동 중입니다. 잠시만 기다려주세요...</p>
+
+    <form id="hectoForm" method="post" th:action="${actionUrl}">
+        <input type="hidden" th:each="entry : ${params}" th:name="${entry.key}" th:value="${entry.value}">
+    </form>
+
+    <script>
+        document.getElementById('hectoForm').submit();
+    </script>
+</body>
+</html>
