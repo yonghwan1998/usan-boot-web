@@ -52,7 +52,7 @@ public class HectoPaymentService {
     /** 결제창(FORM-SUBMIT)에 그대로 실어 보낼 파라미터를 생성한다. 해시/암호화는 반드시 서버에서 처리. */
     public Map<String, String> buildPaymentParams(CreditOrder order) {
         if (mchtId == null || mchtId.isBlank()) {
-            throw new IllegalStateException("헥토파이낸셜 상점ID(HECTO_MCHT_ID)가 설정되지 않았습니다. .env를 확인해주세요.");
+            throw new IllegalStateException("헥토파이낸셜 상점ID를 확인해주세요.");
         }
 
         LocalDateTime now = LocalDateTime.now();
