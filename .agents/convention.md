@@ -136,9 +136,9 @@ Controller 트랜잭션 및 Jakarta `@Transactional` 사용도 기존 코드에 
 
 ## 테스트
 
-- 현재 확인되는 자동 테스트는 `@SpringBootTest`, `@ActiveProfiles("test")` 기반 컨텍스트 로드 테스트 하나이다.
-- 테스트 환경은 H2를 사용한다.
-- 단위 테스트, MockMvc, Repository slice, fixture, Mockito에 대한 프로젝트 고유 표준은 아직 없다.
+- `@SpringBootTest`, `@ActiveProfiles("test")` 기반 컨텍스트 로드 테스트와 Mockito 기반 Service 단위 테스트가 있다.
+- 통합 테스트 환경은 H2를 사용한다.
+- MockMvc, Repository slice와 fixture 구성에 대한 프로젝트 고유 표준은 아직 없다.
 - 변경 위험에 맞는 테스트를 추가할 수 있지만 새로운 테스트 방식을 전역 표준처럼 선언하지 않는다.
 - 자동 테스트가 부족한 영역은 실행한 수동 검증과 검증하지 못한 항목을 구분해 보고한다.
 
