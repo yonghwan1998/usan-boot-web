@@ -7,12 +7,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class UserRegionService {
 
     private final UserRegionRepository userRegionRepository;
+
+    @Transactional(readOnly = true)
+    public Map<String, BigDecimal> getCoordinates(Long userId) {
+        List<UserRegion> regions = userRegionRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        if (regions.isEmpty()) {
+            return null;
+        }
+        UserRegion region = regions.get(0);
+        return Map.of("lat", region.getEmdLat(), "lng", region.getEmdLng());
+    }
 
     @Transactional
     public void saveOrUpdate(Long userId,
