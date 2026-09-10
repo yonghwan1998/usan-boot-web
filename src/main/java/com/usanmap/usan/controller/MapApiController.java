@@ -1,6 +1,5 @@
 package com.usanmap.usan.controller;
 
-import com.usanmap.usan.entity.enums.ListingStatus;
 import com.usanmap.usan.exception.InsufficientCreditException;
 import com.usanmap.usan.service.AdministrativeBoundarySeedService;
 import com.usanmap.usan.service.AdministrativeBoundaryService;
@@ -9,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.usanmap.usan.dto.*;
 import com.usanmap.usan.entity.Listing;
-import com.usanmap.usan.entity.UserRegion;
 import com.usanmap.usan.repository.ListingRepository;
-import com.usanmap.usan.repository.UserRegionRepository;
+import com.usanmap.usan.service.ListingService;
+import com.usanmap.usan.service.UserRegionService;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.MapService;
 import com.usanmap.usan.service.RegionStatService;
@@ -29,7 +28,8 @@ public class MapApiController {
     private final MapService        mapService;
     private final SecurityUtils     securityUtils;
     private final ListingRepository listingRepository;
-    private final UserRegionRepository userRegionRepository;
+    private final ListingService listingService;
+    private final UserRegionService userRegionService;
     private final SmsService        smsService;
     private final AdministrativeBoundaryService administrativeBoundaryService;
     private final AdministrativeBoundarySeedService administrativeBoundarySeedService;
@@ -75,12 +75,7 @@ public class MapApiController {
         if (userId == null) {
             return ResponseEntity.ok(null);
         }
-        List<UserRegion> regions = userRegionRepository.findByUserIdOrderByCreatedAtDesc(userId);
-        if (regions.isEmpty()) {
-            return ResponseEntity.ok(null);
-        }
-        UserRegion region = regions.get(0);
-        return ResponseEntity.ok(Map.of("lat", region.getEmdLat(), "lng", region.getEmdLng()));
+        return ResponseEntity.ok(userRegionService.getCoordinates(userId));
     }
 
     /**
@@ -92,16 +87,7 @@ public class MapApiController {
         if (userId == null) {
             return ResponseEntity.status(401).body(Map.of("message", "로그인이 필요합니다."));
         }
-        List<MyListingDto> result = listingRepository.findAllByUserIdAndStatusOrderByUpdatedAtDesc(userId, ListingStatus.ACTIVE).stream()
-                .map(l -> new MyListingDto(
-                        l.getId(),
-                        l.getPublicId(),
-                        l.getAddressName(),
-                        l.getType(),
-                        l.getTradeType(),
-                        l.getLat(),
-                        l.getLng()))
-                .toList();
+        List<MyListingDto> result = listingService.getMyListings(userId);
         return ResponseEntity.ok(result);
     }
 

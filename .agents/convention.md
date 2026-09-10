@@ -25,6 +25,10 @@
 
 단, 기존 Controller와 ControllerAdvice의 Repository 직접 접근 사례가 있다. 신규 코드가 이 예외를 확대하지 않도록 검토하되, 기존 코드를 별도 요청 없이 일괄 이동하지 않는다.
 
+- 지도 API의 내 매물 조회는 `ListingService.getMyListings`를 매물 관리 화면과 함께 사용한다. ACTIVE 매물을 수정일 내림차순으로 조회하고 `MyListingDto`로 변환한다.
+- 지도 API의 관심 지역 좌표 조회는 `UserRegionService.getCoordinates`에서 생성일 내림차순 첫 지역의 `lat`·`lng`를 반환한다. 지역이 없으면 null이며 Controller는 기존처럼 HTTP 200 빈 본문으로 응답한다.
+- `MapApiController`의 매물 전송 경로에는 소유권 확인을 위한 `ListingRepository` 직접 접근이 남아 있다.
+
 ## DTO와 Entity
 
 - 요청 DTO에는 record와 Jakarta Bean Validation을 함께 사용하는 사례가 있다.
@@ -136,9 +140,10 @@ Controller 트랜잭션 및 Jakarta `@Transactional` 사용도 기존 코드에 
 
 ## 테스트
 
-- 현재 확인되는 자동 테스트는 `@SpringBootTest`, `@ActiveProfiles("test")` 기반 컨텍스트 로드 테스트 하나이다.
-- 테스트 환경은 H2를 사용한다.
-- 단위 테스트, MockMvc, Repository slice, fixture, Mockito에 대한 프로젝트 고유 표준은 아직 없다.
+- `@SpringBootTest`, `@ActiveProfiles("test")` 기반 컨텍스트 로드 테스트와 Mockito 기반 Service 단위 테스트가 있다.
+- 통합 테스트 환경은 H2를 사용한다.
+- 지도 조회 API에는 실제 Service와 mock Repository를 연결한 standalone MockMvc 테스트가 있다. HTTP 응답 계약을 검증하며 Security filter와 실제 DB 쿼리는 검증하지 않는다.
+- Repository slice와 fixture 구성에 대한 프로젝트 고유 표준은 아직 없다. 위 테스트 방식을 전역 표준으로 간주하지 않는다.
 - 변경 위험에 맞는 테스트를 추가할 수 있지만 새로운 테스트 방식을 전역 표준처럼 선언하지 않는다.
 - 자동 테스트가 부족한 영역은 실행한 수동 검증과 검증하지 못한 항목을 구분해 보고한다.
 

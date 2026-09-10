@@ -16,7 +16,7 @@
 - Spring Boot 3.5.x
 - Gradle
 - Thymeleaf
-- JPA + QueryDSL
+- Spring Data JPA
 - MySQL
 - IDE: IntelliJ
 - 인프라: AWS EC2
@@ -30,7 +30,8 @@
 - 컨트롤러는 최대한 얇게 유지
 - 비즈니스 로직은 서비스에 위치
 - Repository는 데이터 접근만 담당
-- QueryDSL은 복잡한 조회에서만 사용
+- 단순 조회는 Spring Data 파생 쿼리를 우선하고, 복잡한 조회는 인접 코드의 JPQL·projection·native SQL 방식을 따른다.
+- QueryDSL은 현재 의존성과 구현이 없으므로 별도 기술 결정 없이 도입하지 않는다.
 - 불필요한 추상화 금지
 
 ## Thymeleaf 규칙
