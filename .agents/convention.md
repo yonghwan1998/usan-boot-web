@@ -149,8 +149,9 @@ Controller 트랜잭션 및 Jakarta `@Transactional` 사용도 기존 코드에 
 
 ## Git과 커밋
 
+- 저장소 파일 변경은 `dev`에서 분기한 `<type>/<kebab-case-summary>` 작업 브랜치에서 진행하는 것을 기본으로 한다.
 - 프로젝트 문서는 Conventional Commits를 요구하며 실제 이력에서도 소문자 type 메시지가 다수이다.
 - 일반적인 제목은 `<type>: <한국어 요약>`이다.
 - 실제 이력에는 비정형, 영어 제목, 대문자 type, merge 및 PR 번호 포함 메시지도 존재한다.
-- `style`은 이력에서 사용되지만 기존 문서의 type 목록에는 없다.
+- 공식 type은 `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `revert`이다.
 - 커밋 Agent의 세부 규칙은 `.agents/commit.md`를 따른다.
