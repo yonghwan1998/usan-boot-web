@@ -46,15 +46,19 @@
 - DTO는 필요할 때만 분리
 
 ## Git 규칙
+- 파일 변경 전에 `dev`에서 `<type>/<kebab-case-summary>` 작업 브랜치를 생성
+- `main`, `dev`에 직접 변경하거나 커밋하지 않음
+- 작업 브랜치에서 검증 후 `dev` 대상 PR 생성
 - Conventional Commits 사용
-    - feat:
-    - fix:
-    - refactor:
-    - docs:
-    - perf
-    - test
-    - chore
-    - revert
+    - feat: 새로운 기능 추가
+    - fix: 버그 수정
+    - docs: 문서 수정
+    - style: 코드 스타일 변경
+    - refactor: 기능 변화 없는 코드 리팩토링
+    - perf: 성능 개선
+    - test: 테스트 코드 추가 또는 수정
+    - chore: 빌드 및 설정 변경
+    - revert: 이전 커밋 되돌리기
 
 ## Claude Code 응답 규칙
 - 먼저 변경 이유 설명
