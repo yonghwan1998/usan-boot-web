@@ -85,8 +85,8 @@ kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
 hecto:
   mcht-id: ${HECTO_MCHT_ID:}
-  hash-key: ${HECTO_HASH_KEY:ST1009281328226982205}
-  enc-key: ${HECTO_ENC_KEY:pgSettle30y739r82jtd709yOfZ2yK5K}
+  hash-key: ${HECTO_HASH_KEY:}
+  enc-key: ${HECTO_ENC_KEY:}
   test-mode: ${HECTO_TEST_MODE:true}
   mcht-name: ${HECTO_MCHT_NAME:우리동네부동산}
   mcht-ename: ${HECTO_MCHT_ENAME:Usanmap}
