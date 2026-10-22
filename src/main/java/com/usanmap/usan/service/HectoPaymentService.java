@@ -17,7 +17,7 @@ import java.util.Map;
 @Service
 public class HectoPaymentService {
 
-    private static final String METHOD_CARD = "CA";
+    private static final String METHOD_CARD = "card";
     private static final String SUCCESS_STAT_CD = "0021";
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter TM_FMT = DateTimeFormatter.ofPattern("HHmmss");
