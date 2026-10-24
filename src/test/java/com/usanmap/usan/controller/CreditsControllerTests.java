@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ui.ExtendedModelMap;
 
 import java.util.Map;
 
@@ -30,6 +31,18 @@ class CreditsControllerTests {
     @BeforeEach
     void setUp() {
         creditsController = new CreditsController(creditService, hectoPaymentService, securityUtils, smsService);
+    }
+
+    @Test
+    void chargePageDoesNotRestrictCardPaymentByAccount() {
+        ExtendedModelMap model = new ExtendedModelMap();
+        when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+
+        String view = creditsController.chargeCredits(model);
+
+        assertThat(view).isEqualTo("pages/credits/credits-charge");
+        assertThat(model).doesNotContainKey("isTestAccount");
+        verify(securityUtils, never()).currentUserEmail();
     }
 
     @Test

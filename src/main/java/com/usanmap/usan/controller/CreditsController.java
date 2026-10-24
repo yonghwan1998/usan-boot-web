@@ -26,8 +26,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CreditsController {
 
-    private static final String MOCK_PAYMENT_ACCOUNT = "test@naver.com";
-
     private final CreditService creditService;
     private final HectoPaymentService hectoPaymentService;
     private final SecurityUtils securityUtils;
@@ -56,7 +54,6 @@ public class CreditsController {
         Long userId = securityUtils.currentUserIdOrThrow();
         model.addAttribute("products", creditService.getActiveProducts());
         model.addAttribute("balance", creditService.getBalance(userId));
-        model.addAttribute("isTestAccount", MOCK_PAYMENT_ACCOUNT.equals(securityUtils.currentUserEmail()));
         return "pages/credits/credits-charge";
     }
 
