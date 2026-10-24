@@ -172,9 +172,9 @@ public class CreditService {
     }
 
     /**
-     * 헥토파이낸셜 노티(notiUrl) 또는 결제완료 리턴(nextUrl)으로부터 전달된 결과를 반영한다.
-     * 노티와 리턴이 거의 동시에 도착할 수 있어 주문 행에 비관적 락을 걸어 중복 적립을 막고,
-     * 이미 처리된 주문이면 그대로 성공(true)을 반환해 재통보에도 안전하도록 한다.
+     * 헥토파이낸셜 노티(notiUrl)로 전달된 결과를 반영한다.
+     * 주문 행에 비관적 락을 걸어 중복 적립을 막고, 이미 처리된 주문이면 그대로 성공(true)을
+     * 반환해 재통보에도 안전하도록 한다.
      */
     @Transactional
     public boolean confirmHectoCharge(Map<String, String> result) {

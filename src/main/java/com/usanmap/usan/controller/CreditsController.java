@@ -123,14 +123,14 @@ public class CreditsController {
     @RequestMapping(value = "/hecto/return", method = {RequestMethod.GET, RequestMethod.POST})
     public String hectoReturn(@RequestParam Map<String, String> result) {
         String orderNo = result.get("mchtTrdNo");
-        if (orderNo == null || !hectoPaymentService.verifyResultHash(result)) {
+        if (orderNo == null || orderNo.isBlank()) {
             String msg = URLEncoder.encode("결제 검증에 실패했습니다.", StandardCharsets.UTF_8);
             return "redirect:/credits/fail?message=" + msg;
         }
 
         if (hectoPaymentService.isSuccess(result)) {
-            creditService.confirmHectoCharge(result);
-            return "redirect:/credits/complete?orderNo=" + orderNo;
+            String encodedOrderNo = URLEncoder.encode(orderNo, StandardCharsets.UTF_8);
+            return "redirect:/credits/complete?orderNo=" + encodedOrderNo;
         }
 
         String reason = result.getOrDefault("outRsltMsg", "결제가 실패했습니다.");
@@ -149,12 +149,11 @@ public class CreditsController {
     @PostMapping("/hecto/noti")
     @ResponseBody
     public String hectoNoti(@RequestParam Map<String, String> result) {
-        if (!hectoPaymentService.verifyResultHash(result)) {
+        if (!hectoPaymentService.verifyNotificationHash(result)) {
             return "FAIL";
         }
         try {
-            creditService.confirmHectoCharge(result);
-            return "OK";
+            return creditService.confirmHectoCharge(result) ? "OK" : "FAIL";
         } catch (Exception e) {
             return "FAIL";
         }

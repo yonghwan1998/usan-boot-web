@@ -82,10 +82,10 @@ public class HectoPaymentService {
     }
 
     /**
-     * 노티(서버통보)/리턴(nextUrl) 응답의 위변조 여부를 검증한다.
+     * 노티(서버통보) 응답의 위변조 여부를 검증한다.
      * 해시값 = SHA256(outStatCd + 거래일자 + 거래시간 + mchtId + mchtTrdNo + trdAmt + hashKey)
      */
-    public boolean verifyResultHash(Map<String, String> result) {
+    public boolean verifyNotificationHash(Map<String, String> result) {
         String trdDtm = result.get("trdDtm");
         String outStatCd = result.get("outStatCd");
         String mchtTrdNo = result.get("mchtTrdNo");
