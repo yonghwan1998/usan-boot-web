@@ -2,11 +2,14 @@ package com.usanmap.usan.controller;
 
 import com.usanmap.usan.entity.CreditOrder;
 import com.usanmap.usan.entity.enums.LedgerType;
+import com.usanmap.usan.entity.enums.OrderStatus;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.CreditService;
 import com.usanmap.usan.service.HectoPaymentService;
+import com.usanmap.usan.service.HectoPaymentNotificationService;
 import com.usanmap.usan.service.SmsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.http.MediaType;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,10 +28,14 @@ import java.util.Map;
 @Controller
 @RequestMapping("/credits")
 @RequiredArgsConstructor
+@Slf4j
 public class CreditsController {
+
+    private static final int PAYMENT_STATUS_MAX_POLL_COUNT = 60;
 
     private final CreditService creditService;
     private final HectoPaymentService hectoPaymentService;
+    private final HectoPaymentNotificationService hectoPaymentNotificationService;
     private final SecurityUtils securityUtils;
     private final SmsService smsService;
 
@@ -143,15 +151,22 @@ public class CreditsController {
     }
 
     /** notiUrl: 헥토파이낸셜 서버가 직접 호출하는 서버-서버 결과 통보(No 세션/쿠키) */
-    @PostMapping("/hecto/noti")
+    @PostMapping(
+            value = "/hecto/noti",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
     @ResponseBody
     public String hectoNoti(@RequestParam Map<String, String> result) {
         if (!hectoPaymentService.verifyNotificationHash(result)) {
             return "FAIL";
         }
         try {
-            return creditService.confirmHectoCharge(result) ? "OK" : "FAIL";
+            hectoPaymentNotificationService.accept(result);
+            return "OK";
         } catch (Exception e) {
+            log.warn("헥토 결제 노티 저장 실패. orderNo={}, transactionNo={}",
+                    result.get("mchtTrdNo"), result.get("trdNo"), e);
             return "FAIL";
         }
     }
@@ -163,9 +178,23 @@ public class CreditsController {
     }
 
     @GetMapping("/complete")
-    public String completeCredits(@RequestParam String orderNo, Model model) {
+    public String completeCredits(
+            @RequestParam String orderNo,
+            @RequestParam(defaultValue = "0") int pollCount,
+            Model model
+    ) {
         Long userId = securityUtils.currentUserIdOrThrow();
-        var order = creditService.getCompletedOrder(orderNo, userId);
+        var order = creditService.getOrderForCompletion(orderNo, userId);
+        if (order.getOrderStatus() == OrderStatus.READY) {
+            model.addAttribute("orderNo", orderNo);
+            model.addAttribute("pollCount", pollCount + 1);
+            model.addAttribute("autoRefresh", pollCount < PAYMENT_STATUS_MAX_POLL_COUNT);
+            return "pages/credits/credits-processing";
+        }
+        if (order.getOrderStatus() != OrderStatus.PAID) {
+            String msg = URLEncoder.encode("결제를 완료하지 못했습니다.", StandardCharsets.UTF_8);
+            return "redirect:/credits/fail?message=" + msg;
+        }
         model.addAttribute("chargedCredit", order.getTotalCreditSnapshot());
         model.addAttribute("balance", creditService.getBalance(userId));
         return "pages/credits/credits-complete";

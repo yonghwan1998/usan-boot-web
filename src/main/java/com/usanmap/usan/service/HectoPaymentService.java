@@ -5,6 +5,8 @@ import com.usanmap.usan.util.HectoCryptoUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -91,16 +93,22 @@ public class HectoPaymentService {
         String mchtTrdNo = result.get("mchtTrdNo");
         String trdAmt = result.get("trdAmt");
         String pktHash = result.get("pktHash");
+        String receivedMchtId = result.get("mchtId");
+        String transactionNo = result.get("trdNo");
 
         if (trdDtm == null || trdDtm.length() != 14 || outStatCd == null
-                || mchtTrdNo == null || trdAmt == null || pktHash == null) {
+                || mchtTrdNo == null || trdAmt == null || pktHash == null
+                || !mchtId.equals(receivedMchtId) || transactionNo == null || transactionNo.isBlank()) {
             return false;
         }
 
         String trdDt = trdDtm.substring(0, 8);
         String trdTm = trdDtm.substring(8, 14);
         String expected = HectoCryptoUtil.sha256Hex(outStatCd + trdDt + trdTm + mchtId + mchtTrdNo + trdAmt + hashKey);
-        return expected.equals(pktHash);
+        return MessageDigest.isEqual(
+                expected.getBytes(StandardCharsets.US_ASCII),
+                pktHash.getBytes(StandardCharsets.US_ASCII)
+        );
     }
 
     public boolean isSuccess(Map<String, String> result) {
