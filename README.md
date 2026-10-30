@@ -120,8 +120,23 @@ USAN_BASE_URL=http://localhost:8080
 | NCP SENS 문자 발송 | `NCP_ACCESS_KEY`, `NCP_SECRET_KEY`, `NCP_SENS_SERVICE_ID`, `NCP_SENS_FROM` |
 | 무통장 입금 | `USAN_BANK_NAME`, `USAN_BANK_NUMBER`, `USAN_BANK_HOLDER` |
 | 헥토파이낸셜 | `HECTO_MCHT_ID`, `HECTO_HASH_KEY`, `HECTO_ENC_KEY`, `HECTO_TEST_MODE`, `HECTO_MCHT_NAME`, `HECTO_MCHT_ENAME` |
+| 헥토 노티 처리 | `HECTO_NOTIFICATION_PROCESSING_DELAY_MS`, `HECTO_NOTIFICATION_INITIAL_DELAY_MS`, `HECTO_NOTIFICATION_BATCH_SIZE`, `HECTO_NOTIFICATION_MAX_ATTEMPTS`, `HECTO_NOTIFICATION_RETRY_BASE_SECONDS`, `HECTO_NOTIFICATION_RETRY_MAX_SECONDS` |
+| 헥토 미완료 처리 | `HECTO_PAYMENT_READY_EXPIRATION_MINUTES`, `HECTO_PAYMENT_EXPIRATION_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_INITIAL_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_BATCH_SIZE` |
 
 `NCP_SENS_FROM`에는 NCP SENS에 등록·승인된 발신번호를 하이픈 없이 입력합니다.
+
+운영 프로필에서는 애플리케이션 시작 시 결제 설정을 검증합니다.
+
+- `HECTO_MCHT_ID`, `HECTO_HASH_KEY`, `HECTO_ENC_KEY`는 필수입니다.
+- `HECTO_ENC_KEY`는 UTF-8 기준 32바이트여야 합니다.
+- `HECTO_TEST_MODE`는 반드시 `false`여야 합니다.
+- `USAN_BASE_URL`은 로컬 주소가 아닌 슬래시로 끝나지 않는 HTTPS URL이어야 합니다.
+- 노티 재시도, 처리 주기, 배치 크기와 결제 만료 설정은 0보다 큰 값이어야 합니다. 초기 지연 시간은 0도 허용합니다.
+- `prod` 프로필은 `dev` 또는 `test` 프로필과 함께 활성화할 수 없습니다.
+- 운영 JPA 스키마 정책은 `validate`, SQL 출력은 비활성화 상태여야 합니다.
+- Actuator 노출 목록에는 `prometheus`가 포함되어야 하며 health 상세 정보를 항상 공개할 수 없습니다.
+
+설정이 위 조건을 충족하지 않으면 비밀값을 출력하지 않고 애플리케이션 시작을 중단합니다.
 
 ### 4. 실행
 
