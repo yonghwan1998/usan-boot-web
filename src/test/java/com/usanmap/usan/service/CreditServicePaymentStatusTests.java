@@ -66,12 +66,14 @@ class CreditServicePaymentStatusTests {
         result.put("outRsltCd", "CA01");
         result.put("outRsltMsg", "승인 거절");
 
-        creditService.confirmHectoCharge(result);
+        HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.FAILED);
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.FAILED);
         assertThat(payment.getFailureCode()).isEqualTo("CA01");
         assertThat(payment.getFailureMessage()).isEqualTo("승인 거절");
+        assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.FAILED);
+        assertThat(chargeResult.previousStatus()).isEqualTo(OrderStatus.READY);
     }
 
     @Test
@@ -86,11 +88,12 @@ class CreditServicePaymentStatusTests {
                 "trdAmt", "invalid"
         );
 
-        creditService.confirmHectoCharge(result);
+        HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.FAILED);
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.FAILED);
         assertThat(payment.getFailureMessage()).isEqualTo("결제 금액 형식이 올바르지 않습니다.");
+        assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.FAILED);
     }
 
     @Test
@@ -112,12 +115,14 @@ class CreditServicePaymentStatusTests {
                 "trdNo", "TRD-123"
         );
 
-        creditService.confirmHectoCharge(result);
+        HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAID);
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
         assertThat(balance.getBalance()).isEqualTo(150);
         verify(creditLedgerRepository).save(any());
+        assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.RECOVERED);
+        assertThat(chargeResult.previousStatus()).isEqualTo(OrderStatus.EXPIRED);
     }
 
     private CreditOrder order(OrderStatus status) {

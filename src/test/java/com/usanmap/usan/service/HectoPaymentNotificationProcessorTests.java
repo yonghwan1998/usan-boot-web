@@ -39,13 +39,20 @@ class HectoPaymentNotificationProcessorTests {
     @Test
     void marksNotificationProcessedInSameUnitAsCreditConfirmation() throws Exception {
         HectoPaymentNotification notification = pendingNotification();
+        Map<String, String> result = Map.of("mchtTrdNo", "ORD-123", "trdNo", "TRD-123");
         when(notificationRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(notification));
+        when(creditService.confirmHectoCharge(result)).thenReturn(new HectoChargeResult(
+                HectoChargeResult.Outcome.COMPLETED,
+                com.usanmap.usan.entity.enums.OrderStatus.READY,
+                com.usanmap.usan.entity.enums.OrderStatus.PAID
+        ));
 
-        processor.process(1L);
+        HectoPaymentNotificationProcessor.ProcessingResult processingResult = processor.process(1L);
 
         assertThat(notification.getStatus()).isEqualTo(PaymentNotificationStatus.PROCESSED);
         assertThat(notification.getAttemptCount()).isEqualTo(1);
         assertThat(notification.getProcessedAt()).isNotNull();
+        assertThat(processingResult.chargeResult().outcome()).isEqualTo(HectoChargeResult.Outcome.COMPLETED);
     }
 
     @Test
@@ -69,12 +76,14 @@ class HectoPaymentNotificationProcessorTests {
         LocalDateTime before = LocalDateTime.now();
         when(notificationRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(notification));
 
-        processor.recordFailure(1L, new IllegalStateException("lock timeout"));
+        HectoPaymentNotificationProcessor.FailureResult failure =
+                processor.recordFailure(1L, new IllegalStateException("lock timeout"));
 
         assertThat(notification.getStatus()).isEqualTo(PaymentNotificationStatus.PENDING);
         assertThat(notification.getAttemptCount()).isEqualTo(1);
         assertThat(notification.getNextAttemptAt()).isAfterOrEqualTo(before.plusSeconds(30));
         assertThat(notification.getLastError()).contains("lock timeout");
+        assertThat(failure.exhausted()).isFalse();
     }
 
     private HectoPaymentNotification pendingNotification() {

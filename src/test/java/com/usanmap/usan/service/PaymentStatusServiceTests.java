@@ -48,10 +48,11 @@ class PaymentStatusServiceTests {
         when(creditOrderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
         when(paymentRepository.findByCreditOrder(order)).thenReturn(Optional.of(payment));
 
-        paymentStatusService.expireHectoOrder(1L, cutoff);
+        PaymentStatusService.ExpirationResult result = paymentStatusService.expireHectoOrder(1L, cutoff);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.EXPIRED);
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.EXPIRED);
+        assertThat(result.orderId()).isEqualTo(1L);
     }
 
     @Test
@@ -64,8 +65,9 @@ class PaymentStatusServiceTests {
                 .build();
         when(creditOrderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
 
-        paymentStatusService.expireHectoOrder(1L, cutoff);
+        PaymentStatusService.ExpirationResult result = paymentStatusService.expireHectoOrder(1L, cutoff);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING_BANK);
+        assertThat(result).isNull();
     }
 }

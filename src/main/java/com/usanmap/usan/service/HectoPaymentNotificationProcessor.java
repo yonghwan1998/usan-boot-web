@@ -35,24 +35,31 @@ public class HectoPaymentNotificationProcessor {
 
     /** 노티 상태와 결제/크레딧 반영을 하나의 트랜잭션으로 처리한다. */
     @Transactional
-    public void process(Long notificationId) throws Exception {
+    public ProcessingResult process(Long notificationId) throws Exception {
         HectoPaymentNotification notification = notificationRepository.findByIdForUpdate(notificationId).orElse(null);
         if (notification == null || notification.getStatus() != PaymentNotificationStatus.PENDING
                 || notification.getNextAttemptAt().isAfter(LocalDateTime.now())) {
-            return;
+            return null;
         }
 
         Map<String, String> result = objectMapper.readValue(notification.getPayloadJson(), STRING_MAP_TYPE);
-        creditService.confirmHectoCharge(result);
+        HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
         notification.markProcessed(LocalDateTime.now());
+        return new ProcessingResult(
+                notification.getId(),
+                notification.getOrderNo(),
+                notification.getTransactionNo(),
+                notification.getAttemptCount(),
+                chargeResult
+        );
     }
 
     /** 처리 트랜잭션이 롤백된 뒤 별도 트랜잭션에서 재시도 일정을 기록한다. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void recordFailure(Long notificationId, Exception cause) {
+    public FailureResult recordFailure(Long notificationId, Exception cause) {
         HectoPaymentNotification notification = notificationRepository.findByIdForUpdate(notificationId).orElse(null);
         if (notification == null || notification.getStatus() != PaymentNotificationStatus.PENDING) {
-            return;
+            return null;
         }
 
         int nextAttemptCount = notification.getAttemptCount() + 1;
@@ -60,11 +67,43 @@ public class HectoPaymentNotificationProcessor {
         LocalDateTime now = LocalDateTime.now();
         if (nextAttemptCount >= maxAttempts) {
             notification.markTerminalFailure(error, now);
-            return;
+            return new FailureResult(
+                    notification.getId(),
+                    notification.getOrderNo(),
+                    notification.getTransactionNo(),
+                    notification.getAttemptCount(),
+                    notification.getNextAttemptAt(),
+                    true
+            );
         }
 
         long multiplier = 1L << Math.min(nextAttemptCount - 1, 20);
         long delaySeconds = Math.min(retryBaseSeconds * multiplier, retryMaxSeconds);
         notification.scheduleRetry(error, now.plusSeconds(delaySeconds));
+        return new FailureResult(
+                notification.getId(),
+                notification.getOrderNo(),
+                notification.getTransactionNo(),
+                notification.getAttemptCount(),
+                notification.getNextAttemptAt(),
+                false
+        );
     }
+
+    public record ProcessingResult(
+            Long notificationId,
+            String orderNo,
+            String transactionNo,
+            int attemptCount,
+            HectoChargeResult chargeResult
+    ) {}
+
+    public record FailureResult(
+            Long notificationId,
+            String orderNo,
+            String transactionNo,
+            int attemptCount,
+            LocalDateTime nextAttemptAt,
+            boolean exhausted
+    ) {}
 }

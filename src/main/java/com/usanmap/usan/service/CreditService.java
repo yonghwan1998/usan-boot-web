@@ -174,7 +174,7 @@ public class CreditService {
      * 서명 검증된 결제 실패도 정상적으로 소비한 노티이므로 상태를 FAILED로 반영하고 예외 없이 종료한다.
      */
     @Transactional
-    public void confirmHectoCharge(Map<String, String> result) {
+    public HectoChargeResult confirmHectoCharge(Map<String, String> result) {
         String orderNo = result.get("mchtTrdNo");
         if (orderNo == null || orderNo.isBlank()) {
             throw new IllegalArgumentException("결제 노티에 주문번호가 없습니다.");
@@ -183,10 +183,18 @@ public class CreditService {
         CreditOrder order = creditOrderRepository.findByOrderNoForUpdate(orderNo)
                 .orElseThrow(() -> new IllegalStateException("결제 주문을 찾을 수 없습니다."));
         if (order.getOrderStatus() == OrderStatus.PAID) {
-            return;
+            return new HectoChargeResult(
+                    HectoChargeResult.Outcome.ALREADY_PROCESSED,
+                    OrderStatus.PAID,
+                    OrderStatus.PAID
+            );
         }
         if (order.getOrderStatus() == OrderStatus.FAILED || order.getOrderStatus() == OrderStatus.CANCELED) {
-            return;
+            return new HectoChargeResult(
+                    HectoChargeResult.Outcome.ALREADY_PROCESSED,
+                    order.getOrderStatus(),
+                    order.getOrderStatus()
+            );
         }
         if (order.getOrderStatus() != OrderStatus.READY && order.getOrderStatus() != OrderStatus.EXPIRED) {
             throw new IllegalStateException("헥토 결제로 처리할 수 없는 주문 상태입니다: " + order.getOrderStatus());
@@ -201,23 +209,27 @@ public class CreditService {
 
         boolean success = "0021".equals(result.get("outStatCd"));
         if (!success) {
+            OrderStatus previousStatus = order.getOrderStatus();
             markHectoPaymentFailed(order, payment, result.get("outRsltCd"),
                     result.getOrDefault("outRsltMsg", "PG 결제 승인에 실패했습니다."), result);
-            return;
+            return new HectoChargeResult(HectoChargeResult.Outcome.FAILED, previousStatus, OrderStatus.FAILED);
         }
 
         int trdAmt;
         try {
             trdAmt = Integer.parseInt(result.get("trdAmt"));
         } catch (Exception e) {
+            OrderStatus previousStatus = order.getOrderStatus();
             markHectoPaymentFailed(order, payment, null, "결제 금액 형식이 올바르지 않습니다.", result);
-            return;
+            return new HectoChargeResult(HectoChargeResult.Outcome.FAILED, previousStatus, OrderStatus.FAILED);
         }
         if (trdAmt != order.getPriceAmountSnapshot()) {
+            OrderStatus previousStatus = order.getOrderStatus();
             markHectoPaymentFailed(order, payment, null, "결제 금액이 일치하지 않습니다.", result);
-            return;
+            return new HectoChargeResult(HectoChargeResult.Outcome.FAILED, previousStatus, OrderStatus.FAILED);
         }
 
+        boolean recovered = order.getOrderStatus() == OrderStatus.EXPIRED;
         LocalDateTime now = LocalDateTime.now();
         payment.setPaymentKey(result.get("trdNo"));
         payment.setMethod("카드");
@@ -247,6 +259,11 @@ public class CreditService {
                 .build();
         creditLedgerRepository.save(ledger);
 
+        return new HectoChargeResult(
+                recovered ? HectoChargeResult.Outcome.RECOVERED : HectoChargeResult.Outcome.COMPLETED,
+                recovered ? OrderStatus.EXPIRED : OrderStatus.READY,
+                OrderStatus.PAID
+        );
     }
 
     private void markHectoPaymentFailed(
