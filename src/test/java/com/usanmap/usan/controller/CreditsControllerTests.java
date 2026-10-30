@@ -162,4 +162,17 @@ class CreditsControllerTests {
         assertThat(view).isEqualTo("pages/credits/credits-processing");
         assertThat(model.get("autoRefresh")).isEqualTo(false);
     }
+
+    @Test
+    void completePageExplainsExpiredPaymentAsIncomplete() {
+        ExtendedModelMap model = new ExtendedModelMap();
+        CreditOrder order = CreditOrder.builder().orderStatus(OrderStatus.EXPIRED).build();
+        when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+        when(creditService.getOrderForCompletion("ORD-123", 1L)).thenReturn(order);
+
+        String view = creditsController.completeCredits("ORD-123", 0, model);
+
+        assertThat(view).startsWith("redirect:/credits/fail?message=");
+        verify(creditService, never()).getBalance(1L);
+    }
 }

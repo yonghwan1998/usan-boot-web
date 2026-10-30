@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,9 +39,7 @@ class HectoPaymentNotificationProcessorTests {
     @Test
     void marksNotificationProcessedInSameUnitAsCreditConfirmation() throws Exception {
         HectoPaymentNotification notification = pendingNotification();
-        Map<String, String> result = Map.of("mchtTrdNo", "ORD-123", "trdNo", "TRD-123");
         when(notificationRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(notification));
-        when(creditService.confirmHectoCharge(result)).thenReturn(true);
 
         processor.process(1L);
 
@@ -54,7 +53,7 @@ class HectoPaymentNotificationProcessorTests {
         HectoPaymentNotification notification = pendingNotification();
         Map<String, String> result = Map.of("mchtTrdNo", "ORD-123", "trdNo", "TRD-123");
         when(notificationRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(notification));
-        when(creditService.confirmHectoCharge(result)).thenThrow(new IllegalStateException("lock timeout"));
+        doThrow(new IllegalStateException("lock timeout")).when(creditService).confirmHectoCharge(result);
 
         assertThatThrownBy(() -> processor.process(1L))
                 .isInstanceOf(IllegalStateException.class)

@@ -97,6 +97,11 @@ hecto:
     max-attempts: ${HECTO_NOTIFICATION_MAX_ATTEMPTS:8}
     retry-base-seconds: ${HECTO_NOTIFICATION_RETRY_BASE_SECONDS:30}
     retry-max-seconds: ${HECTO_NOTIFICATION_RETRY_MAX_SECONDS:3600}
+  payment:
+    ready-expiration-minutes: ${HECTO_PAYMENT_READY_EXPIRATION_MINUTES:30}
+    expiration-delay-ms: ${HECTO_PAYMENT_EXPIRATION_DELAY_MS:60000}
+    expiration-initial-delay-ms: ${HECTO_PAYMENT_EXPIRATION_INITIAL_DELAY_MS:60000}
+    expiration-batch-size: ${HECTO_PAYMENT_EXPIRATION_BATCH_SIZE:100}
 file:
   upload-dir: uploads
   public-prefix: /uploads
