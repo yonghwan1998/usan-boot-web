@@ -162,10 +162,13 @@
             item.addEventListener('click', () => selectItem(item));
         });
 
+        const isTestAccount = /*[[${isTestAccount}]]*/ false;
+
         btnNext.addEventListener('click', () => {
             const productId = btnNext.dataset.productId;
             if (!productId) return;
-            window.location.href = '/credits/checkout?productId=' + productId;
+            const checkoutPath = isTestAccount ? '/credits/test-checkout' : '/credits/checkout';
+            window.location.href = checkoutPath + '?productId=' + productId;
         });
     </script>
 

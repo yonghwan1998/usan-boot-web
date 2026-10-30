@@ -44,6 +44,30 @@ class HectoPaymentServiceTests {
         assertThat(service.verifyNotificationHash(result)).isFalse();
     }
 
+    @Test
+    void routesTestAccountToTestGateway() {
+        ReflectionTestUtils.setField(service, "testMode", false);
+
+        assertThat(service.getPaymentActionUrl(true))
+                .isEqualTo("https://tbnpg.settlebank.co.kr/card/main.do");
+    }
+
+    @Test
+    void routesRegularAccountToProductionGatewayWhenTestModeIsDisabled() {
+        ReflectionTestUtils.setField(service, "testMode", false);
+
+        assertThat(service.getPaymentActionUrl(false))
+                .isEqualTo("https://npg.settlebank.co.kr/card/main.do");
+    }
+
+    @Test
+    void routesEveryAccountToTestGatewayWhenApplicationTestModeIsEnabled() {
+        ReflectionTestUtils.setField(service, "testMode", true);
+
+        assertThat(service.getPaymentActionUrl(false))
+                .isEqualTo("https://tbnpg.settlebank.co.kr/card/main.do");
+    }
+
     private Map<String, String> validNotification() {
         String outStatCd = "0021";
         String trdDtm = "20261031123045";

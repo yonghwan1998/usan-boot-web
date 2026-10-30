@@ -46,7 +46,11 @@ public class HectoPaymentService {
     private String baseUrl;
 
     public String getPaymentActionUrl() {
-        return testMode
+        return getPaymentActionUrl(false);
+    }
+
+    public String getPaymentActionUrl(boolean testAccount) {
+        return testMode || testAccount
                 ? "https://tbnpg.settlebank.co.kr/card/main.do"
                 : "https://npg.settlebank.co.kr/card/main.do";
     }
