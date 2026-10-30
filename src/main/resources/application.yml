@@ -90,6 +90,13 @@ hecto:
   test-mode: ${HECTO_TEST_MODE:true}
   mcht-name: ${HECTO_MCHT_NAME:우리동네부동산}
   mcht-ename: ${HECTO_MCHT_ENAME:Usanmap}
+  notification:
+    processing-delay-ms: ${HECTO_NOTIFICATION_PROCESSING_DELAY_MS:1000}
+    initial-delay-ms: ${HECTO_NOTIFICATION_INITIAL_DELAY_MS:1000}
+    batch-size: ${HECTO_NOTIFICATION_BATCH_SIZE:20}
+    max-attempts: ${HECTO_NOTIFICATION_MAX_ATTEMPTS:8}
+    retry-base-seconds: ${HECTO_NOTIFICATION_RETRY_BASE_SECONDS:30}
+    retry-max-seconds: ${HECTO_NOTIFICATION_RETRY_MAX_SECONDS:3600}
 file:
   upload-dir: uploads
   public-prefix: /uploads

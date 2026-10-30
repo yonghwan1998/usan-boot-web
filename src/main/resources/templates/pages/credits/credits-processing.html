@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/layout :: layout(
+        ~{::title},
+        ~{::pcSideContent},
+        ~{::section},
+        ~{::extraCss}
+      )}">
+
+<head>
+    <title th:fragment="title">결제 처리 중 | 우산</title>
+</head>
+
+<th:block th:fragment="pcSideContent">
+    <th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block>
+</th:block>
+
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/credits.css(t=${#dates.createNow().time})}">
+</th:block>
+
+<section class="credits-page credits-processing-page">
+    <style>
+        .credits-processing-page {
+            justify-content: center;
+        }
+
+        .credits-processing {
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .credits-processing__title {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #222222;
+            margin-bottom: 12px;
+        }
+
+        .credits-processing__desc {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #8b8b8b;
+            margin-bottom: 48px;
+        }
+
+        .credits-processing__button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 64px;
+            border-radius: 18px;
+            background: #222222;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <div class="credits-processing">
+        <h1 class="credits-processing__title"
+            th:text="${autoRefresh} ? '결제 결과를 확인하고 있어요' : '결제 처리가 지연되고 있어요'">
+            결제 결과를 확인하고 있어요
+        </h1>
+        <div class="credits-processing__desc"
+             th:text="${autoRefresh} ? '잠시만 기다려 주세요. 확인이 끝나면 자동으로 이동합니다.' : '결제 내역에서 처리 결과를 다시 확인해 주세요.'">
+            잠시만 기다려 주세요. 확인이 끝나면 자동으로 이동합니다.
+        </div>
+        <a th:if="${not autoRefresh}" th:href="@{/payments/history}" class="credits-processing__button">결제 내역 확인</a>
+    </div>
+
+    <script th:inline="javascript">
+        (() => {
+            const autoRefresh = /*[[${autoRefresh}]]*/ false;
+            if (!autoRefresh) {
+                return;
+            }
+            const orderNo = /*[[${orderNo}]]*/ '';
+            const pollCount = /*[[${pollCount}]]*/ 1;
+            window.setTimeout(() => {
+                window.location.replace(
+                        '/credits/complete?orderNo=' + encodeURIComponent(orderNo) + '&pollCount=' + pollCount
+                );
+            }, 1000);
+        })();
+    </script>
+</section>
+</html>
