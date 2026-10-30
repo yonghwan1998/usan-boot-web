@@ -36,7 +36,7 @@ public class HectoPaymentNotificationService {
     private final ObjectMapper objectMapper;
 
     /** 검증을 마친 노티를 처리 큐에 영속화한다. 같은 거래번호의 재통보는 성공으로 간주한다. */
-    public void accept(Map<String, String> result) {
+    public AcceptanceResult accept(Map<String, String> result) {
         String orderNo = required(result, "mchtTrdNo");
         String transactionNo = required(result, "trdNo");
         String payloadJson = toJson(onlyRequiredFields(result));
@@ -56,10 +56,12 @@ public class HectoPaymentNotificationService {
 
         try {
             notificationRepository.saveAndFlush(notification);
+            return new AcceptanceResult(notification.getId(), orderNo, transactionNo, false);
         } catch (DataIntegrityViolationException e) {
             if (!notificationRepository.existsByEventKey(transactionNo)) {
                 throw e;
             }
+            return new AcceptanceResult(null, orderNo, transactionNo, true);
         }
     }
 
@@ -88,4 +90,11 @@ public class HectoPaymentNotificationService {
             throw new IllegalStateException("결제 노티를 저장 형식으로 변환하지 못했습니다.", e);
         }
     }
+
+    public record AcceptanceResult(
+            Long notificationId,
+            String orderNo,
+            String transactionNo,
+            boolean duplicate
+    ) {}
 }

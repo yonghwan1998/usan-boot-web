@@ -37,7 +37,7 @@ class HectoPaymentNotificationServiceTests {
         result.put("email", "customer@example.com");
         result.put("cardNo", "123456******7890");
 
-        service.accept(result);
+        HectoPaymentNotificationService.AcceptanceResult acceptance = service.accept(result);
 
         ArgumentCaptor<HectoPaymentNotification> captor = ArgumentCaptor.forClass(HectoPaymentNotification.class);
         verify(notificationRepository).saveAndFlush(captor.capture());
@@ -51,6 +51,7 @@ class HectoPaymentNotificationServiceTests {
                 .containsEntry("outStatCd", "0021")
                 .containsEntry("trdAmt", "1000")
                 .doesNotContainKeys("email", "cardNo");
+        assertThat(acceptance.duplicate()).isFalse();
     }
 
     @Test
@@ -62,8 +63,9 @@ class HectoPaymentNotificationServiceTests {
                 .thenThrow(new DataIntegrityViolationException("duplicate event key"));
         when(notificationRepository.existsByEventKey("TRD-123")).thenReturn(true);
 
-        service.accept(result);
+        HectoPaymentNotificationService.AcceptanceResult acceptance = service.accept(result);
 
         verify(notificationRepository).existsByEventKey("TRD-123");
+        assertThat(acceptance.duplicate()).isTrue();
     }
 }

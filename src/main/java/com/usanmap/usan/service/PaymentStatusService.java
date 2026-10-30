@@ -22,20 +22,23 @@ public class PaymentStatusService {
 
     /** 결과 대기 시간이 지난 헥토 카드 주문만 미완료 상태로 전환한다. */
     @Transactional
-    public void expireHectoOrder(Long orderId, LocalDateTime cutoff) {
+    public ExpirationResult expireHectoOrder(Long orderId, LocalDateTime cutoff) {
         CreditOrder order = creditOrderRepository.findByIdForUpdate(orderId).orElse(null);
         if (order == null || order.getOrderStatus() != OrderStatus.READY
                 || order.getOrderedAt().isAfter(cutoff)) {
-            return;
+            return null;
         }
 
         Payment payment = paymentRepository.findByCreditOrder(order).orElse(null);
         if (payment == null || payment.getPgProvider() != PgProvider.HECTO
                 || payment.getPaymentStatus() != PaymentStatus.READY) {
-            return;
+            return null;
         }
 
         order.setOrderStatus(OrderStatus.EXPIRED);
         payment.setPaymentStatus(PaymentStatus.EXPIRED);
+        return new ExpirationResult(order.getId(), order.getOrderNo(), payment.getId());
     }
+
+    public record ExpirationResult(Long orderId, String orderNo, Long paymentId) {}
 }

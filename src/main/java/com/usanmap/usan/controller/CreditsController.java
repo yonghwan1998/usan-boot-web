@@ -8,6 +8,7 @@ import com.usanmap.usan.service.CreditService;
 import com.usanmap.usan.service.HectoPaymentService;
 import com.usanmap.usan.service.HectoPaymentNotificationService;
 import com.usanmap.usan.service.SmsService;
+import com.usanmap.usan.service.PaymentObservability;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,7 @@ public class CreditsController {
     private final CreditService creditService;
     private final HectoPaymentService hectoPaymentService;
     private final HectoPaymentNotificationService hectoPaymentNotificationService;
+    private final PaymentObservability paymentObservability;
     private final SecurityUtils securityUtils;
     private final SmsService smsService;
 
@@ -88,6 +90,9 @@ public class CreditsController {
     ) {
         Long userId = securityUtils.currentUserIdOrThrow();
         CreditService.BankTransferResult result = creditService.createBankTransferOrder(userId, productId, depositorName.trim(), phone);
+        paymentObservability.recordPaymentOrderCreated("bank_transfer");
+        log.info("payment_order_created orderNo={} productId={} provider=BANK_TRANSFER",
+                result.orderNo(), productId);
         String bankInfo = bankName + " " + bankNumber + " (" + bankHolder + ")";
         smsService.sendBankTransferRequest(result.userPhone(), depositorName.trim(), result.productName(), result.amount(), bankInfo);
         return "redirect:/credits/bank-transfer/pending";
@@ -117,6 +122,7 @@ public class CreditsController {
             CreditOrder order = creditService.getOrderForPayment(orderNo, userId);
             model.addAttribute("actionUrl", hectoPaymentService.getPaymentActionUrl());
             model.addAttribute("params", hectoPaymentService.buildPaymentParams(order));
+            log.info("payment_checkout_requested orderNo={} provider=HECTO", orderNo);
             return "pages/credits/hecto-bridge";
         } catch (Exception e) {
             String msg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
@@ -134,11 +140,14 @@ public class CreditsController {
         }
 
         if (hectoPaymentService.isSuccess(result)) {
+            log.info("payment_browser_return orderNo={} outcome=success_claimed", orderNo);
             String encodedOrderNo = URLEncoder.encode(orderNo, StandardCharsets.UTF_8);
             return "redirect:/credits/complete?orderNo=" + encodedOrderNo;
         }
 
         // 브라우저 리턴값만으로 결제 상태를 확정하지 않는다. 최종 상태는 서명 검증된 서버 노티가 반영한다.
+        log.info("payment_browser_return orderNo={} outcome=failed resultCode={}",
+                orderNo, result.get("outRsltCd"));
         String reason = result.getOrDefault("outRsltMsg", "결제가 실패했습니다.");
         String msg = URLEncoder.encode(reason, StandardCharsets.UTF_8);
         return "redirect:/credits/fail?message=" + msg;
@@ -148,6 +157,7 @@ public class CreditsController {
     @RequestMapping(value = "/hecto/cancel", method = {RequestMethod.GET, RequestMethod.POST})
     public String hectoCancel() {
         // 결제창 닫기는 PG 거래 취소가 아니므로 CANCELED 상태로 저장하지 않는다.
+        log.info("payment_checkout_closed outcome=user_canceled");
         String msg = URLEncoder.encode("결제를 취소했습니다.", StandardCharsets.UTF_8);
         return "redirect:/credits/fail?message=" + msg;
     }
@@ -161,14 +171,22 @@ public class CreditsController {
     @ResponseBody
     public String hectoNoti(@RequestParam Map<String, String> result) {
         if (!hectoPaymentService.verifyNotificationHash(result)) {
+            paymentObservability.recordNotificationReceived("invalid_signature");
+            log.warn("payment_notification_rejected reason=invalid_signature");
             return "FAIL";
         }
         try {
-            hectoPaymentNotificationService.accept(result);
+            HectoPaymentNotificationService.AcceptanceResult acceptance =
+                    hectoPaymentNotificationService.accept(result);
+            String outcome = acceptance.duplicate() ? "duplicate" : "accepted";
+            paymentObservability.recordNotificationReceived(outcome);
+            log.info("payment_notification_received notificationId={} orderNo={} transactionNo={} outcome={}",
+                    acceptance.notificationId(), acceptance.orderNo(), acceptance.transactionNo(), outcome);
             return "OK";
         } catch (Exception e) {
-            log.warn("헥토 결제 노티 저장 실패. orderNo={}, transactionNo={}",
-                    result.get("mchtTrdNo"), result.get("trdNo"), e);
+            paymentObservability.recordNotificationReceived("persistence_error");
+            log.error("payment_notification_persistence_failed orderNo={} transactionNo={} exceptionType={}",
+                    result.get("mchtTrdNo"), result.get("trdNo"), e.getClass().getSimpleName(), e);
             return "FAIL";
         }
     }

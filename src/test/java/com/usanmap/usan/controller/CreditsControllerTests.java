@@ -7,6 +7,7 @@ import com.usanmap.usan.service.CreditService;
 import com.usanmap.usan.service.HectoPaymentService;
 import com.usanmap.usan.service.HectoPaymentNotificationService;
 import com.usanmap.usan.service.SmsService;
+import com.usanmap.usan.service.PaymentObservability;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,7 @@ class CreditsControllerTests {
     @Mock private CreditService creditService;
     @Mock private HectoPaymentService hectoPaymentService;
     @Mock private HectoPaymentNotificationService hectoPaymentNotificationService;
+    @Mock private PaymentObservability paymentObservability;
     @Mock private SecurityUtils securityUtils;
     @Mock private SmsService smsService;
 
@@ -39,6 +41,7 @@ class CreditsControllerTests {
                 creditService,
                 hectoPaymentService,
                 hectoPaymentNotificationService,
+                paymentObservability,
                 securityUtils,
                 smsService
         );
@@ -92,9 +95,13 @@ class CreditsControllerTests {
     void hectoNotiReturnsOkAfterNotificationIsPersisted() {
         Map<String, String> result = Map.of("mchtTrdNo", "ORD-123");
         when(hectoPaymentService.verifyNotificationHash(result)).thenReturn(true);
+        when(hectoPaymentNotificationService.accept(result)).thenReturn(
+                new HectoPaymentNotificationService.AcceptanceResult(1L, "ORD-123", "TRD-123", false)
+        );
 
         assertThat(creditsController.hectoNoti(result)).isEqualTo("OK");
         verify(hectoPaymentNotificationService).accept(result);
+        verify(paymentObservability).recordNotificationReceived("accepted");
         verify(creditService, never()).confirmHectoCharge(result);
     }
 
@@ -106,6 +113,7 @@ class CreditsControllerTests {
                 .when(hectoPaymentNotificationService).accept(result);
 
         assertThat(creditsController.hectoNoti(result)).isEqualTo("FAIL");
+        verify(paymentObservability).recordNotificationReceived("persistence_error");
     }
 
     @Test
@@ -114,6 +122,7 @@ class CreditsControllerTests {
         when(hectoPaymentService.verifyNotificationHash(result)).thenReturn(false);
 
         assertThat(creditsController.hectoNoti(result)).isEqualTo("FAIL");
+        verify(paymentObservability).recordNotificationReceived("invalid_signature");
         verify(hectoPaymentNotificationService, never()).accept(result);
     }
 

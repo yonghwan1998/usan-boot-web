@@ -21,6 +21,7 @@ public class PaymentStatusScheduler {
 
     private final CreditOrderRepository creditOrderRepository;
     private final PaymentStatusService paymentStatusService;
+    private final PaymentObservability paymentObservability;
 
     @Value("${hecto.payment.ready-expiration-minutes:30}")
     private long readyExpirationMinutes;
@@ -44,9 +45,18 @@ public class PaymentStatusScheduler {
 
         for (Long orderId : orderIds) {
             try {
-                paymentStatusService.expireHectoOrder(orderId, cutoff);
+                PaymentStatusService.ExpirationResult result =
+                        paymentStatusService.expireHectoOrder(orderId, cutoff);
+                if (result == null) {
+                    continue;
+                }
+                paymentObservability.recordPaymentExpired();
+                paymentObservability.recordPaymentStatusTransition("timeout", "READY", "EXPIRED");
+                log.info("payment_status_changed orderId={} orderNo={} paymentId={} from=READY to=EXPIRED source=timeout",
+                        result.orderId(), result.orderNo(), result.paymentId());
             } catch (Exception e) {
-                log.warn("헥토 결제 미완료 상태 전환 실패. orderId={}", orderId, e);
+                log.warn("payment_expiration_failed orderId={} exceptionType={}",
+                        orderId, e.getClass().getSimpleName(), e);
             }
         }
     }
