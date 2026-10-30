@@ -43,12 +43,8 @@ public class HectoPaymentNotificationProcessor {
         }
 
         Map<String, String> result = objectMapper.readValue(notification.getPayloadJson(), STRING_MAP_TYPE);
-        if (creditService.confirmHectoCharge(result)) {
-            notification.markProcessed(LocalDateTime.now());
-            return;
-        }
-
-        notification.markTerminalFailure("결제 노티의 업무 검증에 실패했습니다.", LocalDateTime.now());
+        creditService.confirmHectoCharge(result);
+        notification.markProcessed(LocalDateTime.now());
     }
 
     /** 처리 트랜잭션이 롤백된 뒤 별도 트랜잭션에서 재시도 일정을 기록한다. */

@@ -138,6 +138,7 @@ public class CreditsController {
             return "redirect:/credits/complete?orderNo=" + encodedOrderNo;
         }
 
+        // 브라우저 리턴값만으로 결제 상태를 확정하지 않는다. 최종 상태는 서명 검증된 서버 노티가 반영한다.
         String reason = result.getOrDefault("outRsltMsg", "결제가 실패했습니다.");
         String msg = URLEncoder.encode(reason, StandardCharsets.UTF_8);
         return "redirect:/credits/fail?message=" + msg;
@@ -146,6 +147,7 @@ public class CreditsController {
     /** cancUrl: 결제창에서 사용자가 결제를 취소했을 때 돌아오는 지점 */
     @RequestMapping(value = "/hecto/cancel", method = {RequestMethod.GET, RequestMethod.POST})
     public String hectoCancel() {
+        // 결제창 닫기는 PG 거래 취소가 아니므로 CANCELED 상태로 저장하지 않는다.
         String msg = URLEncoder.encode("결제를 취소했습니다.", StandardCharsets.UTF_8);
         return "redirect:/credits/fail?message=" + msg;
     }
@@ -192,7 +194,14 @@ public class CreditsController {
             return "pages/credits/credits-processing";
         }
         if (order.getOrderStatus() != OrderStatus.PAID) {
-            String msg = URLEncoder.encode("결제를 완료하지 못했습니다.", StandardCharsets.UTF_8);
+            String failureMessage = switch (order.getOrderStatus()) {
+                case FAILED -> "결제가 실패했습니다.";
+                case EXPIRED -> "결제 결과를 확인하지 못했습니다. 결제 내역을 확인해 주세요.";
+                case CANCELED -> "결제가 취소되었습니다.";
+                case PENDING_BANK -> "입금 확인이 아직 완료되지 않았습니다.";
+                default -> "결제를 완료하지 못했습니다.";
+            };
+            String msg = URLEncoder.encode(failureMessage, StandardCharsets.UTF_8);
             return "redirect:/credits/fail?message=" + msg;
         }
         model.addAttribute("chargedCredit", order.getTotalCreditSnapshot());

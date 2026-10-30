@@ -171,6 +171,16 @@
     color: #b41f1f;
 }
 
+.pending-tag {
+    background: #fff7db;
+    color: #7a5a00;
+}
+
+.incomplete-tag {
+    background: #eeeeee;
+    color: #666666;
+}
+
 .payments-btn__wrapper {
     display: flex;
     flex-direction: column;
