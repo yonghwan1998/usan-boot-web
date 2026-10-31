@@ -17,6 +17,8 @@ public class PaymentObservability {
     private static final String PAYMENT_EXPIRED = "usan.payment.expired";
     private static final String PAYMENT_STATUS_TRANSITION = "usan.payment.status.transition";
     private static final String PAYMENT_ORDER_CREATED = "usan.payment.order.created";
+    private static final String PAYMENT_RECONCILIATION_RUN = "usan.payment.reconciliation.run";
+    private static final String PAYMENT_RECONCILIATION_RECOVERED = "usan.payment.reconciliation.recovered";
 
     private final MeterRegistry meterRegistry;
 
@@ -48,5 +50,20 @@ public class PaymentObservability {
 
     public void recordPaymentOrderCreated(String provider) {
         meterRegistry.counter(PAYMENT_ORDER_CREATED, "provider", provider).increment();
+    }
+
+    public void recordPaymentReconciliationRun(String environment, String outcome) {
+        meterRegistry.counter(
+                PAYMENT_RECONCILIATION_RUN,
+                "environment", environment,
+                "outcome", outcome
+        ).increment();
+    }
+
+    public void recordPaymentReconciliationRecovered(String environment) {
+        meterRegistry.counter(
+                PAYMENT_RECONCILIATION_RECOVERED,
+                "environment", environment
+        ).increment();
     }
 }

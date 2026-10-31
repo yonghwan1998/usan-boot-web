@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.List;
 
 @Component
 public class HectoPaymentProfiles {
@@ -43,6 +44,14 @@ public class HectoPaymentProfiles {
         return isTestAccount(email) ? test : production;
     }
 
+    public PaymentProfile forEnvironment(Environment environment) {
+        return environment == Environment.TEST ? test : production;
+    }
+
+    public List<PaymentProfile> all() {
+        return List.of(test, production);
+    }
+
     public Optional<PaymentProfile> findByMerchantId(String merchantId) {
         if (merchantId == null || merchantId.isBlank()) {
             return Optional.empty();
@@ -80,6 +89,11 @@ public class HectoPaymentProfiles {
 
         public boolean hasSigningKey() {
             return hasText(hashKey);
+        }
+
+        public String reconciliationUrl() {
+            String host = testMode ? "https://tb-nspay.settlebank.co.kr" : "https://nspay.settlebank.co.kr";
+            return host + "/api/pg/" + mchtId + "/transInfo.do";
         }
 
         private boolean hasText(String value) {

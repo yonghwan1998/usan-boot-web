@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.time.ZoneId;
 
 @Slf4j
 @Component
@@ -34,6 +35,7 @@ public class HectoProductionConfigurationValidator implements InitializingBean {
         validateBaseUrl(errors);
         validateNotificationSettings(errors);
         validateExpirationSettings(errors);
+        validateReconciliationSettings(errors);
         validateOperationalSafety(errors);
 
         if (!errors.isEmpty()) {
@@ -141,6 +143,20 @@ public class HectoProductionConfigurationValidator implements InitializingBean {
         validatePositive(errors, "hecto.payment.expiration-delay-ms");
         validateNonNegative(errors, "hecto.payment.expiration-initial-delay-ms");
         validatePositive(errors, "hecto.payment.expiration-batch-size");
+    }
+
+    private void validateReconciliationSettings(List<String> errors) {
+        validatePositive(errors, "hecto.reconciliation.lookback-days");
+        validateRequired(errors, "hecto.reconciliation.cron");
+        validateRequired(errors, "hecto.reconciliation.zone");
+        String zone = getProperty("hecto.reconciliation.zone");
+        if (zone != null && !zone.isBlank()) {
+            try {
+                ZoneId.of(zone);
+            } catch (Exception e) {
+                errors.add("hecto.reconciliation.zone 값이 올바른 시간대가 아닙니다");
+            }
+        }
     }
 
     private void validateOperationalSafety(List<String> errors) {

@@ -97,6 +97,16 @@ class HectoProductionConfigurationValidatorTests {
                 .hasMessageContaining("상점 ID는 서로 달라야 합니다");
     }
 
+    @Test
+    void rejectsInvalidReconciliationZone() {
+        MockEnvironment environment = validEnvironment()
+                .withProperty("hecto.reconciliation.zone", "invalid-zone");
+
+        assertThatThrownBy(validator(environment)::afterPropertiesSet)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("올바른 시간대가 아닙니다");
+    }
+
     private HectoProductionConfigurationValidator validator(MockEnvironment environment) {
         return new HectoProductionConfigurationValidator(environment);
     }
@@ -126,6 +136,9 @@ class HectoProductionConfigurationValidatorTests {
                 .withProperty("hecto.payment.expiration-delay-ms", "60000")
                 .withProperty("hecto.payment.expiration-initial-delay-ms", "60000")
                 .withProperty("hecto.payment.expiration-batch-size", "100")
+                .withProperty("hecto.reconciliation.lookback-days", "1")
+                .withProperty("hecto.reconciliation.cron", "0 0 3 * * *")
+                .withProperty("hecto.reconciliation.zone", "Asia/Seoul")
                 .withProperty("spring.jpa.hibernate.ddl-auto", "validate")
                 .withProperty("spring.jpa.show-sql", "false")
                 .withProperty("management.endpoint.health.show-details", "never")
