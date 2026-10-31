@@ -2,6 +2,7 @@ package com.usanmap.usan.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usanmap.usan.entity.CreditOrder;
+import com.usanmap.usan.entity.CreditLedger;
 import com.usanmap.usan.entity.MemberCreditBalance;
 import com.usanmap.usan.entity.Payment;
 import com.usanmap.usan.entity.User;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
@@ -27,6 +29,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -123,6 +127,76 @@ class CreditServicePaymentStatusTests {
         verify(creditLedgerRepository).save(any());
         assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.RECOVERED);
         assertThat(chargeResult.previousStatus()).isEqualTo(OrderStatus.EXPIRED);
+    }
+
+    @Test
+    void successfulNotificationCreditsBalanceAndCreatesLedger() {
+        CreditOrder order = order(OrderStatus.READY);
+        Payment payment = payment(order, PaymentStatus.READY);
+        MemberCreditBalance balance = MemberCreditBalance.builder()
+                .member(order.getMember())
+                .balance(25)
+                .build();
+        when(creditOrderRepository.findByOrderNoForUpdate("ORD-123")).thenReturn(Optional.of(order));
+        when(paymentRepository.findByCreditOrder(order)).thenReturn(Optional.of(payment));
+        when(memberCreditBalanceRepository.findByMemberWithLock(order.getMember()))
+                .thenReturn(Optional.of(balance));
+        Map<String, String> result = Map.of(
+                "mchtTrdNo", "ORD-123",
+                "outStatCd", "0021",
+                "trdAmt", "1000",
+                "trdNo", "TRD-123"
+        );
+
+        HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAID);
+        assertThat(order.getPaidAt()).isNotNull();
+        assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
+        assertThat(payment.getPaymentKey()).isEqualTo("TRD-123");
+        assertThat(payment.getApprovedAmount()).isEqualTo(1000);
+        assertThat(balance.getBalance()).isEqualTo(125);
+        assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.COMPLETED);
+
+        ArgumentCaptor<CreditLedger> ledgerCaptor = ArgumentCaptor.forClass(CreditLedger.class);
+        verify(creditLedgerRepository).save(ledgerCaptor.capture());
+        assertThat(ledgerCaptor.getValue().getChangeAmount()).isEqualTo(100);
+        assertThat(ledgerCaptor.getValue().getBalanceAfter()).isEqualTo(125);
+    }
+
+    @Test
+    void duplicateSuccessNotificationDoesNotCreditAgain() {
+        CreditOrder order = order(OrderStatus.PAID);
+        when(creditOrderRepository.findByOrderNoForUpdate("ORD-123")).thenReturn(Optional.of(order));
+
+        HectoChargeResult chargeResult = creditService.confirmHectoCharge(Map.of("mchtTrdNo", "ORD-123"));
+
+        assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.ALREADY_PROCESSED);
+        assertThat(chargeResult.previousStatus()).isEqualTo(OrderStatus.PAID);
+        verifyNoInteractions(paymentRepository, memberCreditBalanceRepository, creditLedgerRepository);
+    }
+
+    @Test
+    void mismatchedAmountFailsWithoutCreditingBalance() {
+        CreditOrder order = order(OrderStatus.READY);
+        Payment payment = payment(order, PaymentStatus.READY);
+        when(creditOrderRepository.findByOrderNoForUpdate("ORD-123")).thenReturn(Optional.of(order));
+        when(paymentRepository.findByCreditOrder(order)).thenReturn(Optional.of(payment));
+        Map<String, String> result = Map.of(
+                "mchtTrdNo", "ORD-123",
+                "outStatCd", "0021",
+                "trdAmt", "999",
+                "trdNo", "TRD-123"
+        );
+
+        HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.FAILED);
+        assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.FAILED);
+        assertThat(payment.getFailureMessage()).isEqualTo("결제 금액이 일치하지 않습니다.");
+        assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.FAILED);
+        verify(memberCreditBalanceRepository, never()).findByMemberWithLock(any());
+        verify(creditLedgerRepository, never()).save(any());
     }
 
     private CreditOrder order(OrderStatus status) {

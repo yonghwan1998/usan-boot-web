@@ -84,6 +84,16 @@ class HectoPaymentServiceTests {
         assertThat(service.verifyNotificationHash(result)).isTrue();
     }
 
+    @Test
+    void rejectsNotificationSignedWithOtherEnvironmentKey() {
+        Map<String, String> result = validNotification();
+        result.put("pktHash", HectoCryptoUtil.sha256Hex(
+                "0021" + "20261031" + "123045" + "test-merchant" + "ORD-123" + "1000" + "prod-hash"
+        ));
+
+        assertThat(service.verifyNotificationHash(result)).isFalse();
+    }
+
     private Map<String, String> validNotification() {
         String outStatCd = "0021";
         String trdDtm = "20261031123045";

@@ -86,7 +86,37 @@ class HectoPaymentNotificationProcessorTests {
         assertThat(failure.exhausted()).isFalse();
     }
 
+    @Test
+    void marksNotificationFailedWhenRetryLimitIsExhausted() {
+        HectoPaymentNotification notification = pendingNotification(2);
+        when(notificationRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(notification));
+
+        HectoPaymentNotificationProcessor.FailureResult failure =
+                processor.recordFailure(1L, new IllegalStateException("persistent failure"));
+
+        assertThat(notification.getStatus()).isEqualTo(PaymentNotificationStatus.FAILED);
+        assertThat(notification.getAttemptCount()).isEqualTo(3);
+        assertThat(notification.getLastError()).contains("persistent failure");
+        assertThat(failure.exhausted()).isTrue();
+    }
+
+    @Test
+    void skipsNotificationThatIsNotDueYet() throws Exception {
+        HectoPaymentNotification notification = pendingNotification();
+        ReflectionTestUtils.setField(notification, "nextAttemptAt", LocalDateTime.now().plusMinutes(1));
+        when(notificationRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(notification));
+
+        HectoPaymentNotificationProcessor.ProcessingResult result = processor.process(1L);
+
+        assertThat(result).isNull();
+        assertThat(notification.getAttemptCount()).isZero();
+    }
+
     private HectoPaymentNotification pendingNotification() {
+        return pendingNotification(0);
+    }
+
+    private HectoPaymentNotification pendingNotification(int attemptCount) {
         return HectoPaymentNotification.builder()
                 .id(1L)
                 .eventKey("TRD-123")
@@ -94,7 +124,7 @@ class HectoPaymentNotificationProcessorTests {
                 .transactionNo("TRD-123")
                 .payloadJson("{\"mchtTrdNo\":\"ORD-123\",\"trdNo\":\"TRD-123\"}")
                 .status(PaymentNotificationStatus.PENDING)
-                .attemptCount(0)
+                .attemptCount(attemptCount)
                 .nextAttemptAt(LocalDateTime.now().minusSeconds(1))
                 .receivedAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
