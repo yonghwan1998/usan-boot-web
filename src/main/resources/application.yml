@@ -108,6 +108,12 @@ hecto:
     expiration-delay-ms: ${HECTO_PAYMENT_EXPIRATION_DELAY_MS:60000}
     expiration-initial-delay-ms: ${HECTO_PAYMENT_EXPIRATION_INITIAL_DELAY_MS:60000}
     expiration-batch-size: ${HECTO_PAYMENT_EXPIRATION_BATCH_SIZE:100}
+  reconciliation:
+    enabled: ${HECTO_RECONCILIATION_ENABLED:false}
+    auto-recover-enabled: ${HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED:false}
+    lookback-days: ${HECTO_RECONCILIATION_LOOKBACK_DAYS:1}
+    cron: ${HECTO_RECONCILIATION_CRON:0 0 3 * * *}
+    zone: ${HECTO_RECONCILIATION_ZONE:Asia/Seoul}
 file:
   upload-dir: uploads
   public-prefix: /uploads

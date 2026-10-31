@@ -124,6 +124,7 @@ USAN_BASE_URL=http://localhost:8080
 | 헥토파이낸셜 공통 | `HECTO_MCHT_NAME`, `HECTO_MCHT_ENAME` |
 | 헥토 노티 처리 | `HECTO_NOTIFICATION_PROCESSING_DELAY_MS`, `HECTO_NOTIFICATION_INITIAL_DELAY_MS`, `HECTO_NOTIFICATION_BATCH_SIZE`, `HECTO_NOTIFICATION_MAX_ATTEMPTS`, `HECTO_NOTIFICATION_RETRY_BASE_SECONDS`, `HECTO_NOTIFICATION_RETRY_MAX_SECONDS` |
 | 헥토 미완료 처리 | `HECTO_PAYMENT_READY_EXPIRATION_MINUTES`, `HECTO_PAYMENT_EXPIRATION_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_INITIAL_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_BATCH_SIZE` |
+| 헥토 거래대사 | `HECTO_RECONCILIATION_ENABLED`, `HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED`, `HECTO_RECONCILIATION_LOOKBACK_DAYS`, `HECTO_RECONCILIATION_CRON`, `HECTO_RECONCILIATION_ZONE` |
 
 `NCP_SENS_FROM`에는 NCP SENS에 등록·승인된 발신번호를 하이픈 없이 입력합니다.
 
@@ -141,6 +142,23 @@ USAN_BASE_URL=http://localhost:8080
 - Actuator 노출 목록에는 `prometheus`가 포함되어야 하며 health 상세 정보를 항상 공개할 수 없습니다.
 
 설정이 위 조건을 충족하지 않으면 비밀값을 출력하지 않고 애플리케이션 시작을 중단합니다.
+
+### 헥토 거래대사 및 복구
+
+- 기본값은 거래대사 스케줄 비활성화(`HECTO_RECONCILIATION_ENABLED=false`)입니다.
+- 스케줄을 활성화해도 자동 복구는 기본적으로 비활성화됩니다.
+- 자동 복구는 PG 승인 내역이 존재하고 로컬 주문이 `READY` 또는 `EXPIRED`인 경우에만 수행합니다.
+- 금액, 상점 환경 또는 결제수단이 일치하지 않으면 상태를 변경하지 않고 불일치로 기록합니다.
+- 취소 거래는 자동 반영하지 않고 검토 대상으로 기록합니다.
+- 관리자 API `POST /admin/api/payment-reconciliation`에서 날짜, 환경, 복구 여부를 지정해 수동 실행할 수 있습니다.
+
+```properties
+HECTO_RECONCILIATION_ENABLED=false
+HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED=false
+HECTO_RECONCILIATION_LOOKBACK_DAYS=1
+HECTO_RECONCILIATION_CRON=0 0 3 * * *
+HECTO_RECONCILIATION_ZONE=Asia/Seoul
+```
 
 ### 4. 실행
 

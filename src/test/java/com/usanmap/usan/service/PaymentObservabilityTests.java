@@ -20,6 +20,8 @@ class PaymentObservabilityTests {
         observability.recordPaymentExpired();
         observability.recordPaymentStatusTransition("notification", "READY", "PAID");
         observability.recordPaymentOrderCreated("hecto");
+        observability.recordPaymentReconciliationRun("production", "completed");
+        observability.recordPaymentReconciliationRecovered("production");
 
         assertThat(meterRegistry.get("usan.payment.notification.received")
                 .tag("outcome", "accepted").counter().count()).isEqualTo(1.0);
@@ -36,5 +38,10 @@ class PaymentObservabilityTests {
                 .counter().count()).isEqualTo(1.0);
         assertThat(meterRegistry.get("usan.payment.order.created")
                 .tag("provider", "hecto").counter().count()).isEqualTo(1.0);
+        assertThat(meterRegistry.get("usan.payment.reconciliation.run")
+                .tag("environment", "production")
+                .tag("outcome", "completed").counter().count()).isEqualTo(1.0);
+        assertThat(meterRegistry.get("usan.payment.reconciliation.recovered")
+                .tag("environment", "production").counter().count()).isEqualTo(1.0);
     }
 }
