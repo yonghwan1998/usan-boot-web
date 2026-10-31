@@ -116,7 +116,8 @@ class CreditServicePaymentStatusTests {
                 "mchtTrdNo", "ORD-123",
                 "outStatCd", "0021",
                 "trdAmt", "1000",
-                "trdNo", "TRD-123"
+                "trdNo", "TRD-123",
+                "method", "CA"
         );
 
         HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
@@ -145,7 +146,8 @@ class CreditServicePaymentStatusTests {
                 "mchtTrdNo", "ORD-123",
                 "outStatCd", "0021",
                 "trdAmt", "1000",
-                "trdNo", "TRD-123"
+                "trdNo", "TRD-123",
+                "method", "CA"
         );
 
         HectoChargeResult chargeResult = creditService.confirmHectoCharge(result);
@@ -154,6 +156,7 @@ class CreditServicePaymentStatusTests {
         assertThat(order.getPaidAt()).isNotNull();
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
         assertThat(payment.getPaymentKey()).isEqualTo("TRD-123");
+        assertThat(payment.getMethod()).isEqualTo("CA");
         assertThat(payment.getApprovedAmount()).isEqualTo(1000);
         assertThat(balance.getBalance()).isEqualTo(125);
         assertThat(chargeResult.outcome()).isEqualTo(HectoChargeResult.Outcome.COMPLETED);

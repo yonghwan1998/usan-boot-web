@@ -3,12 +3,15 @@ package com.usanmap.usan.service;
 import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.entity.CreditOrder;
 import com.usanmap.usan.entity.Payment;
+import com.usanmap.usan.entity.PaymentCancellation;
 import com.usanmap.usan.entity.PaymentReconciliationRun;
 import com.usanmap.usan.entity.enums.OrderStatus;
+import com.usanmap.usan.entity.enums.PaymentCancellationStatus;
 import com.usanmap.usan.entity.enums.PaymentStatus;
 import com.usanmap.usan.entity.enums.PgProvider;
 import com.usanmap.usan.repository.CreditOrderRepository;
 import com.usanmap.usan.repository.PaymentReconciliationRunRepository;
+import com.usanmap.usan.repository.PaymentCancellationRepository;
 import com.usanmap.usan.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +40,9 @@ public class HectoPaymentReconciliationService {
     private final PaymentReconciliationRunRepository runRepository;
     private final CreditOrderRepository creditOrderRepository;
     private final PaymentRepository paymentRepository;
+    private final PaymentCancellationRepository cancellationRepository;
     private final CreditService creditService;
+    private final HectoPaymentCancellationTransactionService cancellationTransactionService;
     private final PaymentObservability paymentObservability;
 
     public ReconciliationSummary reconcile(
@@ -118,7 +123,7 @@ public class HectoPaymentReconciliationService {
             }
             if (transaction.type() == HectoReconciliationTransaction.Type.CANCELLATION) {
                 counters.cancellations++;
-                reconcileCancellation(transaction, counters);
+                reconcileCancellation(profile, transaction, recover, counters);
                 continue;
             }
 
@@ -212,7 +217,51 @@ public class HectoPaymentReconciliationService {
         }
     }
 
-    private void reconcileCancellation(HectoReconciliationTransaction transaction, Counters counters) {
+    private void reconcileCancellation(
+            HectoPaymentProfiles.PaymentProfile profile,
+            HectoReconciliationTransaction transaction,
+            boolean recover,
+            Counters counters
+    ) {
+        Optional<PaymentCancellation> cancellation =
+                cancellationRepository.findByMerchantCancellationNo(transaction.orderNo());
+        if (cancellation.isPresent()) {
+            PaymentCancellation request = cancellation.get();
+            if (request.getEnvironment() != profile.environment()
+                    || request.getRequestedAmount() != transaction.amount()
+                    || !request.getOriginalTransactionNo().equals(transaction.originalTransactionNo())) {
+                counters.mismatched++;
+                log.warn("payment_reconciliation_cancellation_mismatch cancellationId={} transactionNo={}",
+                        request.getId(), transaction.transactionNo());
+                return;
+            }
+            if (!recover) {
+                counters.mismatched++;
+                log.warn("payment_reconciliation_cancellation_recovery_candidate cancellationId={} transactionNo={}",
+                        request.getId(), transaction.transactionNo());
+                return;
+            }
+            if (request.getStatus() == PaymentCancellationStatus.FAILED) {
+                counters.mismatched++;
+                log.warn("payment_reconciliation_cancellation_failed_request_requires_review cancellationId={} transactionNo={}",
+                        request.getId(), transaction.transactionNo());
+                return;
+            }
+            HectoPaymentCancellationTransactionService.ReconciliationOutcome outcome =
+                    cancellationTransactionService.completeFromReconciliation(
+                            request.getId(), transaction.transactionNo(), transaction.originalTransactionNo(),
+                            transaction.amount()
+                    );
+            if (outcome == HectoPaymentCancellationTransactionService.ReconciliationOutcome.COMPLETED) {
+                counters.recovered++;
+                paymentObservability.recordPaymentCancellation(environmentName(profile.environment()),
+                        "reconciled");
+            } else {
+                counters.matched++;
+            }
+            return;
+        }
+
         Optional<CreditOrder> order = creditOrderRepository.findByOrderNo(transaction.orderNo());
         if (order.isPresent() && order.get().getOrderStatus() == OrderStatus.CANCELED) {
             counters.matched++;
@@ -253,6 +302,7 @@ public class HectoPaymentReconciliationService {
         result.put("mchtTrdNo", transaction.orderNo());
         result.put("trdNo", transaction.transactionNo());
         result.put("trdAmt", String.valueOf(transaction.amount()));
+        result.put("method", transaction.method());
         result.put("outStatCd", "0021");
         result.put("reconciliation", "true");
         return result;

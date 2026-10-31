@@ -44,4 +44,16 @@ public final class HectoCryptoUtil {
             throw new IllegalStateException("금액 암호화에 실패했습니다.", e);
         }
     }
+
+    public static String decryptAes256Ecb(String cipherText, String encKey) {
+        try {
+            SecretKeySpec keySpec = new SecretKeySpec(encKey.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, keySpec);
+            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+            return new String(decrypted, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new IllegalStateException("금액 복호화에 실패했습니다.", e);
+        }
+    }
 }

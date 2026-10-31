@@ -19,6 +19,7 @@ public class PaymentObservability {
     private static final String PAYMENT_ORDER_CREATED = "usan.payment.order.created";
     private static final String PAYMENT_RECONCILIATION_RUN = "usan.payment.reconciliation.run";
     private static final String PAYMENT_RECONCILIATION_RECOVERED = "usan.payment.reconciliation.recovered";
+    private static final String PAYMENT_CANCELLATION = "usan.payment.cancellation";
 
     private final MeterRegistry meterRegistry;
 
@@ -64,6 +65,14 @@ public class PaymentObservability {
         meterRegistry.counter(
                 PAYMENT_RECONCILIATION_RECOVERED,
                 "environment", environment
+        ).increment();
+    }
+
+    public void recordPaymentCancellation(String environment, String outcome) {
+        meterRegistry.counter(
+                PAYMENT_CANCELLATION,
+                "environment", environment,
+                "outcome", outcome
         ).increment();
     }
 }

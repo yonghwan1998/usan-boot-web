@@ -114,6 +114,9 @@ hecto:
     lookback-days: ${HECTO_RECONCILIATION_LOOKBACK_DAYS:1}
     cron: ${HECTO_RECONCILIATION_CRON:0 0 3 * * *}
     zone: ${HECTO_RECONCILIATION_ZONE:Asia/Seoul}
+  cancellation:
+    enabled: ${HECTO_CANCELLATION_ENABLED:false}
+    zone: ${HECTO_CANCELLATION_ZONE:Asia/Seoul}
 file:
   upload-dir: uploads
   public-prefix: /uploads

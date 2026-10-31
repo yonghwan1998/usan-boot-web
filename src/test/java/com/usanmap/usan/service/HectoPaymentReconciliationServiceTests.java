@@ -3,14 +3,17 @@ package com.usanmap.usan.service;
 import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.entity.CreditOrder;
 import com.usanmap.usan.entity.Payment;
+import com.usanmap.usan.entity.PaymentCancellation;
 import com.usanmap.usan.entity.PaymentReconciliationRun;
 import com.usanmap.usan.entity.User;
 import com.usanmap.usan.entity.enums.OrderStatus;
 import com.usanmap.usan.entity.enums.PaymentReconciliationStatus;
 import com.usanmap.usan.entity.enums.PaymentStatus;
+import com.usanmap.usan.entity.enums.PaymentCancellationStatus;
 import com.usanmap.usan.entity.enums.PgProvider;
 import com.usanmap.usan.repository.CreditOrderRepository;
 import com.usanmap.usan.repository.PaymentReconciliationRunRepository;
+import com.usanmap.usan.repository.PaymentCancellationRepository;
 import com.usanmap.usan.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +45,9 @@ class HectoPaymentReconciliationServiceTests {
     @Mock private PaymentReconciliationRunRepository runRepository;
     @Mock private CreditOrderRepository creditOrderRepository;
     @Mock private PaymentRepository paymentRepository;
+    @Mock private PaymentCancellationRepository cancellationRepository;
     @Mock private CreditService creditService;
+    @Mock private HectoPaymentCancellationTransactionService cancellationTransactionService;
     @Mock private PaymentObservability paymentObservability;
 
     private HectoPaymentProfiles profiles;
@@ -60,7 +65,9 @@ class HectoPaymentReconciliationServiceTests {
                 runRepository,
                 creditOrderRepository,
                 paymentRepository,
+                cancellationRepository,
                 creditService,
+                cancellationTransactionService,
                 paymentObservability
         );
         when(runRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -142,6 +149,47 @@ class HectoPaymentReconciliationServiceTests {
         assertThat(summary.mismatchCount()).isEqualTo(1);
         assertThat(summary.recoveredCount()).isZero();
         verify(creditService, never()).confirmHectoCharge(any());
+    }
+
+    @Test
+    void completesUncertainCancellationOnlyWhenReconciliationRecoveryIsEnabled() {
+        CreditOrder order = order(OrderStatus.PAID, "test@naver.com");
+        Payment payment = payment(order, PaymentStatus.SUCCESS);
+        PaymentCancellation cancellation = PaymentCancellation.builder()
+                .id(9L)
+                .payment(payment)
+                .environment(HectoPaymentProfiles.Environment.TEST)
+                .merchantCancellationNo("CANCEL-1")
+                .originalTransactionNo("TRD-123")
+                .requestedAmount(1000)
+                .reservedCredit(100)
+                .reason("고객 요청")
+                .status(PaymentCancellationStatus.REVIEW_REQUIRED)
+                .attemptCount(1)
+                .build();
+        HectoReconciliationTransaction transaction = new HectoReconciliationTransaction(
+                "test-merchant", "CA", "TRD-CANCEL", "CANCEL-1",
+                HectoReconciliationTransaction.Type.CANCELLATION,
+                TARGET_DATE, LocalTime.NOON, 1000, "TRD-123"
+        );
+        when(reconciliationClient.fetch(any(), eq(TARGET_DATE))).thenReturn(
+                new HectoReconciliationResponse("0000", "정상", List.of(transaction))
+        );
+        when(cancellationRepository.findByMerchantCancellationNo("CANCEL-1"))
+                .thenReturn(Optional.of(cancellation));
+        when(cancellationTransactionService.completeFromReconciliation(9L, "TRD-CANCEL", "TRD-123", 1000))
+                .thenReturn(HectoPaymentCancellationTransactionService.ReconciliationOutcome.COMPLETED);
+        when(paymentRepository.findApprovedForReconciliation(any(), any(), any(), any()))
+                .thenReturn(List.of());
+
+        HectoPaymentReconciliationService.ReconciliationSummary summary = service.reconcile(
+                TARGET_DATE, HectoPaymentProfiles.Environment.TEST, true
+        );
+
+        assertThat(summary.recoveredCount()).isEqualTo(1);
+        assertThat(summary.mismatchCount()).isZero();
+        verify(cancellationTransactionService)
+                .completeFromReconciliation(9L, "TRD-CANCEL", "TRD-123", 1000);
     }
 
     @Test
