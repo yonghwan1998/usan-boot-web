@@ -1,6 +1,7 @@
 package com.usanmap.usan.controller;
 
 import com.usanmap.usan.entity.CreditOrder;
+import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.entity.enums.LedgerType;
 import com.usanmap.usan.entity.enums.OrderStatus;
 import com.usanmap.usan.security.SecurityUtils;
@@ -33,10 +34,10 @@ import java.util.Map;
 public class CreditsController {
 
     private static final int PAYMENT_STATUS_MAX_POLL_COUNT = 60;
-
     private final CreditService creditService;
     private final HectoPaymentService hectoPaymentService;
     private final HectoPaymentNotificationService hectoPaymentNotificationService;
+    private final HectoPaymentProfiles hectoPaymentProfiles;
     private final PaymentObservability paymentObservability;
     private final SecurityUtils securityUtils;
     private final SmsService smsService;
@@ -64,6 +65,7 @@ public class CreditsController {
         Long userId = securityUtils.currentUserIdOrThrow();
         model.addAttribute("products", creditService.getActiveProducts());
         model.addAttribute("balance", creditService.getBalance(userId));
+        model.addAttribute("isTestAccount", isTestPaymentAccount());
         return "pages/credits/credits-charge";
     }
 
@@ -106,13 +108,31 @@ public class CreditsController {
     @GetMapping("/checkout")
     public String checkoutCredits(@RequestParam Long productId, Model model) {
         Long userId = securityUtils.currentUserIdOrThrow();
+        if (isTestPaymentAccount()) {
+            return "redirect:/credits/test-checkout?productId=" + productId;
+        }
+        addCheckoutAttributes(userId, productId, false, model);
+        return "pages/credits/credits-checkout";
+    }
+
+    @GetMapping("/test-checkout")
+    public String testCheckoutCredits(@RequestParam Long productId, Model model) {
+        Long userId = securityUtils.currentUserIdOrThrow();
+        if (!isTestPaymentAccount()) {
+            return "redirect:/credits/checkout?productId=" + productId;
+        }
+        addCheckoutAttributes(userId, productId, true, model);
+        return "pages/credits/credits-checkout";
+    }
+
+    private void addCheckoutAttributes(Long userId, Long productId, boolean testPayment, Model model) {
         CreditService.CheckoutInfo info = creditService.getCheckoutInfo(userId, productId);
         model.addAttribute("productId", productId);
         model.addAttribute("productName", info.productName());
         model.addAttribute("amount", info.amount());
         model.addAttribute("customerEmail", info.customerEmail());
         model.addAttribute("customerName", info.customerName());
-        return "pages/credits/credits-checkout";
+        model.addAttribute("testPayment", testPayment);
     }
 
     @PostMapping("/hecto/pay")
@@ -120,9 +140,12 @@ public class CreditsController {
         Long userId = securityUtils.currentUserIdOrThrow();
         try {
             CreditOrder order = creditService.getOrderForPayment(orderNo, userId);
-            model.addAttribute("actionUrl", hectoPaymentService.getPaymentActionUrl());
-            model.addAttribute("params", hectoPaymentService.buildPaymentParams(order));
-            log.info("payment_checkout_requested orderNo={} provider=HECTO", orderNo);
+            HectoPaymentService.PaymentRequest paymentRequest =
+                    hectoPaymentService.buildPaymentRequest(order, securityUtils.currentUserEmail());
+            model.addAttribute("actionUrl", paymentRequest.actionUrl());
+            model.addAttribute("params", paymentRequest.params());
+            log.info("payment_checkout_requested orderNo={} provider=HECTO gateway={}",
+                    orderNo, paymentRequest.environment().name().toLowerCase());
             return "pages/credits/hecto-bridge";
         } catch (Exception e) {
             String msg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
@@ -225,5 +248,9 @@ public class CreditsController {
         model.addAttribute("chargedCredit", order.getTotalCreditSnapshot());
         model.addAttribute("balance", creditService.getBalance(userId));
         return "pages/credits/credits-complete";
+    }
+
+    private boolean isTestPaymentAccount() {
+        return hectoPaymentProfiles.isTestAccount(securityUtils.currentUserEmail());
     }
 }

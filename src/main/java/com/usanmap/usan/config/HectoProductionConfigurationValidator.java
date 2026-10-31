@@ -26,13 +26,11 @@ public class HectoProductionConfigurationValidator implements InitializingBean {
         List<String> errors = new ArrayList<>();
 
         validateActiveProfiles(errors);
-        validateRequired(errors, "hecto.mcht-id");
-        validateRequired(errors, "hecto.hash-key");
-        validateRequired(errors, "hecto.enc-key");
+        validatePaymentProfile(errors, "hecto.test", true);
+        validatePaymentProfile(errors, "hecto.production", false);
+        validateDistinctMerchantIds(errors);
         validateRequired(errors, "hecto.mcht-name");
         validateRequired(errors, "hecto.mcht-ename");
-        validateEncryptionKey(errors);
-        validateProductionMode(errors);
         validateBaseUrl(errors);
         validateNotificationSettings(errors);
         validateExpirationSettings(errors);
@@ -42,7 +40,7 @@ public class HectoProductionConfigurationValidator implements InitializingBean {
             throw new IllegalStateException("운영 결제 설정이 올바르지 않습니다: " + String.join("; ", errors));
         }
 
-        log.info("payment_production_configuration_validated testMode=false callbackScheme=https");
+        log.info("payment_production_configuration_validated testMode=true productionMode=false callbackScheme=https");
     }
 
     private void validateActiveProfiles(List<String> errors) {
@@ -59,18 +57,32 @@ public class HectoProductionConfigurationValidator implements InitializingBean {
         }
     }
 
-    private void validateEncryptionKey(List<String> errors) {
-        String encKey = getProperty("hecto.enc-key");
-        if (encKey != null && !encKey.isBlank()
-                && encKey.getBytes(StandardCharsets.UTF_8).length != 32) {
-            errors.add("hecto.enc-key는 UTF-8 기준 32바이트여야 합니다");
+    private void validatePaymentProfile(List<String> errors, String prefix, boolean expectedTestMode) {
+        validateRequired(errors, prefix + ".mcht-id");
+        validateRequired(errors, prefix + ".hash-key");
+        validateRequired(errors, prefix + ".enc-key");
+        validateEncryptionKey(errors, prefix + ".enc-key");
+
+        String testMode = getProperty(prefix + ".test-mode");
+        if (!String.valueOf(expectedTestMode).equalsIgnoreCase(testMode)) {
+            errors.add(prefix + ".test-mode는 " + expectedTestMode + "여야 합니다");
         }
     }
 
-    private void validateProductionMode(List<String> errors) {
-        String testMode = getProperty("hecto.test-mode");
-        if (!"false".equalsIgnoreCase(testMode)) {
-            errors.add("운영 환경에서는 hecto.test-mode가 false여야 합니다");
+    private void validateEncryptionKey(List<String> errors, String key) {
+        String encKey = getProperty(key);
+        if (encKey != null && !encKey.isBlank()
+                && encKey.getBytes(StandardCharsets.UTF_8).length != 32) {
+            errors.add(key + "는 UTF-8 기준 32바이트여야 합니다");
+        }
+    }
+
+    private void validateDistinctMerchantIds(List<String> errors) {
+        String testMerchantId = getProperty("hecto.test.mcht-id");
+        String productionMerchantId = getProperty("hecto.production.mcht-id");
+        if (testMerchantId != null && !testMerchantId.isBlank()
+                && testMerchantId.equals(productionMerchantId)) {
+            errors.add("테스트와 운영 헥토 상점 ID는 서로 달라야 합니다");
         }
     }
 

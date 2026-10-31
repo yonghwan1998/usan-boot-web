@@ -2,6 +2,7 @@ package com.usanmap.usan.controller;
 
 import com.usanmap.usan.entity.CreditOrder;
 import com.usanmap.usan.entity.enums.OrderStatus;
+import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.CreditService;
 import com.usanmap.usan.service.HectoPaymentService;
@@ -29,6 +30,7 @@ class CreditsControllerTests {
     @Mock private CreditService creditService;
     @Mock private HectoPaymentService hectoPaymentService;
     @Mock private HectoPaymentNotificationService hectoPaymentNotificationService;
+    @Mock private HectoPaymentProfiles hectoPaymentProfiles;
     @Mock private PaymentObservability paymentObservability;
     @Mock private SecurityUtils securityUtils;
     @Mock private SmsService smsService;
@@ -41,6 +43,7 @@ class CreditsControllerTests {
                 creditService,
                 hectoPaymentService,
                 hectoPaymentNotificationService,
+                hectoPaymentProfiles,
                 paymentObservability,
                 securityUtils,
                 smsService
@@ -48,15 +51,94 @@ class CreditsControllerTests {
     }
 
     @Test
-    void chargePageDoesNotRestrictCardPaymentByAccount() {
+    void chargePageMarksTestPaymentAccount() {
         ExtendedModelMap model = new ExtendedModelMap();
         when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+        when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
+        when(hectoPaymentProfiles.isTestAccount("test@naver.com")).thenReturn(true);
 
         String view = creditsController.chargeCredits(model);
 
         assertThat(view).isEqualTo("pages/credits/credits-charge");
-        assertThat(model).doesNotContainKey("isTestAccount");
-        verify(securityUtils, never()).currentUserEmail();
+        assertThat(model.get("isTestAccount")).isEqualTo(true);
+    }
+
+    @Test
+    void chargePageMarksRegularAccountAsProductionPaymentAccount() {
+        ExtendedModelMap model = new ExtendedModelMap();
+        when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+        when(securityUtils.currentUserEmail()).thenReturn("member@example.com");
+        when(hectoPaymentProfiles.isTestAccount("member@example.com")).thenReturn(false);
+
+        String view = creditsController.chargeCredits(model);
+
+        assertThat(view).isEqualTo("pages/credits/credits-charge");
+        assertThat(model.get("isTestAccount")).isEqualTo(false);
+    }
+
+    @Test
+    void standardCheckoutRedirectsTestAccountToTestCheckout() {
+        ExtendedModelMap model = new ExtendedModelMap();
+        when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+        when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
+        when(hectoPaymentProfiles.isTestAccount("test@naver.com")).thenReturn(true);
+
+        String view = creditsController.checkoutCredits(10L, model);
+
+        assertThat(view).isEqualTo("redirect:/credits/test-checkout?productId=10");
+        verify(creditService, never()).getCheckoutInfo(1L, 10L);
+    }
+
+    @Test
+    void testCheckoutRejectsRegularAccount() {
+        ExtendedModelMap model = new ExtendedModelMap();
+        when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+        when(securityUtils.currentUserEmail()).thenReturn("member@example.com");
+        when(hectoPaymentProfiles.isTestAccount("member@example.com")).thenReturn(false);
+
+        String view = creditsController.testCheckoutCredits(10L, model);
+
+        assertThat(view).isEqualTo("redirect:/credits/checkout?productId=10");
+        verify(creditService, never()).getCheckoutInfo(1L, 10L);
+    }
+
+    @Test
+    void testCheckoutRendersForTestAccount() {
+        ExtendedModelMap model = new ExtendedModelMap();
+        when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+        when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
+        when(hectoPaymentProfiles.isTestAccount("test@naver.com")).thenReturn(true);
+        when(creditService.getCheckoutInfo(1L, 10L)).thenReturn(
+                new CreditService.CheckoutInfo("테스트 상품", 1000, "test@naver.com", "테스터", "01012345678")
+        );
+
+        String view = creditsController.testCheckoutCredits(10L, model);
+
+        assertThat(view).isEqualTo("pages/credits/credits-checkout");
+        assertThat(model.get("testPayment")).isEqualTo(true);
+        assertThat(model.get("productName")).isEqualTo("테스트 상품");
+    }
+
+    @Test
+    void hectoPayRoutesTestAccountToTestGateway() {
+        ExtendedModelMap model = new ExtendedModelMap();
+        CreditOrder order = CreditOrder.builder().orderNo("ORD-123").build();
+        when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
+        when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
+        when(creditService.getOrderForPayment("ORD-123", 1L)).thenReturn(order);
+        when(hectoPaymentService.buildPaymentRequest(order, "test@naver.com")).thenReturn(
+                new HectoPaymentService.PaymentRequest(
+                        HectoPaymentProfiles.Environment.TEST,
+                        "https://test-payment.example.com",
+                        Map.of("mchtTrdNo", "ORD-123")
+                )
+        );
+
+        String view = creditsController.hectoPay("ORD-123", model);
+
+        assertThat(view).isEqualTo("pages/credits/hecto-bridge");
+        assertThat(model.get("actionUrl")).isEqualTo("https://test-payment.example.com");
+        verify(hectoPaymentService).buildPaymentRequest(order, "test@naver.com");
     }
 
     @Test
