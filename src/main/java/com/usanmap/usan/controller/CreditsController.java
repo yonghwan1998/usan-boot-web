@@ -1,6 +1,7 @@
 package com.usanmap.usan.controller;
 
 import com.usanmap.usan.entity.CreditOrder;
+import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.entity.enums.LedgerType;
 import com.usanmap.usan.entity.enums.OrderStatus;
 import com.usanmap.usan.security.SecurityUtils;
@@ -33,11 +34,10 @@ import java.util.Map;
 public class CreditsController {
 
     private static final int PAYMENT_STATUS_MAX_POLL_COUNT = 60;
-    private static final String TEST_PAYMENT_ACCOUNT = "test@naver.com";
-
     private final CreditService creditService;
     private final HectoPaymentService hectoPaymentService;
     private final HectoPaymentNotificationService hectoPaymentNotificationService;
+    private final HectoPaymentProfiles hectoPaymentProfiles;
     private final PaymentObservability paymentObservability;
     private final SecurityUtils securityUtils;
     private final SmsService smsService;
@@ -140,11 +140,12 @@ public class CreditsController {
         Long userId = securityUtils.currentUserIdOrThrow();
         try {
             CreditOrder order = creditService.getOrderForPayment(orderNo, userId);
-            boolean testPayment = isTestPaymentAccount();
-            model.addAttribute("actionUrl", hectoPaymentService.getPaymentActionUrl(testPayment));
-            model.addAttribute("params", hectoPaymentService.buildPaymentParams(order));
+            HectoPaymentService.PaymentRequest paymentRequest =
+                    hectoPaymentService.buildPaymentRequest(order, securityUtils.currentUserEmail());
+            model.addAttribute("actionUrl", paymentRequest.actionUrl());
+            model.addAttribute("params", paymentRequest.params());
             log.info("payment_checkout_requested orderNo={} provider=HECTO gateway={}",
-                    orderNo, testPayment ? "test" : "production");
+                    orderNo, paymentRequest.environment().name().toLowerCase());
             return "pages/credits/hecto-bridge";
         } catch (Exception e) {
             String msg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
@@ -250,7 +251,6 @@ public class CreditsController {
     }
 
     private boolean isTestPaymentAccount() {
-        String email = securityUtils.currentUserEmail();
-        return email != null && TEST_PAYMENT_ACCOUNT.equalsIgnoreCase(email);
+        return hectoPaymentProfiles.isTestAccount(securityUtils.currentUserEmail());
     }
 }

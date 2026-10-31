@@ -1,5 +1,7 @@
 package com.usanmap.usan.service;
 
+import com.usanmap.usan.config.HectoPaymentProfiles;
+import com.usanmap.usan.entity.CreditOrder;
 import com.usanmap.usan.util.HectoCryptoUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,9 +18,14 @@ class HectoPaymentServiceTests {
 
     @BeforeEach
     void setUp() {
-        service = new HectoPaymentService();
-        ReflectionTestUtils.setField(service, "mchtId", "merchant01");
-        ReflectionTestUtils.setField(service, "hashKey", "hash-secret");
+        HectoPaymentProfiles profiles = new HectoPaymentProfiles(
+                "test-merchant", "test-hash", "12345678901234567890123456789012", true,
+                "prod-merchant", "prod-hash", "abcdefghijklmnopqrstuvwxyz123456", false
+        );
+        service = new HectoPaymentService(profiles);
+        ReflectionTestUtils.setField(service, "mchtName", "우리동네부동산");
+        ReflectionTestUtils.setField(service, "mchtEname", "Usanmap");
+        ReflectionTestUtils.setField(service, "baseUrl", "https://usan.example.com");
     }
 
     @Test
@@ -31,7 +38,7 @@ class HectoPaymentServiceTests {
     @Test
     void rejectsNotificationForDifferentMerchant() {
         Map<String, String> result = validNotification();
-        result.put("mchtId", "merchant02");
+        result.put("mchtId", "unknown-merchant");
 
         assertThat(service.verifyNotificationHash(result)).isFalse();
     }
@@ -45,27 +52,36 @@ class HectoPaymentServiceTests {
     }
 
     @Test
-    void routesTestAccountToTestGateway() {
-        ReflectionTestUtils.setField(service, "testMode", false);
+    void buildsTestPaymentWithTestProfileForTestAccount() {
+        CreditOrder order = paymentOrder();
 
-        assertThat(service.getPaymentActionUrl(true))
-                .isEqualTo("https://tbnpg.settlebank.co.kr/card/main.do");
+        HectoPaymentService.PaymentRequest request = service.buildPaymentRequest(order, "test@naver.com");
+
+        assertThat(request.environment()).isEqualTo(HectoPaymentProfiles.Environment.TEST);
+        assertThat(request.actionUrl()).isEqualTo("https://tbnpg.settlebank.co.kr/card/main.do");
+        assertThat(request.params().get("mchtId")).isEqualTo("test-merchant");
     }
 
     @Test
-    void routesRegularAccountToProductionGatewayWhenTestModeIsDisabled() {
-        ReflectionTestUtils.setField(service, "testMode", false);
+    void buildsProductionPaymentWithProductionProfileForRegularAccount() {
+        CreditOrder order = paymentOrder();
 
-        assertThat(service.getPaymentActionUrl(false))
-                .isEqualTo("https://npg.settlebank.co.kr/card/main.do");
+        HectoPaymentService.PaymentRequest request = service.buildPaymentRequest(order, "member@example.com");
+
+        assertThat(request.environment()).isEqualTo(HectoPaymentProfiles.Environment.PRODUCTION);
+        assertThat(request.actionUrl()).isEqualTo("https://npg.settlebank.co.kr/card/main.do");
+        assertThat(request.params().get("mchtId")).isEqualTo("prod-merchant");
     }
 
     @Test
-    void routesEveryAccountToTestGatewayWhenApplicationTestModeIsEnabled() {
-        ReflectionTestUtils.setField(service, "testMode", true);
+    void verifiesProductionNotificationWithProductionHashKey() {
+        Map<String, String> result = validNotification();
+        result.put("mchtId", "prod-merchant");
+        result.put("pktHash", HectoCryptoUtil.sha256Hex(
+                "0021" + "20261031" + "123045" + "prod-merchant" + "ORD-123" + "1000" + "prod-hash"
+        ));
 
-        assertThat(service.getPaymentActionUrl(false))
-                .isEqualTo("https://tbnpg.settlebank.co.kr/card/main.do");
+        assertThat(service.verifyNotificationHash(result)).isTrue();
     }
 
     private Map<String, String> validNotification() {
@@ -74,17 +90,25 @@ class HectoPaymentServiceTests {
         String orderNo = "ORD-123";
         String amount = "1000";
         String hash = HectoCryptoUtil.sha256Hex(
-                outStatCd + "20261031" + "123045" + "merchant01" + orderNo + amount + "hash-secret"
+                outStatCd + "20261031" + "123045" + "test-merchant" + orderNo + amount + "test-hash"
         );
 
         Map<String, String> result = new HashMap<>();
         result.put("outStatCd", outStatCd);
         result.put("trdDtm", trdDtm);
-        result.put("mchtId", "merchant01");
+        result.put("mchtId", "test-merchant");
         result.put("mchtTrdNo", orderNo);
         result.put("trdAmt", amount);
         result.put("trdNo", "TRD-123");
         result.put("pktHash", hash);
         return result;
+    }
+
+    private CreditOrder paymentOrder() {
+        return CreditOrder.builder()
+                .orderNo("ORD-123")
+                .productNameSnapshot("100 크레딧")
+                .priceAmountSnapshot(1000)
+                .build();
     }
 }

@@ -2,6 +2,7 @@ package com.usanmap.usan.controller;
 
 import com.usanmap.usan.entity.CreditOrder;
 import com.usanmap.usan.entity.enums.OrderStatus;
+import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.security.SecurityUtils;
 import com.usanmap.usan.service.CreditService;
 import com.usanmap.usan.service.HectoPaymentService;
@@ -29,6 +30,7 @@ class CreditsControllerTests {
     @Mock private CreditService creditService;
     @Mock private HectoPaymentService hectoPaymentService;
     @Mock private HectoPaymentNotificationService hectoPaymentNotificationService;
+    @Mock private HectoPaymentProfiles hectoPaymentProfiles;
     @Mock private PaymentObservability paymentObservability;
     @Mock private SecurityUtils securityUtils;
     @Mock private SmsService smsService;
@@ -41,6 +43,7 @@ class CreditsControllerTests {
                 creditService,
                 hectoPaymentService,
                 hectoPaymentNotificationService,
+                hectoPaymentProfiles,
                 paymentObservability,
                 securityUtils,
                 smsService
@@ -52,6 +55,7 @@ class CreditsControllerTests {
         ExtendedModelMap model = new ExtendedModelMap();
         when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
         when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
+        when(hectoPaymentProfiles.isTestAccount("test@naver.com")).thenReturn(true);
 
         String view = creditsController.chargeCredits(model);
 
@@ -64,6 +68,7 @@ class CreditsControllerTests {
         ExtendedModelMap model = new ExtendedModelMap();
         when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
         when(securityUtils.currentUserEmail()).thenReturn("member@example.com");
+        when(hectoPaymentProfiles.isTestAccount("member@example.com")).thenReturn(false);
 
         String view = creditsController.chargeCredits(model);
 
@@ -76,6 +81,7 @@ class CreditsControllerTests {
         ExtendedModelMap model = new ExtendedModelMap();
         when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
         when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
+        when(hectoPaymentProfiles.isTestAccount("test@naver.com")).thenReturn(true);
 
         String view = creditsController.checkoutCredits(10L, model);
 
@@ -88,6 +94,7 @@ class CreditsControllerTests {
         ExtendedModelMap model = new ExtendedModelMap();
         when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
         when(securityUtils.currentUserEmail()).thenReturn("member@example.com");
+        when(hectoPaymentProfiles.isTestAccount("member@example.com")).thenReturn(false);
 
         String view = creditsController.testCheckoutCredits(10L, model);
 
@@ -100,6 +107,7 @@ class CreditsControllerTests {
         ExtendedModelMap model = new ExtendedModelMap();
         when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
         when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
+        when(hectoPaymentProfiles.isTestAccount("test@naver.com")).thenReturn(true);
         when(creditService.getCheckoutInfo(1L, 10L)).thenReturn(
                 new CreditService.CheckoutInfo("테스트 상품", 1000, "test@naver.com", "테스터", "01012345678")
         );
@@ -118,15 +126,19 @@ class CreditsControllerTests {
         when(securityUtils.currentUserIdOrThrow()).thenReturn(1L);
         when(securityUtils.currentUserEmail()).thenReturn("test@naver.com");
         when(creditService.getOrderForPayment("ORD-123", 1L)).thenReturn(order);
-        when(hectoPaymentService.getPaymentActionUrl(true)).thenReturn("https://test-payment.example.com");
-        when(hectoPaymentService.buildPaymentParams(order)).thenReturn(Map.of("mchtTrdNo", "ORD-123"));
+        when(hectoPaymentService.buildPaymentRequest(order, "test@naver.com")).thenReturn(
+                new HectoPaymentService.PaymentRequest(
+                        HectoPaymentProfiles.Environment.TEST,
+                        "https://test-payment.example.com",
+                        Map.of("mchtTrdNo", "ORD-123")
+                )
+        );
 
         String view = creditsController.hectoPay("ORD-123", model);
 
         assertThat(view).isEqualTo("pages/credits/hecto-bridge");
         assertThat(model.get("actionUrl")).isEqualTo("https://test-payment.example.com");
-        verify(hectoPaymentService).getPaymentActionUrl(true);
-        verify(hectoPaymentService, never()).getPaymentActionUrl(false);
+        verify(hectoPaymentService).buildPaymentRequest(order, "test@naver.com");
     }
 
     @Test

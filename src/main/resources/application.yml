@@ -84,10 +84,16 @@ naver:
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
 hecto:
-  mcht-id: ${HECTO_MCHT_ID:}
-  hash-key: ${HECTO_HASH_KEY:}
-  enc-key: ${HECTO_ENC_KEY:}
-  test-mode: ${HECTO_TEST_MODE:true}
+  test:
+    mcht-id: ${HECTO_TEST_MCHT_ID:}
+    hash-key: ${HECTO_TEST_HASH_KEY:}
+    enc-key: ${HECTO_TEST_ENC_KEY:}
+    test-mode: ${HECTO_TEST_MODE:true}
+  production:
+    mcht-id: ${HECTO_PROD_MCHT_ID:}
+    hash-key: ${HECTO_PROD_HASH_KEY:}
+    enc-key: ${HECTO_PROD_ENC_KEY:}
+    test-mode: ${HECTO_PROD_TEST_MODE:false}
   mcht-name: ${HECTO_MCHT_NAME:우리동네부동산}
   mcht-ename: ${HECTO_MCHT_ENAME:Usanmap}
   notification:

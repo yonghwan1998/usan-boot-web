@@ -20,6 +20,9 @@ public interface CreditOrderRepository extends JpaRepository<CreditOrder, Long> 
 
     Optional<CreditOrder> findByOrderNo(String orderNo);
 
+    @Query("SELECT o.member.email FROM CreditOrder o WHERE o.orderNo = :orderNo")
+    Optional<String> findMemberEmailByOrderNo(@Param("orderNo") String orderNo);
+
     List<CreditOrder> findByMemberAndOrderStatusOrderByOrderedAtDesc(User member, OrderStatus orderStatus);
 
     @Query("SELECT o FROM CreditOrder o JOIN FETCH o.member WHERE o.orderStatus = :status ORDER BY o.orderedAt DESC")

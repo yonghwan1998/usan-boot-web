@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usanmap.usan.entity.HectoPaymentNotification;
 import com.usanmap.usan.entity.enums.PaymentNotificationStatus;
+import com.usanmap.usan.config.HectoPaymentProfiles;
+import com.usanmap.usan.repository.CreditOrderRepository;
 import com.usanmap.usan.repository.HectoPaymentNotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,12 +35,20 @@ public class HectoPaymentNotificationService {
     );
 
     private final HectoPaymentNotificationRepository notificationRepository;
+    private final CreditOrderRepository creditOrderRepository;
+    private final HectoPaymentProfiles paymentProfiles;
     private final ObjectMapper objectMapper;
 
     /** 검증을 마친 노티를 처리 큐에 영속화한다. 같은 거래번호의 재통보는 성공으로 간주한다. */
     public AcceptanceResult accept(Map<String, String> result) {
         String orderNo = required(result, "mchtTrdNo");
         String transactionNo = required(result, "trdNo");
+        String merchantId = required(result, "mchtId");
+        String accountEmail = creditOrderRepository.findMemberEmailByOrderNo(orderNo)
+                .orElseThrow(() -> new IllegalArgumentException("결제 주문을 찾을 수 없습니다."));
+        if (!paymentProfiles.matchesAccountMerchant(accountEmail, merchantId)) {
+            throw new SecurityException("결제 주문과 헥토 상점 환경이 일치하지 않습니다.");
+        }
         String payloadJson = toJson(onlyRequiredFields(result));
         LocalDateTime now = LocalDateTime.now();
 

@@ -18,14 +18,16 @@ class HectoProductionConfigurationValidatorTests {
     @Test
     void rejectsTestModeInsecureCallbackAndInvalidEncryptionKey() {
         MockEnvironment environment = validEnvironment()
-                .withProperty("hecto.test-mode", "true")
-                .withProperty("hecto.enc-key", "short-key")
+                .withProperty("hecto.test.test-mode", "false")
+                .withProperty("hecto.production.test-mode", "true")
+                .withProperty("hecto.production.enc-key", "short-key")
                 .withProperty("usan.base-url", "http://localhost:8080/");
 
         assertThatThrownBy(validator(environment)::afterPropertiesSet)
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("hecto.test-mode")
-                .hasMessageContaining("hecto.enc-key")
+                .hasMessageContaining("hecto.test.test-mode")
+                .hasMessageContaining("hecto.production.test-mode")
+                .hasMessageContaining("hecto.production.enc-key")
                 .hasMessageContaining("https")
                 .hasMessageContaining("로컬 호스트")
                 .hasMessageContaining("슬래시");
@@ -75,14 +77,24 @@ class HectoProductionConfigurationValidatorTests {
     @Test
     void validationErrorsDoNotExposeSecretValues() {
         MockEnvironment environment = validEnvironment()
-                .withProperty("hecto.hash-key", "")
-                .withProperty("hecto.enc-key", "do-not-print-this-secret");
+                .withProperty("hecto.production.hash-key", "")
+                .withProperty("hecto.production.enc-key", "do-not-print-this-secret");
 
         assertThatThrownBy(validator(environment)::afterPropertiesSet)
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("hecto.hash-key")
-                .hasMessageContaining("hecto.enc-key")
+                .hasMessageContaining("hecto.production.hash-key")
+                .hasMessageContaining("hecto.production.enc-key")
                 .hasMessageNotContaining("do-not-print-this-secret");
+    }
+
+    @Test
+    void rejectsSameMerchantIdForTestAndProduction() {
+        MockEnvironment environment = validEnvironment()
+                .withProperty("hecto.production.mcht-id", "test-merchant");
+
+        assertThatThrownBy(validator(environment)::afterPropertiesSet)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("상점 ID는 서로 달라야 합니다");
     }
 
     private HectoProductionConfigurationValidator validator(MockEnvironment environment) {
@@ -93,12 +105,16 @@ class HectoProductionConfigurationValidatorTests {
         MockEnvironment environment = new MockEnvironment();
         environment.setActiveProfiles("prod");
         return environment
-                .withProperty("hecto.mcht-id", "merchant01")
-                .withProperty("hecto.hash-key", "hash-key")
-                .withProperty("hecto.enc-key", "12345678901234567890123456789012")
+                .withProperty("hecto.test.mcht-id", "test-merchant")
+                .withProperty("hecto.test.hash-key", "test-hash-key")
+                .withProperty("hecto.test.enc-key", "12345678901234567890123456789012")
+                .withProperty("hecto.test.test-mode", "true")
+                .withProperty("hecto.production.mcht-id", "prod-merchant")
+                .withProperty("hecto.production.hash-key", "prod-hash-key")
+                .withProperty("hecto.production.enc-key", "abcdefghijklmnopqrstuvwxyz123456")
+                .withProperty("hecto.production.test-mode", "false")
                 .withProperty("hecto.mcht-name", "우리동네부동산")
                 .withProperty("hecto.mcht-ename", "Usanmap")
-                .withProperty("hecto.test-mode", "false")
                 .withProperty("usan.base-url", "https://usan.example.com")
                 .withProperty("hecto.notification.processing-delay-ms", "1000")
                 .withProperty("hecto.notification.initial-delay-ms", "1000")
