@@ -96,6 +96,11 @@ public class HectoPaymentProfiles {
             return host + "/api/pg/" + mchtId + "/transInfo.do";
         }
 
+        public String cancellationUrl() {
+            String host = testMode ? "https://tbgw.settlebank.co.kr" : "https://gw.settlebank.co.kr";
+            return host + "/spay/APICancel.do";
+        }
+
         private boolean hasText(String value) {
             return value != null && !value.isBlank();
         }

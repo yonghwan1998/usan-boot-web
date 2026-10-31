@@ -232,7 +232,7 @@ public class CreditService {
         boolean recovered = order.getOrderStatus() == OrderStatus.EXPIRED;
         LocalDateTime now = LocalDateTime.now();
         payment.setPaymentKey(result.get("trdNo"));
-        payment.setMethod("카드");
+        payment.setMethod(result.get("method"));
         payment.setPaymentStatus(PaymentStatus.SUCCESS);
         payment.setApprovedAmount(trdAmt);
         payment.setApprovedAt(now);

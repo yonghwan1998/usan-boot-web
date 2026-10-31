@@ -36,6 +36,7 @@ public class HectoProductionConfigurationValidator implements InitializingBean {
         validateNotificationSettings(errors);
         validateExpirationSettings(errors);
         validateReconciliationSettings(errors);
+        validateCancellationSettings(errors);
         validateOperationalSafety(errors);
 
         if (!errors.isEmpty()) {
@@ -155,6 +156,18 @@ public class HectoProductionConfigurationValidator implements InitializingBean {
                 ZoneId.of(zone);
             } catch (Exception e) {
                 errors.add("hecto.reconciliation.zone 값이 올바른 시간대가 아닙니다");
+            }
+        }
+    }
+
+    private void validateCancellationSettings(List<String> errors) {
+        validateRequired(errors, "hecto.cancellation.zone");
+        String zone = getProperty("hecto.cancellation.zone");
+        if (zone != null && !zone.isBlank()) {
+            try {
+                ZoneId.of(zone);
+            } catch (Exception e) {
+                errors.add("hecto.cancellation.zone 값이 올바른 시간대가 아닙니다");
             }
         }
     }

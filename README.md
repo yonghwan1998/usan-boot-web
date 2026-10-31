@@ -125,6 +125,7 @@ USAN_BASE_URL=http://localhost:8080
 | 헥토 노티 처리 | `HECTO_NOTIFICATION_PROCESSING_DELAY_MS`, `HECTO_NOTIFICATION_INITIAL_DELAY_MS`, `HECTO_NOTIFICATION_BATCH_SIZE`, `HECTO_NOTIFICATION_MAX_ATTEMPTS`, `HECTO_NOTIFICATION_RETRY_BASE_SECONDS`, `HECTO_NOTIFICATION_RETRY_MAX_SECONDS` |
 | 헥토 미완료 처리 | `HECTO_PAYMENT_READY_EXPIRATION_MINUTES`, `HECTO_PAYMENT_EXPIRATION_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_INITIAL_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_BATCH_SIZE` |
 | 헥토 거래대사 | `HECTO_RECONCILIATION_ENABLED`, `HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED`, `HECTO_RECONCILIATION_LOOKBACK_DAYS`, `HECTO_RECONCILIATION_CRON`, `HECTO_RECONCILIATION_ZONE` |
+| 헥토 결제 취소 | `HECTO_CANCELLATION_ENABLED`, `HECTO_CANCELLATION_ZONE` |
 
 `NCP_SENS_FROM`에는 NCP SENS에 등록·승인된 발신번호를 하이픈 없이 입력합니다.
 
@@ -158,6 +159,23 @@ HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED=false
 HECTO_RECONCILIATION_LOOKBACK_DAYS=1
 HECTO_RECONCILIATION_CRON=0 0 3 * * *
 HECTO_RECONCILIATION_ZONE=Asia/Seoul
+```
+
+### 헥토 결제 전액 취소
+
+- 기본값은 취소 API 비활성화(`HECTO_CANCELLATION_ENABLED=false`)입니다.
+- 관리자 API `POST /admin/api/payments/{paymentId}/cancellations`에서 취소 사유와 함께 요청합니다.
+- 헥토 신용카드(`CA`) 결제 성공 건 중 결제 후 1년 이내이며, 충전 이후 크레딧 사용 이력이 없는 건만 전액 취소할 수 있습니다.
+- 간편결제(`PZ`)와 기존에 결제수단 코드가 저장되지 않은 건은 잘못된 API 호출을 막기 위해 자동 취소하지 않습니다.
+- PG 호출 전에 환불 대상 크레딧을 예약 차감하여 호출 중 추가 사용을 막습니다.
+- PG가 명시적으로 실패를 응답하면 예약 크레딧을 복원하고 재요청할 수 있습니다.
+- 통신 시간 초과, 응답 검증 실패 또는 PG 성공 후 로컬 반영 실패는 자동 재호출하지 않고 `REVIEW_REQUIRED`로 남깁니다.
+- 신용카드 취소 노티는 기본 제공되지 않으므로 `REVIEW_REQUIRED` 건은 거래대사 또는 헥토파이낸셜에서 확인해야 합니다.
+- 거래대사 복구 옵션이 활성화된 실행에서 해당 취소 거래가 금액·원거래번호·환경까지 일치하면 로컬 취소 상태와 크레딧 원장을 확정합니다.
+
+```properties
+HECTO_CANCELLATION_ENABLED=false
+HECTO_CANCELLATION_ZONE=Asia/Seoul
 ```
 
 ### 4. 실행

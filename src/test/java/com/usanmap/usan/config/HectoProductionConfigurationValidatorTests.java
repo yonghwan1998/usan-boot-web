@@ -107,6 +107,16 @@ class HectoProductionConfigurationValidatorTests {
                 .hasMessageContaining("올바른 시간대가 아닙니다");
     }
 
+    @Test
+    void rejectsInvalidCancellationZone() {
+        MockEnvironment environment = validEnvironment()
+                .withProperty("hecto.cancellation.zone", "invalid-zone");
+
+        assertThatThrownBy(validator(environment)::afterPropertiesSet)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("hecto.cancellation.zone");
+    }
+
     private HectoProductionConfigurationValidator validator(MockEnvironment environment) {
         return new HectoProductionConfigurationValidator(environment);
     }
@@ -139,6 +149,7 @@ class HectoProductionConfigurationValidatorTests {
                 .withProperty("hecto.reconciliation.lookback-days", "1")
                 .withProperty("hecto.reconciliation.cron", "0 0 3 * * *")
                 .withProperty("hecto.reconciliation.zone", "Asia/Seoul")
+                .withProperty("hecto.cancellation.zone", "Asia/Seoul")
                 .withProperty("spring.jpa.hibernate.ddl-auto", "validate")
                 .withProperty("spring.jpa.show-sql", "false")
                 .withProperty("management.endpoint.health.show-details", "never")
