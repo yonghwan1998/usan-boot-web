@@ -83,4 +83,28 @@ class HectoPaymentNotificationSchedulerTests {
         verify(paymentObservability).recordNotificationProcessed(eq("error"), any(Duration.class));
         verify(paymentObservability).recordNotificationRetry("scheduled");
     }
+
+    @Test
+    void recordsExhaustedMetricWhenRetryLimitIsReached() throws Exception {
+        when(notificationRepository.findDueIds(
+                eq(PaymentNotificationStatus.PENDING), any(LocalDateTime.class), any()
+        )).thenReturn(List.of(1L));
+        IllegalStateException failure = new IllegalStateException("persistent failure");
+        when(notificationProcessor.process(1L)).thenThrow(failure);
+        when(notificationProcessor.recordFailure(1L, failure)).thenReturn(
+                new HectoPaymentNotificationProcessor.FailureResult(
+                        1L,
+                        "ORD-123",
+                        "TRD-123",
+                        8,
+                        LocalDateTime.now(),
+                        true
+                )
+        );
+
+        scheduler.processPendingNotifications();
+
+        verify(paymentObservability).recordNotificationProcessed(eq("error"), any(Duration.class));
+        verify(paymentObservability).recordNotificationRetry("exhausted");
+    }
 }

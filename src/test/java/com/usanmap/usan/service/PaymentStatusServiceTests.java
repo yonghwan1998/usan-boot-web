@@ -70,4 +70,43 @@ class PaymentStatusServiceTests {
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING_BANK);
         assertThat(result).isNull();
     }
+
+    @Test
+    void doesNotExpireRecentReadyOrder() {
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(30);
+        CreditOrder order = CreditOrder.builder()
+                .id(1L)
+                .orderStatus(OrderStatus.READY)
+                .orderedAt(cutoff.plusSeconds(1))
+                .build();
+        when(creditOrderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+
+        PaymentStatusService.ExpirationResult result = paymentStatusService.expireHectoOrder(1L, cutoff);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.READY);
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void doesNotExpireReadyPaymentFromAnotherProvider() {
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(30);
+        CreditOrder order = CreditOrder.builder()
+                .id(1L)
+                .orderStatus(OrderStatus.READY)
+                .orderedAt(cutoff.minusSeconds(1))
+                .build();
+        Payment payment = Payment.builder()
+                .creditOrder(order)
+                .pgProvider(PgProvider.BANK_TRANSFER)
+                .paymentStatus(PaymentStatus.READY)
+                .build();
+        when(creditOrderRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(order));
+        when(paymentRepository.findByCreditOrder(order)).thenReturn(Optional.of(payment));
+
+        PaymentStatusService.ExpirationResult result = paymentStatusService.expireHectoOrder(1L, cutoff);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.READY);
+        assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.READY);
+        assertThat(result).isNull();
+    }
 }

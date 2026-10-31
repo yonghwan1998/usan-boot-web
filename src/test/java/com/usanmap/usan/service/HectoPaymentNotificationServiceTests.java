@@ -101,6 +101,23 @@ class HectoPaymentNotificationServiceTests {
                 .hasMessageContaining("상점 환경");
     }
 
+    @Test
+    void rejectsProductionMerchantNotificationForTestAccountOrder() {
+        HectoPaymentNotificationService service =
+                new HectoPaymentNotificationService(
+                        notificationRepository, creditOrderRepository, paymentProfiles(), new ObjectMapper()
+                );
+        Map<String, String> result = Map.of(
+                "mchtTrdNo", "ORD-123", "trdNo", "TRD-123", "mchtId", "prod-merchant"
+        );
+        when(creditOrderRepository.findMemberEmailByOrderNo("ORD-123"))
+                .thenReturn(Optional.of("test@naver.com"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.accept(result))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("상점 환경");
+    }
+
     private HectoPaymentProfiles paymentProfiles() {
         return new HectoPaymentProfiles(
                 "test-merchant", "test-hash", "12345678901234567890123456789012", true,
