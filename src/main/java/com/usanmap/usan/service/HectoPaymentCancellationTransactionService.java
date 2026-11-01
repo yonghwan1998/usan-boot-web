@@ -20,6 +20,7 @@ import com.usanmap.usan.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,7 +39,7 @@ public class HectoPaymentCancellationTransactionService {
     private final CreditLedgerRepository ledgerRepository;
     private final HectoPaymentProfiles paymentProfiles;
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public PreparedCancellation prepare(Long paymentId, String reason, LocalDateTime requestedAt) {
         Payment initialPayment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다."));
@@ -65,6 +66,10 @@ public class HectoPaymentCancellationTransactionService {
             throw new IllegalStateException("헥토파이낸셜 결제 취소 설정을 확인해주세요.");
         }
 
+        // 크레딧 사용과 같은 잔액 락을 먼저 잡는다. 락 대기 중 완료된 사용 내역도
+        // READ_COMMITTED 조회로 확인한 뒤, 락을 유지한 상태에서 예약 차감한다.
+        MemberCreditBalance balance = balanceRepository.findByMemberWithLock(order.getMember())
+                .orElseThrow(() -> new IllegalStateException("크레딧 잔액 정보가 없습니다."));
         CreditLedger chargeLedger = ledgerRepository
                 .findFirstByPaymentAndLedgerTypeOrderByCreatedAtAsc(payment, LedgerType.CHARGE)
                 .orElseThrow(() -> new IllegalStateException("결제 충전 내역을 찾을 수 없습니다."));
@@ -73,8 +78,6 @@ public class HectoPaymentCancellationTransactionService {
             throw new IllegalStateException("충전 후 크레딧 사용 이력이 있어 자동 전액 취소할 수 없습니다.");
         }
 
-        MemberCreditBalance balance = balanceRepository.findByMemberWithLock(order.getMember())
-                .orElseThrow(() -> new IllegalStateException("크레딧 잔액 정보가 없습니다."));
         int creditToReserve = order.getTotalCreditSnapshot();
         balance.deductBalance(creditToReserve);
 

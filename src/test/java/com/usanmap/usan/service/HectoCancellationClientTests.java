@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.util.HectoCryptoUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
@@ -99,6 +101,21 @@ class HectoCancellationClientTests {
 
         assertThat(result.success()).isFalse();
         assertThat(result.resultCode()).isEqualTo("9999");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"NULL,NULL", "0021,NULL", "0031,NULL", "0098,9999", "0021,9999", "0031,0000"},
+            nullValues = "NULL")
+    void rejectsIncompleteOrUncertainResultCodes(String statusCode, String resultCode) throws Exception {
+        Map<String, String> params = new java.util.LinkedHashMap<>();
+        params.put("mchtId", profile.mchtId());
+        params.put("mchtTrdNo", command.cancellationNo());
+        if (statusCode != null) params.put("outStatCd", statusCode);
+        if (resultCode != null) params.put("outRsltCd", resultCode);
+        String response = objectMapper.writeValueAsString(Map.of("params", params));
+
+        assertThatThrownBy(() -> client.parseResponse(profile, command, "request-hash", response))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     private String successResponse(String packetHash) throws Exception {

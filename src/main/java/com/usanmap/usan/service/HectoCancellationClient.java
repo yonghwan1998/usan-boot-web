@@ -91,14 +91,19 @@ public class HectoCancellationClient {
             JsonNode root = objectMapper.readTree(responseBody);
             JsonNode params = root.path("params");
             JsonNode data = root.path("data");
-            String statusCode = text(params, "outStatCd");
-            String resultCode = text(params, "outRsltCd");
+            String statusCode = required(params, "outStatCd");
+            String resultCode = required(params, "outRsltCd");
             String resultMessage = text(params, "outRsltMsg");
 
             validateEcho(text(params, "mchtId"), profile.mchtId(), "상점아이디");
             validateEcho(text(params, "mchtTrdNo"), command.cancellationNo(), "취소 주문번호");
 
             boolean success = "0021".equals(statusCode) && "0000".equals(resultCode);
+            // 명시적 거절만 예약 크레딧을 복원한다. 불완전하거나 모순된 응답은 결과 불확실로 처리한다.
+            boolean declined = "0031".equals(statusCode) && !"0000".equals(resultCode);
+            if (!success && !declined) {
+                throw new IllegalStateException("헥토 결제 취소 결과를 확정할 수 없습니다.");
+            }
             if (success) {
                 validateEcho(text(data, "orgTrdNo"), command.originalTransactionNo(), "원거래번호");
                 validateHash(text(data, "pktHash"), requestHash);
