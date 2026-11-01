@@ -119,9 +119,64 @@ USAN_BASE_URL=http://localhost:8080
 | Naver 지도·주소 변환 | `NAVER_MAP_CLIENT_ID`, `NAVER_MAP_CLIENT_SECRET`, `NAVER_MAP_DARK_THEME_CUSTOM_ID` |
 | NCP SENS 문자 발송 | `NCP_ACCESS_KEY`, `NCP_SECRET_KEY`, `NCP_SENS_SERVICE_ID`, `NCP_SENS_FROM` |
 | 무통장 입금 | `USAN_BANK_NAME`, `USAN_BANK_NUMBER`, `USAN_BANK_HOLDER` |
-| 헥토파이낸셜 | `HECTO_MCHT_ID`, `HECTO_HASH_KEY`, `HECTO_ENC_KEY`, `HECTO_TEST_MODE`, `HECTO_MCHT_NAME`, `HECTO_MCHT_ENAME` |
+| 헥토파이낸셜 테스트 | `HECTO_TEST_MCHT_ID`, `HECTO_TEST_HASH_KEY`, `HECTO_TEST_ENC_KEY`, `HECTO_TEST_MODE` |
+| 헥토파이낸셜 운영 | `HECTO_PROD_MCHT_ID`, `HECTO_PROD_HASH_KEY`, `HECTO_PROD_ENC_KEY`, `HECTO_PROD_TEST_MODE` |
+| 헥토파이낸셜 공통 | `HECTO_MCHT_NAME`, `HECTO_MCHT_ENAME` |
+| 헥토 노티 처리 | `HECTO_NOTIFICATION_PROCESSING_DELAY_MS`, `HECTO_NOTIFICATION_INITIAL_DELAY_MS`, `HECTO_NOTIFICATION_BATCH_SIZE`, `HECTO_NOTIFICATION_MAX_ATTEMPTS`, `HECTO_NOTIFICATION_RETRY_BASE_SECONDS`, `HECTO_NOTIFICATION_RETRY_MAX_SECONDS` |
+| 헥토 미완료 처리 | `HECTO_PAYMENT_READY_EXPIRATION_MINUTES`, `HECTO_PAYMENT_EXPIRATION_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_INITIAL_DELAY_MS`, `HECTO_PAYMENT_EXPIRATION_BATCH_SIZE` |
+| 헥토 거래대사 | `HECTO_RECONCILIATION_ENABLED`, `HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED`, `HECTO_RECONCILIATION_LOOKBACK_DAYS`, `HECTO_RECONCILIATION_CRON`, `HECTO_RECONCILIATION_ZONE` |
+| 헥토 결제 취소 | `HECTO_CANCELLATION_ENABLED`, `HECTO_CANCELLATION_ZONE` |
 
 `NCP_SENS_FROM`에는 NCP SENS에 등록·승인된 발신번호를 하이픈 없이 입력합니다.
+
+운영 프로필에서는 애플리케이션 시작 시 결제 설정을 검증합니다.
+
+- 테스트·운영 환경의 상점 ID, 해시 키, 암호화 키는 모두 필수입니다.
+- `HECTO_TEST_ENC_KEY`와 `HECTO_PROD_ENC_KEY`는 UTF-8 기준 32바이트여야 합니다.
+- `HECTO_TEST_MODE=true`, `HECTO_PROD_TEST_MODE=false`여야 합니다.
+- 테스트와 운영 상점 ID는 서로 달라야 합니다.
+- `test@naver.com` 계정은 테스트 설정 전체를 사용하고, 그 외 계정은 운영 설정 전체를 사용합니다.
+- `USAN_BASE_URL`은 로컬 주소가 아닌 슬래시로 끝나지 않는 HTTPS URL이어야 합니다.
+- 노티 재시도, 처리 주기, 배치 크기와 결제 만료 설정은 0보다 큰 값이어야 합니다. 초기 지연 시간은 0도 허용합니다.
+- `prod` 프로필은 `dev` 또는 `test` 프로필과 함께 활성화할 수 없습니다.
+- 운영 JPA 스키마 정책은 `validate`, SQL 출력은 비활성화 상태여야 합니다.
+- Actuator 노출 목록에는 `prometheus`가 포함되어야 하며 health 상세 정보를 항상 공개할 수 없습니다.
+
+설정이 위 조건을 충족하지 않으면 비밀값을 출력하지 않고 애플리케이션 시작을 중단합니다.
+
+### 헥토 거래대사 및 복구
+
+- 기본값은 거래대사 스케줄 비활성화(`HECTO_RECONCILIATION_ENABLED=false`)입니다.
+- 스케줄을 활성화해도 자동 복구는 기본적으로 비활성화됩니다.
+- 자동 복구는 PG 승인 내역이 존재하고 로컬 주문이 `READY` 또는 `EXPIRED`인 경우에만 수행합니다.
+- 금액, 상점 환경 또는 결제수단이 일치하지 않으면 상태를 변경하지 않고 불일치로 기록합니다.
+- 취소 거래는 자동 반영하지 않고 검토 대상으로 기록합니다.
+- 관리자 API `POST /admin/api/payment-reconciliation`에서 날짜, 환경, 복구 여부를 지정해 수동 실행할 수 있습니다.
+
+```properties
+HECTO_RECONCILIATION_ENABLED=false
+HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED=false
+HECTO_RECONCILIATION_LOOKBACK_DAYS=1
+HECTO_RECONCILIATION_CRON=0 0 3 * * *
+HECTO_RECONCILIATION_ZONE=Asia/Seoul
+```
+
+### 헥토 결제 전액 취소
+
+- 기본값은 취소 API 비활성화(`HECTO_CANCELLATION_ENABLED=false`)입니다.
+- 관리자 API `POST /admin/api/payments/{paymentId}/cancellations`에서 취소 사유와 함께 요청합니다.
+- 헥토 신용카드(`CA`) 결제 성공 건 중 결제 후 1년 이내이며, 충전 이후 크레딧 사용 이력이 없는 건만 전액 취소할 수 있습니다.
+- 간편결제(`PZ`)와 기존에 결제수단 코드가 저장되지 않은 건은 잘못된 API 호출을 막기 위해 자동 취소하지 않습니다.
+- PG 호출 전에 환불 대상 크레딧을 예약 차감하여 호출 중 추가 사용을 막습니다.
+- PG가 명시적으로 실패를 응답하면 예약 크레딧을 복원하고 재요청할 수 있습니다.
+- 통신 시간 초과, 응답 검증 실패 또는 PG 성공 후 로컬 반영 실패는 자동 재호출하지 않고 `REVIEW_REQUIRED`로 남깁니다.
+- 신용카드 취소 노티는 기본 제공되지 않으므로 `REVIEW_REQUIRED` 건은 거래대사 또는 헥토파이낸셜에서 확인해야 합니다.
+- 거래대사 복구 옵션이 활성화된 실행에서 해당 취소 거래가 금액·원거래번호·환경까지 일치하면 로컬 취소 상태와 크레딧 원장을 확정합니다.
+
+```properties
+HECTO_CANCELLATION_ENABLED=false
+HECTO_CANCELLATION_ZONE=Asia/Seoul
+```
 
 ### 4. 실행
 

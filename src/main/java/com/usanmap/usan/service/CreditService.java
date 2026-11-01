@@ -108,14 +108,11 @@ public class CreditService {
     }
 
     @Transactional(readOnly = true)
-    public CreditOrder getCompletedOrder(String orderNo, Long userId) {
+    public CreditOrder getOrderForCompletion(String orderNo, Long userId) {
         CreditOrder order = creditOrderRepository.findByOrderNo(orderNo)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
         if (!order.getMember().getId().equals(userId)) {
             throw new IllegalStateException("접근 권한이 없습니다.");
-        }
-        if (order.getOrderStatus() != OrderStatus.PAID) {
-            throw new IllegalStateException("완료된 주문이 아닙니다.");
         }
         return order;
     }
@@ -172,60 +169,70 @@ public class CreditService {
     }
 
     /**
-     * 헥토파이낸셜 노티(notiUrl) 또는 결제완료 리턴(nextUrl)으로부터 전달된 결과를 반영한다.
-     * 노티와 리턴이 거의 동시에 도착할 수 있어 주문 행에 비관적 락을 걸어 중복 적립을 막고,
-     * 이미 처리된 주문이면 그대로 성공(true)을 반환해 재통보에도 안전하도록 한다.
+     * 헥토파이낸셜 노티(notiUrl)로 전달된 결과를 반영한다.
+     * 주문 행에 비관적 락을 걸어 중복 적립을 막고, 이미 처리된 주문은 변경하지 않아 재통보에도 안전하다.
+     * 서명 검증된 결제 실패도 정상적으로 소비한 노티이므로 상태를 FAILED로 반영하고 예외 없이 종료한다.
      */
     @Transactional
-    public boolean confirmHectoCharge(Map<String, String> result) {
+    public HectoChargeResult confirmHectoCharge(Map<String, String> result) {
         String orderNo = result.get("mchtTrdNo");
         if (orderNo == null || orderNo.isBlank()) {
-            return false;
+            throw new IllegalArgumentException("결제 노티에 주문번호가 없습니다.");
         }
 
-        CreditOrder order = creditOrderRepository.findByOrderNoForUpdate(orderNo).orElse(null);
-        if (order == null) {
-            return false;
-        }
+        CreditOrder order = creditOrderRepository.findByOrderNoForUpdate(orderNo)
+                .orElseThrow(() -> new IllegalStateException("결제 주문을 찾을 수 없습니다."));
         if (order.getOrderStatus() == OrderStatus.PAID) {
-            return true;
+            return new HectoChargeResult(
+                    HectoChargeResult.Outcome.ALREADY_PROCESSED,
+                    OrderStatus.PAID,
+                    OrderStatus.PAID
+            );
         }
-        if (order.getOrderStatus() != OrderStatus.READY) {
-            return false;
+        if (order.getOrderStatus() == OrderStatus.FAILED || order.getOrderStatus() == OrderStatus.CANCELED) {
+            return new HectoChargeResult(
+                    HectoChargeResult.Outcome.ALREADY_PROCESSED,
+                    order.getOrderStatus(),
+                    order.getOrderStatus()
+            );
+        }
+        if (order.getOrderStatus() != OrderStatus.READY && order.getOrderStatus() != OrderStatus.EXPIRED) {
+            throw new IllegalStateException("헥토 결제로 처리할 수 없는 주문 상태입니다: " + order.getOrderStatus());
         }
 
-        Payment payment = paymentRepository.findByCreditOrder(order).orElse(null);
-        if (payment == null) {
-            return false;
+        Payment payment = paymentRepository.findByCreditOrder(order)
+                .orElseThrow(() -> new IllegalStateException("결제 정보를 찾을 수 없습니다."));
+        if (payment.getPaymentStatus() != PaymentStatus.READY
+                && payment.getPaymentStatus() != PaymentStatus.EXPIRED) {
+            throw new IllegalStateException("헥토 결제로 처리할 수 없는 결제 상태입니다: " + payment.getPaymentStatus());
         }
 
         boolean success = "0021".equals(result.get("outStatCd"));
         if (!success) {
-            order.setOrderStatus(OrderStatus.FAILED);
-            payment.setPaymentStatus(PaymentStatus.FAILED);
-            payment.setFailureCode(result.get("outRsltCd"));
-            payment.setFailureMessage(result.get("outRsltMsg"));
-            payment.setRawResponseJson(toJson(result));
-            return false;
+            OrderStatus previousStatus = order.getOrderStatus();
+            markHectoPaymentFailed(order, payment, result.get("outRsltCd"),
+                    result.getOrDefault("outRsltMsg", "PG 결제 승인에 실패했습니다."), result);
+            return new HectoChargeResult(HectoChargeResult.Outcome.FAILED, previousStatus, OrderStatus.FAILED);
         }
 
         int trdAmt;
         try {
             trdAmt = Integer.parseInt(result.get("trdAmt"));
         } catch (Exception e) {
-            return false;
+            OrderStatus previousStatus = order.getOrderStatus();
+            markHectoPaymentFailed(order, payment, null, "결제 금액 형식이 올바르지 않습니다.", result);
+            return new HectoChargeResult(HectoChargeResult.Outcome.FAILED, previousStatus, OrderStatus.FAILED);
         }
         if (trdAmt != order.getPriceAmountSnapshot()) {
-            order.setOrderStatus(OrderStatus.FAILED);
-            payment.setPaymentStatus(PaymentStatus.FAILED);
-            payment.setFailureMessage("결제 금액이 일치하지 않습니다.");
-            payment.setRawResponseJson(toJson(result));
-            return false;
+            OrderStatus previousStatus = order.getOrderStatus();
+            markHectoPaymentFailed(order, payment, null, "결제 금액이 일치하지 않습니다.", result);
+            return new HectoChargeResult(HectoChargeResult.Outcome.FAILED, previousStatus, OrderStatus.FAILED);
         }
 
+        boolean recovered = order.getOrderStatus() == OrderStatus.EXPIRED;
         LocalDateTime now = LocalDateTime.now();
         payment.setPaymentKey(result.get("trdNo"));
-        payment.setMethod("카드");
+        payment.setMethod(result.get("method"));
         payment.setPaymentStatus(PaymentStatus.SUCCESS);
         payment.setApprovedAmount(trdAmt);
         payment.setApprovedAt(now);
@@ -252,7 +259,25 @@ public class CreditService {
                 .build();
         creditLedgerRepository.save(ledger);
 
-        return true;
+        return new HectoChargeResult(
+                recovered ? HectoChargeResult.Outcome.RECOVERED : HectoChargeResult.Outcome.COMPLETED,
+                recovered ? OrderStatus.EXPIRED : OrderStatus.READY,
+                OrderStatus.PAID
+        );
+    }
+
+    private void markHectoPaymentFailed(
+            CreditOrder order,
+            Payment payment,
+            String failureCode,
+            String failureMessage,
+            Map<String, String> result
+    ) {
+        order.setOrderStatus(OrderStatus.FAILED);
+        payment.setPaymentStatus(PaymentStatus.FAILED);
+        payment.setFailureCode(failureCode);
+        payment.setFailureMessage(failureMessage);
+        payment.setRawResponseJson(toJson(result));
     }
 
     private String toJson(Map<String, String> data) {

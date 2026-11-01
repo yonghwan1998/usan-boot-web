@@ -84,12 +84,39 @@ naver:
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
 hecto:
-  mcht-id: ${HECTO_MCHT_ID:}
-  hash-key: ${HECTO_HASH_KEY:}
-  enc-key: ${HECTO_ENC_KEY:}
-  test-mode: ${HECTO_TEST_MODE:true}
+  test:
+    mcht-id: ${HECTO_TEST_MCHT_ID:}
+    hash-key: ${HECTO_TEST_HASH_KEY:}
+    enc-key: ${HECTO_TEST_ENC_KEY:}
+    test-mode: ${HECTO_TEST_MODE:true}
+  production:
+    mcht-id: ${HECTO_PROD_MCHT_ID:}
+    hash-key: ${HECTO_PROD_HASH_KEY:}
+    enc-key: ${HECTO_PROD_ENC_KEY:}
+    test-mode: ${HECTO_PROD_TEST_MODE:false}
   mcht-name: ${HECTO_MCHT_NAME:우리동네부동산}
   mcht-ename: ${HECTO_MCHT_ENAME:Usanmap}
+  notification:
+    processing-delay-ms: ${HECTO_NOTIFICATION_PROCESSING_DELAY_MS:1000}
+    initial-delay-ms: ${HECTO_NOTIFICATION_INITIAL_DELAY_MS:1000}
+    batch-size: ${HECTO_NOTIFICATION_BATCH_SIZE:20}
+    max-attempts: ${HECTO_NOTIFICATION_MAX_ATTEMPTS:8}
+    retry-base-seconds: ${HECTO_NOTIFICATION_RETRY_BASE_SECONDS:30}
+    retry-max-seconds: ${HECTO_NOTIFICATION_RETRY_MAX_SECONDS:3600}
+  payment:
+    ready-expiration-minutes: ${HECTO_PAYMENT_READY_EXPIRATION_MINUTES:30}
+    expiration-delay-ms: ${HECTO_PAYMENT_EXPIRATION_DELAY_MS:60000}
+    expiration-initial-delay-ms: ${HECTO_PAYMENT_EXPIRATION_INITIAL_DELAY_MS:60000}
+    expiration-batch-size: ${HECTO_PAYMENT_EXPIRATION_BATCH_SIZE:100}
+  reconciliation:
+    enabled: ${HECTO_RECONCILIATION_ENABLED:false}
+    auto-recover-enabled: ${HECTO_RECONCILIATION_AUTO_RECOVER_ENABLED:false}
+    lookback-days: ${HECTO_RECONCILIATION_LOOKBACK_DAYS:1}
+    cron: ${HECTO_RECONCILIATION_CRON:0 0 3 * * *}
+    zone: ${HECTO_RECONCILIATION_ZONE:Asia/Seoul}
+  cancellation:
+    enabled: ${HECTO_CANCELLATION_ENABLED:false}
+    zone: ${HECTO_CANCELLATION_ZONE:Asia/Seoul}
 file:
   upload-dir: uploads
   public-prefix: /uploads

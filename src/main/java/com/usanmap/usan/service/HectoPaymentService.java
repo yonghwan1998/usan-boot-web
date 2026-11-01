@@ -1,10 +1,14 @@
 package com.usanmap.usan.service;
 
 import com.usanmap.usan.entity.CreditOrder;
+import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.util.HectoCryptoUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -15,6 +19,7 @@ import java.util.Map;
  * 참고: https://developers.hectofinancial.co.kr/docs/api/pg/credit-card/01-card-payment
  */
 @Service
+@RequiredArgsConstructor
 public class HectoPaymentService {
 
     private static final String METHOD_CARD = "card";
@@ -22,14 +27,7 @@ public class HectoPaymentService {
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter TM_FMT = DateTimeFormatter.ofPattern("HHmmss");
 
-    @Value("${hecto.mcht-id}")
-    private String mchtId;
-
-    @Value("${hecto.hash-key}")
-    private String hashKey;
-
-    @Value("${hecto.enc-key}")
-    private String encKey;
+    private final HectoPaymentProfiles paymentProfiles;
 
     @Value("${hecto.mcht-name}")
     private String mchtName;
@@ -37,35 +35,29 @@ public class HectoPaymentService {
     @Value("${hecto.mcht-ename}")
     private String mchtEname;
 
-    @Value("${hecto.test-mode:true}")
-    private boolean testMode;
-
     @Value("${usan.base-url}")
     private String baseUrl;
 
-    public String getPaymentActionUrl() {
-        return testMode
-                ? "https://tbnpg.settlebank.co.kr/card/main.do"
-                : "https://npg.settlebank.co.kr/card/main.do";
-    }
-
     /** 결제창(FORM-SUBMIT)에 그대로 실어 보낼 파라미터를 생성한다. 해시/암호화는 반드시 서버에서 처리. */
-    public Map<String, String> buildPaymentParams(CreditOrder order) {
-        if (mchtId == null || mchtId.isBlank()) {
-            throw new IllegalStateException("헥토파이낸셜 상점ID를 확인해주세요.");
+    public PaymentRequest buildPaymentRequest(CreditOrder order, String accountEmail) {
+        HectoPaymentProfiles.PaymentProfile profile = paymentProfiles.forAccount(accountEmail);
+        if (!profile.isConfigured()) {
+            throw new IllegalStateException("헥토파이낸셜 " + profile.environment().name().toLowerCase()
+                    + " 결제 설정을 확인해주세요.");
         }
 
         LocalDateTime now = LocalDateTime.now();
         String trdDt = now.format(DT_FMT);
         String trdTm = now.format(TM_FMT);
         String trdAmtPlain = String.valueOf(order.getPriceAmountSnapshot());
-        String trdAmtEnc = HectoCryptoUtil.encryptAes256Ecb(trdAmtPlain, encKey);
+        String trdAmtEnc = HectoCryptoUtil.encryptAes256Ecb(trdAmtPlain, profile.encKey());
 
-        String hashSource = mchtId + METHOD_CARD + order.getOrderNo() + trdDt + trdTm + trdAmtPlain + hashKey;
+        String hashSource = profile.mchtId() + METHOD_CARD + order.getOrderNo()
+                + trdDt + trdTm + trdAmtPlain + profile.hashKey();
         String pktHash = HectoCryptoUtil.sha256Hex(hashSource);
 
         Map<String, String> params = new LinkedHashMap<>();
-        params.put("mchtId", mchtId);
+        params.put("mchtId", profile.mchtId());
         params.put("method", METHOD_CARD);
         params.put("trdDt", trdDt);
         params.put("trdTm", trdTm);
@@ -78,32 +70,46 @@ public class HectoPaymentService {
         params.put("nextUrl", baseUrl + "/credits/hecto/return");
         params.put("cancUrl", baseUrl + "/credits/hecto/cancel");
         params.put("pktHash", pktHash);
-        return params;
+        return new PaymentRequest(profile.environment(), profile.actionUrl(), params);
     }
 
     /**
-     * 노티(서버통보)/리턴(nextUrl) 응답의 위변조 여부를 검증한다.
+     * 노티(서버통보) 응답의 위변조 여부를 검증한다.
      * 해시값 = SHA256(outStatCd + 거래일자 + 거래시간 + mchtId + mchtTrdNo + trdAmt + hashKey)
      */
-    public boolean verifyResultHash(Map<String, String> result) {
+    public boolean verifyNotificationHash(Map<String, String> result) {
         String trdDtm = result.get("trdDtm");
         String outStatCd = result.get("outStatCd");
         String mchtTrdNo = result.get("mchtTrdNo");
         String trdAmt = result.get("trdAmt");
         String pktHash = result.get("pktHash");
+        String receivedMchtId = result.get("mchtId");
+        String transactionNo = result.get("trdNo");
 
-        if (trdDtm == null || trdDtm.length() != 14 || outStatCd == null
-                || mchtTrdNo == null || trdAmt == null || pktHash == null) {
+        HectoPaymentProfiles.PaymentProfile profile = paymentProfiles.findByMerchantId(receivedMchtId).orElse(null);
+        if (profile == null || trdDtm == null || trdDtm.length() != 14 || outStatCd == null
+                || mchtTrdNo == null || trdAmt == null || pktHash == null
+                || transactionNo == null || transactionNo.isBlank()) {
             return false;
         }
 
         String trdDt = trdDtm.substring(0, 8);
         String trdTm = trdDtm.substring(8, 14);
-        String expected = HectoCryptoUtil.sha256Hex(outStatCd + trdDt + trdTm + mchtId + mchtTrdNo + trdAmt + hashKey);
-        return expected.equals(pktHash);
+        String expected = HectoCryptoUtil.sha256Hex(outStatCd + trdDt + trdTm
+                + receivedMchtId + mchtTrdNo + trdAmt + profile.hashKey());
+        return MessageDigest.isEqual(
+                expected.getBytes(StandardCharsets.US_ASCII),
+                pktHash.getBytes(StandardCharsets.US_ASCII)
+        );
     }
 
     public boolean isSuccess(Map<String, String> result) {
         return SUCCESS_STAT_CD.equals(result.get("outStatCd"));
     }
+
+    public record PaymentRequest(
+            HectoPaymentProfiles.Environment environment,
+            String actionUrl,
+            Map<String, String> params
+    ) {}
 }

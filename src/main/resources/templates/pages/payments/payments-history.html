@@ -64,8 +64,14 @@
                     </div>
                 </div>
                 <div class="payments-history__price-tag"
-                     th:classappend="${payment.paymentStatus.name() == 'SUCCESS'} ? ' complete-tag' : ' fail-tag'"
-                     th:text="${payment.paymentStatus.name() == 'SUCCESS'} ? '결제 완료' : '결제 실패'">-</div>
+                     th:classappend="${payment.paymentStatus.name() == 'SUCCESS'} ? ' complete-tag' : (${payment.paymentStatus.name() == 'READY'} ? ' pending-tag' : (${payment.paymentStatus.name() == 'EXPIRED'} ? ' incomplete-tag' : ' fail-tag'))"
+                     th:switch="${payment.paymentStatus.name()}">
+                    <span th:case="'SUCCESS'">결제 완료</span>
+                    <span th:case="'READY'">처리 중</span>
+                    <span th:case="'FAILED'">결제 실패</span>
+                    <span th:case="'EXPIRED'">미완료</span>
+                    <span th:case="'CANCELED'">결제 취소</span>
+                </div>
             </div>
         </div>
     </div>

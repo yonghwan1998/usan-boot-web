@@ -23,7 +23,7 @@
 <section class="credits-page">
     <div class="common-header">
         <button class="common-header__back" th:onclick="history.back()"></button>
-        <h1 class="common-header__title">결제하기</h1>
+        <h1 class="common-header__title" th:text="${testPayment} ? '테스트 결제하기' : '결제하기'">결제하기</h1>
         <div class="common-header__right"></div>
     </div>
 
@@ -32,6 +32,10 @@
     </form>
 
     <div class="credits-charge-wrapper credits-checkout-wrapper">
+
+        <div class="test-payment-notice" th:if="${testPayment}">
+            테스트 계정 전용 화면입니다. 실제 승인 없이 헥토 테스트 결제창으로 연결됩니다.
+        </div>
 
         <div class="checkout-product-info">
             <div class="checkout-product-info__label">상품명</div>
@@ -59,6 +63,16 @@
         .credits-checkout-wrapper {
             padding: 24px 20px 100px;
             gap: 0;
+        }
+
+        .test-payment-notice {
+            margin-bottom: 12px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: #fff7e6;
+            color: #8a5a00;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         .checkout-product-info {
