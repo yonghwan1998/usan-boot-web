@@ -1,12 +1,19 @@
 package com.usanmap.usan.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usanmap.usan.config.HectoPaymentProfiles;
 import com.usanmap.usan.entity.enums.PaymentCancellationStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
@@ -85,5 +92,29 @@ class HectoPaymentCancellationServiceTests {
         verify(transactionService).requireReview(10L, "PG 취소 응답을 확정할 수 없습니다: IllegalStateException");
         verify(transactionService, never()).complete(any(), any());
         verify(transactionService, never()).failAndRelease(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", ",\"outStatCd\":\"0021\"", ",\"outStatCd\":\"0031\"",
+            ",\"outStatCd\":\"0098\",\"outRsltCd\":\"9999\""})
+    void incompleteProviderResponseKeepsCreditsReserved(String resultFields) {
+        String responseBody = "{\"params\":{\"mchtId\":\"test-mid\",\"mchtTrdNo\":\"CANCEL1\""
+                + resultFields + "}}";
+        HectoCancellationClient actualClient = new HectoCancellationClient(
+                WebClient.builder().exchangeFunction(request -> Mono.just(
+                        ClientResponse.create(HttpStatus.OK).header("Content-Type", "application/json")
+                                .body(responseBody).build()
+                )), new ObjectMapper()
+        );
+        HectoPaymentCancellationService actualService = new HectoPaymentCancellationService(
+                transactionService, actualClient, observability, true, "Asia/Seoul"
+        );
+
+        HectoPaymentCancellationService.CancellationResult result = actualService.cancelFull(1L, "고객 요청");
+
+        assertThat(result.status()).isEqualTo(PaymentCancellationStatus.REVIEW_REQUIRED);
+        verify(transactionService).requireReview(10L, "PG 취소 응답을 확정할 수 없습니다: IllegalStateException");
+        verify(transactionService, never()).failAndRelease(any(), any());
+        verify(transactionService, never()).complete(any(), any());
     }
 }

@@ -26,11 +26,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,6 +84,7 @@ class HectoPaymentCancellationTransactionServiceTests {
         when(cancellationRepository.findByPayment(payment)).thenReturn(Optional.empty());
         when(ledgerRepository.findFirstByPaymentAndLedgerTypeOrderByCreatedAtAsc(payment, LedgerType.CHARGE))
                 .thenReturn(Optional.of(chargeLedger));
+        when(balanceRepository.findByMemberWithLock(user)).thenReturn(Optional.of(balance));
     }
 
     @Test
@@ -112,7 +115,31 @@ class HectoPaymentCancellationTransactionServiceTests {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("사용 이력");
 
-        verify(balanceRepository, never()).findByMemberWithLock(any());
+        assertThat(balance.getBalance()).isEqualTo(2000);
+        verify(cancellationRepository, never()).save(any());
+    }
+
+    @Test
+    void rejectsUsageCommittedWhileWaitingForBalanceLock() {
+        AtomicBoolean usageCommitted = new AtomicBoolean();
+        when(balanceRepository.findByMemberWithLock(user)).thenAnswer(invocation -> {
+            balance.deductBalance(100);
+            usageCommitted.set(true);
+            return Optional.of(balance);
+        });
+        when(ledgerRepository.existsByMemberAndLedgerTypeAndCreatedAtAfter(
+                user, LedgerType.USE, chargeLedger.getCreatedAt()))
+                .thenAnswer(invocation -> usageCommitted.get());
+
+        assertThatThrownBy(() -> service.prepare(3L, "고객 요청", requestedAt))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("사용 이력");
+
+        assertThat(balance.getBalance()).isEqualTo(1900);
+        var calls = inOrder(balanceRepository, ledgerRepository);
+        calls.verify(balanceRepository).findByMemberWithLock(user);
+        calls.verify(ledgerRepository).existsByMemberAndLedgerTypeAndCreatedAtAfter(
+                user, LedgerType.USE, chargeLedger.getCreatedAt());
         verify(cancellationRepository, never()).save(any());
     }
 }
