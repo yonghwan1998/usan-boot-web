@@ -12,12 +12,12 @@ public class BatchExcelProps {
     private String error;
     private String sheetName;
     @Value("${usan.batch.excel.header-rows}") int headerRows;//헤더 스킵 개수
-    @Value("${usan.batch.excel.listing-type-col-index}") int listingTypeColIndex;//G 컬럼, 0~6번째 index
-    @Value("${usan.batch.excel.listing-coordinates-col-index}") int listingCoordinatesColIndex;//AU 컬럼, 0~46번째 index
-    @Value("${usan.batch.excel.office-name-col-index}") int officeNameColIndex;//BB 컬럼, 0~53번째 index
-    @Value("${usan.batch.excel.broker-name-col-index}") int brokerNameColIndex;//BC 컬럼, 0~54번째 index
-    @Value("${usan.batch.excel.address-col-index}") int addressColIndex;//BD 컬럼, 0~55번째 index
-    @Value("${usan.batch.excel.registration-number-col-index}") int registrationNumberColIndex;//BE 컬럼, 0~56번째 index
-    @Value("${usan.batch.excel.tel-col-index}") int telColIndex;//BF 컬럼, 0~57번째 index
-    @Value("${usan.batch.excel.phone-col-index}") int phoneColIndex;//BG 컬럼, 0~58번째 index
+    @Value("${usan.batch.excel.listing-type-col-index}") int listingTypeColIndex;//H 컬럼, 0-based index 7
+    @Value("${usan.batch.excel.listing-coordinates-col-index}") int listingCoordinatesColIndex;//AV 컬럼, 0-based index 47
+    @Value("${usan.batch.excel.office-name-col-index}") int officeNameColIndex;//BC 컬럼, 0-based index 54
+    @Value("${usan.batch.excel.broker-name-col-index}") int brokerNameColIndex;//BD 컬럼, 0-based index 55
+    @Value("${usan.batch.excel.address-col-index}") int addressColIndex;//BE 컬럼, 0-based index 56
+    @Value("${usan.batch.excel.registration-number-col-index}") int registrationNumberColIndex;//BF 컬럼, 0-based index 57
+    @Value("${usan.batch.excel.tel-col-index}") int telColIndex;//BG 컬럼, 0-based index 58
+    @Value("${usan.batch.excel.phone-col-index}") int phoneColIndex;//BH 컬럼, 0-based index 59
 }

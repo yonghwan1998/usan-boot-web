@@ -62,14 +62,14 @@ usan:
     excel:
       sheet-name:
       header-rows: 1 #헤더 스킵 개수
-      listing-type-col-index: 6 #G 컬럼, 0~6번째 index
-      listing-coordinates-col-index: 46 #AU 컬럼, 0~46번째 index
-      office-name-col-index: 53 #BB 컬럼, 0~53번째 index
-      broker-name-col-index: 54 #BC 컬럼, 0~54번째 index
-      address-col-index: 55 #BD 컬럼, 0~55번째 index
-      registration-number-col-index: 56 #BE 컬럼, 0~56번째 index
-      tel-col-index: 57 #BF 컬럼, 0~57번째 index
-      phone-col-index: 58 #BG 컬럼, 0~58번째 index
+      listing-type-col-index: 7 #H 컬럼, 0-based index 7
+      listing-coordinates-col-index: 47 #AV 컬럼, 0-based index 47
+      office-name-col-index: 54 #BC 컬럼, 0-based index 54
+      broker-name-col-index: 55 #BD 컬럼, 0-based index 55
+      address-col-index: 56 #BE 컬럼, 0-based index 56
+      registration-number-col-index: 57 #BF 컬럼, 0-based index 57
+      tel-col-index: 58 #BG 컬럼, 0-based index 58
+      phone-col-index: 59 #BH 컬럼, 0-based index 59
 ncp:
   access-key: ${NCP_ACCESS_KEY}
   secret-key: ${NCP_SECRET_KEY}
