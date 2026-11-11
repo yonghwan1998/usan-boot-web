@@ -1,15 +1,11 @@
 package com.usanmap.usan.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.usanmap.usan.service.BrokerExcelIngestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.usanmap.usan.batch.job.broker.BrokerExcelIngestJobConfig;
 
 /**
  * @date    2025-11-19
@@ -21,9 +17,7 @@ import com.usanmap.usan.batch.job.broker.BrokerExcelIngestJobConfig;
 @RequestMapping("/broker")
 public class BrokerExcelIngestController {
 
-    private final JobLauncher jobLauncher;
-    @Qualifier(BrokerExcelIngestJobConfig.JOB_NAME)
-    private final Job brokerExcelIngestJob;
+    private final BrokerExcelIngestService brokerExcelIngestService;
 
     /**
      * @date    2025-11-19
@@ -36,10 +30,7 @@ public class BrokerExcelIngestController {
     @PostMapping("/batch/run-broker-excel-ingest")
     public ResponseEntity<String> run() throws Exception {
 
-        var params = new JobParametersBuilder()
-                .addLong("ts", System.currentTimeMillis())
-                .toJobParameters();
-        jobLauncher.run(brokerExcelIngestJob, params);
+        brokerExcelIngestService.run();
 
         return ResponseEntity.ok("brokerExcelIngestJob batch started");
     }

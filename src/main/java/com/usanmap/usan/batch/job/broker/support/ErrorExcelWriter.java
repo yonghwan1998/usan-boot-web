@@ -35,7 +35,7 @@ public class ErrorExcelWriter {
 
             String ts = LocalDateTime.now()
                     .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-            File outFile = new File(dir, "broker_errors_" + ts + ".xlsx");
+            File outFile = new File(dir, "broker_errors_" + ts + "_" + java.util.UUID.randomUUID() + ".xlsx");
 
             try(SXSSFWorkbook wb = new SXSSFWorkbook(100);
                 FileOutputStream fos = new FileOutputStream(outFile)) {

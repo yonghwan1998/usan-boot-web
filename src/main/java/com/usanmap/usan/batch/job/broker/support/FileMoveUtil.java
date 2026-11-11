@@ -12,23 +12,12 @@ public class FileMoveUtil {
 
     private final BatchExcelProps props;
 
-    public void moveAllToArchive() {
-
-        File inbox = new File(props.getInbox());
-        File[] files = inbox.listFiles((dir, name) -> name.toLowerCase().endsWith(".xlsx"));
-
-        if (files == null) {
-            return;
-        }
-
-        for (File f : files) {
-            try {
-                FileUtils.moveFileToDirectory(f, new File(props.getArchive()), true);
-            } catch (Exception e) {
-                try {
-                    FileUtils.moveFileToDirectory(f, new File(props.getError()), true);
-                } catch (Exception ignored) {}
-            }
+    public void moveToArchive(String inputFile) {
+        File file = new File(inputFile);
+        try {
+            FileUtils.moveFileToDirectory(file, new File(props.getArchive()), true);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to archive excel: " + inputFile, e);
         }
     }
 }

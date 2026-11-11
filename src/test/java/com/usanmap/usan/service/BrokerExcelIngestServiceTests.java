@@ -1,0 +1,54 @@
+package com.usanmap.usan.service;
+
+import com.usanmap.usan.batch.job.broker.support.BatchExcelProps;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class BrokerExcelIngestServiceTests {
+    @TempDir Path inbox;
+
+    @Test
+    void runsOneJobForEachExcelInOrder() throws Exception {
+        Files.createFile(inbox.resolve("b.xlsx"));
+        Files.createFile(inbox.resolve("a.xlsx"));
+        Files.createFile(inbox.resolve("ignored.txt"));
+        Files.createDirectory(inbox.resolve("directory.xlsx"));
+        JobLauncher launcher = mock(JobLauncher.class);
+        Job job = mock(Job.class);
+        BatchExcelProps props = new BatchExcelProps();
+        props.setInbox(inbox.toString());
+        var inputs = new ArrayList<String>();
+        when(launcher.run(eq(job), any())).thenAnswer(call -> {
+            JobParameters params = call.getArgument(1);
+            inputs.add(Path.of(params.getString("inputFile")).getFileName().toString());
+            JobExecution execution = new JobExecution((long) inputs.size(), params);
+            execution.setStatus(BatchStatus.COMPLETED);
+            return execution;
+        });
+        new BrokerExcelIngestService(launcher, job, props).run();
+        assertThat(inputs).containsExactly("a.xlsx", "b.xlsx");
+    }
+
+    @Test
+    void stopsLaunchingFurtherFilesWhenAFileFails() throws Exception {
+        Files.createFile(inbox.resolve("a.xlsx"));
+        Files.createFile(inbox.resolve("b.xlsx"));
+        JobLauncher launcher = mock(JobLauncher.class);
+        Job job = mock(Job.class);
+        BatchExcelProps props = new BatchExcelProps();
+        props.setInbox(inbox.toString());
+        JobExecution failed = new JobExecution(1L);
+        failed.setStatus(BatchStatus.FAILED);
+        when(launcher.run(eq(job), any())).thenReturn(failed);
+        assertThatThrownBy(() -> new BrokerExcelIngestService(launcher, job, props).run())
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("a.xlsx");
+        verify(launcher, times(1)).run(eq(job), any());
+    }
+}

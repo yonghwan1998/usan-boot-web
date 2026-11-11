@@ -1,11 +1,7 @@
 package com.usanmap.usan.batch.job.broker;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.usanmap.usan.service.BrokerExcelIngestService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,17 +23,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BrokerExcelScheduler {
 
-    private final JobLauncher jobLauncher;//Job 실행을 돕는 컴포넌트
-
-    @Qualifier(BrokerExcelIngestJobConfig.JOB_NAME)
-    private final Job brokerExcelIngestJob;//실행해야하는 배치 단위
+    private final BrokerExcelIngestService brokerExcelIngestService;
 
 //    @Scheduled(cron = "0 30 1 * * *", zone = "Asia/Seoul")
     public void run() throws Exception {
-        JobParameters params = new JobParametersBuilder()
-                .addLong("ts", System.currentTimeMillis())
-                .toJobParameters();
-
-        jobLauncher.run(brokerExcelIngestJob, params);
+        brokerExcelIngestService.run();
     }
 }
