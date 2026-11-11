@@ -1,6 +1,8 @@
 package com.usanmap.usan.batch.job.broker;
 
 import org.springframework.batch.core.*;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import com.usanmap.usan.batch.job.broker.support.FailedExcelHandler;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.core.repository.JobRepository;
@@ -73,6 +75,14 @@ public class BrokerExcelIngestJobConfig {
                         .build())
                 .processor(processor)
                 .writer(writer)
+                .listener(new ChunkListener() {
+                    @Override
+                    public void afterChunk(ChunkContext context) {
+                        var executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+                        executionContext.putInt(FailedExcelHandler.LAST_COMMITTED_ROW,
+                                executionContext.getInt(SaxExcelRowItemReader.LAST_READ_EXCEL_ROW, 0));
+                    }
+                })
                 .listener(new StepExecutionListener() {
                     @Override
                     public void beforeStep(StepExecution stepExecution) {
@@ -105,7 +115,8 @@ public class BrokerExcelIngestJobConfig {
     @Bean(name = JOB_NAME)
     public Job brokerExcelIngestJob(JobRepository jobRepository,
                                     Step brokerExcelStep,
-                                    FileMoveUtil fileMoveUtil) {
+                                    FileMoveUtil fileMoveUtil,
+                                    FailedExcelHandler failedExcelHandler) {
         return new JobBuilder(JOB_NAME, jobRepository)
                 .start(brokerExcelStep)
                 .listener(new JobExecutionListenerSupport() {
@@ -113,6 +124,8 @@ public class BrokerExcelIngestJobConfig {
                     public void afterJob(JobExecution jobExecution) {
                         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
                             fileMoveUtil.moveToArchive(jobExecution.getJobParameters().getString("inputFile"));
+                        } else if (jobExecution.getStatus() == BatchStatus.FAILED) {
+                            failedExcelHandler.handle(jobExecution);
                         }
                     }
                 })
