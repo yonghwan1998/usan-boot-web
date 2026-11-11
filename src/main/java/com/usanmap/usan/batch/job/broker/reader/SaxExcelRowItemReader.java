@@ -28,8 +28,11 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
     private ReadOnlySharedStringsTable sst;
     private Iterator<List<String>> rowIterator;
 
+    private List<List<String>> sourceHeaders;
     private int headerRows;
     private int currentRowIndex = 0;
+    private List<Integer> excelRowNumbers;
+    public static final String LAST_READ_EXCEL_ROW = "broker.lastReadExcelRow";
 
     private String ecKey;
 
@@ -88,6 +91,9 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
             parser.parse(new InputSource(sheetStream));
 
             List<List<String>> allRows = handler.getRowList();
+            this.excelRowNumbers = handler.rowNumbers;
+
+            this.sourceHeaders = new ArrayList<>(allRows.subList(0, Math.min(headerRows, allRows.size())));
 
             int savedPos = executionContext.containsKey(ecKey)
                     ? executionContext.getInt(ecKey)
@@ -128,6 +134,8 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
         String phone                = get(row, props.getPhoneColIndex());
 
         return BrokerRow.builder()
+                .sourceValues(new ArrayList<>(row))
+                .sourceHeaders(sourceHeaders)
                 .listingType(listingType)
                 .listingCoordinates(listingCoordinates)
                 .officeName(officeName)
@@ -145,6 +153,8 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
     public void update(ExecutionContext executionContext) throws ItemStreamException {
         if (ecKey != null) {
             executionContext.putInt(ecKey, currentRowIndex);
+            executionContext.putInt(LAST_READ_EXCEL_ROW, currentRowIndex == 0 ? 0
+                    : excelRowNumbers.get(headerRows + currentRowIndex - 1));
         }
     }
 
@@ -175,6 +185,7 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
         private final String ecKey;
 
         private final List<List<String>> rowList = new ArrayList<>();
+        private final List<Integer> rowNumbers = new ArrayList<>();
         private List<String> cellBuffer;
 
         private String cellType;
@@ -200,6 +211,8 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
                                  String qName,
                                  Attributes attributes) {
             if ("row".equals(qName)) {
+                String rowNumber = attributes.getValue("r");
+                rowNumbers.add(rowNumber == null ? rowNumbers.size() + 1 : Integer.parseInt(rowNumber));
                 cellBuffer = new ArrayList<>();
                 currentColIndex = -1;
             }
