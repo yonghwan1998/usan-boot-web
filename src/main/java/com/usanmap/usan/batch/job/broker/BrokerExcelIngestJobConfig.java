@@ -14,7 +14,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import com.usanmap.usan.batch.job.broker.processor.EnrichedBrokerItem;
 import com.usanmap.usan.batch.job.broker.processor.NaverAddressEnrichProcessor;
-import com.usanmap.usan.batch.job.broker.reader.BrokerMultiFileReader;
+import com.usanmap.usan.batch.job.broker.reader.SaxExcelRowItemReader;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.core.io.FileSystemResource;
 import com.usanmap.usan.batch.job.broker.reader.BrokerRow;
 import com.usanmap.usan.batch.job.broker.support.BrokerErrorCollector;
 import com.usanmap.usan.batch.job.broker.support.ErrorExcelWriter;
@@ -37,8 +39,12 @@ public class BrokerExcelIngestJobConfig {
     private int chunkSize;
 
     @Bean
-    public BrokerMultiFileReader brokerMultiFileReader(BatchExcelProps props) {
-        return new BrokerMultiFileReader(props);
+    @StepScope
+    public SaxExcelRowItemReader brokerExcelReader(BatchExcelProps props,
+            @Value("#{jobParameters['inputFile']}") String inputFile) {
+        SaxExcelRowItemReader reader = new SaxExcelRowItemReader(props);
+        reader.setResource(new FileSystemResource(inputFile));
+        return reader;
     }
 
     /**
@@ -47,14 +53,14 @@ public class BrokerExcelIngestJobConfig {
      *
      * 처리 과정:
      *  - brokerExcelIngestJob() 실행 시 첫 스텝으로 실행
-     *  - reader(BrokerMultiFileReader) 호출
+     *  - reader(SaxExcelRowItemReader) 호출
      *  - 리턴된 값을 processor(NaverAddressEnrichProcessor)에 넘김
      *  - processor 결과를 모아서 writer(BrokerUpsertWriter) 호출
      */
     @Bean
     public Step brokerExcelStep(JobRepository jobRepository,
                                 PlatformTransactionManager tx,
-                                BrokerMultiFileReader reader,
+                                SaxExcelRowItemReader reader,
                                 NaverAddressEnrichProcessor processor,
                                 BrokerUpsertWriter writer,
                                 BrokerErrorCollector errorCollector,
@@ -93,7 +99,7 @@ public class BrokerExcelIngestJobConfig {
      * 처리 과정:
      *  - BrokerExcelScheduler.run() 시 실행
      *  - start()를 통해 Job에 등록되어 있는 Step(brokerExcelStep) 실행
-     *  - Step 처리 후 afterJob으로 FileMoveUtil.moveAllToArchive() 실행
+     *  - Step 처리 후 afterJob으로 FileMoveUtil.moveToArchive() 실행
      *  - 완료한 엑셀 파일 move
      */
     @Bean(name = JOB_NAME)
@@ -106,7 +112,7 @@ public class BrokerExcelIngestJobConfig {
                     @Override
                     public void afterJob(JobExecution jobExecution) {
                         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-                            fileMoveUtil.moveAllToArchive();
+                            fileMoveUtil.moveToArchive(jobExecution.getJobParameters().getString("inputFile"));
                         }
                     }
                 })
