@@ -107,6 +107,8 @@ public class NaverAddressEnrichProcessor implements ItemProcessor<BrokerRow, Enr
     private void collectingErrorWithMessage(BrokerRow row, String errorMessage) {
         errorCollector.add(
             BrokerErrorRow.builder()
+                    .sourceValues(row.getSourceValues())
+                    .sourceHeaders(row.getSourceHeaders())
                     .sourceFileName(row.getSourceFileName())
                     .rowIndex(row.getRowIndex())
                     .listingType(row.getListingType())

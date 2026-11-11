@@ -28,6 +28,7 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
     private ReadOnlySharedStringsTable sst;
     private Iterator<List<String>> rowIterator;
 
+    private List<List<String>> sourceHeaders;
     private int headerRows;
     private int currentRowIndex = 0;
 
@@ -89,6 +90,8 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
 
             List<List<String>> allRows = handler.getRowList();
 
+            this.sourceHeaders = new ArrayList<>(allRows.subList(0, Math.min(headerRows, allRows.size())));
+
             int savedPos = executionContext.containsKey(ecKey)
                     ? executionContext.getInt(ecKey)
                     : 0;
@@ -128,6 +131,8 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
         String phone                = get(row, props.getPhoneColIndex());
 
         return BrokerRow.builder()
+                .sourceValues(new ArrayList<>(row))
+                .sourceHeaders(sourceHeaders)
                 .listingType(listingType)
                 .listingCoordinates(listingCoordinates)
                 .officeName(officeName)

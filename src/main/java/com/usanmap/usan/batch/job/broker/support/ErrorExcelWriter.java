@@ -1,6 +1,7 @@
 package com.usanmap.usan.batch.job.broker.support;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -15,7 +16,10 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ErrorExcelWriter {
+
+    private final BatchExcelProps props;
 
     public void write(String errorDir, List<BrokerErrorRow> errors) {
 
@@ -36,35 +40,37 @@ public class ErrorExcelWriter {
             try(SXSSFWorkbook wb = new SXSSFWorkbook(100);
                 FileOutputStream fos = new FileOutputStream(outFile)) {
 
-                Sheet sheet = wb.createSheet("errors");
+                // 재처리 대상 시트를 첫 번째로 생성하고 원본 열 순서를 그대로 유지한다.
+                String sheetName = props.getSheetName();
+                Sheet sheet = wb.createSheet(sheetName == null || sheetName.isBlank() ? "data" : sheetName);
+                List<List<String>> headers = errors.get(0).getSourceHeaders();
+                int errorColumn = 0;
+                for (List<String> header : headers) {
+                    errorColumn = Math.max(errorColumn, header.size());
+                }
+                for (BrokerErrorRow error : errors) {
+                    errorColumn = Math.max(errorColumn, error.getSourceValues().size());
+                }
+                // 재처리 파일에 이미 오류 열이 있으면 해당 열을 갱신한다.
+                if (!headers.isEmpty()) {
+                    List<String> lastHeader = headers.get(headers.size() - 1);
+                    if (!lastHeader.isEmpty() && "errorMessage".equals(lastHeader.get(lastHeader.size() - 1))) {
+                        errorColumn = lastHeader.size() - 1;
+                    }
+                }
+                for (int i = 0; i < props.getHeaderRows(); i++) {
+                    Row header = sheet.createRow(i);
+                    writeValues(header, i < headers.size() ? headers.get(i) : List.of());
+                    if (i == props.getHeaderRows() - 1) {
+                        header.createCell(errorColumn).setCellValue("errorMessage");
+                    }
+                }
 
-                Row header = sheet.createRow(0);
-                header.createCell(0).setCellValue("원본 파일명");
-                header.createCell(1).setCellValue("원본 파일 행번호");
-                header.createCell(2).setCellValue("종류");
-                header.createCell(3).setCellValue("중개사무소명");
-                header.createCell(4).setCellValue("중개사명");
-                header.createCell(5).setCellValue("중개사무소 주소");
-                header.createCell(6).setCellValue("중개사등록번호");
-                header.createCell(7).setCellValue("중개사무소 전화");
-                header.createCell(8).setCellValue("중개사 휴대폰");
-                header.createCell(9).setCellValue("errorMessage");
-
-                int rowNum = 1;
+                int rowNum = props.getHeaderRows();
                 for (BrokerErrorRow e : errors) {
                     Row row = sheet.createRow(rowNum++);
-
-                    int c = 0;
-                    row.createCell(c++).setCellValue(nvl(e.getSourceFileName()));
-                    row.createCell(c++).setCellValue(e.getRowIndex());
-                    row.createCell(c++).setCellValue(nvl(e.getListingType()));
-                    row.createCell(c++).setCellValue(nvl(e.getOfficeName()));
-                    row.createCell(c++).setCellValue(nvl(e.getBrokerName()));
-                    row.createCell(c++).setCellValue(nvl(e.getAddress()));
-                    row.createCell(c++).setCellValue(nvl(e.getRegistrationNumber()));
-                    row.createCell(c++).setCellValue(nvl(e.getTel()));
-                    row.createCell(c++).setCellValue(nvl(e.getPhone()));
-                    row.createCell(c++).setCellValue(nvl(e.getErrorMessage()));
+                    writeValues(row, e.getSourceValues());
+                    row.createCell(errorColumn).setCellValue(nvl(e.getErrorMessage()));
                 }
 
                 wb.write(fos);
@@ -74,6 +80,12 @@ public class ErrorExcelWriter {
             log.info("[ErrorExcelWriter] {} errors saved to {}", errors.size(), outFile.getAbsolutePath());
         } catch (Exception e) {
             log.error("[ErrorExcelWriter] failed to write error excel", e);
+        }
+    }
+
+    private void writeValues(Row row, List<String> values) {
+        for (int i = 0; i < values.size(); i++) {
+            row.createCell(i).setCellValue(nvl(values.get(i)));
         }
     }
 

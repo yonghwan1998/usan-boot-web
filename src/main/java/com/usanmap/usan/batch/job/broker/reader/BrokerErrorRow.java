@@ -2,10 +2,14 @@ package com.usanmap.usan.batch.job.broker.reader;
 
 import lombok.Builder;
 import lombok.Getter;
+import java.util.List;
 
 @Getter
 @Builder
 public class BrokerErrorRow {
+
+    private List<String> sourceValues;
+    private List<List<String>> sourceHeaders;
 
     private String sourceFileName;
     private int rowIndex;
