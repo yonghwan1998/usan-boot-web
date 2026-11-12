@@ -37,7 +37,7 @@ class BrokerExcelIngestServiceTests {
     }
 
     @Test
-    void stopsLaunchingFurtherFilesWhenAFileFails() throws Exception {
+    void stopsWhenFailedFileRemainsInInbox() throws Exception {
         Files.createFile(inbox.resolve("a.xlsx"));
         Files.createFile(inbox.resolve("b.xlsx"));
         JobLauncher launcher = mock(JobLauncher.class);
@@ -51,4 +51,35 @@ class BrokerExcelIngestServiceTests {
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("a.xlsx");
         verify(launcher, times(1)).run(eq(job), any());
     }
+    @Test
+    void continuesAfterFailedFileIsMovedToError() throws Exception {
+        Path first = Files.createFile(inbox.resolve("a.xlsx"));
+        Path second = Files.createFile(inbox.resolve("b.xlsx"));
+        Path error = Files.createDirectory(inbox.resolve("error"));
+        JobLauncher launcher = mock(JobLauncher.class);
+        Job job = mock(Job.class);
+        BatchExcelProps props = new BatchExcelProps();
+        props.setInbox(inbox.toString());
+        props.setError(error.toString());
+        var inputs = new ArrayList<String>();
+        when(launcher.run(eq(job), any())).thenAnswer(call -> {
+            JobParameters params = call.getArgument(1);
+            Path file = Path.of(params.getString("inputFile"));
+            inputs.add(file.getFileName().toString());
+            JobExecution execution = new JobExecution((long) inputs.size(), params);
+            execution.setStatus(file.equals(first) ? BatchStatus.FAILED : BatchStatus.COMPLETED);
+            if (execution.getStatus() == BatchStatus.FAILED) {
+                // 실제 afterJob과 같은 실패 파일 이동 처리를 수행한다.
+                execution.addFailureException(new org.apache.poi.util.RecordFormatException("array exceeds limit"));
+                new com.usanmap.usan.batch.job.broker.support.FailedExcelHandler(props).handle(execution);
+            }
+            return execution;
+        });
+        new BrokerExcelIngestService(launcher, job, props).run();
+        assertThat(inputs).containsExactly("a.xlsx", "b.xlsx");
+        assertThat(first).doesNotExist();
+        assertThat(error.resolve("a.xlsx")).exists();
+        assertThat(second).exists();
+    }
+
 }

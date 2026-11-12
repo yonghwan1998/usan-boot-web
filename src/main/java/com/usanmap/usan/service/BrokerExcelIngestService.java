@@ -3,6 +3,7 @@ package com.usanmap.usan.service;
 import com.usanmap.usan.batch.job.broker.BrokerExcelIngestJobConfig;
 import com.usanmap.usan.batch.job.broker.support.BatchExcelProps;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BrokerExcelIngestService {
@@ -34,6 +36,12 @@ public class BrokerExcelIngestService {
                         .addString("runId", UUID.randomUUID().toString())
                         .toJobParameters();
                 var execution = jobLauncher.run(brokerExcelIngestJob, params);
+                if (execution.getStatus() == BatchStatus.FAILED && Files.notExists(file)) {
+                    // afterJob에서 실패 파일을 격리한 경우 다음 파일을 계속 처리한다.
+                    log.warn("Excel batch failed; continuing with next file: {}, executionId={}",
+                            file, execution.getId());
+                    continue;
+                }
                 if (execution.getStatus() != BatchStatus.COMPLETED) {
                     throw new IllegalStateException("Excel batch did not complete: " + file
                             + ", status=" + execution.getStatus());
