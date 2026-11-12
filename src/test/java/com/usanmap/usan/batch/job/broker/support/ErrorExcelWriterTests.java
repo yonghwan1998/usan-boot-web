@@ -49,7 +49,13 @@ class ErrorExcelWriterTests {
             assertThat(workbook.getNumberOfSheets()).isEqualTo(1);
         }
         SaxExcelRowItemReader reader = new SaxExcelRowItemReader(props);
-        reader.setResource(new FileSystemResource(output));
+        byte[] originalBytes = Files.readAllBytes(output);
+        reader.setResource(new FileSystemResource(output) {
+            @Override
+            public java.io.InputStream getInputStream() {
+                throw new AssertionError("Excel must be opened directly as a file");
+            }
+        });
         reader.open(new ExecutionContext());
         try {
             var row = reader.read();
@@ -71,5 +77,6 @@ class ErrorExcelWriterTests {
                 assertThat(saved.getCell(values.size()).getStringCellValue()).isEqualTo("수정 필요");
             }
         } finally { reader.close(); }
+        assertThat(Files.readAllBytes(output)).isEqualTo(originalBytes);
     }
 }
