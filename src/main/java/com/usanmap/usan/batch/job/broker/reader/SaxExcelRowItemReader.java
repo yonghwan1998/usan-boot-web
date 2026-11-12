@@ -2,6 +2,7 @@ package com.usanmap.usan.batch.job.broker.reader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.springframework.batch.item.*;
@@ -55,8 +56,8 @@ public class SaxExcelRowItemReader implements ResourceAwareItemReaderItemStream<
                 return;
             }
 
-            InputStream is = resource.getInputStream();
-            this.opcPackage = OPCPackage.open(is);
+            // ZIP 데이터를 메모리에 일괄 적재하지 않도록 원본 파일을 읽기 전용으로 연다.
+            this.opcPackage = OPCPackage.open(resource.getFile(), PackageAccess.READ);
             this.sst = new ReadOnlySharedStringsTable(opcPackage);
 
             XSSFReader reader = new XSSFReader(opcPackage);
