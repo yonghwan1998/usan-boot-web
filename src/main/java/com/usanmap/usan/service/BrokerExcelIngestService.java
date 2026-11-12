@@ -30,21 +30,36 @@ public class BrokerExcelIngestService {
             var files = paths.filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().endsWith(".xlsx"))
                     .sorted().toList();
-            for (Path file : files) {
-                var params = new JobParametersBuilder()
-                        .addString("inputFile", file.toAbsolutePath().toString())
-                        .addString("runId", UUID.randomUUID().toString())
-                        .toJobParameters();
-                var execution = jobLauncher.run(brokerExcelIngestJob, params);
-                if (execution.getStatus() == BatchStatus.FAILED && Files.notExists(file)) {
-                    // afterJob에서 실패 파일을 격리한 경우 다음 파일을 계속 처리한다.
-                    log.warn("Excel batch failed; continuing with next file: {}, executionId={}",
-                            file, execution.getId());
+            var splitter = new com.usanmap.usan.batch.job.broker.support.BrokerExcelSplitter(props);
+            for (Path source : files) {
+                java.util.List<Path> prepared;
+                try {
+                    prepared = splitter.prepare(source);
+                } catch (Exception e) {
+                    var failed = new org.springframework.batch.core.JobExecution(0L,
+                            new JobParametersBuilder().addString("inputFile", source.toAbsolutePath().toString()).toJobParameters());
+                    failed.addFailureException(e);
+                    new com.usanmap.usan.batch.job.broker.support.FailedExcelHandler(props).handle(failed);
+                    if (Files.exists(source)) throw new IllegalStateException("Failed to isolate unsplittable file: " + source, e);
+                    log.warn("Excel split failed; isolated file and continuing: {}", source, e);
                     continue;
                 }
-                if (execution.getStatus() != BatchStatus.COMPLETED) {
-                    throw new IllegalStateException("Excel batch did not complete: " + file
-                            + ", status=" + execution.getStatus());
+                for (Path file : prepared) {
+                    var params = new JobParametersBuilder()
+                            .addString("inputFile", file.toAbsolutePath().toString())
+                            .addString("runId", UUID.randomUUID().toString())
+                            .toJobParameters();
+                    var execution = jobLauncher.run(brokerExcelIngestJob, params);
+                    if (execution.getStatus() == BatchStatus.FAILED && Files.notExists(file)) {
+                        // afterJob에서 실패 파일을 격리한 경우 다음 파일을 계속 처리한다.
+                        log.warn("Excel batch failed; continuing with next file: {}, executionId={}",
+                                file, execution.getId());
+                        continue;
+                    }
+                    if (execution.getStatus() != BatchStatus.COMPLETED) {
+                        throw new IllegalStateException("Excel batch did not complete: " + file
+                                + ", status=" + execution.getStatus());
+                    }
                 }
             }
         }
