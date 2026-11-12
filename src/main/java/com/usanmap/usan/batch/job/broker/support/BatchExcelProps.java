@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("usan.batch.excel")
 public class BatchExcelProps {
+    private long maxFileBytes = 10_000_000L;
     private String inbox;
     private String archive;
     private String error;
