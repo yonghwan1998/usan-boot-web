@@ -272,10 +272,11 @@
                                                 </span>
                                             </th:block>
                                         </div>
-                                        <div class="nearby-agent__address-wrapper">
+                                        <button type="button" class="nearby-agent__address-wrapper common-address-trigger" data-address-trigger aria-expanded="false"
+                                                th:data-address-road="${broker.addrRoad}" th:data-address-jibun="${broker.addrJibun}" th:data-address-text="${broker.address}">
                                             <span class="nearby-agent__address" th:text="${broker.address}">주소</span>
                                             <span class="nearby-agent__expand-btn"></span>
-                                        </div>
+                                        </button>
                                     </div>
                                     <div>
 <!--                                        <img th:src="|/img/78x78-nearby-thumb-${(iterStat.index % 3) + 1}.svg|" alt="프로필">-->
@@ -310,10 +311,10 @@
                                             <span class="tag-count">7</span>
                                         </span>
                                     </div>
-                                    <div class="nearby-agent__address-wrapper">
+                                    <button type="button" class="nearby-agent__address-wrapper common-address-trigger" data-address-trigger data-address-text="서울특별시 강남구 신사동" aria-expanded="false">
                                         <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
                                         <span class="nearby-agent__expand-btn"></span>
-                                    </div>
+                                    </button>
                                 </div>
                                 <div>
                                     <img src="/img/78x78-nearby-thumb-1.svg" alt="프로필" loading="lazy">
@@ -337,10 +338,10 @@
                                             <span class="tag-count">5</span>
                                         </span>
                                     </div>
-                                    <div class="nearby-agent__address-wrapper">
+                                    <button type="button" class="nearby-agent__address-wrapper common-address-trigger" data-address-trigger data-address-text="서울특별시 강남구 신사동" aria-expanded="false">
                                         <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
                                         <span class="nearby-agent__expand-btn"></span>
-                                    </div>
+                                    </button>
                                 </div>
                                 <div>
                                     <img src="/img/78x78-nearby-thumb-2.svg" alt="프로필" loading="lazy">
@@ -364,10 +365,10 @@
                                             <span class="tag-count">2</span>
                                         </span>
                                     </div>
-                                    <div class="nearby-agent__address-wrapper">
+                                    <button type="button" class="nearby-agent__address-wrapper common-address-trigger" data-address-trigger data-address-text="서울특별시 강남구 신사동" aria-expanded="false">
                                         <span class="nearby-agent__address">서울특별시 강남구 신사동</span>
                                         <span class="nearby-agent__expand-btn"></span>
-                                    </div>
+                                    </button>
                                 </div>
                                 <div>
                                     <img src="/img/78x78-nearby-thumb-3.svg" alt="프로필" loading="lazy">

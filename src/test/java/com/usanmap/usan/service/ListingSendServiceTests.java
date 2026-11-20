@@ -21,6 +21,7 @@ class ListingSendServiceTests {
     @Mock ListingSendHistoryRepository histories;
     @Mock CreditService credits;
     @Mock ListingService listings;
+    @Mock BrokerPropertyCountRepository brokers;
     @InjectMocks ListingSendService service;
 
     @Test
@@ -115,5 +116,23 @@ class ListingSendServiceTests {
         assertThatThrownBy(() -> service.getRecipients(1L, 5L, 0, "OTHER"))
                 .isInstanceOf(ResponseStatusException.class);
         verifyNoInteractions(batches, histories);
+    }
+
+    @Test
+    void resolvesTypedAddressesInOneQueryAndKeepsChangedHistoricalAddress() {
+        UUID code = UUID.randomUUID();
+        var current = mock(BrokerPropertyCount.class);
+        when(current.getBrokerCode()).thenReturn(code);
+        when(current.getAddrRoad()).thenReturn("현재 도로명 123");
+        when(current.getAddrJibun()).thenReturn("현재 지번 45");
+        when(brokers.findByBrokerCodeIn(List.of(code))).thenReturn(List.of(current));
+        var matching = ListingSendHistory.builder().id(1L).userId(3L).brokerCode(code).brokerAddress("현재 도로명 123").build();
+        var changed = ListingSendHistory.builder().id(2L).userId(3L).brokerCode(code).brokerAddress("과거 주소 999").build();
+        var foreign = ListingSendHistory.builder().id(3L).userId(4L).brokerCode(UUID.randomUUID()).brokerAddress("다른 사용자 주소").build();
+        var addresses = service.getRecipientAddresses(3L, List.of(matching, changed, foreign));
+        assertThat(addresses).hasSize(1);
+        assertThat(addresses.get(1L).road()).isEqualTo("현재 도로명 123");
+        assertThat(addresses.get(1L).jibun()).isEqualTo("현재 지번 45");
+        verify(brokers).findByBrokerCodeIn(List.of(code));
     }
 }

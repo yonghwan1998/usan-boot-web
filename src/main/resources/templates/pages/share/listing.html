@@ -49,7 +49,10 @@
             <div class="l-title-name">
                 <h1 class="l-property-name" th:text="${listing.addressName} + ' ' + ${listing.addressDetail}">우산갤러리아오피스텔</h1>
 
-                <button class="l-property__addr-wrapper">
+                <button type="button" class="l-property__addr-wrapper common-address-trigger" data-address-trigger aria-expanded="false"
+                        th:data-address-road="${#strings.isEmpty(listing.roadAddress) ? null : listing.roadAddress + ' ' + (listing.addressDetail ?: '')}"
+                        th:data-address-jibun="${#strings.isEmpty(listing.jibunAddress) ? null : listing.jibunAddress + ' ' + (listing.addressDetail ?: '')}"
+                        th:data-address-text="${listing.addressName}">
                     <span class="l-property__addr" th:text="${listing.sido} + ' ' + ${listing.sigungu}">서울특별시 강남구</span>
                     <span class="l-property-addr__expand-btn"></span>
                 </button>

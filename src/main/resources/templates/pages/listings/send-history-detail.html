@@ -40,13 +40,13 @@
                 <div class="send-history__broker-info">
                     <h2 th:text="${recipient.brokerOfficeName != null and !#strings.isEmpty(recipient.brokerOfficeName) ? recipient.brokerOfficeName : '중개사 정보 없음'}"></h2>
                     <p class="send-history__broker-status" th:classappend="${recipient.sendStatusClass}" th:text="${recipient.sendStatusLabel}"></p>
-                    <details class="send-history__broker-address">
-                        <summary><span th:text="${recipient.brokerShortAddress}"></span><img src="/img/send-history/down.svg" alt=""></summary>
-                        <div class="send-history__broker-contact">
-                            <p th:text="${recipient.brokerAddress ?: '주소 정보 없음'}"></p>
-                            <p th:text="${recipient.brokerPhone}"></p>
-                        </div>
-                    </details>
+                    <button type="button" class="send-history__broker-address common-address-trigger" data-address-trigger aria-expanded="false"
+                            th:with="address=${recipient.id != null ? brokerAddresses[recipient.id] : null}"
+                            th:data-address-road="${address != null ? address.road : null}"
+                            th:data-address-jibun="${address != null ? address.jibun : null}"
+                            th:data-address-text="${recipient.brokerAddress}">
+                        <span th:text="${recipient.brokerShortAddress}"></span><img class="send-history__address-chevron" src="/img/send-history/down.svg" alt="">
+                    </button>
                 </div>
             </li>
         </ul>

@@ -2,6 +2,7 @@ package com.usanmap.usan.service;
 
 import com.usanmap.usan.entity.*;
 import com.usanmap.usan.dto.SmsDeliveryResult;
+import com.usanmap.usan.dto.BrokerAddressDto;
 import com.usanmap.usan.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class ListingSendService {
     private final ListingSendHistoryRepository historyRepository;
     private final CreditService creditService;
     private final ListingService listingService;
+    private final BrokerPropertyCountRepository brokerRepository;
 
     // 크레딧 원장, 발송 묶음, 수신자 이력을 함께 커밋한 후 외부 API를 호출한다.
     @Transactional
@@ -150,6 +152,28 @@ public class ListingSendService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "발송 내역을 찾을 수 없습니다.");
         }
         return historyRepository.findRecipients(batchId, userId, filter, PageRequest.of(Math.max(0, page), 50));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, BrokerAddressDto> getRecipientAddresses(Long userId, List<ListingSendHistory> recipients) {
+        var own = recipients.stream().filter(h -> Objects.equals(h.getUserId(), userId)).toList();
+        var codes = own.stream().map(ListingSendHistory::getBrokerCode).filter(Objects::nonNull).distinct().toList();
+        if (codes.isEmpty()) return Map.of();
+        var brokers = brokerRepository.findByBrokerCodeIn(codes).stream()
+                .collect(Collectors.toMap(BrokerPropertyCount::getBrokerCode, Function.identity()));
+        Map<Long, BrokerAddressDto> addresses = new HashMap<>();
+        for (var history : own) {
+            var broker = brokers.get(history.getBrokerCode());
+            if (broker == null || history.getBrokerAddress() == null) continue;
+            String snapshot = history.getBrokerAddress().trim();
+            boolean matchesRoad = broker.getAddrRoad() != null && snapshot.equals(broker.getAddrRoad().trim());
+            boolean matchesJibun = broker.getAddrJibun() != null && snapshot.equals(broker.getAddrJibun().trim());
+            // 변경된 현재 주소로 과거 발송 당시 주소를 대체하지 않는다.
+            if (matchesRoad || matchesJibun) {
+                addresses.put(history.getId(), new BrokerAddressDto(broker.getAddrRoad(), broker.getAddrJibun()));
+            }
+        }
+        return addresses;
     }
 
     @Transactional(readOnly = true)
