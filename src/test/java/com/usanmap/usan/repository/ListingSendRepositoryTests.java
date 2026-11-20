@@ -59,6 +59,26 @@ class ListingSendRepositoryTests {
             assertThat(histories.findRecipients(first.getId(), 1L, "REFUNDED", PageRequest.of(0, 50)).getContent())
                     .hasSize(1).allMatch(h -> h.getRefundedCredit() == 1);
             assertThat(histories.findRecipients(foreign.getId(), 1L, "ALL", PageRequest.of(0, 50)).getContent()).isEmpty();
+            ListingSendBatch boundary = batch(1L, now.minusMinutes(10));
+            ListingSendBatch expired = batch(1L, now.minusMinutes(10).minusSeconds(1));
+            ListingSendBatch future = batch(1L, now.plusSeconds(1));
+            ListingSendBatch failed = batch(1L, now);
+            ListingSendBatch refunded = batch(1L, now);
+            ListingSendBatch noReceipt = batch(1L, now);
+            org.springframework.test.util.ReflectionTestUtils.setField(noReceipt, "providerRequestId", null);
+            for (var b : List.of(boundary, expired, future, failed, refunded, noReceipt)) em.persist(b);
+            em.persist(history(1L, boundary.getId(), "PENDING", 0, now));
+            em.persist(history(1L, expired.getId(), "ACCEPTED", 0, now));
+            em.persist(history(1L, future.getId(), "ACCEPTED", 0, now));
+            em.persist(history(1L, failed.getId(), "FAILED", 0, now));
+            em.persist(history(1L, refunded.getId(), "ACCEPTED", 1, now));
+            em.persist(history(1L, noReceipt.getId(), "ACCEPTED", 0, now));
+            em.flush(); em.clear();
+            assertThat(batches.findPendingResultBatches(now.minusMinutes(10), now, 0L, PageRequest.of(0, 100)))
+                    .extracting(ListingSendBatch::getId).containsExactly(first.getId(), boundary.getId());
+            assertThat(batches.findPendingResultBatches(now.minusMinutes(10), now, first.getId(), PageRequest.of(0, 100)))
+                    .extracting(ListingSendBatch::getId).containsExactly(boundary.getId());
+            assertThat(batches.findLockedById(first.getId())).isPresent();
             em.getTransaction().rollback();
         }
     }
@@ -66,6 +86,7 @@ class ListingSendRepositoryTests {
     private ListingSendBatch batch(Long userId, LocalDateTime time) {
         return ListingSendBatch.builder().listingId(9L).userId(userId).listingTitle("매물")
                 .listingAddress("주소").recipientCount(3).requestStatus("ACCEPTED").messageType("LMS")
+                .providerRequestId("request-" + java.util.UUID.randomUUID())
                 .requestedAt(time).updatedAt(time).build();
     }
 
