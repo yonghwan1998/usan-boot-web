@@ -33,6 +33,7 @@ class ListingSendTemplateTests {
         context.setVariable("login", com.usanmap.usan.dto.LoginViewModel.anonymous());
         context.setVariable("listingLabels", Map.of(1L, "매물 1"));
         context.setVariable("filter", "ALL");
+        context.setVariable("brokerAddresses", Map.of(1L, new com.usanmap.usan.dto.BrokerAddressDto("서울특별시 강남구 압구정로 123", "서울특별시 강남구 신사동 123-45")));
         context.setVariables(variables);
         String result = engine.process("pages/listings/" + template, context);
         // Used for isolated browser checks without a database or external SMS calls.
@@ -71,7 +72,7 @@ class ListingSendTemplateTests {
         ListingSendHistory recipient = ListingSendHistory.builder().brokerOfficeName("<script>alert(1)</script>")
                 .brokerPhone("01012345678").deliveryStatus("ACCEPTED").sentAt(LocalDateTime.now()).build();
         String html = render("send-history-detail", Map.of("item", item(), "recipients", new PageImpl<>(List.of(recipient))));
-        assertThat(html).contains("전송 중", "&lt;script&gt;", "전송 완료", "환불", "<details")
+        assertThat(html).contains("전송 중", "&lt;script&gt;", "전송 완료", "환불", "data-address-trigger")
                 .doesNotContain("<script>alert(1)</script>", "send-history__actions", "더 보기", "거래시각");
         render("send-history-legacy", Map.of("recipients", new PageImpl<>(List.of(recipient))));
         // 실제 사진 데이터가 없는 경우의 기본 이미지와 여러 상태를 시각 검증한다.
@@ -93,7 +94,7 @@ class ListingSendTemplateTests {
     }
 
     private ListingSendHistory recipient(String name, String status, int refund) {
-        return ListingSendHistory.builder().brokerOfficeName(name).brokerPhone("01012345678")
+        return ListingSendHistory.builder().id(name.equals("우리우산부동산") ? 1L : (long)Math.abs(name.hashCode())).brokerOfficeName(name).brokerPhone("01012345678")
                 .brokerAddress("서울특별시 강남구 신사동 123-45").deliveryStatus(status).refundedCredit(refund)
                 .sentAt(LocalDateTime.of(2026, 11, 20, 10, 30)).build();
     }

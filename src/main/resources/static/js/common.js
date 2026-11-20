@@ -462,3 +462,205 @@ function __maskEmail(email) {
 
     window.CommonPopup = { open, close };
 })();
+
+// 동적 지도 카드와 일반 페이지에서 함께 사용하는 전체 주소 플로팅 패널.
+(() => {
+    let trigger = null;
+    let panel = null;
+    let observer = null;
+    let ownerSheet = null;
+    let toast = null;
+    let toastTimer = null;
+    const selector = '[data-address-trigger]';
+
+    function close(restoreFocus = false) {
+        const previous = trigger;
+        trigger = null;
+        ownerSheet = null;
+        if (previous) previous.setAttribute('aria-expanded', 'false');
+        if (observer) observer.disconnect();
+        if (panel) {
+            if (panel.hasAttribute('popover') && panel.matches(':popover-open')) panel.hidePopover();
+            panel.hidden = true;
+        }
+        if (restoreFocus && previous?.isConnected) previous.focus({ preventScroll: true });
+    }
+
+    function position() {
+        if (!trigger?.isConnected || !panel) return close();
+        const bounds = trigger.getBoundingClientRect();
+        if (!bounds.width || !bounds.height) return close();
+        const card = trigger.closest('.cluster-broker, .send-history__broker-card, .nearby-agent__item, .broker-info-wrapper, .l-title-block, .search-agent__item, .share-listing__address-block');
+        const cardBounds = card ? card.getBoundingClientRect() : bounds;
+        const viewport = window.visualViewport;
+        const leftEdge = viewport?.offsetLeft || 0;
+        const topEdge = viewport?.offsetTop || 0;
+        const width = viewport?.width || document.documentElement.clientWidth;
+        const height = viewport?.height || window.innerHeight;
+        const panelWidth = Math.min(Math.max(cardBounds.width, 280), 520, width - 32);
+        panel.style.width = panelWidth + 'px';
+        panel.style.maxHeight = Math.max(80, height - 32) + 'px';
+        const panelHeight = panel.getBoundingClientRect().height;
+        const left = Math.max(leftEdge + 16, Math.min(cardBounds.left, leftEdge + width - panelWidth - 16));
+        let top = bounds.bottom + 8;
+        if (top + panelHeight > topEdge + height - 16) top = bounds.top - panelHeight - 8;
+        top = Math.max(topEdge + 16, Math.min(top, topEdge + height - panelHeight - 16));
+        panel.style.left = left + 'px';
+        panel.style.top = top + 'px';
+    }
+
+    function showToast(message) {
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'common-address-toast';
+            toast.hidden = true;
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            toast.setAttribute('aria-atomic', 'true');
+            if (typeof toast.showPopover === 'function') toast.setAttribute('popover', 'manual');
+            document.body.appendChild(toast);
+        }
+        clearTimeout(toastTimer);
+        const shell = document.querySelector('.mobile-shell');
+        const bounds = shell?.getBoundingClientRect();
+        toast.style.left = (bounds ? bounds.left + bounds.width / 2 : window.innerWidth / 2) + 'px';
+        const nav = document.querySelector('.bottom-nav');
+        const navBounds = nav?.getBoundingClientRect();
+        const navVisible = navBounds?.height && navBounds.bottom > 0 && navBounds.top < window.innerHeight;
+        const bottom = navVisible ? Math.max(24, window.innerHeight - navBounds.top + 12) : 24;
+        toast.style.bottom = 'max(' + bottom + 'px, env(safe-area-inset-bottom))';
+        toast.textContent = message;
+        toast.hidden = false;
+        if (toast.hasAttribute('popover') && !toast.matches(':popover-open')) toast.showPopover();
+        toastTimer = setTimeout(() => {
+            if (toast.hasAttribute('popover') && toast.matches(':popover-open')) toast.hidePopover();
+            toast.hidden = true;
+            toast.textContent = '';
+        }, 2500);
+    }
+
+    async function copyAddress(value, button) {
+        button.disabled = true;
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(value);
+            } else {
+                const input = document.createElement('textarea');
+                input.value = value;
+                input.readOnly = true;
+                input.style.cssText = 'position:fixed;left:-9999px;top:0;';
+                panel.appendChild(input);
+                try {
+                    input.focus({ preventScroll: true });
+                    input.select();
+                    input.setSelectionRange(0, value.length);
+                    if (!document.execCommand('copy')) throw new Error('copy failed');
+                } finally { input.remove(); }
+            }
+            showToast('주소를 복사했어요.');
+        } catch (error) {
+            showToast('복사하지 못했습니다. 다시 시도해 주세요.');
+        } finally {
+            button.disabled = false;
+            if (trigger && panel.contains(button)) {
+                position();
+                button.focus({ preventScroll: true });
+            }
+        }
+    }
+
+    function mount() {
+        const element = document.createElement('div');
+        element.id = 'common-address-panel';
+        element.className = 'common-address-panel';
+        element.hidden = true;
+        element.setAttribute('role', 'dialog');
+        element.setAttribute('aria-label', '전체 주소');
+        // 지원 브라우저에서는 top layer로 올려 지도·바텀시트의 overflow를 피한다.
+        if (typeof element.showPopover === 'function') element.setAttribute('popover', 'manual');
+        element.addEventListener('pointerdown', event => {
+            if (!element.hasAttribute('popover') && ownerSheet) event.stopPropagation();
+        });
+        document.body.appendChild(element);
+        return element;
+    }
+
+    function open(button) {
+        if (trigger === button) return close();
+        close();
+        if (!panel) panel = mount();
+        ownerSheet = button.closest('.bottom-sheet, .broker-detail-sheet');
+        // top layer로 표시하되 DOM은 원래 시트 안에 두어 바깥 클릭으로 오인하지 않게 한다.
+        const parent = panel.hasAttribute('popover') && ownerSheet ? ownerSheet : document.body;
+        parent.appendChild(panel);
+        const values = [];
+        const road = (button.dataset.addressRoad || '').trim();
+        const jibun = (button.dataset.addressJibun || '').trim();
+        const fallback = (button.dataset.addressText || '').trim();
+        if (road) values.push(['도로명', road]);
+        if (jibun) values.push(['지번', jibun]);
+        if (!values.length && fallback) values.push(['주소', fallback]);
+        panel.replaceChildren();
+        for (const [label, value] of values) {
+            const row = document.createElement('div');
+            row.className = 'common-address-panel__row';
+            const badge = document.createElement('span');
+            badge.className = 'common-address-panel__label';
+            badge.textContent = label;
+            const text = document.createElement('span');
+            text.className = 'common-address-panel__text';
+            text.textContent = value;
+            const copy = document.createElement('button');
+            copy.type = 'button';
+            copy.className = 'common-address-panel__copy';
+            copy.setAttribute('aria-label', label === '주소' ? '주소 복사' : label + ' 주소 복사');
+            copy.addEventListener('click', () => copyAddress(value, copy));
+            row.append(badge, text, copy);
+            panel.appendChild(row);
+        }
+        if (!values.length) {
+            const empty = document.createElement('p');
+            empty.className = 'common-address-panel__empty';
+            empty.textContent = '등록된 전체 주소가 없습니다.';
+            panel.appendChild(empty);
+        }
+        trigger = button;
+        button.setAttribute('aria-expanded', 'true');
+        button.setAttribute('aria-controls', panel.id);
+        panel.hidden = false;
+        if (panel.hasAttribute('popover')) panel.showPopover();
+        position();
+        observer = observer || new MutationObserver(records => {
+            if (trigger && (!trigger.isConnected || records.some(record =>
+                    record.type === 'attributes' && record.target === ownerSheet))) close();
+        });
+        observer.observe(document.body, { childList: true, subtree: true,
+            attributes: true, attributeFilter: ['class', 'style', 'hidden', 'aria-hidden'] });
+        if (document.activeElement === button) panel.querySelector('button')?.focus({ preventScroll: true });
+    }
+
+    document.addEventListener('click', event => {
+        const button = event.target.closest(selector);
+        if (button) {
+            event.preventDefault();
+            event.stopPropagation();
+            open(button);
+        } else if (trigger && !panel.contains(event.target)) close();
+    }, true);
+    document.addEventListener('keydown', event => {
+        if (trigger && event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            close(true);
+        }
+    }, true);
+    document.addEventListener('scroll', event => {
+        if (trigger && !panel.contains(event.target)) close();
+    }, true);
+    document.addEventListener('focusin', event => {
+        if (trigger && event.target !== trigger && !panel.contains(event.target)) close();
+    });
+    window.addEventListener('resize', () => { if (trigger) position(); });
+    window.visualViewport?.addEventListener('resize', () => { if (trigger) position(); });
+    window.addEventListener('popstate', () => close());
+})();
