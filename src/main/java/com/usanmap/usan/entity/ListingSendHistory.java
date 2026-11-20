@@ -53,6 +53,20 @@ public class ListingSendHistory {
         if ("FAILED".equals(status)) failedAt = LocalDateTime.now();
     }
 
+    public boolean isDeliveryPending() {
+        return (refundedCredit == null || refundedCredit == 0)
+                && ("PENDING".equals(deliveryStatus) || "ACCEPTED".equals(deliveryStatus) || "UNKNOWN".equals(deliveryStatus));
+    }
+
+    public void applyDeliveryResult(String messageId, boolean success, String code, LocalDateTime completedAt) {
+        if (!isDeliveryPending()) return;
+        providerMessageId = messageId;
+        resultCode = code;
+        deliveryStatus = success ? "DELIVERED" : "FAILED";
+        if (success) deliveredAt = completedAt;
+        else failedAt = completedAt;
+    }
+
     public String getDeliveryLabel() {
         if (deliveryStatus == null) return "결과 확인 불가";
         return switch (deliveryStatus) {

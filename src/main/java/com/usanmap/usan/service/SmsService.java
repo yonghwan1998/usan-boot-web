@@ -1,6 +1,11 @@
 package com.usanmap.usan.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.usanmap.usan.dto.SmsDeliveryResult;
+import org.springframework.web.util.UriComponentsBuilder;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -190,6 +195,56 @@ public class SmsService {
         log.info("SMS 접수 완료 - batchId: {}, listingId: {}, 수신자: {}명", batchId, listing.getId(), targets.size());
     }
 
+    public List<SmsDeliveryResult> getListingSendResults(String requestId) {
+        if (requestId == null || requestId.isBlank()) {
+            throw new IllegalArgumentException("문자 요청 번호가 없습니다.");
+        }
+        List<SmsDeliveryResult> results = new ArrayList<>();
+        Set<String> tokens = new HashSet<>();
+        String nextToken = null;
+        do {
+            String path = "/sms/v2/services/" + serviceId + "/messages";
+            var builder = UriComponentsBuilder.fromPath(path).queryParam("requestId", "{requestId}");
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("requestId", requestId);
+            if (nextToken != null) {
+                builder.queryParam("nextToken", "{nextToken}");
+                parameters.put("nextToken", nextToken);
+            }
+            String url = builder.encode().buildAndExpand(parameters).toUriString();
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            JsonNode response = sensWebClient.get()
+                    // 이미 인코딩한 서명 대상 URI가 다시 인코딩되지 않도록 한다.
+                    .uri(base -> base.build().resolve(url))
+                    .header("x-ncp-apigw-timestamp", timestamp)
+                    .header("x-ncp-iam-access-key", accessKey)
+                    .header("x-ncp-apigw-signature-v2", makeSignature("GET", timestamp, url))
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block(Duration.ofSeconds(10));
+            if (response == null || !"202".equals(response.path("statusCode").asText())
+                    || !"success".equals(response.path("statusName").asText())
+                    || !response.path("messages").isArray()) {
+                throw new IllegalStateException("문자 결과 조회 응답을 확인할 수 없습니다.");
+            }
+            for (JsonNode message : response.path("messages")) {
+                String completedAt = message.path("completeTime").asText(null);
+                results.add(new SmsDeliveryResult(
+                        message.path("requestId").asText(null), message.path("messageId").asText(null),
+                        message.path("to").asText(null), message.path("status").asText(null),
+                        message.path("statusName").asText(null), message.path("statusCode").asText(null),
+                        completedAt == null || completedAt.isBlank() ? null
+                                : LocalDateTime.parse(completedAt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+            }
+            if (!response.path("hasMore").asBoolean(false)) break;
+            nextToken = response.path("nextToken").asText(null);
+            if (nextToken == null || nextToken.isBlank() || !tokens.add(nextToken)) {
+                throw new IllegalStateException("문자 결과 조회 페이지 토큰이 올바르지 않습니다.");
+            }
+        } while (true);
+        return results;
+    }
+
     private String buildMessage(Listing listing) {
         StringBuilder sb = new StringBuilder();
 
@@ -233,7 +288,11 @@ public class SmsService {
     }
 
     private String makeSignature(String timestamp, String url) {
-        String message = "POST " + url + "\n" + timestamp + "\n" + accessKey;
+        return makeSignature("POST", timestamp, url);
+    }
+
+    private String makeSignature(String method, String timestamp, String url) {
+        String message = method + " " + url + "\n" + timestamp + "\n" + accessKey;
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
