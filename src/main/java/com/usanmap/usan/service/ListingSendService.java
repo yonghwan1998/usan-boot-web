@@ -1,6 +1,7 @@
 package com.usanmap.usan.service;
 
 import com.usanmap.usan.entity.*;
+import com.usanmap.usan.dto.SmsDeliveryResult;
 import com.usanmap.usan.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,57 @@ public class ListingSendService {
         batch.markRequest(status, requestId);
         historyRepository.findAllByBatchIdOrderByIdAsc(batchId)
                 .forEach(h -> h.markRequest(status, resultCode));
+    }
+
+    @Transactional
+    public int applyDeliveryResults(Long batchId, String requestId, List<SmsDeliveryResult> results) {
+        ListingSendBatch batch = batchRepository.findLockedById(batchId).orElse(null);
+        if (batch == null || !Objects.equals(batch.getProviderRequestId(), requestId)) return 0;
+        List<ListingSendHistory> histories = historyRepository.findAllByBatchIdOrderByIdAsc(batchId).stream()
+                .filter(h -> Objects.equals(h.getUserId(), batch.getUserId())).toList();
+        Map<String, SmsDeliveryResult> byMessageId = new LinkedHashMap<>();
+        for (SmsDeliveryResult result : results) {
+            if (Objects.equals(requestId, result.requestId()) && result.messageId() != null
+                    && !result.messageId().isBlank() && result.messageId().length() <= 100) {
+                byMessageId.put(result.messageId(), result);
+            }
+        }
+        Map<String, List<SmsDeliveryResult>> byPhone = byMessageId.values().stream()
+                .collect(Collectors.groupingBy(result -> normalizePhone(result.to())));
+        Map<String, List<ListingSendHistory>> historiesByPhone = histories.stream()
+                .collect(Collectors.groupingBy(h -> normalizePhone(h.getBrokerPhone())));
+        Set<String> assignedMessageIds = histories.stream().map(ListingSendHistory::getProviderMessageId)
+                .filter(Objects::nonNull).collect(Collectors.toSet());
+        int updated = 0;
+        for (ListingSendHistory history : histories) {
+            if (!history.isDeliveryPending()) continue;
+            String phone = normalizePhone(history.getBrokerPhone());
+            if (phone.isEmpty()) continue;
+            SmsDeliveryResult result = byMessageId.get(history.getProviderMessageId());
+            if (result == null && history.getProviderMessageId() == null) {
+                var candidates = byPhone.getOrDefault(phone, List.of());
+                // 번호 중복이나 테스트 번호 대체 발송은 순서만으로 추정해 연결하지 않는다.
+                if (historiesByPhone.get(phone).size() == 1 && candidates.size() == 1
+                        && !assignedMessageIds.contains(candidates.get(0).messageId())) {
+                    result = candidates.get(0);
+                }
+            }
+            if (result == null || !phone.equals(normalizePhone(result.to()))
+                    || !"COMPLETED".equals(result.status())
+                    || !("success".equals(result.statusName()) || "fail".equals(result.statusName()))
+                    || (result.statusCode() != null && result.statusCode().length() > 100)) continue;
+            history.applyDeliveryResult(result.messageId(), "success".equals(result.statusName()),
+                    result.statusCode(), result.completeTime());
+            assignedMessageIds.add(result.messageId());
+            updated++;
+        }
+        return updated;
+    }
+
+    private String normalizePhone(String phone) {
+        if (phone == null) return "";
+        String digits = phone.replaceAll("[^0-9]", "");
+        return digits.startsWith("82") && digits.length() == 12 ? "0" + digits.substring(2) : digits;
     }
 
     @Transactional(readOnly = true)
