@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layouts/layout :: layout(~{::title}, ~{::pcSideContent}, ~{::section}, ~{::extraCss})}">
+<head><title th:fragment="title">발송 내역 | 우산</title></head>
+<th:block th:fragment="pcSideContent"><th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block></th:block>
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/send-history.css(t=${#dates.createNow().time})}">
+</th:block>
+<section class="send-history">
+    <header class="common-header send-history__header">
+        <a class="common-header__back" href="/" aria-label="홈으로"></a>
+        <h1 class="common-header__title"><img src="/img/send-history/credit.svg" alt="U" class="send-history__credit-logo">Pay 발송 내역</h1>
+    </header>
+    <div class="send-history__empty" th:if="${batches.totalElements == 0 and !hasLegacy}">
+        <img src="/img/send-history/empty.png" width="118" height="62" alt="">
+        <h2>매물을 발송한 내역이 없어요</h2>
+        <p>매물을 등록하고<br>중개사에게 발송할 수 있어요</p>
+    </div>
+    <div class="send-history__content" th:if="${batches.totalElements > 0 or hasLegacy}">
+        <ul class="send-history__batches" aria-label="발송 묶음 목록">
+            <li class="send-history__card" th:each="item : ${batches.content}">
+                <div class="send-history__listing">
+                    <div class="send-history__listing-meta">
+                        <span class="send-history__tag" th:text="${listingLabels[item.batch.listingId] ?: '삭제된 매물'}"></span>
+                        <span th:if="${item.listingDate != null}">
+                            <span th:text="${item.modified ? '수정일' : '등록일'}"></span>
+                            <time th:text="${#temporals.format(item.listingDate, 'yyyy-MM-dd')}"></time>
+                        </span>
+                    </div>
+                    <h2><img src="/img/send-history/house.svg" alt=""><span th:text="${item.batch.listingTitle}"></span></h2>
+                    <p th:text="${item.batch.listingAddress}"></p>
+                </div>
+                <div class="send-history__card-bottom">
+                    <dl class="send-history__counts">
+                        <div class="send-history__sent"><dt>전송건</dt><dd th:text="${item.batch.recipientCount}"></dd></div>
+                        <div class="send-history__success"><dt>성공건</dt><dd th:text="${item.successCount}"></dd></div>
+                        <div class="send-history__refund"><dt>환불건</dt><dd th:text="${item.refundCount}"></dd></div>
+                    </dl>
+                    <a class="send-history__button" th:href="@{/listings/send-history/{id}(id=${item.batch.id})}">수신중개사 보기</a>
+                </div>
+            </li>
+        </ul>
+        <th:block th:replace="~{fragments/send-history :: pagination(${batches}, '/listings/send-history')}"></th:block>
+        <a class="send-history__legacy-link" th:if="${hasLegacy}" th:href="@{/listings/send-history/legacy}">이전 발송 내역 보기</a>
+    </div>
+</section></html>

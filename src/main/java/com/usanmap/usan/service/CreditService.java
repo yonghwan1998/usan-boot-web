@@ -289,7 +289,8 @@ public class CreditService {
     }
 
     @Transactional
-    public void deductForShare(Long userId, int count, Long listingId) {
+    public CreditLedger deductForShare(Long userId, int count, Long listingId) {
+        if (count <= 0) throw new IllegalArgumentException("발송 건수는 1건 이상이어야 합니다.");
         User user = userRepository.getReferenceById(userId);
         MemberCreditBalance balance = memberCreditBalanceRepository.findByMemberWithLock(user)
                 .orElseThrow(() -> new IllegalStateException("크레딧 잔액 정보가 없습니다."));
@@ -305,7 +306,7 @@ public class CreditService {
                 .relatedId(listingId)
                 .description("매물 발송 (" + count + "명)")
                 .build();
-        creditLedgerRepository.save(ledger);
+        return creditLedgerRepository.save(ledger);
     }
 
     public record CheckoutInfo(String productName, int amount, String customerEmail, String customerName, String userPhone) {}

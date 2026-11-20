@@ -1,5 +1,7 @@
 package com.usanmap.usan.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -7,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.usanmap.usan.entity.BrokerPropertyCount;
 import com.usanmap.usan.entity.Listing;
-import com.usanmap.usan.entity.ListingSendHistory;
 import com.usanmap.usan.repository.BrokerPropertyCountRepository;
-import com.usanmap.usan.repository.ListingSendHistoryRepository;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -22,8 +22,7 @@ public class SmsService {
 
     private final WebClient sensWebClient;
     private final BrokerPropertyCountRepository brokerRepository;
-    private final ListingSendHistoryRepository listingSendHistoryRepository;
-    private final CreditService creditService;
+    private final ListingSendService listingSendService;
 
     @Value("${ncp.access-key}")
     private String accessKey;
@@ -41,11 +40,10 @@ public class SmsService {
     private String baseUrl;
 
     public SmsService(WebClient sensWebClient, BrokerPropertyCountRepository brokerRepository,
-                      ListingSendHistoryRepository listingSendHistoryRepository, CreditService creditService) {
+                      ListingSendService listingSendService) {
         this.sensWebClient = sensWebClient;
         this.brokerRepository = brokerRepository;
-        this.listingSendHistoryRepository = listingSendHistoryRepository;
-        this.creditService = creditService;
+        this.listingSendService = listingSendService;
     }
 
     private static final String ADMIN_PHONE = "01033933402";
@@ -134,7 +132,7 @@ public class SmsService {
 
         if (targets.isEmpty()) {
             log.warn("SMS 발송 대상 없음 - brokerCodes: {}", brokerCodes);
-            return;
+            throw new IllegalStateException("발송 가능한 중개사가 없습니다.");
         }
 
         // TODO: 테스트용 - 모든 수신자를 01033933402로 고정 (롤백 시 아래 주석 해제 후 이 블록 제거)
@@ -147,9 +145,6 @@ public class SmsService {
         //         .map(b -> Map.of("to", b.getPhone().replaceAll("[^0-9]", "")))
         //         .toList();
 
-        // 크레딧 먼저 차감 - 부족 시 IllegalStateException 발생, 위로 전파
-        creditService.deductForShare(userId, targets.size(), listing.getId());
-
         String content = buildMessage(listing);
         String timestamp = String.valueOf(System.currentTimeMillis());
         String url = "/sms/v2/services/" + serviceId + "/messages";
@@ -161,8 +156,10 @@ public class SmsService {
         body.put("content", content);
         body.put("messages", recipients);
 
+        Long batchId = listingSendService.prepare(listing, userId, targets);
+        JsonNode response;
         try {
-            sensWebClient.post()
+            response = sensWebClient.post()
                     .uri(url)
                     .header("x-ncp-apigw-timestamp", timestamp)
                     .header("x-ncp-iam-access-key", accessKey)
@@ -170,23 +167,27 @@ public class SmsService {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(body)
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(JsonNode.class)
                     .block();
-
-            log.info("SMS 발송 완료 - listingId: {}, 수신자: {}명", listing.getId(), targets.size());
-
-            List<ListingSendHistory> histories = targets.stream()
-                    .map(b -> ListingSendHistory.builder()
-                            .listingId(listing.getId())
-                            .userId(userId)
-                            .brokerPhone(b.getPhone())
-                            .build())
-                    .toList();
-            listingSendHistoryRepository.saveAll(histories);
-
+        } catch (WebClientResponseException e) {
+            // 타임아웃/서버 오류는 접수 여부가 불명확하므로 실패로 단정하지 않는다.
+            boolean rejected = e.getStatusCode().is4xxClientError() && e.getStatusCode().value() != 408;
+            listingSendService.recordRequest(batchId, rejected ? "FAILED" : "UNKNOWN", null,
+                    String.valueOf(e.getStatusCode().value()));
+            log.error("SMS 요청 오류 - batchId: {}, status: {}", batchId, e.getStatusCode());
+            throw new IllegalStateException("문자 발송 요청을 확인하지 못했습니다. 발송 내역을 확인해 주세요.", e);
         } catch (Exception e) {
-            log.error("SMS 발송 실패 - listingId: {}", listing.getId(), e);
+            listingSendService.recordRequest(batchId, "UNKNOWN", null, null);
+            log.error("SMS 접수 여부 확인 불가 - batchId: {}", batchId, e);
+            throw new IllegalStateException("문자 접수 여부를 확인하지 못했습니다. 발송 내역을 확인해 주세요.", e);
         }
+        String requestId = response == null ? null : response.path("requestId").asText(null);
+        if (requestId == null || requestId.isBlank()) {
+            listingSendService.recordRequest(batchId, "UNKNOWN", null, null);
+            throw new IllegalStateException("문자 접수 번호를 확인하지 못했습니다. 발송 내역을 확인해 주세요.");
+        }
+        listingSendService.recordRequest(batchId, "ACCEPTED", requestId, null);
+        log.info("SMS 접수 완료 - batchId: {}, listingId: {}, 수신자: {}명", batchId, listing.getId(), targets.size());
     }
 
     private String buildMessage(Listing listing) {
