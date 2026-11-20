@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<nav th:fragment="pagination(page, path)" class="send-history__pagination" aria-label="페이지 이동" th:if="${page.totalPages > 1}">
+    <a th:if="${page.hasPrevious()}" th:href="@{${path}(page=${page.number - 1})}" rel="prev">이전</a>
+    <span th:text="${(page.number + 1) + ' / ' + page.totalPages}"></span>
+    <a th:if="${page.hasNext()}" th:href="@{${path}(page=${page.number + 1})}" rel="next">다음</a>
+</nav>
+<ul th:fragment="recipients(page, legacy)" class="send-history__recipients" aria-label="수신중개사 이력">
+    <li th:each="recipient : ${page.content}" class="send-history__recipient">
+        <div class="send-history__recipient-meta">
+            <span th:text="${recipient.deliveryLabel}">결과 확인 불가</span>
+            <span th:if="${recipient.refundedCredit != null and recipient.refundedCredit > 0}"
+                  class="send-history__refund" th:text="${recipient.refundedCredit + 'C 환불 완료'}"></span>
+        </div>
+        <div class="send-history__recipient-title">
+            <strong th:text="${recipient.brokerOfficeName != null and !#strings.isEmpty(recipient.brokerOfficeName) ? recipient.brokerOfficeName : '중개사 정보 없음'}"></strong>
+            <time th:text="${#temporals.format(recipient.sentAt, 'yy.MM.dd a h:mm')}"></time>
+        </div>
+        <p th:if="${recipient.brokerAddress != null}" th:text="${recipient.brokerAddress}"></p>
+        <p th:text="${recipient.brokerPhone}"></p>
+        <p th:if="${legacy}" th:text="${'매물 번호 ' + recipient.listingId}"></p>
+    </li>
+</ul>
+</body></html>

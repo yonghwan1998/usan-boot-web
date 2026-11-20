@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layouts/layout :: layout(~{::title}, ~{::pcSideContent}, ~{::section}, ~{::extraCss})}">
+<head><title th:fragment="title">이전 발송 내역 | 우산</title></head>
+<th:block th:fragment="pcSideContent"><th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block></th:block>
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/send-history.css(t=${#dates.createNow().time})}">
+</th:block>
+<section class="send-history send-history--detail">
+    <header class="common-header send-history__header">
+        <a class="common-header__back" th:href="@{/listings/send-history}" aria-label="발송 내역으로"></a>
+        <h1 class="common-header__title">이전 발송 내역</h1>
+    </header>
+    <div class="send-history__detail-content">
+        <p class="send-history__notice">발송 묶음 도입 전의 내역입니다. 발송 요청 단위와 최종 수신·환불 결과는 확인할 수 없습니다.</p>
+        <th:block th:replace="~{fragments/send-history :: recipients(${recipients}, true)}"></th:block>
+        <p th:if="${recipients.empty}">이전 발송 내역이 없습니다.</p>
+        <th:block th:replace="~{fragments/send-history :: pagination(${recipients}, '/listings/send-history/legacy')}"></th:block>
+    </div>
+</section></html>

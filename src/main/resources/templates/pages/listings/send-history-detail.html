@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layouts/layout :: layout(~{::title}, ~{::pcSideContent}, ~{::section}, ~{::extraCss})}">
+<head><title th:fragment="title">발송 내역 | 우산</title></head>
+<th:block th:fragment="pcSideContent"><th:block th:replace="~{fragments/pc-side :: pcSideContent}"></th:block></th:block>
+<th:block th:fragment="extraCss">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" th:href="@{/css/send-history.css(t=${#dates.createNow().time})}">
+</th:block>
+<section class="send-history send-history--detail" th:with="batch=${item.batch}">
+    <header class="common-header send-history__header">
+        <a class="common-header__back" th:href="@{/listings/send-history}" aria-label="발송 내역으로"></a>
+        <h1 class="common-header__title"><img src="/img/send-history/credit.svg" alt="U" class="send-history__credit-logo">Pay 발송 내역</h1>
+    </header>
+    <div class="send-history__detail-content">
+        <div class="send-history__detail-card">
+            <div class="send-history__listing">
+                <div class="send-history__listing-meta">
+                    <span class="send-history__tag" th:text="${listingLabels[batch.listingId] ?: '삭제된 매물'}"></span>
+                    <span th:if="${item.listingDate != null}">
+                        <span th:text="${item.modified ? '수정일' : '등록일'}"></span>
+                        <time th:text="${#temporals.format(item.listingDate, 'yyyy-MM-dd')}"></time>
+                    </span>
+                </div>
+                <h2><img src="/img/send-history/house.svg" alt=""><span th:text="${batch.listingTitle}"></span></h2>
+                <p th:text="${batch.listingAddress}"></p>
+            </div>
+        </div>
+        <nav class="send-history__filters" aria-label="발송 상태 필터">
+            <a th:each="key : ${ {'ALL', 'DELIVERED', 'SENDING', 'REFUNDED'} }"
+               th:href="@{/listings/send-history/{id}(id=${batch.id},filter=${key})}"
+               class="send-history__filter" th:classappend="${filter == key} ? 'is-active'"
+               th:attr="aria-current=${filter == key ? 'page' : null}">
+                <span th:text="${key == 'ALL' ? '전체' : (key == 'DELIVERED' ? '전송 완료' : (key == 'SENDING' ? '전송 중' : '환불'))}"></span>
+                <span th:if="${filter == key}" th:text="${recipients.totalElements}"></span>
+            </a>
+        </nav>
+        <ul class="send-history__broker-list" aria-label="수신중개사 이력">
+            <li class="send-history__broker-card" th:each="recipient : ${recipients.content}">
+                <div class="send-history__broker-info">
+                    <h2 th:text="${recipient.brokerOfficeName != null and !#strings.isEmpty(recipient.brokerOfficeName) ? recipient.brokerOfficeName : '중개사 정보 없음'}"></h2>
+                    <p class="send-history__broker-status" th:classappend="${recipient.sendStatusClass}" th:text="${recipient.sendStatusLabel}"></p>
+                    <details class="send-history__broker-address">
+                        <summary><span th:text="${recipient.brokerShortAddress}"></span><img src="/img/send-history/down.svg" alt=""></summary>
+                        <div class="send-history__broker-contact">
+                            <p th:text="${recipient.brokerAddress ?: '주소 정보 없음'}"></p>
+                            <p th:text="${recipient.brokerPhone}"></p>
+                        </div>
+                    </details>
+                </div>
+            </li>
+        </ul>
+        <p th:if="${recipients.empty}" class="send-history__filtered-empty">해당 상태의 발송 내역이 없습니다.</p>
+        <nav class="send-history__pagination" aria-label="페이지 이동" th:if="${recipients.totalPages > 1}">
+            <a th:if="${recipients.hasPrevious()}" th:href="@{/listings/send-history/{id}(id=${batch.id},filter=${filter},page=${recipients.number - 1})}" rel="prev">이전</a>
+            <span th:text="${(recipients.number + 1) + ' / ' + recipients.totalPages}"></span>
+            <a th:if="${recipients.hasNext()}" th:href="@{/listings/send-history/{id}(id=${batch.id},filter=${filter},page=${recipients.number + 1})}" rel="next">다음</a>
+        </nav>
+    </div>
+</section></html>
