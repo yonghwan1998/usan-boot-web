@@ -80,11 +80,11 @@
                 <div class="link__text">고객센터</div>
                 <div class="link__icon"></div>
             </div>
-            <div class="more-content__link"
+            <a class="more-content__link" th:href="@{/listings/send-history}"
                  th:if="${login.authenticated}">
                 <div class="link__text">발송내역</div>
                 <div class="link__icon"></div>
-            </div>
+            </a>
             <a class="more-content__link"
                  th:href="@{/info/change-pw}"
                  th:if="${login.authenticated}">
