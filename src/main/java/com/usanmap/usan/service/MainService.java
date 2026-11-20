@@ -44,6 +44,8 @@ public class MainService {
                         b.getBrokerCode(),
                         b.getOfficeName(),
                         b.getSido() + " " + b.getSigungu() + " " + b.getEmd(),
+                        b.getAddrRoad(),
+                        b.getAddrJibun(),
                         BrokerPropertyTagFactory.topN(b, 3)
                 ))
                 .toList();

@@ -54,10 +54,11 @@
                             <div class="broker-info__office" th:text="${broker.officeName}">중개사무소명</div>
                             <div class="broker-info__name" th:text="${broker.brokerName}">홍길동</div>
                         </div>
-                        <div class="broker-info__address-wrapper">
+                        <button type="button" class="broker-info__address-wrapper common-address-trigger" data-address-trigger aria-expanded="false"
+                                th:data-address-road="${broker.addrRoad}" th:data-address-jibun="${broker.addrJibun}">
                             <span class="broker-info__address" th:text="${broker.sido} + ' ' + ${broker.sigungu}">서울특별시 강남구</span>
-                            <span class="broker-info__address-icon">icon</span>
-                        </div>
+                            <span class="broker-info__address-icon" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="broker-tags">
                         <span class="broker-tag"

@@ -55,11 +55,7 @@
 .send-history__broker-status.is-delivered { color: #17824c; }
 .send-history__broker-status.is-refunded { color: #f4472c; }
 .send-history__broker-address { font-size: 16px; line-height: 24px; color: #595959; }
-.send-history__broker-address summary { display: flex; align-items: center; cursor: pointer; list-style: none; }
-.send-history__broker-address summary::-webkit-details-marker { display: none; }
-.send-history__broker-address summary span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.send-history__broker-address summary img { flex-shrink: 0; }
-.send-history__broker-address[open] summary img { transform: rotate(180deg); }
-.send-history__broker-contact { padding-top: 8px; overflow-wrap: anywhere; }
 .send-history__filtered-empty { text-align: center; padding: 48px 16px; color: #737373; font-size: 16px; }
 @media (max-width: 360px) { .send-history__filters { gap: 8px; } .send-history__filter { padding: 10px; font-size: 14px; } .send-history__broker-card { gap: 12px; padding: 12px; } .send-history__broker-info h2 { font-size: 18px; } }
+.send-history__broker-address > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.send-history__address-chevron { flex-shrink: 0; }

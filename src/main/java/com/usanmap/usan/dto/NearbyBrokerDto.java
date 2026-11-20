@@ -7,5 +7,7 @@ public record NearbyBrokerDto(
         UUID brokerCode,
         String officeName,
         String address,
+        String addrRoad,
+        String addrJibun,
         List<BrokerPropertyTagDto> tags
 ) {}

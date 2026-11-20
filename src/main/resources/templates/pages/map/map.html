@@ -596,10 +596,11 @@
                                     <div class="cluster-broker-item__tags">${tags}</div>
                                 </div>
 
-                                <div class="cluster-broker-item__addr-wrapper">
-                                    <span class="cluster-broker-item__addr">${address}</span>
+                                <button type="button" class="cluster-broker-item__addr-wrapper common-address-trigger" data-address-trigger aria-expanded="false"
+                                        data-address-road="${__escapeHtml(b.addrRoad ?? '')}" data-address-jibun="${__escapeHtml(b.addrJibun ?? '')}">
+                                    <span class="cluster-broker-item__addr">${__escapeHtml(address)}</span>
                                     <span class="cluster-broker-item__expand-btn"></span>
-                                </div>
+                                </button>
                             </div>
 
                             <div class="cluster-broker-item__thumb"></div>
@@ -797,9 +798,11 @@
                                     <div class="broker-info__office">${officeName}</div>
                                     <div class="broker-info__name">${brokerName}</div>
                                 </div>
-                                <div class="broker-info__address-wrapper">
-                                    <span class="broker-info__address">${address}</span>
-                                </div>
+                                <button type="button" class="broker-info__address-wrapper common-address-trigger" data-address-trigger aria-expanded="false"
+                                        data-address-road="${__escapeHtml(broker.addrRoad ?? '')}" data-address-jibun="${__escapeHtml(broker.addrJibun ?? '')}">
+                                    <span class="broker-info__address">${__escapeHtml(address)}</span>
+                                    <span class="broker-info__address-icon" aria-hidden="true"></span>
+                                </button>
                             </div>
                             <div class="broker-tags">${tags}</div>
                         </div>

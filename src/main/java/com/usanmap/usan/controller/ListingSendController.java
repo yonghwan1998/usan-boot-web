@@ -28,7 +28,9 @@ public class ListingSendController {
                          @RequestParam(defaultValue = "ALL") String filter, Model model) {
         Long userId = securityUtils.currentUserIdOrThrow();
         model.addAttribute("item", listingSendService.getBatch(userId, batchId));
-        model.addAttribute("recipients", listingSendService.getRecipients(userId, batchId, page, filter));
+        var recipients = listingSendService.getRecipients(userId, batchId, page, filter);
+        model.addAttribute("recipients", recipients);
+        model.addAttribute("brokerAddresses", listingSendService.getRecipientAddresses(userId, recipients.getContent()));
         model.addAttribute("listingLabels", listingSendService.getListingLabels(userId));
         model.addAttribute("filter", filter);
         return "pages/listings/send-history-detail";
