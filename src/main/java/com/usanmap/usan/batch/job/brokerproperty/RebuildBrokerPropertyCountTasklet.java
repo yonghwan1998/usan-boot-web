@@ -6,10 +6,15 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import com.usanmap.usan.util.PublicIdUtils;
 
 import java.util.List;
@@ -21,6 +26,10 @@ import java.util.Map;
 public class RebuildBrokerPropertyCountTasklet implements Tasklet {
 
     private final JdbcTemplate jdbcTemplate;
+
+    static final int PAGE_SIZE = 1000;
+    private static final String LOCK_NAME = "usan.broker-property-count";
+    private static final String STAGE = "broker_property_count_stage";
 
     private static final String SELECT_SQL = """
             SELECT
@@ -38,6 +47,8 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
                 , b.jibun_address
                 , b.lat
                 , b.lng
+                , (SELECT p.public_id FROM broker_property_count p
+                   WHERE p.broker_code = b.broker_code) AS public_id
                 , SUM(CASE WHEN l.listing_type = '아파트'        THEN 1 ELSE 0 END) AS apt_cnt
                 , SUM(CASE WHEN l.listing_type = '오피스텔'      THEN 1 ELSE 0 END) AS officetel_cnt
                 , SUM(CASE WHEN l.listing_type = '빌라/연립'     THEN 1 ELSE 0 END) AS villa_cnt
@@ -60,11 +71,13 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
                 , SUM(CASE WHEN l.listing_type = '분양중/예정'    THEN 1 ELSE 0 END) AS presale_cnt
             FROM broker_info b
             LEFT JOIN listing_info l ON l.broker_code = b.broker_code
+            WHERE b.broker_code IN (%s)
             GROUP BY b.broker_code
+            ORDER BY b.broker_code
             """;
 
     private static final String INSERT_SQL = """
-            INSERT INTO broker_property_count (
+            INSERT INTO broker_property_count_stage (
                   broker_code, public_id, broker_name, office_name
                 , registration_number, tel, phone
                 , sido, sigungu, emd, road_name, addr_road, addr_jibun
@@ -83,34 +96,103 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
             """;
 
     @Override
-    @Transactional
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-
-        // 1. 집계 데이터 조회 (DELETE 전에 실행 — SELECT 실패 시 기존 데이터 보존)
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList(SELECT_SQL);
-        log.info("[broker_property_count] selected rows={}", rows.size());
-
-        // 2. 기존 데이터 삭제
-        int deleted = jdbcTemplate.update("DELETE FROM broker_property_count");
-        log.info("[broker_property_count] deleted rows={}", deleted);
-
-        // 3. public_id 생성 후 INSERT (충돌 시 최대 5회 재시도)
-        int inserted = 0;
-        for (Map<String, Object> row : rows) {
-            insertWithRetry(row);
-            inserted++;
-        }
-        log.info("[broker_property_count] inserted rows={}", inserted);
-
-        return RepeatStatus.FINISHED;
+        return jdbcTemplate.execute((ConnectionCallback<RepeatStatus>) connection -> {
+            JdbcTemplate jdbc = new JdbcTemplate(new SingleConnectionDataSource(connection, true));
+            Integer locked = jdbc.queryForObject("SELECT GET_LOCK(?, 0)", Integer.class, LOCK_NAME);
+            if (!Integer.valueOf(1).equals(locked)) {
+                throw new IllegalStateException("broker_property_count batch already running");
+            }
+            try {
+                String engine = jdbc.queryForObject("""
+                        SELECT ENGINE FROM information_schema.TABLES
+                        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'broker_property_count'
+                        """, String.class);
+                if (!"InnoDB".equalsIgnoreCase(engine)) {
+                    throw new IllegalStateException("broker_property_count must use InnoDB for atomic publication");
+                }
+                // Temporary tables and the advisory lock belong to this physical connection.
+                jdbc.execute("CREATE TEMPORARY TABLE " + STAGE + " LIKE broker_property_count");
+                rebuild(jdbc, connection);
+                return RepeatStatus.FINISHED;
+            } finally {
+                try {
+                    jdbc.execute("DROP TEMPORARY TABLE IF EXISTS " + STAGE);
+                } finally {
+                    jdbc.queryForObject("SELECT RELEASE_LOCK(?)", Integer.class, LOCK_NAME);
+                }
+            }
+        });
     }
 
-    private void insertWithRetry(Map<String, Object> row) {
-        for (int attempt = 0; attempt < 5; attempt++) {
+    void rebuild(JdbcTemplate jdbc, Connection connection) throws SQLException {
+        boolean autoCommit = connection.getAutoCommit();
+        connection.setAutoCommit(false);
+        try {
+            byte[] lastCode = null;
+            long staged = 0;
+            while (true) {
+                List<byte[]> codes = lastCode == null
+                        ? jdbc.query("SELECT broker_code FROM broker_info ORDER BY broker_code LIMIT ?",
+                                (rs, rowNum) -> rs.getBytes(1), PAGE_SIZE)
+                        : jdbc.query("SELECT broker_code FROM broker_info WHERE broker_code > ? "
+                                        + "ORDER BY broker_code LIMIT ?",
+                                (rs, rowNum) -> rs.getBytes(1), lastCode, PAGE_SIZE);
+                if (codes.isEmpty()) break;
+
+                String placeholders = String.join(",", Collections.nCopies(codes.size(), "?"));
+                List<Map<String, Object>> rows = jdbc.queryForList(
+                        SELECT_SQL.formatted(placeholders), codes.toArray());
+                if (rows.size() != codes.size()) {
+                    throw new IllegalStateException("Broker source changed during aggregation; retry batch");
+                }
+                stagePage(jdbc, connection, rows);
+                staged += rows.size();
+                lastCode = codes.get(codes.size() - 1);
+                log.info("[broker_property_count] staged rows={}", staged);
+            }
+            // Do not replace a populated table with an unexpectedly empty source.
+            if (staged == 0) throw new IllegalStateException("No brokers to aggregate");
+            Long actual = jdbc.queryForObject("SELECT COUNT(*) FROM " + STAGE, Long.class);
+            if (actual == null || actual != staged) {
+                throw new IllegalStateException("Staging row count mismatch");
+            }
+            jdbc.update("DELETE FROM broker_property_count");
+            int inserted = jdbc.update(PUBLISH_SQL);
+            if (inserted != staged) throw new IllegalStateException("Published row count mismatch");
+            connection.commit();
+            log.info("[broker_property_count] published rows={}", inserted);
+        } catch (SQLException | RuntimeException | Error e) {
             try {
-                jdbcTemplate.update(INSERT_SQL,
+                connection.rollback();
+            } catch (SQLException rollbackFailure) {
+                e.addSuppressed(rollbackFailure);
+            }
+            throw e;
+        } finally {
+            connection.setAutoCommit(autoCommit);
+        }
+    }
+
+    private void stagePage(JdbcTemplate jdbc, Connection connection,
+                           List<Map<String, Object>> rows) throws SQLException {
+        List<Map<String, Object>> newBrokers = rows.stream()
+                .filter(row -> row.get("public_id") == null).toList();
+        for (int attempt = 0; attempt < 5; attempt++) {
+            for (Map<String, Object> row : newBrokers) {
+                String publicId;
+                do {
+                    publicId = PublicIdUtils.generate();
+                } while (Boolean.TRUE.equals(jdbc.queryForObject(
+                        "SELECT EXISTS(SELECT 1 FROM broker_property_count WHERE public_id = ?)",
+                        Boolean.class, publicId)));
+                row.put("public_id", publicId);
+            }
+            List<Object[]> args = new ArrayList<>(rows.size());
+            for (Map<String, Object> row : rows) {
+                args.add(new Object[] {
                         row.get("broker_code"),
-                        PublicIdUtils.generate(),
+                        row.get("public_id"),
                         row.get("broker_name"),
                         row.get("office_name"),
                         row.get("registration_number"),
@@ -144,11 +226,42 @@ public class RebuildBrokerPropertyCountTasklet implements Tasklet {
                         row.get("redevelopment_cnt"),
                         row.get("reconstruction_cnt"),
                         row.get("presale_cnt")
-                );
+                });
+            }
+            try {
+                jdbc.batchUpdate(INSERT_SQL, args);
+                connection.commit();
                 return;
-            } catch (DataIntegrityViolationException e) {
+            } catch (DuplicateKeyException e) {
+                connection.rollback();
                 if (attempt == 4) throw e;
             }
         }
     }
+
+    private static final String PUBLISH_SQL = """
+            INSERT INTO broker_property_count (
+                  broker_code, public_id, broker_name, office_name
+                , registration_number, tel, phone
+                , sido, sigungu, emd, road_name, addr_road, addr_jibun
+                , lat, lng
+                , apt_cnt, officetel_cnt, villa_cnt, oneroom_cnt, tworoom_cnt
+                , detached_cnt, rural_cnt, mixedhouse_cnt, hanok_cnt
+                , store_cnt, office_cnt, building_cnt, factory_cnt
+                , knowledge_cnt, land_cnt, apt_sale_cnt, officetel_sale_cnt
+                , redevelopment_cnt, reconstruction_cnt, presale_cnt
+                , created_at, updated_at, deleted_at
+            ) SELECT
+                  broker_code, public_id, broker_name, office_name
+                , registration_number, tel, phone
+                , sido, sigungu, emd, road_name, addr_road, addr_jibun
+                , lat, lng
+                , apt_cnt, officetel_cnt, villa_cnt, oneroom_cnt, tworoom_cnt
+                , detached_cnt, rural_cnt, mixedhouse_cnt, hanok_cnt
+                , store_cnt, office_cnt, building_cnt, factory_cnt
+                , knowledge_cnt, land_cnt, apt_sale_cnt, officetel_sale_cnt
+                , redevelopment_cnt, reconstruction_cnt, presale_cnt
+                , created_at, updated_at, deleted_at
+            FROM broker_property_count_stage
+            """;
 }
