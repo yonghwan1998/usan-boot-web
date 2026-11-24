@@ -309,6 +309,32 @@ public class CreditService {
         return creditLedgerRepository.save(ledger);
     }
 
+    // 호출부의 발송 묶음 락과 동일 트랜잭션에서 환불 이력을 기록해야 중복 복구를 막을 수 있다.
+    @Transactional
+    public CreditLedger refundForFailedShare(ListingSendBatch batch, Long historyId) {
+        if (historyId == null || batch.getCreditLedgerId() == null || batch.getCreditUsed() == null
+                || batch.getCreditUsed() <= 0 || !batch.getCreditUsed().equals(batch.getRecipientCount())) {
+            throw new IllegalStateException("발송 차감 정보를 확인할 수 없습니다.");
+        }
+        CreditLedger original = creditLedgerRepository.findById(batch.getCreditLedgerId())
+                .orElseThrow(() -> new IllegalStateException("발송 차감 원장을 찾을 수 없습니다."));
+        if (!java.util.Objects.equals(original.getMember().getId(), batch.getUserId())
+                || original.getLedgerType() != LedgerType.USE
+                || !Integer.valueOf(-batch.getCreditUsed()).equals(original.getChangeAmount())
+                || !"LISTING".equals(original.getRelatedType())
+                || !java.util.Objects.equals(original.getRelatedId(), batch.getListingId())) {
+            throw new IllegalStateException("발송 차감 원장이 일치하지 않습니다.");
+        }
+        User user = original.getMember();
+        MemberCreditBalance balance = memberCreditBalanceRepository.findByMemberWithLock(user)
+                .orElseThrow(() -> new IllegalStateException("크레딧 잔액 정보가 없습니다."));
+        balance.addBalance(1);
+        return creditLedgerRepository.save(CreditLedger.builder()
+                .member(user).ledgerType(LedgerType.CANCEL).changeAmount(1)
+                .balanceAfter(balance.getBalance()).relatedType("LISTING_SEND_HISTORY").relatedId(historyId)
+                .description("매물 발송 실패 환불").build());
+    }
+
     public record CheckoutInfo(String productName, int amount, String customerEmail, String customerName, String userPhone) {}
 
     public record BankTransferResult(String orderNo, String userPhone, String productName, int amount, int totalCredit) {}
