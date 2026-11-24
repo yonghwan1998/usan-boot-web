@@ -67,6 +67,24 @@ public class ListingSendHistory {
         else failedAt = completedAt;
     }
 
+    public boolean isDeliveryFailureRefundable() {
+        // E915는 원본 메시지가 성공했을 수 있으므로 자동 환불하지 않는다.
+        return "FAILED".equals(deliveryStatus)
+                && providerMessageId != null && !providerMessageId.isBlank()
+                && resultCode != null && !resultCode.isBlank()
+                && !"0".equals(resultCode.trim()) && !"E915".equals(resultCode.trim())
+                && (refundedCredit == null || refundedCredit == 0);
+    }
+
+    public void markRefunded(Long ledgerId) {
+        if (!isDeliveryFailureRefundable() || ledgerId == null) {
+            throw new IllegalStateException("발송 실패 환불 상태가 올바르지 않습니다.");
+        }
+        refundedCredit = 1;
+        refundedAt = LocalDateTime.now();
+        refundCreditLedgerId = ledgerId;
+    }
+
     public String getDeliveryLabel() {
         if (deliveryStatus == null) return "결과 확인 불가";
         return switch (deliveryStatus) {

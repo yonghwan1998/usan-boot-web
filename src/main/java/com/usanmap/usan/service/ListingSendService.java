@@ -102,6 +102,10 @@ public class ListingSendService {
                     || (result.statusCode() != null && result.statusCode().length() > 100)) continue;
             history.applyDeliveryResult(result.messageId(), "success".equals(result.statusName()),
                     result.statusCode(), result.completeTime());
+            if (history.isDeliveryFailureRefundable()) {
+                CreditLedger refund = creditService.refundForFailedShare(batch, history.getId());
+                history.markRefunded(refund.getId());
+            }
             assignedMessageIds.add(result.messageId());
             updated++;
         }
