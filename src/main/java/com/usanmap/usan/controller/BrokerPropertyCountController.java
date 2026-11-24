@@ -2,6 +2,8 @@ package com.usanmap.usan.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,6 +24,7 @@ import com.usanmap.usan.batch.job.brokerproperty.BrokerPropertyCountJobConfig;
 public class BrokerPropertyCountController {
 
     private final JobLauncher jobLauncher;
+    private final JobExplorer jobExplorer;
     @Qualifier(BrokerPropertyCountJobConfig.JOB_NAME)
     private final Job brokerPropertyCountJob;
 
@@ -36,11 +39,18 @@ public class BrokerPropertyCountController {
     @PostMapping("/batch/run-broker-property-count")
     public ResponseEntity<String> run() throws Exception{
 
+        if (!jobExplorer.findRunningJobExecutions(BrokerPropertyCountJobConfig.JOB_NAME).isEmpty()) {
+            return ResponseEntity.status(409).body("brokerPropertyCount batch already running");
+        }
+
         var params = new JobParametersBuilder()
                 .addLong("ts",  System.currentTimeMillis())
                 .toJobParameters();
 
-        jobLauncher.run(brokerPropertyCountJob, params);
+        var execution = jobLauncher.run(brokerPropertyCountJob, params);
+        if (execution.getStatus() == BatchStatus.FAILED) {
+            return ResponseEntity.internalServerError().body("brokerPropertyCount batch failed");
+        }
 
         return ResponseEntity.ok("brokerPropertyCount batch started");
     }
