@@ -109,7 +109,7 @@ function buildSigungu() {
     const raw = readJson(tempFile);
     const grouped = new Map();
 
-    for (const feature of raw.features) {
+    for (const feature of normalizeSigunguFeatures(raw.features)) {
         const admCd = toStringSafe(feature.properties[FIELDS.code]);
         const name = toStringSafe(feature.properties[FIELDS.name]);
         const parentAdmCd = admCd.slice(0, 2);
@@ -141,6 +141,36 @@ function buildSigungu() {
     }
 
     console.log(`[DONE] sigungu files: ${grouped.size}`);
+}
+
+// 일반구와 이를 포함하는 시 경계가 함께 제공되므로 시군구 레벨은 말단 경계만 사용한다.
+function normalizeSigunguFeatures(features) {
+    const cities = new Map(features
+        .filter(feature => {
+            const code = toStringSafe(feature.properties[FIELDS.code]);
+            return code.slice(4, 5) === '0' && toStringSafe(feature.properties[FIELDS.name]).endsWith('시');
+        })
+        .map(feature => [toStringSafe(feature.properties[FIELDS.code]).slice(0, 5), feature]));
+    const districtCities = new Set();
+    const normalized = features.map(feature => {
+        const code = toStringSafe(feature.properties[FIELDS.code]);
+        const cityCode = code.slice(0, 4) + '0';
+        const city = cities.get(cityCode);
+        const name = toStringSafe(feature.properties[FIELDS.name]);
+        if (code.slice(4, 5) === '0' || !name.endsWith('구') || !city) return feature;
+
+        districtCities.add(cityCode);
+        const cityName = city.properties[FIELDS.name];
+        return {
+            ...feature,
+            properties: {
+                ...feature.properties,
+                [FIELDS.name]: name.startsWith(cityName + ' ') ? name : cityName + ' ' + name
+            }
+        };
+    });
+    return normalized.filter(feature =>
+        !districtCities.has(toStringSafe(feature.properties[FIELDS.code]).slice(0, 5)));
 }
 
 function buildEmd() {
@@ -204,4 +234,6 @@ function main() {
     console.log('\n✅ 행정구역 GeoJSON 빌드 완료');
 }
 
-main();
+if (require.main === module) main();
+
+module.exports = { normalizeSigunguFeatures };
