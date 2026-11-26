@@ -380,3 +380,26 @@ npm run geo:test
 적용 후 용인시 3개 구 및 안산시·안양시·부천시에서 줌 11~12의 구별 이름·경계를 확인한다.
 구 내부 좌표의 `/map/api/region-code`가 해당 구 코드를 반환하고,
 줌 13~14에서 `/geo/emd/{구코드}.geo.json`이 로드되는지도 확인한다.
+
+## 16. 경계 보정 이후 구 통계가 누락되는 경우
+
+매물 저장 시 `CrawledListingService`는 `getRegionCodes`로 구한 시도·시군구·읍면동 코드를
+`listing_info`에 각각 저장한다. 이전의 중복 시 경계 때문에 `sigungu_code`에는 시 코드가,
+`emd_code`에는 해당 구의 동 코드가 저장된 데이터가 남을 수 있다.
+`region_stat`은 저장된 코드를 기준으로 각각 집계하므로 이 경우 동 통계는 표시되지만 구 통계는 누락된다.
+경계 보정 SQL만으로는 기존 매물 코드가 수정되지 않는다.
+
+`RegionStatService.refresh()`는 집계 전에 `emd_code` 앞 5자리와 실제 EMD 경계의
+`parent_adm_cd`가 일치하는 매물에 한해, 불일치하거나 비어 있는 `sigungu_code`를 보정한다.
+보정과 통계 재생성은 같은 트랜잭션에서 수행한다. EMD가 없거나 부모를 확인할 수 없는 매물은 유지한다.
+
+운영 적용 순서:
+
+1. `scripts/diagnose-district-stats.sql`로 전국의 코드 불일치와 구 통계 차이를 조회한다.
+2. 코드 보정 로직이 포함된 버전을 배포한다.
+3. 기존 `POST /map/api/admin/region-stat/refresh`를 다시 호출한다.
+4. 진단 SQL과 지도 구·동 통계를 다시 확인한다.
+
+진단 SQL의 두 번째 조회는 EMD가 확인되는 매물만으로 기대 통계를 계산한다.
+EMD 코드가 없는 매물도 구 통계에는 포함될 수 있으므로 결과가 남으면 해당 매물도 별도 확인한다.
+이 절차는 매물을 다시 수집하거나 전체 경계를 TRUNCATE하지 않는다.
