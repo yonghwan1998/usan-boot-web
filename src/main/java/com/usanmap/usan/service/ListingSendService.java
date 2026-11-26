@@ -1,5 +1,7 @@
 package com.usanmap.usan.service;
 
+import java.security.SecureRandom;
+import com.usanmap.usan.dto.ListingShareRequest.SelectionCriteria;
 import com.usanmap.usan.entity.*;
 import com.usanmap.usan.dto.SmsDeliveryResult;
 import com.usanmap.usan.dto.BrokerAddressDto;
@@ -19,19 +21,50 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ListingSendService {
+    private static final SecureRandom TOKEN_RANDOM = new SecureRandom();
+
+    String newTrackingToken() {
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+        StringBuilder token = new StringBuilder(6);
+        for (int i = 0; i < 6; i++) token.append(alphabet.charAt(TOKEN_RANDOM.nextInt(64)));
+        return token.toString();
+    }
+
+    private String trackingToken(Long listingId, Set<String> issued) {
+        for (int attempt = 0; attempt < 100; attempt++) {
+            String token = newTrackingToken();
+            if (!issued.contains(token) && !historyRepository.existsByListingIdAndTrackingToken(listingId, token)) {
+                issued.add(token);
+                return token;
+            }
+        }
+        throw new IllegalStateException("수신자 링크를 생성하지 못했습니다. 다시 시도해 주세요.");
+    }
+
     private final ListingSendBatchRepository batchRepository;
     private final ListingSendHistoryRepository historyRepository;
     private final CreditService creditService;
     private final ListingService listingService;
     private final BrokerPropertyCountRepository brokerRepository;
+    private final ListingRepository listingRepository;
 
     // 크레딧 원장, 발송 묶음, 수신자 이력을 함께 커밋한 후 외부 API를 호출한다.
     @Transactional
     public Long prepare(Listing listing, Long userId, List<BrokerPropertyCount> targets) {
+        return prepare(listing, userId, targets, null);
+    }
+
+    @Transactional
+    public Long prepare(Listing listing, Long userId, List<BrokerPropertyCount> targets,
+                        SelectionCriteria criteria) {
         if (!Objects.equals(listing.getUserId(), userId)) {
             throw new IllegalStateException("발송 권한이 없습니다.");
         }
         if (targets.isEmpty()) throw new IllegalArgumentException("발송 대상이 없습니다.");
+        // 같은 매물의 동시 발송은 직렬화하여 토큰 확인과 저장 사이의 경쟁을 방지한다.
+        listingRepository.lockForSending(listing.getId())
+                .orElseThrow(() -> new IllegalStateException("매물을 찾을 수 없습니다."));
+        Set<String> issued = new HashSet<>();
         CreditLedger ledger = creditService.deductForShare(userId, targets.size(), listing.getId());
         LocalDateTime now = LocalDateTime.now();
         String title = listing.getAddressDetail();
@@ -40,6 +73,9 @@ public class ListingSendService {
                 .listingId(listing.getId()).userId(userId)
                 .listingTitle(title).listingAddress(listing.getAddressName())
                 .listingCreatedAt(listing.getCreatedAt()).listingUpdatedAt(listing.getUpdatedAt())
+                .selectionRadiusM(criteria == null ? null : criteria.radiusM())
+                .selectionListingTypes(criteria == null || criteria.listingTypes() == null ? null
+                        : criteria.listingTypes().stream().distinct().sorted().collect(Collectors.joining(",")))
                 .messageType("LMS").recipientCount(targets.size()).requestStatus("REQUESTED")
                 .creditLedgerId(ledger.getId()).creditUsed(-ledger.getChangeAmount())
                 .creditBefore(ledger.getBalanceAfter() - ledger.getChangeAmount())
@@ -50,8 +86,18 @@ public class ListingSendService {
                 .brokerCode(b.getBrokerCode()).brokerPhone(b.getPhone())
                 .brokerOfficeName(b.getOfficeName())
                 .brokerAddress(b.getAddrRoad() != null && !b.getAddrRoad().isBlank() ? b.getAddrRoad() : b.getAddrJibun())
+                .trackingToken(trackingToken(listing.getId(), issued))
                 .deliveryStatus("PENDING").refundedCredit(0).sentAt(now).build()).toList());
         return batch.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ListingSendHistory> getPreparedRecipients(Long batchId, Long userId) {
+        if (batchRepository.findByIdAndUserId(batchId, userId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "발송 내역을 찾을 수 없습니다.");
+        }
+        return historyRepository.findAllByBatchIdOrderByIdAsc(batchId).stream()
+                .filter(h -> Objects.equals(h.getUserId(), userId)).toList();
     }
 
     @Transactional

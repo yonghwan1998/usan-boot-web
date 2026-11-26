@@ -29,6 +29,8 @@ public class ListingSendBatch {
     private Integer creditAfter;
     @Column(nullable = false) private LocalDateTime requestedAt;
     private LocalDateTime acceptedAt;
+    private Integer selectionRadiusM;
+    @Column(length = 500) private String selectionListingTypes;
     @Column(nullable = false) private LocalDateTime updatedAt;
 
     public void markRequest(String status, String requestId) {

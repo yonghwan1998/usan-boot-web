@@ -21,6 +21,7 @@ class ListingSendServiceTests {
     @Mock ListingSendHistoryRepository histories;
     @Mock CreditService credits;
     @Mock ListingService listings;
+    @Mock ListingRepository listingRepository;
     @Mock BrokerPropertyCountRepository brokers;
     @InjectMocks ListingSendService service;
 
@@ -28,6 +29,7 @@ class ListingSendServiceTests {
     void preparesOneBatchWithCreditAndBrokerSnapshots() {
         Listing listing = mock(Listing.class);
         when(listing.getId()).thenReturn(9L);
+        when(listingRepository.lockForSending(9L)).thenReturn(Optional.of(listing));
         when(listing.getUserId()).thenReturn(1L);
         when(listing.getAddressName()).thenReturn("서울시 강남구 123");
         when(listing.getAddressDetail()).thenReturn("우산 아파트 101호");
@@ -56,12 +58,37 @@ class ListingSendServiceTests {
         @SuppressWarnings("unchecked") ArgumentCaptor<List<ListingSendHistory>> captor = ArgumentCaptor.forClass(List.class);
         verify(histories).saveAll(captor.capture());
         ListingSendHistory recipient = captor.getValue().get(0);
+        assertThat(recipient.getTrackingToken()).matches("[A-Za-z0-9_-]{6}");
+        assertThat(recipient.getTrackingToken()).doesNotContain("01012345678");
         assertThat(recipient.getBatchId()).isEqualTo(22L);
         assertThat(recipient.getBrokerCode()).isEqualTo(code);
         assertThat(recipient.getBrokerOfficeName()).isEqualTo("우산 부동산");
         assertThat(recipient.getSentAt()).isEqualTo(batch.getRequestedAt());
         assertThat(recipient.getDeliveryStatus()).isEqualTo("PENDING");
         assertThat(recipient.getRefundedCredit()).isZero();
+    }
+
+    @Test
+    void retriesDatabaseAndInBatchTokenCollisionsAndSnapshotsCriteria() {
+        Listing listing = mock(Listing.class);
+        when(listing.getId()).thenReturn(9L);
+        when(listing.getUserId()).thenReturn(1L);
+        when(listingRepository.lockForSending(9L)).thenReturn(Optional.of(listing));
+        when(credits.deductForShare(1L, 2, 9L)).thenReturn(CreditLedger.builder()
+                .changeAmount(-2).balanceAfter(98).build());
+        when(batches.save(any())).thenAnswer(call -> call.getArgument(0));
+        when(histories.existsByListingIdAndTrackingToken(9L, "aaaaaa")).thenReturn(true);
+        var spy = spy(service);
+        doReturn("aaaaaa", "bbbbbb", "bbbbbb", "cccccc").when(spy).newTrackingToken();
+        var criteria = new com.usanmap.usan.dto.ListingShareRequest.SelectionCriteria(1000, List.of("원룸", "아파트", "아파트"));
+        spy.prepare(listing, 1L, List.of(mock(BrokerPropertyCount.class), mock(BrokerPropertyCount.class)), criteria);
+        @SuppressWarnings("unchecked") ArgumentCaptor<List<ListingSendHistory>> captor = ArgumentCaptor.forClass(List.class);
+        verify(histories).saveAll(captor.capture());
+        assertThat(captor.getValue()).extracting(ListingSendHistory::getTrackingToken).containsExactly("bbbbbb", "cccccc");
+        ArgumentCaptor<ListingSendBatch> batch = ArgumentCaptor.forClass(ListingSendBatch.class);
+        verify(batches).save(batch.capture());
+        assertThat(batch.getValue().getSelectionRadiusM()).isEqualTo(1000);
+        assertThat(batch.getValue().getSelectionListingTypes()).isEqualTo("아파트,원룸");
     }
 
     @Test

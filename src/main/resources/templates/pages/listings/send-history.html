@@ -37,6 +37,15 @@
                         <div class="send-history__success"><dt>성공건</dt><dd th:text="${item.successCount}"></dd></div>
                         <div class="send-history__refund"><dt>환불건</dt><dd th:text="${item.refundCount}"></dd></div>
                     </dl>
+                    <div class="send-history__visit-summary"
+                         th:if="${batchVisits != null and batchVisits[item.batch.id] != null and batchVisits[item.batch.id].visitRate > 0}"
+                         th:with="visit=${batchVisits[item.batch.id]}">
+                        <div class="send-history__visit-count">
+                            <span class="send-history__visit-label">링크 방문</span>
+                            <span><strong th:text="${visit.visitedRecipients + '명'}"></strong><span class="send-history__visit-total" th:text="${' / ' + visit.trackedRecipients + '명'}"></span></span>
+                        </div>
+                        <strong class="send-history__visit-rate" th:text="${visit.visitRate < 0.1 ? '0.1% 미만' : #numbers.formatDecimal(visit.visitRate, 1, 1) + '%'}"></strong>
+                    </div>
                     <a class="send-history__button" th:href="@{/listings/send-history/{id}(id=${item.batch.id})}">수신중개사 보기</a>
                 </div>
             </li>

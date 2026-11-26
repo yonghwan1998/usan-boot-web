@@ -8,7 +8,8 @@ import java.util.UUID;
 import com.usanmap.usan.common.jpa.UuidToBytesConverter;
 
 @Entity
-@Table(name = "listing_send_history")
+@Table(name = "listing_send_history", uniqueConstraints = @UniqueConstraint(
+        name = "uk_send_history_listing_token", columnNames = {"listing_id", "tracking_token"}))
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,6 +33,9 @@ public class ListingSendHistory {
     private LocalDateTime sentAt;
 
     private Long batchId;
+
+    @Column(name = "tracking_token", length = 6)
+    private String trackingToken;
 
     @Convert(converter = UuidToBytesConverter.class)
     @Column(columnDefinition = "BINARY(16)")
