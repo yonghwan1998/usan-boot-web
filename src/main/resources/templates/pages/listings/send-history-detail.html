@@ -25,6 +25,15 @@
                 <h2><img src="/img/send-history/house.svg" alt=""><span th:text="${batch.listingTitle}"></span></h2>
                 <p th:text="${batch.listingAddress}"></p>
             </div>
+            <div class="send-history__visit-summary"
+                 th:if="${batchVisits != null and batchVisits[batch.id] != null and batchVisits[batch.id].visitRate > 0}"
+                 th:with="visit=${batchVisits[batch.id]}">
+                <div class="send-history__visit-count">
+                    <span class="send-history__visit-label">링크 방문</span>
+                    <span><strong th:text="${visit.visitedRecipients + '명'}"></strong><span class="send-history__visit-total" th:text="${' / ' + visit.trackedRecipients + '명'}"></span></span>
+                </div>
+                <strong class="send-history__visit-rate" th:text="${visit.visitRate < 0.1 ? '0.1% 미만' : #numbers.formatDecimal(visit.visitRate, 1, 1) + '%'}"></strong>
+            </div>
         </div>
         <nav class="send-history__filters" aria-label="발송 상태 필터">
             <a th:each="key : ${ {'ALL', 'DELIVERED', 'SENDING', 'REFUNDED'} }"
@@ -40,6 +49,12 @@
                 <div class="send-history__broker-info">
                     <h2 th:text="${recipient.brokerOfficeName != null and !#strings.isEmpty(recipient.brokerOfficeName) ? recipient.brokerOfficeName : '중개사 정보 없음'}"></h2>
                     <p class="send-history__broker-status" th:classappend="${recipient.sendStatusClass}" th:text="${recipient.sendStatusLabel}"></p>
+                    <div class="send-history__broker-visit"
+                         th:with="visit=${recipientVisits != null ? recipientVisits[recipient.id] : null}"
+                         th:if="${recipientVisits != null and recipientVisits[recipient.id] != null and recipientVisits[recipient.id].visitCount > 0}">
+                        <span class="send-history__visit-badge" th:text="${'링크 방문 ' + visit.visitCount + '회'}"></span>
+                        <span class="send-history__visit-time">최근 <time th:text="${#temporals.format(visit.lastVisitedAt, 'yyyy-MM-dd HH:mm')}"></time></span>
+                    </div>
                     <button type="button" class="send-history__broker-address common-address-trigger" data-address-trigger aria-expanded="false"
                             th:with="address=${recipient.id != null ? brokerAddresses[recipient.id] : null}"
                             th:data-address-road="${address != null ? address.road : null}"

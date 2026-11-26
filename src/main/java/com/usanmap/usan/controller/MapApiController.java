@@ -1,5 +1,6 @@
 package com.usanmap.usan.controller;
 
+import jakarta.validation.Valid;
 import com.usanmap.usan.exception.InsufficientCreditException;
 import com.usanmap.usan.service.AdministrativeBoundarySeedService;
 import com.usanmap.usan.service.AdministrativeBoundaryService;
@@ -95,7 +96,7 @@ public class MapApiController {
      * 선택한 매물을 선택한 중개사들에게 전송
      */
     @PostMapping("/listings/share")
-    public ResponseEntity<Map<String, String>> shareListing(@RequestBody ListingShareRequest request) {
+    public ResponseEntity<Map<String, String>> shareListing(@Valid @RequestBody ListingShareRequest request) {
         Long userId = securityUtils.currentUserId();
         if (userId == null) {
             return ResponseEntity.status(401).body(Map.of("message", "로그인이 필요합니다."));
@@ -110,7 +111,7 @@ public class MapApiController {
         }
 
         try {
-            smsService.sendListingShare(request.brokerCodes(), listing, userId);
+            smsService.sendListingShare(request.brokerCodes(), listing, userId, request.selectionCriteria());
         } catch (InsufficientCreditException e) {
             return ResponseEntity.status(402).body(Map.of("message", e.getMessage(), "errorCode", "INSUFFICIENT_CREDIT"));
         } catch (IllegalStateException e) {
