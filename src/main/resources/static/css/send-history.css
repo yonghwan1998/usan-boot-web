@@ -59,3 +59,14 @@
 @media (max-width: 360px) { .send-history__filters { gap: 8px; } .send-history__filter { padding: 10px; font-size: 14px; } .send-history__broker-card { gap: 12px; padding: 12px; } .send-history__broker-info h2 { font-size: 18px; } }
 .send-history__broker-address > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .send-history__address-chevron { flex-shrink: 0; }
+
+.send-history__visit-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: #f4f6fc; }
+.send-history__visit-count { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; line-height: 20px; }
+.send-history__visit-label { color: #595959; }
+.send-history__visit-count strong { color: #263fc3; font-weight: 600; }
+.send-history__visit-total { color: #737373; }
+.send-history__visit-rate { flex-shrink: 0; color: #263fc3; font-size: 18px; font-weight: 700; line-height: 24px; white-space: nowrap; }
+.send-history__detail-card .send-history__visit-summary { margin: 0 16px 16px; }
+.send-history__broker-visit { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; margin: 4px 0 8px; }
+.send-history__visit-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; background: #f4f6fc; color: #263fc3; font-size: 12px; font-weight: 600; line-height: 18px; }
+.send-history__visit-time { color: #737373; font-size: 12px; line-height: 18px; }

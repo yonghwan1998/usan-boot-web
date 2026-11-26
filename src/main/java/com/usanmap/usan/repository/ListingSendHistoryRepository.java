@@ -1,5 +1,6 @@
 package com.usanmap.usan.repository;
 
+import java.util.Optional;
 import com.usanmap.usan.entity.ListingSendHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,6 +11,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ListingSendHistoryRepository extends JpaRepository<ListingSendHistory, Long> {
+
+    boolean existsByListingIdAndTrackingToken(Long listingId, String token);
+
+    Optional<ListingSendHistory> findByTrackingTokenAndListingId(String token, Long listingId);
 
     List<ListingSendHistory> findAllByListingIdOrderBySentAtDesc(Long listingId);
     List<ListingSendHistory> findAllByBatchIdOrderByIdAsc(Long batchId);

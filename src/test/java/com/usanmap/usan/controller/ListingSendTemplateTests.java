@@ -93,6 +93,40 @@ class ListingSendTemplateTests {
         render("send-history-detail", Map.of("item", item(), "recipients", new PageImpl<>(preview)));
     }
 
+    @Test
+    void rendersVisitedRecipientAndBatchVisitRateWithoutExposingToken() {
+        var recipient = recipient("우리우산부동산", "DELIVERED", 0);
+        org.springframework.test.util.ReflectionTestUtils.setField(recipient, "trackingToken", "Ab3x_K");
+        var visits = org.mockito.Mockito.mock(com.usanmap.usan.repository.ListingLinkVisitRepository.RecipientVisits.class);
+        org.mockito.Mockito.when(visits.getVisitCount()).thenReturn(2L);
+        org.mockito.Mockito.when(visits.getLastVisitedAt()).thenReturn(LocalDateTime.of(2026, 11, 27, 10, 30));
+        var batch = org.mockito.Mockito.mock(com.usanmap.usan.repository.ListingLinkVisitRepository.BatchVisits.class);
+        org.mockito.Mockito.when(batch.getTrackedRecipients()).thenReturn(2L);
+        org.mockito.Mockito.when(batch.getVisitedRecipients()).thenReturn(1L);
+        org.mockito.Mockito.when(batch.getVisitRate()).thenReturn(50.0);
+        String html = render("send-history-detail", Map.of("item", item(), "recipients", new PageImpl<>(List.of(recipient)),
+                "recipientVisits", Map.of(1L, visits), "batchVisits", Map.of(8L, batch)));
+        String list = render("send-history", Map.of("batches", new PageImpl<>(List.of(item())),
+                "hasLegacy", false, "batchVisits", Map.of(8L, batch)));
+        assertThat(list).contains("send-history__visit-summary", "50.0%");
+        assertThat(html).contains("send-history__visit-summary", "send-history__visit-badge", "링크 방문 2회", "2026-11-27 10:30", "50.0%")
+                .doesNotContain("Ab3x_K");
+    }
+
+    @Test
+    void hidesVisitSummaryAndEmptyRecipientVisitsWhenRateIsZero() {
+        var batch = org.mockito.Mockito.mock(com.usanmap.usan.repository.ListingLinkVisitRepository.BatchVisits.class);
+        var visits = Map.of(8L, batch);
+        String list = render("send-history", Map.of("batches", new PageImpl<>(List.of(item())),
+                "hasLegacy", false, "batchVisits", visits));
+        String detail = render("send-history-detail", Map.of("item", item(),
+                "recipients", new PageImpl<>(List.of(recipient("우리우산부동산", "DELIVERED", 0))),
+                "batchVisits", visits, "recipientVisits", Map.of()));
+        assertThat(list).doesNotContain("send-history__visit-summary", "0.0%");
+        assertThat(detail).doesNotContain("send-history__visit-summary", "send-history__broker-visit",
+                "방문 추적 대상 아님", "링크 방문 기록 없음", "0.0%");
+    }
+
     private ListingSendHistory recipient(String name, String status, int refund) {
         return ListingSendHistory.builder().id(name.equals("우리우산부동산") ? 1L : (long)Math.abs(name.hashCode())).brokerOfficeName(name).brokerPhone("01012345678")
                 .brokerAddress("서울특별시 강남구 신사동 123-45").deliveryStatus(status).refundedCredit(refund)

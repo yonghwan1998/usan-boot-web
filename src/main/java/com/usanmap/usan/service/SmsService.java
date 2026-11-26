@@ -1,5 +1,6 @@
 package com.usanmap.usan.service;
 
+import com.usanmap.usan.dto.ListingShareRequest.SelectionCriteria;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.usanmap.usan.dto.SmsDeliveryResult;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -129,6 +130,11 @@ public class SmsService {
     }
 
     public void sendListingShare(List<UUID> brokerCodes, Listing listing, Long userId) {
+        sendListingShare(brokerCodes, listing, userId, null);
+    }
+
+    public void sendListingShare(List<UUID> brokerCodes, Listing listing, Long userId,
+                                SelectionCriteria criteria) {
         List<BrokerPropertyCount> brokers = brokerRepository.findByBrokerCodeIn(brokerCodes);
 
         List<BrokerPropertyCount> targets = brokers.stream()
@@ -140,15 +146,17 @@ public class SmsService {
             throw new IllegalStateException("발송 가능한 중개사가 없습니다.");
         }
 
-        // TODO: 테스트용 - 모든 수신자를 01033933402로 고정 (롤백 시 아래 주석 해제 후 이 블록 제거)
-        List<Map<String, String>> recipients = targets.stream()
-                .map(b -> Map.of("to", "01033933402"))
+        Long batchId = criteria == null ? listingSendService.prepare(listing, userId, targets)
+                : listingSendService.prepare(listing, userId, targets, criteria);
+        var histories = listingSendService.getPreparedRecipients(batchId, userId);
+        if (histories.size() != targets.size() || histories.stream().anyMatch(h -> h.getTrackingToken() == null)) {
+            throw new IllegalStateException("수신자별 링크를 준비하지 못했습니다.");
+        }
+        // 기존 테스트 번호 대체 정책을 유지한다. 실제 발송 번호 전환은 별도 설정 변경이다.
+        List<Map<String, String>> recipients = histories.stream()
+                .map(h -> Map.of("to", "01033933402", "content",
+                        buildMessage(listing) + "?t=" + h.getTrackingToken()))
                 .toList();
-
-        // [원본 코드]
-        // List<Map<String, String>> recipients = targets.stream()
-        //         .map(b -> Map.of("to", b.getPhone().replaceAll("[^0-9]", "")))
-        //         .toList();
 
         String content = buildMessage(listing);
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -161,7 +169,6 @@ public class SmsService {
         body.put("content", content);
         body.put("messages", recipients);
 
-        Long batchId = listingSendService.prepare(listing, userId, targets);
         JsonNode response;
         try {
             response = sensWebClient.post()

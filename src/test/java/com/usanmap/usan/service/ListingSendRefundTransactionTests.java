@@ -172,7 +172,7 @@ class ListingSendRefundTransactionTests {
             var repos = new JpaRepositoryFactory(em);
             return new ListingSendService(repos.getRepository(ListingSendBatchRepository.class),
                     repos.getRepository(ListingSendHistoryRepository.class), credits, mock(ListingService.class),
-                    mock(BrokerPropertyCountRepository.class));
+                    mock(BrokerPropertyCountRepository.class), mock(ListingRepository.class));
         }
     }
 }
