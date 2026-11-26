@@ -1,6 +1,7 @@
 package com.usanmap.usan.service;
 
 import com.usanmap.usan.repository.RegionStatRepository;
+import com.usanmap.usan.repository.CrawledListingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class RegionStatService {
 
     private final RegionStatRepository regionStatRepository;
+    private final CrawledListingRepository crawledListingRepository;
 
     @Transactional
     public void refresh() {
+        crawledListingRepository.correctSigunguCodesFromEmd();
         regionStatRepository.clearAll();
         regionStatRepository.insertSidoStats();
         regionStatRepository.insertSigunguStats();
